@@ -2,124 +2,130 @@ package mud
 
 import (
 	"fmt"
+	"io"
 	"strings"
 
 	"github.com/i582/cfmt/cmd/cfmt"
 	"github.com/rs/zerolog"
 )
 
-func RenderRoom(room *Room) string {
-	var sb strings.Builder
-	sb.WriteString(cfmt.Sprintf("{{%s}}::green|bold\r\n", room.Title))
-	sb.WriteString(cfmt.Sprintf("{{%s}}::white|bold\r\n", room.Description))
-	sb.WriteString(cfmt.Sprint("{{Exits:}}::yellow|bold\r\n"))
+// CommandHandler is a function type for handling commands
+type CommandHandler func(player *Player, args []string)
 
-	if len(room.Exits) == 0 {
-		sb.WriteString(" {{- None.}}::yellow|bold\r\n")
-	} else {
-		for direction, _ := range room.Exits {
-			sb.WriteString(cfmt.Sprintf(" - {{%s}}::yellow\r\n", direction))
-			// player.Out <- cfmt.Sprintf("{{%s}}::white\r\n", room.Title)
-		}
-	}
-	sb.WriteString(cfmt.Sprint("\r\n"))
+// CommandMap maps command names to their handlers
+var CommandMap = map[string]CommandHandler{}
 
-	return sb.String()
-}
-
-var (
-	lookCommand = &Command{
-		Name:        "look",
-		Description: "Look around the room or at something specific.",
-		Execute: func(player *Player, args string) {
-			if args == "" {
-				player.Out <- RenderRoom(player.Room)
-			} else {
-				player.Out <- cfmt.Sprintf("You don't see any '%s' here.\r\n", args)
-			}
-		},
-	}
-	moveCommand = &Command{
-		Name:        "move",
-		Description: "Move to another room.",
-		Execute: func(player *Player, args string) {
-			direction := strings.ToLower(args)
-			nextRoom, exists := player.Room.Exits[direction]
-			if !exists {
-				player.Out <- "You can't go that way.\r\n"
-				return
-			}
-
-			// Emit exit event
-			eventBus.Publish(EventPlayerExit, player, player.Room.ID)
-
-			// Update player's room
-			player.Room = nextRoom
-
-			// Emit entrance event
-			eventBus.Publish(EventPlayerEnter, player, nextRoom.ID)
-
-			// Send room description to the player
-			player.Out <- fmt.Sprintf("You move %s.\n%s\r\n", direction, nextRoom.Description)
-		},
-	}
-)
-
-// Command represents a game command.
 type Command struct {
+	Log         zerolog.Logger
 	Name        string
-	Aliases     []string
 	Description string
-	Execute     func(player *Player, args string)
+	Aliases     []string
+	Execute     CommandHandler
 }
 
-type CommandParser struct {
-	Log      zerolog.Logger
-	commands map[string]*Command
-}
-
-func NewCommandParser() *CommandParser {
-	return &CommandParser{
-		Log:      NewDevLogger(),
-		commands: make(map[string]*Command),
+func NewCommand(name, description string, aliases []string, execute CommandHandler) *Command {
+	return &Command{
+		Log:         NewDevLogger(),
+		Name:        name,
+		Description: description,
+		Aliases:     aliases,
+		Execute:     execute,
 	}
 }
 
-func (cp *CommandParser) RegisterCommand(cmd *Command) {
-	cp.Log.Debug().
+type CommandManager struct {
+	Log      zerolog.Logger
+	Commands map[string]*Command
+}
+
+func NewCommandManager() *CommandManager {
+	return &CommandManager{
+		Log:      NewDevLogger(),
+		Commands: make(map[string]*Command),
+	}
+}
+
+func (cm *CommandManager) RegisterCommand(cmd *Command) {
+	cm.Log.Debug().
 		Str("command", cmd.Name).
 		Strs("aliases", cmd.Aliases).
 		Msg("Register command")
 
-	cp.commands[cmd.Name] = cmd
+	cm.Commands[cmd.Name] = cmd
 	for _, alias := range cmd.Aliases {
-		cp.commands[alias] = cmd
+		cm.Commands[alias] = cmd
 	}
 }
 
-func (cp *CommandParser) ParseAndExecute(input string, player *Player) {
-	input = strings.TrimSpace(input)
-	cp.Log.Debug().
+func (cm *CommandManager) ParseAndExecute(input string, player *Player) {
+	cm.Log.Debug().
 		Str("input", input).
 		Str("player_name", player.Name).
 		Msg("Parse and execute command")
 
-	parts := strings.SplitN(input, " ", 2)
-	commandName := strings.ToLower(parts[0])
-	args := ""
-	cp.Log.Debug().
-		Str("command_name", commandName).
-		Str("args", args).
-		Msg("Command name")
-	if len(parts) > 1 {
-		args = parts[1]
+	if len(input) == 0 {
+		cm.Log.Debug().Msg("Empty input")
+		return
 	}
+	input = strings.ToLower(input)
+	input = strings.TrimRight(input, "\n")
+	parts := strings.Fields(input)
+	commandName := parts[0]
+	args := parts[1:]
 
-	if cmd, exists := cp.commands[commandName]; exists {
+	cm.Log.Debug().
+		Strs("parts", parts).
+		Str("command_name", commandName).
+		Strs("args", args).
+		Msg("Command name")
+
+	if cmd, exists := cm.Commands[commandName]; exists {
 		cmd.Execute(player, args)
-		cp.Log.Debug().Str("command_name", commandName).Msg("Command executed")
 	} else {
-		player.Out <- "Unknown command."
-		cp.Log.Debug().Str("command_name", commandName).Msg("Unknown command")
+		io.WriteString(player.Conn, cfmt.Sprintf("{{Unknown command.}}::red\n"))
+	}
+}
+
+var commands = []*Command{
+	NewCommand("look", "Look around the room", []string{"l"}, func(player *Player, args []string) {
+		room := Rooms[player.RoomID]
+		io.WriteString(player.Conn, cfmt.Sprintf("{{%s}}::green|bold\n", room.Title))
+		io.WriteString(player.Conn, cfmt.Sprintf("{{%s}}::white\n", room.Description))
+
+		if len(room.Exits) == 0 {
+			io.WriteString(player.Conn, cfmt.Sprint("{{There are no exits.}}::red\n"))
+		} else {
+			io.WriteString(player.Conn, cfmt.Sprint("{{Exits:}}::yellow|bold\n"))
+			for direction, _ := range room.Exits {
+				io.WriteString(player.Conn, cfmt.Sprintf("{{ - %s}}::yellow\n", direction))
+			}
+		}
+	}),
+	NewCommand("move", "Move to another room", []string{"m"}, func(player *Player, args []string) {
+		if len(args) == 0 {
+			io.WriteString(player.Conn, cfmt.Sprintf("{{You must specify a direction.}}::red\n"))
+			return
+		}
+		dir := args[0]
+
+		room := Rooms[player.RoomID]
+		if nextRoomID, exists := room.Exits[dir]; exists {
+			player.RoomID = nextRoomID
+			nextRoom := Rooms[nextRoomID]
+			io.WriteString(player.Conn, cfmt.Sprintf("You move %s.\n%s\n", dir, nextRoom.Description))
+		} else {
+			io.WriteString(player.Conn, cfmt.Sprintf("{{You can't go that way.}}::red\n"))
+		}
+	}),
+	NewCommand("quit", "Quit the game", []string{"q"}, func(player *Player, args []string) {
+		io.WriteString(player.Conn, cfmt.Sprintf("Goodbye!\n"))
+		fmt.Println("Player disconnected:", player.Conn.RemoteAddr())
+		player.Conn.Close()
+	}),
+}
+
+func registerCommands(cm *CommandManager) {
+	for _, cmd := range commands {
+		cm.RegisterCommand(cmd)
 	}
 }
