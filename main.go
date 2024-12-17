@@ -5,8 +5,6 @@ import (
 )
 
 func main() {
-
 	gs := mud.NewGameServer()
 	gs.Start()
-
 }

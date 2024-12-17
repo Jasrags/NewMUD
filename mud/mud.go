@@ -3,14 +3,23 @@ package mud
 import (
 	"bufio"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net"
 	"os"
 	"strings"
 	"time"
 
+	"github.com/asaskevich/EventBus"
 	"github.com/i582/cfmt/cmd/cfmt"
 	"github.com/rs/zerolog"
+)
+
+var eventBus = EventBus.New()
+
+const (
+	EventPlayerEnter = "player.enter"
+	EventPlayerExit  = "player.exit"
 )
 
 func NewProdLogger() zerolog.Logger {
@@ -22,6 +31,7 @@ func NewDevLogger() zerolog.Logger {
 }
 
 type GameServer struct {
+	// EventBus      EventBus.Bus
 	Log           zerolog.Logger
 	Accounts      map[string]*Account
 	CommandParser *CommandParser
@@ -29,7 +39,8 @@ type GameServer struct {
 
 func NewGameServer() *GameServer {
 	return &GameServer{
-		Log:           NewDevLogger(),
+		Log: NewDevLogger(),
+		// EventBus:      EventBus.New(),
 		Accounts:      make(map[string]*Account),
 		CommandParser: NewCommandParser(),
 	}
@@ -116,9 +127,12 @@ func (gs *GameServer) Start() {
 	}
 }
 
+var i = 1 // TODO: Remove this
+
 func (gs *GameServer) handleConnection(conn net.Conn) {
 	gs.Log.Debug().Msg("Handling connection")
 
+	// START: Banner display
 	defer conn.Close()
 	banner := `
 Welcome to the MUD server!
@@ -127,18 +141,18 @@ Press return to continue...
 `
 	io.WriteString(conn, cfmt.Sprint(banner))
 
+	// Read input from the player
 	scanner := bufio.NewScanner(conn)
 	if scanner.Scan() {
 		io.WriteString(conn, cfmt.Sprint("Welcome to the game!\n"))
 	}
+	// END: Banner display
 
+	// Create a new player
 	startingRoom := setupWorld()
-	player := &Player{
-		Name: "Hero",
-		Room: startingRoom,
-		Out:  make(chan string),
-		Conn: conn,
-	}
+	player := NewPlayer(fmt.Sprintf("Hero%d", i), conn)
+	i++
+	player.Room = startingRoom
 
 	// Start listening for player output
 	go func() {
@@ -148,45 +162,22 @@ Press return to continue...
 	}()
 
 	// Load player into the room and render the room
-	player.Out <- RenderRoom(player.Room)
+	eventBus.Publish(EventPlayerEnter, player, startingRoom.ID)
 
-	// Game loop
+	// START: Game loop
 	gs.Log.Debug().Msg("Entering game loop")
 	for {
-		// var text string
 		io.WriteString(conn, "> ")
 		if !scanner.Scan() {
 			break
 		}
 		input := scanner.Text()
 
-		// fmt.Scanln(&text)
-		// for scanner.Scan() {
-		// io.WriteString(conn, "> ")
-		// text := scanner.Text()
 		gs.Log.Debug().
 			Str("input", input).
 			Msg("Received text")
 
-		// fmt.Fprintf(conn, "You said: %s\n", text)
-
 		gs.CommandParser.ParseAndExecute(input, player)
-		// }
-		// if err := scanner.Err(); err != nil {
-		// gs.Log.Err(err).Msg("Error reading from connection")
-		// }
 	}
-
-	// Parse and execute commands
-	// parser.ParseAndExecute(input, player)
-	// }
-
-	// for scanner.Scan() {
-	// 	text := scanner.Text()
-	// 	fmt.Printf("Received: %s\n", text)
-	// 	fmt.Fprintf(conn, "You said: %s\n", text)
-	// }
-	// if err := scanner.Err(); err != nil {
-	// 	fmt.Fprintf(os.Stderr, "Error reading from connection: %v\n", err)
-	// }
+	// END: Game loop
 }

@@ -1,9 +1,8 @@
 package mud
 
 import (
-	"os"
+	"fmt"
 	"strings"
-	"time"
 
 	"github.com/i582/cfmt/cmd/cfmt"
 	"github.com/rs/zerolog"
@@ -46,15 +45,22 @@ var (
 		Execute: func(player *Player, args string) {
 			direction := strings.ToLower(args)
 			nextRoom, exists := player.Room.Exits[direction]
-
 			if !exists {
-				player.Out <- cfmt.Sprint("You can't go that way.")
+				player.Out <- "You can't go that way.\r\n"
 				return
 			}
 
+			// Emit exit event
+			eventBus.Publish(EventPlayerExit, player, player.Room.ID)
+
+			// Update player's room
 			player.Room = nextRoom
-			player.Out <- cfmt.Sprintf("{{You move %s.}}::white|bold\n", direction)
-			player.Out <- RenderRoom(player.Room)
+
+			// Emit entrance event
+			eventBus.Publish(EventPlayerEnter, player, nextRoom.ID)
+
+			// Send room description to the player
+			player.Out <- fmt.Sprintf("You move %s.\n%s\r\n", direction, nextRoom.Description)
 		},
 	}
 )
@@ -74,7 +80,7 @@ type CommandParser struct {
 
 func NewCommandParser() *CommandParser {
 	return &CommandParser{
-		Log:      zerolog.New(zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: time.RFC3339}).With().Timestamp().Logger(),
+		Log:      NewDevLogger(),
 		commands: make(map[string]*Command),
 	}
 }
@@ -92,6 +98,7 @@ func (cp *CommandParser) RegisterCommand(cmd *Command) {
 }
 
 func (cp *CommandParser) ParseAndExecute(input string, player *Player) {
+	input = strings.TrimSpace(input)
 	cp.Log.Debug().
 		Str("input", input).
 		Str("player_name", player.Name).
