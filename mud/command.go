@@ -84,6 +84,7 @@ func (cm *CommandManager) ParseAndExecute(input string, player *Player) {
 	}
 }
 
+// TODO: Where should this go? We need access to *Managers but passing it in seems wrong
 var commands = []*Command{
 	NewCommand("look", "Look around the room", []string{"l"}, func(player *Player, args []string) {
 		if player.Room == nil {

@@ -82,11 +82,13 @@ func (am *AreaManager) Load() {
 			if _, err := os.Stat(areaFilePath); os.IsNotExist(err) {
 				continue
 			}
+
 			areaFile, err := os.ReadFile(areaFilePath)
 			if err != nil {
 				am.Log.Error().Err(err).Msgf("Failed to read area file: %s", areaFilePath)
 				continue
 			}
+
 			area := NewArea()
 			if err := yaml.Unmarshal(areaFile, &area); err != nil {
 				am.Log.Error().Err(err).Msgf("Failed to unmarshal area file: %s", areaFilePath)
