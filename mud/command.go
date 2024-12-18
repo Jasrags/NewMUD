@@ -60,6 +60,18 @@ func NewCommandManager() *CommandManager {
 	}
 }
 
+func (cm *CommandManager) Load() {
+	cm.Log.Info().Msg("Load commands")
+
+	for _, cmd := range commands {
+		cm.RegisterCommand(cmd)
+	}
+
+	cm.Log.Info().
+		Int("num_commands", len(cm.Commands)).
+		Msg("Commands loaded")
+}
+
 func (cm *CommandManager) RegisterCommand(cmd *Command) {
 	cm.Log.Debug().
 		Str("command", cmd.Name).
@@ -109,18 +121,18 @@ var commands = []*Command{
 			return
 		}
 
-		room := player.Room
-		io.WriteString(player.Conn, cfmt.Sprintf("{{%s}}::green|bold\n", player.Room.Title))
-		io.WriteString(player.Conn, cfmt.Sprintf("{{%s}}::white\n", player.Room.Description))
+		RenderRoom(player, player.Room)
+		// io.WriteString(player.Conn, cfmt.Sprintf("{{%s}}::green|bold\n", player.Room.Title))
+		// io.WriteString(player.Conn, cfmt.Sprintf("{{%s}}::white\n", player.Room.Description))
 
-		if len(room.Exits) == 0 {
-			io.WriteString(player.Conn, cfmt.Sprint("{{There are no exits.}}::red\n"))
-		} else {
-			io.WriteString(player.Conn, cfmt.Sprint("{{Exits:}}::yellow|bold\n"))
-			for direction, _ := range player.Room.Exits {
-				io.WriteString(player.Conn, cfmt.Sprintf("{{ - %s}}::yellow\n", direction))
-			}
-		}
+		// if len(room.Exits) == 0 {
+		// 	io.WriteString(player.Conn, cfmt.Sprint("{{There are no exits.}}::red\n"))
+		// } else {
+		// 	io.WriteString(player.Conn, cfmt.Sprint("{{Exits:}}::yellow|bold\n"))
+		// 	for direction, _ := range player.Room.Exits {
+		// 		io.WriteString(player.Conn, cfmt.Sprintf("{{ - %s}}::yellow\n", direction))
+		// 	}
+		// }
 	}),
 	NewCommand("move", "Move to another room", []string{"m"}, func(ctx *GameContext, player *Player, args []string) {
 		ctx.Log.Debug().Msg("Move command")
@@ -137,29 +149,36 @@ var commands = []*Command{
 			return
 		}
 
-		for _, exit := range player.Room.Exits {
-			ctx.Log.Debug().
-				Str("exit_direction", exit.Direction).
-				Str("exit_room_id", exit.Room.ID).
-				Msg("Exit")
-		}
+		// for _, exit := range player.Room.Exits {
+		// 	ctx.Log.Debug().
+		// 		Str("exit_direction", exit.Direction).
+		// 		Str("exit_room_id", exit.Room.ID).
+		// 		Msg("Exit")
+		// }
+
+		// player.MoveTo(player.Room.Exits[dir].Room)
 
 		if exit, ok := player.Room.Exits[dir]; ok {
-			ctx.Log.Debug().
-				Str("player_name", player.Name).
-				Str("room_id", player.Room.ID).
-				Str("exit_direction", dir).
-				Str("exit_room_id", exit.Room.ID).
-				Msg("Player moving to room")
+			// ctx.Log.Debug().
+			// 	Str("player_name", player.Name).
+			// 	Str("room_id", player.Room.ID).
+			// 	Str("exit_direction", dir).
+			// 	Str("exit_room_id", exit.Room.ID).
+			// 	Msg("Player moving to room")
 
-			player.RoomID = exit.Room.ID
-			player.Room = exit.Room
-			// nextRoom := ctx.RoomManager.GetRoom(exit.Room.ID)
+			// Move the player to the new room
+			player.MoveTo(exit.Room)
+			io.WriteString(player.Conn, cfmt.Sprintf("You move %s.\n\n", dir))
+			// player.RoomID = exit.Room.ID
+			// player.Room = exit.Room
 
-			io.WriteString(player.Conn, cfmt.Sprintf("You move %s.\n%s\n", dir, exit.Room.Description))
+			// player.Room.Broadcast(cfmt.Sprintf("%s moves %s.\n", player.Name, dir), player)
+
 		} else {
 			io.WriteString(player.Conn, cfmt.Sprintf("{{You can't go that way.}}::red\n"))
 		}
+
+		RenderRoom(player, player.Room)
 	}),
 	NewCommand("quit", "Quit the game", []string{"q"}, func(ctx *GameContext, player *Player, args []string) {
 		ctx.Log.Debug().Msg("Quit command")
@@ -170,8 +189,8 @@ var commands = []*Command{
 	}),
 }
 
-func registerCommands(cm *CommandManager) {
-	for _, cmd := range commands {
-		cm.RegisterCommand(cmd)
-	}
-}
+// func registerCommands(cm *CommandManager) {
+// 	for _, cmd := range commands {
+// 		cm.RegisterCommand(cmd)
+// 	}
+// }

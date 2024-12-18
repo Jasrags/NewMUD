@@ -57,25 +57,29 @@ func (a *Area) Update() {
 
 type AreaManager struct {
 	Log             zerolog.Logger
+	RoomManager     *RoomManager
 	Areas           map[string]*Area
 	placeholderArea *Area
 }
 
-func NewAreaManager() *AreaManager {
+func NewAreaManager(rm *RoomManager) *AreaManager {
 	return &AreaManager{
-		Log:   NewDevLogger(),
-		Areas: make(map[string]*Area),
+		Log:         NewDevLogger(),
+		RoomManager: rm,
+		Areas:       make(map[string]*Area),
 	}
 }
 
 func (am *AreaManager) Load() {
-	am.Log.Debug().Msg("Loading areas")
+	am.Log.Info().Msg("Loading areas")
+
 	dataPath := "_data/areas"
 	files, err := os.ReadDir(dataPath)
 	if err != nil {
-		am.Log.Error().Err(err).Msg("Failed to read data directory")
+		am.Log.Fatal().Err(err).Msg("Failed to read data directory")
 		return
 	}
+
 	for _, file := range files {
 		if file.IsDir() {
 			areaFilePath := filepath.Join(dataPath, file.Name(), "manifest.yml")
@@ -94,11 +98,33 @@ func (am *AreaManager) Load() {
 				am.Log.Error().Err(err).Msgf("Failed to unmarshal area file: %s", areaFilePath)
 				continue
 			}
+
 			am.AddArea(area)
 		}
 	}
 
-	am.Log.Debug().
+	am.Log.Info().Msg("Linking rooms to areas")
+	for _, room := range am.RoomManager.Rooms {
+
+		area := am.GetAreaByReference(room.AreaID)
+		if area == nil {
+			am.Log.Warn().
+				Str("room_id", room.ID).
+				Msg("Room has no area")
+			continue
+		}
+
+		area.AddRoom(room)
+	}
+
+	for _, area := range am.Areas {
+		am.Log.Info().
+			Str("area_id", area.ID).
+			Int("room_count", len(area.Rooms)).
+			Msg("Loaded area")
+	}
+
+	am.Log.Info().
 		Int("area_count", len(am.Areas)).
 		Msg("Loaded areas")
 }

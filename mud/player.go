@@ -3,6 +3,7 @@ package mud
 import (
 	"net"
 
+	"github.com/i582/cfmt/cmd/cfmt"
 	"github.com/rs/zerolog"
 )
 
@@ -21,44 +22,33 @@ func NewPlayer(conn net.Conn) *Player {
 	}
 }
 
-// type Player struct {
-// 	Log  zerolog.Logger
-// 	Name string
-// 	Room *Room
-// 	Out  chan string // For sending messages to the player
-// 	Conn net.Conn
-// }
+func (p *Player) SetRoom(room *Room) {
+	p.Log.Debug().
+		Str("player_name", p.Name).
+		Str("room_id", room.ID).
+		Msg("Set player room")
 
-// func NewPlayer(name string, conn net.Conn) *Player {
-// 	return &Player{
-// 		Log:  NewDevLogger(),
-// 		Name: name,
-// 		Out:  make(chan string),
-// 		Conn: conn,
-// 	}
-// }
+	p.Room = room
+	p.RoomID = room.ID
+}
 
-// // TODO: make the enter and exit messages work properly
-// func (p *Player) MoveTo(nextRoom *Room) {
-// 	p.Log.Debug().
-// 		Str("player_name", p.Name).
-// 		// Str("current_room_id", p.Room.ID).
-// 		Str("next_room_id", nextRoom.ID).
-// 		Msg("Move player to room")
+// MoveTo will move the player to the next room and broadcast the player's arrival and departure to the rooms
+func (p *Player) MoveTo(nextRoom *Room) {
+	p.Log.Debug().
+		Str("player_name", p.Name).
+		Str("current_room_id", p.Room.ID).
+		Str("next_room_id", nextRoom.ID).
+		Msg("Move player to room")
 
-// 	// prevRoom := p.Room
+	prevRoom := p.Room
+	if p.Room != nil && p.Room.ID != nextRoom.ID {
+		p.Room.RemovePlayer(p)
+	}
 
-// 	if p.Room != nil && p.Room.ID != nextRoom.ID {
-// 		p.Room.RemovePlayer(p)
-// 	}
+	prevRoom.Broadcast(cfmt.Sprintf("\n{{%s}}::green|bold {{has left the room}}::white\n", p.Name), p)
 
-// 	// for _, player := range prevRoom.Players {
-// 	// 	if player.Name != p.Name {
-// 	// 		player.Out <- p.Name + " has left the room.\r\n"
-// 	// 	}
-// 	// }
+	p.SetRoom(nextRoom)
+	nextRoom.AddPlayer(p)
 
-// 	p.Room = nextRoom
-// 	nextRoom.AddPlayer(p)
-// 	p.Out <- "You have left the room.\r\n"
-// }
+	nextRoom.Broadcast(cfmt.Sprintf("\n{{%s}}::green|bold {{has entered the room}}::white\n", p.Name), p)
+}

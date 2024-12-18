@@ -2,6 +2,7 @@ package mud
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -10,6 +11,7 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+// RoomData represents file data for a room
 type RoomData struct {
 	ID          string       `yaml:"id"`
 	Title       string       `yaml:"title"`
@@ -18,6 +20,7 @@ type RoomData struct {
 	Exits       []ExitData   `yaml:"exits"`
 }
 
+// ExitData represents file data for an exit
 type ExitData struct {
 	RoomID    string `yaml:"room_id"`
 	Direction string `yaml:"direction"`
@@ -34,28 +37,23 @@ type Room struct {
 	Players     map[string]*Player
 	Exits       map[string]*Exit
 	Area        *Area
+	AreaID      string
 	// TODO: Add doors
 }
 
+// Coordinates represents 3D coordinates of the room in a map
 type Coordinates struct {
 	X int `yaml:"x"`
 	Y int `yaml:"y"`
 	Z int `yaml:"z"`
 }
 
+// Exit represents a room exit
 type Exit struct {
 	Room      *Room
 	Direction string
 	// Inferred  bool
 }
-
-// type RoomData struct {
-// 	ID          string            `yaml:"id"`
-// 	Title       string            `yaml:"title"`
-// 	Description string            `yaml:"description"`
-// 	Coordinates *Coordinates      `yaml:"coordinates"`
-// 	Exits       map[string]string `yaml:"exits"`
-// }
 
 func NewRoom() *Room {
 	return &Room{
@@ -73,6 +71,15 @@ func (r *Room) RemovePlayer(player *Player) {
 	delete(r.Players, player.Name)
 }
 
+func (r *Room) Broadcast(message string, exclude *Player) {
+	for _, player := range r.Players {
+		if exclude != nil && player.Name == exclude.Name {
+			continue
+		}
+		io.WriteString(player.Conn, message)
+	}
+}
+
 type RoomManager struct {
 	Log   zerolog.Logger
 	Rooms map[string]*Room
@@ -86,7 +93,7 @@ func NewRoomManager() *RoomManager {
 }
 
 func (rm *RoomManager) Load() {
-	rm.Log.Debug().Msg("Loading rooms")
+	rm.Log.Info().Msg("Loading rooms")
 
 	dataPath := "_data/areas"
 	files, err := os.ReadDir(dataPath)
@@ -104,32 +111,52 @@ func (rm *RoomManager) Load() {
 			areaName := file.Name()
 			roomFile, err := os.ReadFile(roomFilePath)
 			if err != nil {
-				rm.Log.Error().Err(err).Msgf("Failed to read room file: %s", roomFilePath)
+				rm.Log.Fatal().Err(err).Msgf("Failed to read room file: %s", roomFilePath)
 				continue
 			}
 
 			var data []RoomData
 			if err := yaml.Unmarshal(roomFile, &data); err != nil {
-				rm.Log.Error().Err(err).Msgf("Failed to unmarshal room file: %s", roomFilePath)
+				rm.Log.Fatal().Err(err).Msgf("Failed to unmarshal room file: %s", roomFilePath)
 				continue
 			}
 
 			// Build all the rooms prefixed with the area name
 			for _, d := range data {
+				roomID := CreateEntityRef(areaName, d.ID)
 				room := NewRoom()
-				room.ID = fmt.Sprintf("%s:%s", areaName, d.ID)
+				room.ID = roomID
 				room.Title = d.Title
 				room.Description = d.Description
 				room.Coordinates = d.Coordinates
+				room.AreaID = areaName
 				rm.AddRoom(room)
 			}
 
+			rm.Log.Info().Msg("Building room exits")
 			// Add exits to the rooms
 			for _, d := range data {
-				room := rm.GetRoom(fmt.Sprintf("%s:%s", areaName, d.ID))
+				room := rm.GetRoom(CreateEntityRef(areaName, d.ID))
+
+				if room == nil {
+					rm.Log.Error().
+						Str("room_id", fmt.Sprintf("%s:%s", areaName, d.ID)).
+						Msg("Exit room not found")
+					continue
+				}
+
 				for _, exit := range d.Exits {
+					exitRoom := rm.GetRoom(exit.RoomID)
+
+					if exitRoom == nil {
+						rm.Log.Error().
+							Str("room_id", exit.RoomID).
+							Msg("Exit room not found")
+						continue
+					}
+
 					room.Exits[exit.Direction] = &Exit{
-						Room:      rm.GetRoom(exit.RoomID),
+						Room:      exitRoom,
 						Direction: exit.Direction,
 					}
 				}
@@ -137,7 +164,7 @@ func (rm *RoomManager) Load() {
 		}
 	}
 
-	rm.Log.Debug().
+	rm.Log.Info().
 		Int("room_count", len(rm.Rooms)).
 		Msg("Loaded rooms")
 }

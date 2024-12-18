@@ -2,6 +2,7 @@ package mud
 
 import (
 	"bufio"
+	"fmt"
 	"io"
 	"net"
 	"os"
@@ -20,62 +21,23 @@ func NewDevLogger() zerolog.Logger {
 	return zerolog.New(zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: time.RFC3339}).With().Timestamp().Logger()
 }
 
-// type State struct {
-// 	CommandManager *CommandManager
-// 	AreaManager    *AreaManager
-// 	RoomManager    *RoomManager
-// }
-
 type GameServer struct {
-	Log zerolog.Logger
-	// State *State
-	// Accounts      map[string]*Account
+	Log            zerolog.Logger
 	CommandManager *CommandManager
 	AreaManager    *AreaManager
 	RoomManager    *RoomManager
 }
 
 func NewGameServer() *GameServer {
-	return &GameServer{
+	gs := &GameServer{
 		Log: NewDevLogger(),
-		// EventBus:      EventBus.New(),
-		// Accounts:      make(map[string]*Account),
-		// State: &State{
-		CommandManager: NewCommandManager(),
-		AreaManager:    NewAreaManager(),
-		RoomManager:    NewRoomManager(),
-		// },
 	}
+	gs.CommandManager = NewCommandManager()
+	gs.RoomManager = NewRoomManager()
+	gs.AreaManager = NewAreaManager(gs.RoomManager)
+
+	return gs
 }
-
-// func (gs *GameServer) loadAccounts(dirPath string) error {
-// 	files, errReadDir := os.ReadDir(dirPath)
-// 	if errReadDir != nil {
-// 		return errReadDir
-// 	}
-
-// 	for _, file := range files {
-// 		if file.IsDir() {
-// 			continue
-// 		}
-
-// 		filePath := dirPath + "/" + file.Name()
-// 		fileContent, errReadFile := os.ReadFile(filePath)
-// 		if errReadFile != nil {
-// 			return errReadFile
-// 		}
-
-// 		var account *Account
-// 		errUnmarshal := json.Unmarshal(fileContent, &account)
-// 		if errUnmarshal != nil {
-// 			return errUnmarshal
-// 		}
-
-// 		gs.Accounts[strings.ToLower(account.Username)] = account
-// 	}
-
-// 	return nil
-// }
 
 func (gs *GameServer) Start() {
 	gs.Log.Info().Msg("Starting server")
@@ -91,8 +53,7 @@ func (gs *GameServer) Start() {
 	// Register commands
 	gs.RoomManager.Load()
 	gs.AreaManager.Load()
-
-	registerCommands(gs.CommandManager)
+	gs.CommandManager.Load()
 
 	gs.Log.Info().Msg("Server started")
 
@@ -113,6 +74,8 @@ func (gs *GameServer) Start() {
 	}
 }
 
+var i int // TODO: remove after we have player/account login
+
 func (gs *GameServer) handleConnection(conn net.Conn) {
 	gs.Log.Debug().
 		Str("remote_addr", conn.RemoteAddr().String()).
@@ -123,7 +86,8 @@ func (gs *GameServer) handleConnection(conn net.Conn) {
 
 	// Create a new player for this connection
 	player := NewPlayer(conn)
-	player.Name = "Player"
+	player.Name = fmt.Sprintf("Player%d", i)
+	i++
 	player.Room = gs.RoomManager.GetRoom("limbo:the_void")
 	player.RoomID = "limbo:the_void"
 
