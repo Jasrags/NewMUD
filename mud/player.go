@@ -2,19 +2,22 @@ package mud
 
 import (
 	"net"
+
+	"github.com/rs/zerolog"
 )
 
 type Player struct {
-	Name   string
-	Conn   net.Conn
-	RoomID string
+	Log    zerolog.Logger `json:"-"`
+	Name   string         `json:"name"`
+	Conn   net.Conn       `json:"-"`
+	RoomID string         `json:"room_id"`
+	Room   *Room          `json:"-"`
 }
 
-func NewPlayer(name string, conn net.Conn) *Player {
+func NewPlayer(conn net.Conn) *Player {
 	return &Player{
-		Name:   name,
-		Conn:   conn,
-		RoomID: "room1",
+		Log:  NewDevLogger(),
+		Conn: conn,
 	}
 }
 

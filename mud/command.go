@@ -67,9 +67,7 @@ func (cm *CommandManager) ParseAndExecute(input string, player *Player) {
 		cm.Log.Debug().Msg("Empty input")
 		return
 	}
-	input = strings.ToLower(input)
-	input = strings.TrimRight(input, "\n")
-	parts := strings.Fields(input)
+	parts := strings.Fields(strings.ToLower(strings.TrimRight(input, "\n")))
 	commandName := parts[0]
 	args := parts[1:]
 
@@ -88,15 +86,20 @@ func (cm *CommandManager) ParseAndExecute(input string, player *Player) {
 
 var commands = []*Command{
 	NewCommand("look", "Look around the room", []string{"l"}, func(player *Player, args []string) {
-		room := Rooms[player.RoomID]
-		io.WriteString(player.Conn, cfmt.Sprintf("{{%s}}::green|bold\n", room.Title))
-		io.WriteString(player.Conn, cfmt.Sprintf("{{%s}}::white\n", room.Description))
+		if player.Room == nil {
+			io.WriteString(player.Conn, cfmt.Sprintf("{{You are not in a room.}}::red\n"))
+			return
+		}
+
+		room := player.Room
+		io.WriteString(player.Conn, cfmt.Sprintf("{{%s}}::green|bold\n", player.Room.Title))
+		io.WriteString(player.Conn, cfmt.Sprintf("{{%s}}::white\n", player.Room.Description))
 
 		if len(room.Exits) == 0 {
 			io.WriteString(player.Conn, cfmt.Sprint("{{There are no exits.}}::red\n"))
 		} else {
 			io.WriteString(player.Conn, cfmt.Sprint("{{Exits:}}::yellow|bold\n"))
-			for direction, _ := range room.Exits {
+			for direction, _ := range player.Room.Exits {
 				io.WriteString(player.Conn, cfmt.Sprintf("{{ - %s}}::yellow\n", direction))
 			}
 		}
@@ -108,11 +111,17 @@ var commands = []*Command{
 		}
 		dir := args[0]
 
-		room := Rooms[player.RoomID]
-		if nextRoomID, exists := room.Exits[dir]; exists {
-			player.RoomID = nextRoomID
-			nextRoom := Rooms[nextRoomID]
-			io.WriteString(player.Conn, cfmt.Sprintf("You move %s.\n%s\n", dir, nextRoom.Description))
+		if player.Room == nil {
+			io.WriteString(player.Conn, cfmt.Sprintf("{{You are not in a room.}}::red\n"))
+			return
+		}
+
+		if exit, ok := player.Room.Exits[dir]; ok {
+			player.RoomID = exit.Room.ID
+			player.Room = exit.Room
+			// nextRoom := RM.GetRoom(nextRoomID)
+
+			io.WriteString(player.Conn, cfmt.Sprintf("You move %s.\n%s\n", dir, exit.Room.Description))
 		} else {
 			io.WriteString(player.Conn, cfmt.Sprintf("{{You can't go that way.}}::red\n"))
 		}
