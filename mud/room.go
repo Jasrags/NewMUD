@@ -50,10 +50,11 @@ type Exit struct {
 }
 
 // type RoomData struct {
-//     ID          string            `yaml:"id"`
-//     Title       string            `yaml:"title"`
-//     Description string            `yaml:"description"`
-//     Exits       map[string]string `yaml:"exits"`
+// 	ID          string            `yaml:"id"`
+// 	Title       string            `yaml:"title"`
+// 	Description string            `yaml:"description"`
+// 	Coordinates *Coordinates      `yaml:"coordinates"`
+// 	Exits       map[string]string `yaml:"exits"`
 // }
 
 func NewRoom() *Room {
@@ -113,21 +114,25 @@ func (rm *RoomManager) Load() {
 				continue
 			}
 
+			// Build all the rooms prefixed with the area name
 			for _, d := range data {
 				room := NewRoom()
 				room.ID = fmt.Sprintf("%s:%s", areaName, d.ID)
 				room.Title = d.Title
 				room.Description = d.Description
 				room.Coordinates = d.Coordinates
+				rm.AddRoom(room)
+			}
 
-				// TODO: need to move this exit generation outside of this loop along with adding coordinate building
+			// Add exits to the rooms
+			for _, d := range data {
+				room := rm.GetRoom(fmt.Sprintf("%s:%s", areaName, d.ID))
 				for _, exit := range d.Exits {
 					room.Exits[exit.Direction] = &Exit{
-						Room:      room,
+						Room:      rm.GetRoom(exit.RoomID),
 						Direction: exit.Direction,
 					}
 				}
-				rm.AddRoom(room)
 			}
 		}
 	}

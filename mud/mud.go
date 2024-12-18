@@ -144,6 +144,12 @@ Welcome to the MUD server!
 func (gs *GameServer) GameLoop(conn net.Conn, player *Player) {
 	gs.Log.Debug().Msg("Entering game loop")
 
+	ctx := &GameContext{
+		Log:         NewDevLogger(),
+		RoomManager: gs.RoomManager,
+		AreaManager: gs.AreaManager,
+	}
+
 	// Create a buffered reader for reading input from the client
 	reader := bufio.NewReader(player.Conn)
 	for {
@@ -165,6 +171,6 @@ func (gs *GameServer) GameLoop(conn net.Conn, player *Player) {
 			Str("input", input).
 			Msg("Received text")
 
-		gs.CommandManager.ParseAndExecute(input, player)
+		gs.CommandManager.ParseAndExecute(ctx, input, player)
 	}
 }

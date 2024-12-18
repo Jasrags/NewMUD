@@ -9,8 +9,23 @@ import (
 	"github.com/rs/zerolog"
 )
 
+type GameContext struct {
+	Log         zerolog.Logger
+	RoomManager *RoomManager
+	AreaManager *AreaManager
+}
+
+// NewGameContext initializes the GameContext.
+func NewGameContext(rm *RoomManager, am *AreaManager) *GameContext {
+	return &GameContext{
+		Log:         NewDevLogger(),
+		RoomManager: rm,
+		AreaManager: am,
+	}
+}
+
 // CommandHandler is a function type for handling commands
-type CommandHandler func(player *Player, args []string)
+type CommandHandler func(ctx *GameContext, player *Player, args []string)
 
 // CommandMap maps command names to their handlers
 var CommandMap = map[string]CommandHandler{}
@@ -57,7 +72,7 @@ func (cm *CommandManager) RegisterCommand(cmd *Command) {
 	}
 }
 
-func (cm *CommandManager) ParseAndExecute(input string, player *Player) {
+func (cm *CommandManager) ParseAndExecute(ctx *GameContext, input string, player *Player) {
 	cm.Log.Debug().
 		Str("input", input).
 		Str("player_name", player.Name).
@@ -78,7 +93,7 @@ func (cm *CommandManager) ParseAndExecute(input string, player *Player) {
 		Msg("Command name")
 
 	if cmd, exists := cm.Commands[commandName]; exists {
-		cmd.Execute(player, args)
+		cmd.Execute(ctx, player, args)
 	} else {
 		io.WriteString(player.Conn, cfmt.Sprintf("{{Unknown command.}}::red\n"))
 	}
@@ -86,7 +101,9 @@ func (cm *CommandManager) ParseAndExecute(input string, player *Player) {
 
 // TODO: Where should this go? We need access to *Managers but passing it in seems wrong
 var commands = []*Command{
-	NewCommand("look", "Look around the room", []string{"l"}, func(player *Player, args []string) {
+	NewCommand("look", "Look around the room", []string{"l"}, func(ctx *GameContext, player *Player, args []string) {
+		ctx.Log.Debug().Msg("Look command")
+
 		if player.Room == nil {
 			io.WriteString(player.Conn, cfmt.Sprintf("{{You are not in a room.}}::red\n"))
 			return
@@ -105,11 +122,14 @@ var commands = []*Command{
 			}
 		}
 	}),
-	NewCommand("move", "Move to another room", []string{"m"}, func(player *Player, args []string) {
+	NewCommand("move", "Move to another room", []string{"m"}, func(ctx *GameContext, player *Player, args []string) {
+		ctx.Log.Debug().Msg("Move command")
+
 		if len(args) == 0 {
 			io.WriteString(player.Conn, cfmt.Sprintf("{{You must specify a direction.}}::red\n"))
 			return
 		}
+
 		dir := args[0]
 
 		if player.Room == nil {
@@ -117,17 +137,33 @@ var commands = []*Command{
 			return
 		}
 
+		for _, exit := range player.Room.Exits {
+			ctx.Log.Debug().
+				Str("exit_direction", exit.Direction).
+				Str("exit_room_id", exit.Room.ID).
+				Msg("Exit")
+		}
+
 		if exit, ok := player.Room.Exits[dir]; ok {
+			ctx.Log.Debug().
+				Str("player_name", player.Name).
+				Str("room_id", player.Room.ID).
+				Str("exit_direction", dir).
+				Str("exit_room_id", exit.Room.ID).
+				Msg("Player moving to room")
+
 			player.RoomID = exit.Room.ID
 			player.Room = exit.Room
-			// nextRoom := RM.GetRoom(nextRoomID)
+			// nextRoom := ctx.RoomManager.GetRoom(exit.Room.ID)
 
 			io.WriteString(player.Conn, cfmt.Sprintf("You move %s.\n%s\n", dir, exit.Room.Description))
 		} else {
 			io.WriteString(player.Conn, cfmt.Sprintf("{{You can't go that way.}}::red\n"))
 		}
 	}),
-	NewCommand("quit", "Quit the game", []string{"q"}, func(player *Player, args []string) {
+	NewCommand("quit", "Quit the game", []string{"q"}, func(ctx *GameContext, player *Player, args []string) {
+		ctx.Log.Debug().Msg("Quit command")
+
 		io.WriteString(player.Conn, cfmt.Sprintf("Goodbye!\n"))
 		fmt.Println("Player disconnected:", player.Conn.RemoteAddr())
 		player.Conn.Close()
