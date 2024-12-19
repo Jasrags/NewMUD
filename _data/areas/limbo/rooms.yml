@@ -1,0 +1,33 @@
+---
+- id: the_void
+  title: The Void
+  exits: 
+    - direction: north
+      room_id: limbo:limbo
+  description: >-
+    You don't think that you are not floating in nothing.
+- id: limbo
+  title: Limbo
+  exits: 
+    - direction: south
+      room_id: limbo:the_void
+    - direction: east
+      room_id: limbo:black
+    - direction: west
+      room_id: limbo:white
+  description: >-
+    You are floating in a formless void, detached from all sensation of physical matter, surrounded by swirling glowing light, which fades into the relative darkness around you without any trace of edges or shadow.
+- id: white
+  title: "White Room"
+  exits: 
+    - direction: west
+      room_id: limbo:limbo
+  description: "A featureless white room. A pitch black void in the shape of archway can be seen on the east side of the room."
+- id: black
+  title: "Black Room"
+  exits: 
+    - direction: east
+      room_id: limbo:limbo
+  description: >-
+    A completely black room. Somehow all of the light that should be coming from the room to the west does not pass
+    through the archway. A single lightbulb hangs from the ceiling illuminating a small area. 

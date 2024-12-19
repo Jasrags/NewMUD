@@ -115,9 +115,10 @@ func (gs *GameServer) GameLoop(conn net.Conn, player *Player) {
 	gs.Log.Debug().Msg("Entering game loop")
 
 	ctx := &GameContext{
-		Log:         NewDevLogger(),
-		RoomManager: gs.RoomManager,
-		AreaManager: gs.AreaManager,
+		Log:            NewDevLogger(),
+		RoomManager:    gs.RoomManager,
+		AreaManager:    gs.AreaManager,
+		CommandManager: gs.CommandManager,
 	}
 
 	// Create a buffered reader for reading input from the client

@@ -29,13 +29,19 @@ func RenderRoom(player *Player, room *Room) string {
 	if len(room.Players) == 1 {
 		builder.WriteString("\n{{You are alone in the room.}}::cyan\n")
 	} else if len(room.Players) >= 2 {
-		builder.WriteString("\n{{Players in the room:}}::cyan|bold\n")
+		builder.WriteString("\n{{People in the room: }}::cyan|bold")
+		var playerNames []string
 		for _, p := range room.Players {
 			if p.Name != player.Name {
-				builder.WriteString("{{ - %s}}::cyan\n")
-				args = append(args, p.Name)
+				playerNames = append(playerNames, p.Name)
 			}
 		}
+		// TODO: Make admin, player, and NPC names different colors
+		if len(playerNames) > 0 {
+			builder.WriteString("{{%s}}::cyan")
+			args = append(args, WrapText(strings.Join(playerNames, ", "), 80))
+		}
+		builder.WriteString("\n")
 	}
 
 	// Display exits

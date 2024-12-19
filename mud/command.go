@@ -10,17 +10,19 @@ import (
 )
 
 type GameContext struct {
-	Log         zerolog.Logger
-	RoomManager *RoomManager
-	AreaManager *AreaManager
+	Log            zerolog.Logger
+	RoomManager    *RoomManager
+	AreaManager    *AreaManager
+	CommandManager *CommandManager
 }
 
 // NewGameContext initializes the GameContext.
-func NewGameContext(rm *RoomManager, am *AreaManager) *GameContext {
+func NewGameContext(rm *RoomManager, am *AreaManager, cm *CommandManager) *GameContext {
 	return &GameContext{
-		Log:         NewDevLogger(),
-		RoomManager: rm,
-		AreaManager: am,
+		Log:            NewDevLogger(),
+		RoomManager:    rm,
+		AreaManager:    am,
+		CommandManager: NewCommandManager(),
 	}
 }
 
@@ -113,6 +115,15 @@ func (cm *CommandManager) ParseAndExecute(ctx *GameContext, input string, player
 
 // TODO: Where should this go? We need access to *Managers but passing it in seems wrong
 var commands = []*Command{
+	NewCommand("help", "List all available commands", []string{"h"}, func(ctx *GameContext, player *Player, args []string) {
+		ctx.Log.Debug().Msg("Help command")
+
+		// TODO: This needs to display the main command and show it's aliases
+		io.WriteString(player.Conn, "Available commands:\n")
+		for _, cmd := range ctx.CommandManager.Commands {
+			io.WriteString(player.Conn, cfmt.Sprintf("{{%s}}::cyan - %s (aliases: %s)\n", cmd.Name, cmd.Description, strings.Join(cmd.Aliases, ", ")))
+		}
+	}),
 	NewCommand("look", "Look around the room", []string{"l"}, func(ctx *GameContext, player *Player, args []string) {
 		ctx.Log.Debug().Msg("Look command")
 
