@@ -13,6 +13,7 @@ type Player struct {
 	Conn   net.Conn       `json:"-"`
 	RoomID string         `json:"room_id"`
 	Room   *Room          `json:"-"`
+	Role   string         `json:"role"`
 }
 
 func NewPlayer(conn net.Conn) *Player {
@@ -36,16 +37,14 @@ func (p *Player) SetRoom(room *Room) {
 func (p *Player) MoveTo(nextRoom *Room) {
 	p.Log.Debug().
 		Str("player_name", p.Name).
-		Str("current_room_id", p.Room.ID).
 		Str("next_room_id", nextRoom.ID).
 		Msg("Move player to room")
 
 	prevRoom := p.Room
 	if p.Room != nil && p.Room.ID != nextRoom.ID {
 		p.Room.RemovePlayer(p)
+		prevRoom.Broadcast(cfmt.Sprintf("\n{{%s}}::green|bold {{has left the room}}::white\n", p.Name), p)
 	}
-
-	prevRoom.Broadcast(cfmt.Sprintf("\n{{%s}}::green|bold {{has left the room}}::white\n", p.Name), p)
 
 	p.SetRoom(nextRoom)
 	nextRoom.AddPlayer(p)

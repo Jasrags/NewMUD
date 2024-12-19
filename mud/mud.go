@@ -2,7 +2,6 @@ package mud
 
 import (
 	"bufio"
-	"fmt"
 	"io"
 	"net"
 	"os"
@@ -86,10 +85,17 @@ func (gs *GameServer) handleConnection(conn net.Conn) {
 
 	// Create a new player for this connection
 	player := NewPlayer(conn)
-	player.Name = fmt.Sprintf("Player%d", i)
+	if i == 0 {
+		player.Role = "admin"
+		player.Name = "Admin"
+	} else {
+		player.Role = "player"
+		player.Name = "Player"
+	}
 	i++
-	player.Room = gs.RoomManager.GetRoom("limbo:the_void")
-	player.RoomID = "limbo:the_void"
+
+	player.MoveTo(gs.RoomManager.GetRoom("limbo:the_void"))
+	io.WriteString(player.Conn, RenderRoom(player, player.Room))
 
 	gs.GameLoop(conn, player)
 }
