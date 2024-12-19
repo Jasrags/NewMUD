@@ -49,26 +49,11 @@ func RenderRoom(player *Player, room *Room) string {
 		builder.WriteString("{{There are no exits.}}::red\n")
 	} else {
 		builder.WriteString("{{Exits:}}::yellow|bold\n")
-		for direction, _ := range player.Room.Exits {
+		for direction := range player.Room.Exits {
 			builder.WriteString("{{ - %s}}::yellow\n")
 			args = append(args, direction)
 		}
 	}
-
-	// // Display other players in the room
-	// otherPlayers := []string{}
-	// for _, p := range room.Players {
-	// 	if p.Name != player.Name {
-	// 		otherPlayers = append(otherPlayers, p.Name)
-	// 	}
-	// }
-	// if len(otherPlayers) > 0 {
-	// 	builder.WriteString("\n{{Players here:}}::cyan|bold\n")
-	// 	for _, p := range otherPlayers {
-	// 		builder.WriteString("{{ - %s}}::cyan\n")
-	// 		args = append(args, p)
-	// 	}
-	// }
 
 	return cfmt.Sprintf(builder.String(), args...)
 }
@@ -80,19 +65,18 @@ func WrapText(text string, width int) string {
 	line := ""
 
 	for _, word := range words {
-		// Check if adding the next word would exceed the width
 		if len(line)+len(word)+1 > width {
-			result.WriteString(line + "\n") // Write the current line and start a new one
+			result.WriteString(line + "\n")
 			line = word
 		} else {
 			if line != "" {
-				line += " " // Add a space before appending the word
+				line += " "
 			}
 			line += word
 		}
 	}
 	if line != "" {
-		result.WriteString(line) // Append the last line
+		result.WriteString(line)
 	}
 
 	return result.String()

@@ -113,12 +113,45 @@ func (cm *CommandManager) ParseAndExecute(ctx *GameContext, input string, player
 	}
 }
 
-// TODO: Where should this go? We need access to *Managers but passing it in seems wrong
 var commands = []*Command{
+	// NewCommand("who", "List all online players", []string{"w"}, func(ctx *GameContext, player *Player, args []string) {
+	//     ctx.Log.Debug().Msg("Who command")
+
+	//     io.WriteString(player.Conn, "Online players:\n")
+	//     for _, p := range ctx.RoomManager.GetAllPlayers() {
+	//         if p.IsAdmin {
+	//             io.WriteString(player.Conn, cfmt.Sprintf("{{[Admin] %s}}::yellow\n", p.Name))
+	//         } else {
+	//             io.WriteString(player.Conn, cfmt.Sprintf("{{[Player] %s}}::green\n", p.Name))
+	//         }
+	//     }
+	// }),
+	NewCommand("say", "Say something to the room", []string{"s"}, func(ctx *GameContext, player *Player, args []string) {
+		ctx.Log.Debug().Msg("Say command")
+
+		if player.Room == nil {
+			io.WriteString(player.Conn, cfmt.Sprintf("{{You are not in a room.}}::red\n"))
+			return
+		}
+
+		if len(args) == 0 {
+			io.WriteString(player.Conn, cfmt.Sprintf("{{You must specify something to say.}}::red\n"))
+			return
+		}
+
+		message := strings.Join(args, " ")
+		for _, p := range player.Room.Players {
+			if p != player {
+				io.WriteString(p.Conn, cfmt.Sprintf("{{%s says:}}::cyan %s\n", player.Name, message))
+			} else {
+				io.WriteString(p.Conn, cfmt.Sprintf("{{You say:}}::cyan %s\n", message))
+			}
+		}
+	}),
+	// TODO: This needs to display the main command and show it's aliases
 	NewCommand("help", "List all available commands", []string{"h"}, func(ctx *GameContext, player *Player, args []string) {
 		ctx.Log.Debug().Msg("Help command")
 
-		// TODO: This needs to display the main command and show it's aliases
 		io.WriteString(player.Conn, "Available commands:\n")
 		for _, cmd := range ctx.CommandManager.Commands {
 			io.WriteString(player.Conn, cfmt.Sprintf("{{%s}}::cyan - %s (aliases: %s)\n", cmd.Name, cmd.Description, strings.Join(cmd.Aliases, ", ")))
@@ -166,9 +199,3 @@ var commands = []*Command{
 		player.Conn.Close()
 	}),
 }
-
-// func registerCommands(cm *CommandManager) {
-// 	for _, cmd := range commands {
-// 		cm.RegisterCommand(cmd)
-// 	}
-// }
