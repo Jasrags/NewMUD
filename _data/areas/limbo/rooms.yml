@@ -20,13 +20,13 @@
 - id: white
   title: "White Room"
   exits: 
-    - direction: west
+    - direction: east
       room_id: limbo:limbo
   description: "A featureless white room. A pitch black void in the shape of archway can be seen on the east side of the room."
 - id: black
   title: "Black Room"
   exits: 
-    - direction: east
+    - direction: west
       room_id: limbo:limbo
   description: >-
     A completely black room. Somehow all of the light that should be coming from the room to the west does not pass

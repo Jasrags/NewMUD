@@ -6,6 +6,17 @@ import (
 	"github.com/rs/zerolog"
 )
 
+type Direction string
+
+const (
+	DirectionNorth Direction = "north"
+	DirectionSouth Direction = "south"
+	DirectionEast  Direction = "east"
+	DirectionWest  Direction = "west"
+	DirectionUp    Direction = "up"
+	DirectionDown  Direction = "down"
+)
+
 // RoomData represents file data for a room
 type RoomData struct {
 	ID          string       `yaml:"id"`

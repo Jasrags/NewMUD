@@ -104,8 +104,8 @@ func (gs *GameServer) DisplayBanner(conn net.Conn) {
 	gs.Log.Debug().Msg("Displaying banner")
 
 	banner := `
-Welcome to the MUD server!
-==========================
+{{Welcome to the MUD server!}}::green
+{{==========================}}::white|bold
 
 `
 	io.WriteString(conn, cfmt.Sprintf(banner))

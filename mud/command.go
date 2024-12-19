@@ -27,7 +27,7 @@ func NewGameContext(rm *RoomManager, am *AreaManager, cm *CommandManager) *GameC
 }
 
 // CommandHandler is a function type for handling commands
-type CommandHandler func(ctx *GameContext, player *Player, args []string)
+type CommandHandler func(ctx *GameContext, player *Player, command string, args []string)
 
 // CommandMap maps command names to their handlers
 var CommandMap = map[string]CommandHandler{}
@@ -101,101 +101,141 @@ func (cm *CommandManager) ParseAndExecute(ctx *GameContext, input string, player
 	args := parts[1:]
 
 	cm.Log.Debug().
-		Strs("parts", parts).
+		// Strs("parts", parts).
 		Str("command_name", commandName).
 		Strs("args", args).
 		Msg("Command name")
 
 	if cmd, exists := cm.Commands[commandName]; exists {
-		cmd.Execute(ctx, player, args)
+		cmd.Execute(ctx, player, commandName, args)
 	} else {
 		io.WriteString(player.Conn, cfmt.Sprintf("{{Unknown command.}}::red\n"))
 	}
 }
 
 var commands = []*Command{
-	// NewCommand("who", "List all online players", []string{"w"}, func(ctx *GameContext, player *Player, args []string) {
-	//     ctx.Log.Debug().Msg("Who command")
+	NewCommand(
+		"say",
+		"Say something to the room",
+		[]string{"s"},
+		func(ctx *GameContext, player *Player, commandName string, args []string) {
+			ctx.Log.Debug().Msg("Say command")
 
-	//     io.WriteString(player.Conn, "Online players:\n")
-	//     for _, p := range ctx.RoomManager.GetAllPlayers() {
-	//         if p.IsAdmin {
-	//             io.WriteString(player.Conn, cfmt.Sprintf("{{[Admin] %s}}::yellow\n", p.Name))
-	//         } else {
-	//             io.WriteString(player.Conn, cfmt.Sprintf("{{[Player] %s}}::green\n", p.Name))
-	//         }
-	//     }
-	// }),
-	NewCommand("say", "Say something to the room", []string{"s"}, func(ctx *GameContext, player *Player, args []string) {
-		ctx.Log.Debug().Msg("Say command")
-
-		if player.Room == nil {
-			io.WriteString(player.Conn, cfmt.Sprintf("{{You are not in a room.}}::red\n"))
-			return
-		}
-
-		if len(args) == 0 {
-			io.WriteString(player.Conn, cfmt.Sprintf("{{You must specify something to say.}}::red\n"))
-			return
-		}
-
-		message := strings.Join(args, " ")
-		for _, p := range player.Room.Players {
-			if p != player {
-				io.WriteString(p.Conn, cfmt.Sprintf("{{%s says:}}::cyan %s\n", player.Name, message))
-			} else {
-				io.WriteString(p.Conn, cfmt.Sprintf("{{You say:}}::cyan %s\n", message))
+			if player.Room == nil {
+				io.WriteString(player.Conn, cfmt.Sprintf("{{You are not in a room.}}::red\n"))
+				return
 			}
-		}
-	}),
+
+			if len(args) == 0 {
+				io.WriteString(player.Conn, cfmt.Sprintf("{{You must specify something to say.}}::red\n"))
+				return
+			}
+
+			message := strings.Join(args, " ")
+			for _, p := range player.Room.Players {
+				if p != player {
+					io.WriteString(p.Conn, cfmt.Sprintf("{{%s says:}}::cyan %s\n", player.Name, message))
+				} else {
+					io.WriteString(p.Conn, cfmt.Sprintf("{{You say:}}::cyan %s\n", message))
+				}
+			}
+		}),
 	// TODO: This needs to display the main command and show it's aliases
-	NewCommand("help", "List all available commands", []string{"h"}, func(ctx *GameContext, player *Player, args []string) {
-		ctx.Log.Debug().Msg("Help command")
+	NewCommand(
+		"help",
+		"List all available commands",
+		[]string{"h"},
+		func(ctx *GameContext, player *Player, commandName string, args []string) {
+			ctx.Log.Debug().Msg("Help command")
 
-		io.WriteString(player.Conn, "Available commands:\n")
-		for _, cmd := range ctx.CommandManager.Commands {
-			io.WriteString(player.Conn, cfmt.Sprintf("{{%s}}::cyan - %s (aliases: %s)\n", cmd.Name, cmd.Description, strings.Join(cmd.Aliases, ", ")))
-		}
-	}),
-	NewCommand("look", "Look around the room", []string{"l"}, func(ctx *GameContext, player *Player, args []string) {
-		ctx.Log.Debug().Msg("Look command")
+			io.WriteString(player.Conn, "Available commands:\n")
+			for _, cmd := range ctx.CommandManager.Commands {
+				io.WriteString(player.Conn, cfmt.Sprintf("{{%s}}::cyan - %s (aliases: %s)\n", cmd.Name, cmd.Description, strings.Join(cmd.Aliases, ", ")))
+			}
+		}),
+	NewCommand(
+		"look",
+		"Look around the room",
+		[]string{"l"},
+		func(ctx *GameContext, player *Player, commandName string, args []string) {
+			ctx.Log.Debug().Msg("Look command")
 
-		if player.Room == nil {
-			io.WriteString(player.Conn, cfmt.Sprintf("{{You are not in a room.}}::red\n"))
-			return
-		}
+			if player.Room == nil {
+				io.WriteString(player.Conn, cfmt.Sprintf("{{You are not in a room.}}::red\n"))
+				return
+			}
 
-		io.WriteString(player.Conn, RenderRoom(player, player.Room))
-	}),
-	NewCommand("move", "Move to another room", []string{"m"}, func(ctx *GameContext, player *Player, args []string) {
-		ctx.Log.Debug().Msg("Move command")
+			io.WriteString(player.Conn, RenderRoom(player, player.Room))
+		}),
+	NewCommand(
+		"move",
+		"Move to another room",
+		[]string{"m",
+			"n", "north",
+			"s", "south",
+			"e", "east",
+			"w", "west",
+			"u", "up",
+			"d", "down",
+		},
+		func(ctx *GameContext, player *Player, commandName string, args []string) {
+			ctx.Log.Debug().
+				Str("player_name", player.Name).
+				Str("command_name", commandName).
+				Strs("args", args).
+				Msg("Move command")
 
-		if len(args) == 0 {
-			io.WriteString(player.Conn, cfmt.Sprintf("{{You must specify a direction.}}::red\n"))
-			return
-		}
+				// Check if the player is in a room
+			if player.Room == nil {
+				io.WriteString(player.Conn, cfmt.Sprintf("{{You are not in a room.}}::red\n"))
+				return
+			}
 
-		dir := args[0]
+			// Check if the player specified a direction with the move command
+			if commandName == "move" && len(args) == 0 {
+				io.WriteString(player.Conn, cfmt.Sprintf("{{You must specify a direction.}}::red\n"))
+				return
+			}
 
-		if player.Room == nil {
-			io.WriteString(player.Conn, cfmt.Sprintf("{{You are not in a room.}}::red\n"))
-			return
-		}
+			// Check if the player specified a direction with the move command or used a direction alias
+			var dir string
+			switch commandName {
+			case "n", "north":
+				dir = "north"
+			case "s", "south":
+				dir = "south"
+			case "e", "east":
+				dir = "east"
+			case "w", "west":
+				dir = "west"
+			case "u", "up":
+				dir = "up"
+			case "d", "down":
+				dir = "down"
+			default:
+				dir = args[0]
 
-		if exit, ok := player.Room.Exits[dir]; ok {
-			player.MoveTo(exit.Room)
-			io.WriteString(player.Conn, cfmt.Sprintf("You move %s.\n\n", dir))
-		} else {
-			io.WriteString(player.Conn, cfmt.Sprintf("{{You can't go that way.}}::red\n"))
-		}
+			}
 
-		io.WriteString(player.Conn, RenderRoom(player, player.Room))
-	}),
-	NewCommand("quit", "Quit the game", []string{"q"}, func(ctx *GameContext, player *Player, args []string) {
-		ctx.Log.Debug().Msg("Quit command")
+			// Check if the exit exists
+			if exit, ok := player.Room.Exits[dir]; ok {
+				player.MoveTo(exit.Room)
+				io.WriteString(player.Conn, cfmt.Sprintf("You move %s.\n\n", dir))
+			} else {
+				io.WriteString(player.Conn, cfmt.Sprintf("{{You can't go that way.}}::red\n"))
+			}
 
-		io.WriteString(player.Conn, cfmt.Sprintf("Goodbye!\n"))
-		fmt.Println("Player disconnected:", player.Conn.RemoteAddr())
-		player.Conn.Close()
-	}),
+			io.WriteString(player.Conn, RenderRoom(player, player.Room))
+		}),
+	NewCommand(
+		"quit",
+		"Quit the game",
+		[]string{"q"},
+		func(ctx *GameContext, player *Player, commandName string, args []string) {
+			ctx.Log.Debug().Msg("Quit command")
+
+			io.WriteString(player.Conn, cfmt.Sprintf("Goodbye!\n"))
+			fmt.Println("Player disconnected:", player.Conn.RemoteAddr())
+			player.Conn.Close()
+		}),
 }
