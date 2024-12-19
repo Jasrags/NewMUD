@@ -7,10 +7,21 @@ import (
 	"github.com/i582/cfmt/cmd/cfmt"
 )
 
+// CreateEntityRef creates an entity reference from an area and ID.
 func CreateEntityRef(area, id string) string {
 	return fmt.Sprintf("%s:%s", area, id)
 }
 
+// ParseEntityRef parses an entity reference into its area and ID parts.
+func ParseEntityRef(entityRef string) (area, id string) {
+	parts := strings.Split(entityRef, ":")
+	if len(parts) != 2 {
+		return "", ""
+	}
+	return parts[0], parts[1]
+}
+
+// RenderRoom renders the room to a string for the player.
 func RenderRoom(player *Player, room *Room) string {
 	var builder strings.Builder
 	var args []interface{}
