@@ -1,6 +1,7 @@
 package mud
 
 import (
+	"fmt"
 	"io"
 
 	"github.com/rs/zerolog"
@@ -62,11 +63,20 @@ type Exit struct {
 }
 
 func NewRoom() *Room {
-	return &Room{
+	r := &Room{
 		Log:     NewDevLogger(),
 		Players: make(map[string]*Player),
 		Exits:   make(map[string]*Exit),
 	}
+
+	return r
+}
+
+func (r *Room) onPlayerEnter(player *Player) {
+	r.Log.Debug().
+		Str("player_name", player.Name).
+		Str("room_id", r.ID).
+		Msg("Player has entered the room")
 }
 
 func (r *Room) AddPlayer(player *Player) {
@@ -84,4 +94,12 @@ func (r *Room) Broadcast(message string, exclude *Player) {
 		}
 		io.WriteString(player.Conn, message)
 	}
+}
+
+func (r *Room) Emit(event string, data ...interface{}) {
+	eventName := fmt.Sprintf("Room#event:%s", event)
+	r.Log.Debug().
+		Str("room_id", r.ID).
+		Str("event_name", eventName).
+		Msg("Emit event")
 }

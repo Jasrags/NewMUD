@@ -1,0 +1,4 @@
+server:
+  host: localhost
+  port: 400
+  log_level: DEBUG

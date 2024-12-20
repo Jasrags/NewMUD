@@ -8,8 +8,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/fsnotify/fsnotify"
 	"github.com/i582/cfmt/cmd/cfmt"
 	"github.com/rs/zerolog"
+	"github.com/spf13/viper"
 )
 
 func NewProdLogger() zerolog.Logger {
@@ -38,11 +40,59 @@ func NewGameServer() *GameServer {
 	return gs
 }
 
+func (gs *GameServer) setupConfig() {
+	gs.Log.Info().Msg("Setting up configuration")
+
+	viper.SetConfigName("config")
+	viper.AddConfigPath(".")
+	if err := viper.ReadInConfig(); err != nil {
+		gs.Log.Fatal().
+			Err(err).
+			Msg("fatal error config file")
+	}
+
+	// Update configuration on change
+	viper.OnConfigChange(func(e fsnotify.Event) {
+		gs.Log.Info().
+			Str("file", e.Name).
+			Msg("Config file changed")
+		gs.outputConfig()
+	})
+	viper.WatchConfig()
+
+	// Attempt to parse the log_level from the config file
+	serverLogLevel := viper.GetString("server.log_level")
+	logLevel, err := zerolog.ParseLevel(serverLogLevel)
+	if err != nil {
+		gs.Log.Fatal().
+			Err(err).
+			Msg("unable to parse log_level")
+	} else {
+		zerolog.SetGlobalLevel(logLevel)
+	}
+
+	gs.outputConfig()
+}
+
+func (gs *GameServer) outputConfig() {
+	gs.Log.Info().Msg("Outputting configuration")
+
+	for _, key := range viper.AllKeys() {
+		gs.Log.Debug().
+			Str("key", key).
+			Str("value", viper.GetString(key)).
+			Msg("Config")
+	}
+}
+
 func (gs *GameServer) Start() {
 	gs.Log.Info().Msg("Starting server")
 
+	gs.setupConfig()
+	address := strings.Join([]string{viper.GetString("server.host"), viper.GetString("server.port")}, ":")
+
 	// Start listening for incoming connections
-	listener, err := net.Listen("tcp", ":4000") // Port 4000
+	listener, err := net.Listen("tcp", address) // Port 4000
 	if err != nil {
 		gs.Log.Fatal().Err(err).Msg("Error starting server")
 		return
