@@ -1,11 +1,16 @@
 package mud
 
 import (
+	"encoding/json"
 	"fmt"
 	"net"
+	"os"
+	"path/filepath"
+	"strings"
 
 	"github.com/i582/cfmt/cmd/cfmt"
 	"github.com/rs/zerolog"
+	"github.com/spf13/viper"
 )
 
 // "to the North",
@@ -67,6 +72,33 @@ func (p *Player) MoveTo(nextRoom *Room) {
 	p.Emit("enterRoom", nextRoom)
 
 	nextRoom.Broadcast(cfmt.Sprintf("\n{{%s}}::green|bold {{has entered the room}}::white\n", p.Name), p)
+}
+
+func (p *Player) Save() {
+	p.Log.Debug().
+		Str("player_name", p.Name).
+		Msg("Save player")
+
+	dataDir := viper.GetString("data.players_path")
+	if err := os.MkdirAll(dataDir, os.ModePerm); err != nil {
+		p.Log.Error().Err(err).Msg("Failed to create data directory")
+		return
+	}
+
+	filePath := filepath.Join(dataDir, strings.ToLower(p.Name)+".json")
+	file, errCreate := os.Create(filePath)
+	if errCreate != nil {
+		p.Log.Error().Err(errCreate).Msg("Failed to create player file")
+		return
+	}
+	defer file.Close()
+
+	encoder := json.NewEncoder(file)
+	encoder.SetIndent("", "  ")
+	encoder.SetEscapeHTML(false)
+	if err := encoder.Encode(p); err != nil {
+		p.Log.Error().Err(err).Msg("Failed to encode player to JSON")
+	}
 }
 
 func (p *Player) Emit(event string, data ...interface{}) {

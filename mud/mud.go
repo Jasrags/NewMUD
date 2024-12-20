@@ -24,8 +24,10 @@ func NewDevLogger() zerolog.Logger {
 
 type GameServer struct {
 	Log            zerolog.Logger
-	CommandManager *CommandManager
 	AreaManager    *AreaManager
+	CommandManager *CommandManager
+	EventManager   *EventManager
+	PlayerManager  *PlayerManager
 	RoomManager    *RoomManager
 }
 
@@ -33,7 +35,9 @@ func NewGameServer() *GameServer {
 	gs := &GameServer{
 		Log: NewDevLogger(),
 	}
+	gs.EventManager = NewEventManager()
 	gs.CommandManager = NewCommandManager()
+	gs.PlayerManager = NewPlayerManager()
 	gs.RoomManager = NewRoomManager()
 	gs.AreaManager = NewAreaManager(gs.RoomManager)
 

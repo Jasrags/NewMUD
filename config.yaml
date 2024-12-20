@@ -1,4 +1,10 @@
 server:
   host: localhost
-  port: 400
+  port: 4000
   log_level: DEBUG
+data:
+  accounts_path: _data/accounts
+  areas_path: _data/areas
+  players_path: _data/players
+  manifest_file: manifest.yml
+  rooms_file: rooms.yml

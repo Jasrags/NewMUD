@@ -72,12 +72,12 @@ func NewRoom() *Room {
 	return r
 }
 
-func (r *Room) onPlayerEnter(player *Player) {
-	r.Log.Debug().
-		Str("player_name", player.Name).
-		Str("room_id", r.ID).
-		Msg("Player has entered the room")
-}
+// func (r *Room) onPlayerEnter(player *Player) {
+// 	r.Log.Debug().
+// 		Str("player_name", player.Name).
+// 		Str("room_id", r.ID).
+// 		Msg("Player has entered the room")
+// }
 
 func (r *Room) AddPlayer(player *Player) {
 	r.Players[player.Name] = player

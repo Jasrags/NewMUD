@@ -7,7 +7,8 @@ import (
 	"strings"
 
 	"github.com/rs/zerolog"
-	"gopkg.in/yaml.v2"
+	"github.com/spf13/viper"
+	"gopkg.in/yaml.v3"
 )
 
 type RoomManager struct {
@@ -25,7 +26,7 @@ func NewRoomManager() *RoomManager {
 func (rm *RoomManager) Load() {
 	rm.Log.Info().Msg("Loading rooms")
 
-	dataPath := "_data/areas"
+	dataPath := viper.GetString("data.areas_path")
 	files, err := os.ReadDir(dataPath)
 	if err != nil {
 		rm.Log.Error().Err(err).Msg("Failed to read data directory")
@@ -33,7 +34,7 @@ func (rm *RoomManager) Load() {
 	}
 	for _, file := range files {
 		if file.IsDir() {
-			roomFilePath := filepath.Join(dataPath, file.Name(), "rooms.yml")
+			roomFilePath := filepath.Join(dataPath, file.Name(), viper.GetString("data.rooms_file"))
 			if _, err := os.Stat(roomFilePath); os.IsNotExist(err) {
 				continue
 			}
