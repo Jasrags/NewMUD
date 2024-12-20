@@ -4,19 +4,11 @@ package pluralizer_test
 
 import (
 	"fmt"
-	"path"
-	"runtime"
 	"testing"
 
 	"github.com/Jasrags/NewMUD/pluralizer"
+	"github.com/stretchr/testify/assert"
 )
-
-func Assert(t *testing.T, b bool) {
-	if !b {
-		_, file, line, _ := runtime.Caller(1)
-		t.Errorf("Assert failed at %s:%d", path.Base(file), line)
-	}
-}
 
 func TestIntToWords(t *testing.T) {
 	tests := []struct {
@@ -38,7 +30,7 @@ func TestIntToWords(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(fmt.Sprintf("IntToWords(%d)", test.num), func(t *testing.T) {
-			Assert(t, pluralizer.IntToWords(test.num) == test.expected)
+			assert.Equal(t, pluralizer.IntToWords(test.num), test.expected)
 		})
 	}
 }
@@ -81,7 +73,7 @@ func TestPluralizeNoun(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(fmt.Sprintf("PluralizeNoun(%s, %d)", test.singular, test.count), func(t *testing.T) {
-			Assert(t, pluralizer.PluralizeNoun(test.singular, test.count) == test.expected)
+			assert.Equal(t, pluralizer.PluralizeNoun(test.singular, test.count), test.expected)
 		})
 	}
 }
@@ -109,7 +101,7 @@ func TestPluralizeNounPhrase(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(fmt.Sprintf("PluralizeNounPhrase(%s, %d)", test.phrase, test.count), func(t *testing.T) {
-			Assert(t, pluralizer.PluralizeNounPhrase(test.phrase, test.count) == test.expected)
+			assert.Equal(t, pluralizer.PluralizeNounPhrase(test.phrase, test.count), test.expected)
 		})
 	}
 }
@@ -137,7 +129,7 @@ func TestPluralizeVerb(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(fmt.Sprintf("PluralizeVerb(%s)", test.verb), func(t *testing.T) {
-			Assert(t, pluralizer.PluralizeVerb(test.verb) == test.expected)
+			assert.Equal(t, pluralizer.PluralizeVerb(test.verb), test.expected)
 		})
 	}
 }

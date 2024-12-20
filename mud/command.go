@@ -148,10 +148,17 @@ var commands = []*Command{
 		func(ctx *GameContext, player *Player, commandName string, args []string) {
 			ctx.Log.Debug().Msg("Help command")
 
-			io.WriteString(player.Conn, "Available commands:\n")
+			uniqueCommands := make(map[string]*Command)
 			for _, cmd := range ctx.CommandManager.Commands {
-				io.WriteString(player.Conn, cfmt.Sprintf("{{%s}}::cyan - %s (aliases: %s)\n", cmd.Name, cmd.Description, strings.Join(cmd.Aliases, ", ")))
+				uniqueCommands[cmd.Name] = cmd
 			}
+
+			var builder strings.Builder
+			builder.WriteString(cfmt.Sprintf("{{Available commands:}}::white|bold\n"))
+			for _, cmd := range uniqueCommands {
+				builder.WriteString(cfmt.Sprintf("{{%s}}::cyan - %s (aliases: %s)\n", cmd.Name, cmd.Description, strings.Join(cmd.Aliases, ", ")))
+			}
+			io.WriteString(player.Conn, builder.String())
 		}),
 	NewCommand(
 		"look",
