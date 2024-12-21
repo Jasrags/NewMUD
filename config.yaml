@@ -2,6 +2,8 @@ server:
   host: localhost
   port: 4000
   log_level: DEBUG
+  environment: dev
+  async_events: True
 data:
   accounts_path: _data/accounts
   areas_path: _data/areas

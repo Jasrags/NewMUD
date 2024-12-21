@@ -13,9 +13,9 @@ type AreaFloor struct {
 	Map [][]*Room
 }
 
-func NewAreaFloor(z int) *AreaFloor {
+func NewAreaFloor(l zerolog.Logger, z int) *AreaFloor {
 	return &AreaFloor{
-		Log: NewDevLogger(),
+		Log: l,
 		Z:   z,
 	}
 }
@@ -88,9 +88,9 @@ type Area struct {
 	Map   []*AreaFloor     `yaml:"-"`
 }
 
-func NewArea() *Area {
+func NewArea(l zerolog.Logger) *Area {
 	return &Area{
-		Log:   NewDevLogger(),
+		Log:   l,
 		Rooms: make(map[string]*Room),
 	}
 }
@@ -137,7 +137,7 @@ func (a *Area) AddRoomToMap(room *Room) {
 	}
 
 	if a.Map[room.Coordinates.Z] == nil {
-		a.Map[room.Coordinates.Z] = NewAreaFloor(room.Coordinates.Z)
+		a.Map[room.Coordinates.Z] = NewAreaFloor(a.Log, room.Coordinates.Z)
 	}
 
 	a.Map[room.Coordinates.Z].AddRoom(room.Coordinates.X, room.Coordinates.Y, room)

@@ -16,9 +16,9 @@ type RoomManager struct {
 	Rooms map[string]*Room
 }
 
-func NewRoomManager() *RoomManager {
+func NewRoomManager(l zerolog.Logger) *RoomManager {
 	return &RoomManager{
-		Log:   NewDevLogger(),
+		Log:   l,
 		Rooms: make(map[string]*Room),
 	}
 }
@@ -55,7 +55,7 @@ func (rm *RoomManager) Load() {
 			// Build all the rooms prefixed with the area name
 			for _, d := range data {
 				roomID := CreateEntityRef(areaName, d.ID)
-				room := NewRoom()
+				room := NewRoom(rm.Log)
 				room.ID = roomID
 				room.Title = d.Title
 				room.Description = d.Description

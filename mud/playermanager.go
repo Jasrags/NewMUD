@@ -18,9 +18,9 @@ type PlayerManager struct {
 }
 
 // NewPlayerManager creates and initializes a PlayerManager
-func NewPlayerManager() *PlayerManager {
+func NewPlayerManager(l zerolog.Logger) *PlayerManager {
 	return &PlayerManager{
-		Log:     NewDevLogger(),
+		Log:     l,
 		Players: make(map[string]*Player),
 	}
 }

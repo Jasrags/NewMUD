@@ -14,16 +14,9 @@ import (
 	"github.com/spf13/viper"
 )
 
-func NewProdLogger() zerolog.Logger {
-	return zerolog.New(os.Stdout).With().Timestamp().Logger()
-}
-
-func NewDevLogger() zerolog.Logger {
-	return zerolog.New(zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: time.RFC3339}).With().Timestamp().Logger()
-}
-
-type GameServer struct {
+type GameContext struct {
 	Log            zerolog.Logger
+	AccountManager *AccountManager
 	AreaManager    *AreaManager
 	CommandManager *CommandManager
 	EventManager   *EventManager
@@ -31,15 +24,75 @@ type GameServer struct {
 	RoomManager    *RoomManager
 }
 
+// NewGameContext initializes the GameContext.
+func NewGameContext(environment, logLevel string) *GameContext {
+	gc := &GameContext{
+		Log: NewLogger(environment, logLevel),
+	}
+
+	gc.AccountManager = NewAccountManager(gc.Log)
+	gc.CommandManager = NewCommandManager(gc.Log)
+	gc.EventManager = NewEventManager(gc.Log, viper.GetBool("server.async_events"))
+	gc.PlayerManager = NewPlayerManager(gc.Log)
+	gc.RoomManager = NewRoomManager(gc.Log)
+	gc.AreaManager = NewAreaManager(gc.Log, gc.RoomManager)
+
+	return gc
+}
+
+// NewLogger creates a new logger with the given environment and log level.
+func NewLogger(env, logLevel string) zerolog.Logger {
+	ll, err := zerolog.ParseLevel(logLevel)
+	if err != nil {
+		panic("invalid log level")
+	}
+
+	zerolog.SetGlobalLevel(ll)
+
+	if env != EnvProd {
+		return zerolog.New(zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: time.RFC3339}).With().Timestamp().Logger()
+	}
+
+	return zerolog.New(os.Stdout).With().Timestamp().Logger()
+}
+
+// func NewDevLogger() zerolog.Logger {
+// 	return zerolog.New(zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: time.RFC3339}).With().Timestamp().Logger()
+// }
+
+type GameServer struct {
+	Log         zerolog.Logger
+	GameContext *GameContext
+	// AreaManager    *AreaManager
+	// CommandManager *CommandManager
+	// EventManager   *EventManager
+	// PlayerManager  *PlayerManager
+	// RoomManager    *RoomManager
+}
+
+const (
+	EnvProd = "prod"
+	EnvDev  = "dev"
+)
+
 func NewGameServer() *GameServer {
 	gs := &GameServer{
-		Log: NewDevLogger(),
+		Log: NewLogger(
+			viper.GetString("server.environment"),
+			viper.GetString("server.log_level"),
+		),
+		GameContext: NewGameContext(
+			viper.GetString("server.environment"),
+			viper.GetString("server.log_level"),
+		),
 	}
-	gs.EventManager = NewEventManager()
-	gs.CommandManager = NewCommandManager()
-	gs.PlayerManager = NewPlayerManager()
-	gs.RoomManager = NewRoomManager()
-	gs.AreaManager = NewAreaManager(gs.RoomManager)
+	// gs.GameContext = NewGameContext()
+
+	// gs.EventManager = NewEventManager(viper.GetBool("server.async_events"))
+	// gs.CommandManager = NewCommandManager()
+	// gs.PlayerManager = NewPlayerManager()
+	// gs.RoomManager = NewRoomManager()
+	// gs.AreaManager = NewAreaManager(gs.RoomManager)
 
 	return gs
 }
@@ -104,9 +157,9 @@ func (gs *GameServer) Start() {
 	defer listener.Close()
 
 	// Register commands
-	gs.RoomManager.Load()
-	gs.AreaManager.Load()
-	gs.CommandManager.Load()
+	gs.GameContext.RoomManager.Load()
+	gs.GameContext.AreaManager.Load()
+	gs.GameContext.CommandManager.Load()
 
 	gs.Log.Info().Msg("Server started")
 
@@ -138,7 +191,7 @@ func (gs *GameServer) handleConnection(conn net.Conn) {
 	gs.DisplayBanner(conn)
 
 	// Create a new player for this connection
-	player := NewPlayer(conn)
+	player := NewPlayer(gs.Log, conn)
 	if i == 0 {
 		player.Role = "admin"
 		player.Name = "Admin"
@@ -148,7 +201,7 @@ func (gs *GameServer) handleConnection(conn net.Conn) {
 	}
 	i++
 
-	player.MoveTo(gs.RoomManager.GetRoom("limbo:the_void"))
+	player.MoveTo(gs.GameContext.RoomManager.GetRoom("limbo:the_void"))
 	io.WriteString(player.Conn, RenderRoom(player, player.Room))
 
 	gs.GameLoop(conn, player)
@@ -162,18 +215,11 @@ func (gs *GameServer) DisplayBanner(conn net.Conn) {
 {{==========================}}::white|bold
 
 `
-	io.WriteString(conn, cfmt.Sprintf(banner))
+	io.WriteString(conn, cfmt.Sprint(banner))
 }
 
 func (gs *GameServer) GameLoop(conn net.Conn, player *Player) {
 	gs.Log.Debug().Msg("Entering game loop")
-
-	ctx := &GameContext{
-		Log:            NewDevLogger(),
-		RoomManager:    gs.RoomManager,
-		AreaManager:    gs.AreaManager,
-		CommandManager: gs.CommandManager,
-	}
 
 	// Create a buffered reader for reading input from the client
 	reader := bufio.NewReader(player.Conn)
@@ -196,6 +242,6 @@ func (gs *GameServer) GameLoop(conn net.Conn, player *Player) {
 			Str("input", input).
 			Msg("Received text")
 
-		gs.CommandManager.ParseAndExecute(ctx, input, player)
+		gs.GameContext.CommandManager.ParseAndExecute(gs.GameContext, input, player)
 	}
 }

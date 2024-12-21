@@ -16,9 +16,9 @@ type AreaManager struct {
 	placeholderArea *Area
 }
 
-func NewAreaManager(rm *RoomManager) *AreaManager {
+func NewAreaManager(l zerolog.Logger, rm *RoomManager) *AreaManager {
 	return &AreaManager{
-		Log:         NewDevLogger(),
+		Log:         l,
 		RoomManager: rm,
 		Areas:       make(map[string]*Area),
 	}
@@ -47,7 +47,7 @@ func (am *AreaManager) Load() {
 				continue
 			}
 
-			area := NewArea()
+			area := NewArea(am.Log)
 			if err := yaml.Unmarshal(areaFile, &area); err != nil {
 				am.Log.Error().Err(err).Msgf("Failed to unmarshal area file: %s", areaFilePath)
 				continue
@@ -133,11 +133,11 @@ func (am *AreaManager) GetPlaceholderArea() *Area {
 	}
 
 	// Create a placeholder area
-	area := NewArea()
+	area := NewArea(am.Log)
 	area.ID = "placeholder"
 	area.Title = "Placeholder"
 
-	room := NewRoom()
+	room := NewRoom(am.Log)
 	room.ID = "placeholder"
 	room.Title = "Placeholder"
 	room.Description = "This is a placeholder room."

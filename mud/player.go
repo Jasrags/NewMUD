@@ -29,9 +29,9 @@ type Player struct {
 	Role   string         `json:"role"`
 }
 
-func NewPlayer(conn net.Conn) *Player {
+func NewPlayer(l zerolog.Logger, conn net.Conn) *Player {
 	return &Player{
-		Log:  NewDevLogger(),
+		Log:  l,
 		Conn: conn,
 	}
 }

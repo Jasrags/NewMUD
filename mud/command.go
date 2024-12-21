@@ -9,23 +9,6 @@ import (
 	"github.com/rs/zerolog"
 )
 
-type GameContext struct {
-	Log            zerolog.Logger
-	RoomManager    *RoomManager
-	AreaManager    *AreaManager
-	CommandManager *CommandManager
-}
-
-// NewGameContext initializes the GameContext.
-func NewGameContext(rm *RoomManager, am *AreaManager, cm *CommandManager) *GameContext {
-	return &GameContext{
-		Log:            NewDevLogger(),
-		RoomManager:    rm,
-		AreaManager:    am,
-		CommandManager: NewCommandManager(),
-	}
-}
-
 // CommandHandler is a function type for handling commands
 type CommandHandler func(ctx *GameContext, player *Player, command string, args []string)
 
@@ -42,7 +25,7 @@ type Command struct {
 
 func NewCommand(name, description string, aliases []string, execute CommandHandler) *Command {
 	return &Command{
-		Log:         NewDevLogger(),
+		// Log:         l,
 		Name:        name,
 		Description: description,
 		Aliases:     aliases,
@@ -55,9 +38,9 @@ type CommandManager struct {
 	Commands map[string]*Command
 }
 
-func NewCommandManager() *CommandManager {
+func NewCommandManager(l zerolog.Logger) *CommandManager {
 	return &CommandManager{
-		Log:      NewDevLogger(),
+		Log:      l,
 		Commands: make(map[string]*Command),
 	}
 }
@@ -86,7 +69,7 @@ func (cm *CommandManager) RegisterCommand(cmd *Command) {
 	}
 }
 
-func (cm *CommandManager) ParseAndExecute(ctx *GameContext, input string, player *Player) {
+func (cm *CommandManager) ParseAndExecute(gc *GameContext, input string, player *Player) {
 	cm.Log.Debug().
 		Str("input", input).
 		Str("player_name", player.Name).
@@ -107,7 +90,7 @@ func (cm *CommandManager) ParseAndExecute(ctx *GameContext, input string, player
 		Msg("Command name")
 
 	if cmd, exists := cm.Commands[commandName]; exists {
-		cmd.Execute(ctx, player, commandName, args)
+		cmd.Execute(gc, player, commandName, args)
 	} else {
 		io.WriteString(player.Conn, cfmt.Sprintf("{{Unknown command.}}::red\n"))
 	}

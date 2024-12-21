@@ -62,9 +62,9 @@ type Exit struct {
 	// Inferred  bool
 }
 
-func NewRoom() *Room {
+func NewRoom(l zerolog.Logger) *Room {
 	r := &Room{
-		Log:     NewDevLogger(),
+		Log:     l,
 		Players: make(map[string]*Player),
 		Exits:   make(map[string]*Exit),
 	}

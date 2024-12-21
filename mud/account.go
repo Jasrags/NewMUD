@@ -8,10 +8,8 @@ type Account struct {
 	Password string         `json:"password"`
 }
 
-func NewAccount(username, password string) *Account {
+func NewAccount(l zerolog.Logger) *Account {
 	return &Account{
-		Log:      NewDevLogger(),
-		Username: username,
-		Password: password,
+		Log: l,
 	}
 }
