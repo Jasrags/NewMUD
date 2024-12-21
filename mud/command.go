@@ -84,7 +84,6 @@ func (cm *CommandManager) ParseAndExecute(gc *GameContext, input string, player 
 	args := parts[1:]
 
 	cm.Log.Debug().
-		// Strs("parts", parts).
 		Str("command_name", commandName).
 		Strs("args", args).
 		Msg("Command name")

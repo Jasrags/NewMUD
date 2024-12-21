@@ -76,7 +76,7 @@ func (rm *RoomManager) Load() {
 					continue
 				}
 
-				for _, exit := range d.Exits {
+				for direction, exit := range d.Exits {
 					exitRoom := rm.GetRoom(exit.RoomID)
 
 					if exitRoom == nil {
@@ -86,9 +86,9 @@ func (rm *RoomManager) Load() {
 						continue
 					}
 
-					room.Exits[exit.Direction] = &Exit{
+					room.Exits[direction] = &Exit{
 						Room:      exitRoom,
-						Direction: exit.Direction,
+						Direction: direction,
 					}
 				}
 			}

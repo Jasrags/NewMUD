@@ -2,9 +2,11 @@ package mud
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/i582/cfmt/cmd/cfmt"
+	"gopkg.in/yaml.v3"
 )
 
 // CreateEntityRef creates an entity reference from an area and ID.
@@ -97,4 +99,15 @@ func WrapText(text string, width int) string {
 	}
 
 	return result.String()
+}
+
+func LoadYAML(filePath string, out interface{}) error {
+	file, err := os.Open(filePath)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	decoder := yaml.NewDecoder(file)
+	return decoder.Decode(out)
 }

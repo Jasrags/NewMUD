@@ -20,17 +20,17 @@ const (
 
 // RoomData represents file data for a room
 type RoomData struct {
-	ID          string       `yaml:"id"`
-	Title       string       `yaml:"title"`
-	Description string       `yaml:"description"`
-	Coordinates *Coordinates `yaml:"coordinates"`
-	Exits       []ExitData   `yaml:"exits"`
+	ID          string              `yaml:"id"`
+	Title       string              `yaml:"title"`
+	Description string              `yaml:"description"`
+	Coordinates *Coordinates        `yaml:"coordinates"`
+	Exits       map[string]ExitData `yaml:"exits"`
 }
 
 // ExitData represents file data for an exit
 type ExitData struct {
-	RoomID    string `yaml:"room_id"`
-	Direction string `yaml:"direction"`
+	RoomID string `yaml:"room_id"`
+	// Direction string `yaml:"direction"`
 	// Inferred  bool   `yaml:"-"`
 }
 

@@ -1,12 +1,17 @@
 server:
   host: localhost
   port: 4000
-  log_level: DEBUG
+  log_level: debug
+  log_handler: text
   environment: dev
   async_events: True
+  input_queue_capacity: 100
 data:
   accounts_path: _data/accounts
   areas_path: _data/areas
   players_path: _data/players
+  characters_path: _data/characters
+  users_path: _data/users
   manifest_file: manifest.yml
   rooms_file: rooms.yml
+  items_file: items.yml
