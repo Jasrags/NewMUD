@@ -2,6 +2,8 @@
 - id: "small_rock"
   name: "Small Rock"
   description: "A small, smooth rock. It's perfect for skipping across water."
+  type: "junk"
 - id: "jagged_rock"
   name: "Jagged Rock"
   description: "A jagged rock with sharp edges. It looks dangerous."
+  type: "junk"

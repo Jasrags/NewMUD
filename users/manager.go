@@ -6,12 +6,13 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/spf13/viper"
 )
 
 var (
-	manager = NewManager()
+	Mgr = NewManager()
 )
 
 type Manager struct {
@@ -26,7 +27,33 @@ func NewManager() *Manager {
 	}
 }
 
-func LoadDataFiles() {
+func (mgr *Manager) GetByUsername(username string) *User {
+	slog.Debug("Getting user by username",
+		slog.String("username", username))
+
+	return mgr.users[strings.ToLower(username)]
+}
+
+func (mgr *Manager) SetOnline(u *User) {
+	slog.Debug("Setting user online",
+		slog.String("id", u.ID),
+		slog.String("username", u.Username))
+	t := time.Now()
+	u.LastLoginAt = &t
+	u.Save()
+
+	mgr.onlineUsers[u.ID] = u
+}
+
+func (mgr *Manager) SetOffline(u *User) {
+	slog.Debug("Setting user offline",
+		slog.String("id", u.ID),
+		slog.String("username", u.Username))
+
+	delete(mgr.onlineUsers, u.ID)
+}
+
+func (mgr *Manager) LoadDataFiles() {
 	dataFilePath := viper.GetString("data.users_path")
 
 	slog.Info("Loading user data files",
@@ -56,7 +83,7 @@ func LoadDataFiles() {
 					slog.String("file", file.Name()))
 			}
 
-			manager.users[strings.ToLower(u.Username)] = &u
+			mgr.users[strings.ToLower(u.Username)] = &u
 
 			slog.Debug("Loaded user",
 				slog.String("id", u.ID),
@@ -65,5 +92,5 @@ func LoadDataFiles() {
 	}
 
 	slog.Info("Loaded users",
-		slog.Int("count", len(manager.users)))
+		slog.Int("count", len(mgr.users)))
 }

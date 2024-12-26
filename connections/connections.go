@@ -2,37 +2,47 @@ package connections
 
 import (
 	"log/slog"
-	"net"
 	"sync"
 
-	"github.com/google/uuid"
+	"github.com/gliderlabs/ssh"
 )
 
 var (
 	lock           sync.RWMutex
-	netConnections = make(map[string]net.Conn)
+	netConnections = make(map[string]ssh.Session)
 )
 
 type NetConnection struct {
-	Conn net.Conn
-	ID   string
+	Session ssh.Session
+	ID      string
 }
 
-func NewNetConnection(conn net.Conn) *NetConnection {
+func NewNetConnection(s ssh.Session) *NetConnection {
 	return &NetConnection{
-		Conn: conn,
-		ID:   uuid.New().String(),
+		Session: s,
+		ID:      s.Context().SessionID(),
 	}
 }
 
-func Add(conn net.Conn) {
+// func (nc *NetConnection) Write(data string) {
+// 	io.WriteString(nc.Session., data)
+// }
+
+func (nc *NetConnection) Close() {
+	nc.Session.Close()
+}
+
+func Add(s ssh.Session) {
+	slog.Debug("Adding connection",
+		slog.String("remote_address", s.RemoteAddr().String()),
+		slog.String("session_id", s.Context().SessionID()))
 	lock.Lock()
 	defer lock.Unlock()
 
-	netConn := NewNetConnection(conn)
-	netConnections[netConn.ID] = netConn.Conn
+	netConn := NewNetConnection(s)
+	netConnections[netConn.ID] = netConn.Session
 
 	slog.Debug("Added connection",
 		slog.String("connection_id", netConn.ID),
-		slog.String("remote_address", netConn.Conn.RemoteAddr().String()))
+		slog.String("remote_address", s.RemoteAddr().String()))
 }

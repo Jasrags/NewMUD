@@ -6,16 +6,19 @@ require (
 	github.com/Workiva/go-datastructures v1.1.5
 	github.com/asaskevich/EventBus v0.0.0-20200907212545-49d423059eef
 	github.com/fsnotify/fsnotify v1.8.0
-	github.com/google/uuid v1.4.0
+	github.com/gliderlabs/ssh v0.3.8
 	github.com/i582/cfmt v1.4.0
 	github.com/rs/zerolog v1.33.0
 	github.com/spf13/viper v1.19.0
 	github.com/stretchr/testify v1.9.0
 	github.com/vansante/go-event-emitter v1.0.2
+	golang.org/x/crypto v0.31.0
+	golang.org/x/term v0.27.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
+	github.com/anmitsu/go-shlex v0.0.0-20200514113438-38f4b401e2be // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/gookit/color v1.3.2 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
@@ -35,7 +38,7 @@ require (
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.9.0 // indirect
 	golang.org/x/exp v0.0.0-20231006140011-7918f672742d // indirect
-	golang.org/x/sys v0.18.0 // indirect
-	golang.org/x/text v0.14.0 // indirect
+	golang.org/x/sys v0.28.0 // indirect
+	golang.org/x/text v0.21.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 )

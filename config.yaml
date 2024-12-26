@@ -6,6 +6,9 @@ server:
   environment: dev
   async_events: True
   input_queue_capacity: 100
+  idle_timeout: 30s
+  initial_state: debug
+  starting_room: limbo:the_void
 data:
   accounts_path: _data/accounts
   areas_path: _data/areas
@@ -15,3 +18,4 @@ data:
   manifest_file: manifest.yml
   rooms_file: rooms.yml
   items_file: items.yml
+  mobs_file: mobs.yml

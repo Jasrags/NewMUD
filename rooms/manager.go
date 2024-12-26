@@ -1,16 +1,18 @@
 package rooms
 
 import (
+	"fmt"
 	"log/slog"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/spf13/viper"
 	"gopkg.in/yaml.v3"
 )
 
 var (
-	manager = NewManager()
+	Mgr = NewManager()
 )
 
 type Manager struct {
@@ -25,7 +27,44 @@ func NewManager() *Manager {
 	}
 }
 
-func LoadDataFiles() {
+// CreateEntityRef creates an entity reference from an area and ID.
+func CreateEntityRef(area, id string) string {
+	return strings.ToLower(fmt.Sprintf("%s:%s", area, id))
+}
+
+// ParseEntityRef parses an entity reference into its area and ID parts.
+func ParseEntityRef(entityRef string) (area, id string) {
+	parts := strings.Split(strings.ToLower(entityRef), ":")
+	if len(parts) != 2 {
+		return "", ""
+	}
+	return parts[0], parts[1]
+}
+
+func (mgr *Manager) AddRoom(r *Room) {
+	slog.Debug("Adding room",
+		slog.String("area_id", r.AreaID),
+		slog.String("room_id", r.ID))
+
+	mgr.rooms[CreateEntityRef(r.AreaID, r.ID)] = r
+}
+
+func (mgr *Manager) GetRoom(entityRef string) *Room {
+	slog.Debug("Getting room",
+		slog.String("entity_ref", entityRef))
+
+	return mgr.rooms[entityRef]
+}
+
+func (mgr *Manager) RemoveRoom(r *Room) {
+	slog.Debug("Removing room",
+		slog.String("area_id", r.AreaID),
+		slog.String("room_id", r.ID))
+
+	delete(mgr.rooms, CreateEntityRef(r.AreaID, r.ID))
+}
+
+func (mgr *Manager) LoadDataFiles() {
 	dataFilePath := viper.GetString("data.areas_path")
 	manifestFileName := viper.GetString("data.manifest_file")
 	roomsFileName := viper.GetString("data.rooms_file")
@@ -69,7 +108,7 @@ func LoadDataFiles() {
 				slog.String("area_name", file.Name()))
 
 			// Add area to roomManager
-			manager.areas[area.ID] = &area
+			mgr.areas[area.ID] = &area
 
 			// Load rooms
 			roomsData, err := os.ReadFile(roomsPath)
@@ -90,12 +129,12 @@ func LoadDataFiles() {
 
 			// Add rooms to roomManager
 			for _, room := range rooms {
-				// Set area ID
 				room.AreaID = area.ID
-				manager.rooms[room.ID] = &room
-				slog.Debug("Loaded room",
-					slog.String("area_id", room.AreaID),
-					slog.String("room_id", room.ID))
+				mgr.AddRoom(&room)
+				// mgr.rooms[CreateEntityRef(room.AreaID, room.ID)] = &room
+				// slog.Debug("Loaded room",
+				// 	slog.String("area_id", room.AreaID),
+				// 	slog.String("room_id", room.ID))
 			}
 
 			slog.Info("Loaded area rooms",

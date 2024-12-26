@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	manager = NewManager()
+	Mgr = NewManager()
 )
 
 type Manager struct {
@@ -24,7 +24,7 @@ func NewManager() *Manager {
 	}
 }
 
-func LoadDataFiles() {
+func (mgr *Manager) LoadDataFiles() {
 	dataFilePath := viper.GetString("data.characters_path")
 	slog.Info("Loading character data files",
 		slog.String("datafile_path", dataFilePath))
@@ -53,7 +53,7 @@ func LoadDataFiles() {
 					slog.String("file", file.Name()))
 			}
 
-			manager.characters[strings.ToLower(c.Name)] = &c
+			mgr.characters[strings.ToLower(c.Name)] = &c
 
 			slog.Debug("Loaded character",
 				slog.String("id", c.ID),
@@ -62,5 +62,5 @@ func LoadDataFiles() {
 	}
 
 	slog.Info("Loaded characters",
-		slog.Int("count", len(manager.characters)))
+		slog.Int("count", len(mgr.characters)))
 }
