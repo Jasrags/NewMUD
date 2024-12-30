@@ -4,6 +4,9 @@
   exits: 
     north:
       room_id: limbo:limbo
+  mobs: ["libo:goblin"]
+  items:
+    - id: "limbo:small_rock"
   description: >-
     You don't think that you are not floating in nothing.
 - id: limbo

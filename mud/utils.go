@@ -26,7 +26,6 @@ func ParseEntityRef(entityRef string) (area, id string) {
 // RenderRoom renders the room to a string for the player.
 func RenderRoom(player *Player, room *Room) string {
 	var builder strings.Builder
-	var args []interface{}
 
 	// Optionally display the room ID for admins
 	if player.Role == "admin" {
@@ -74,7 +73,7 @@ func RenderRoom(player *Player, room *Room) string {
 		}
 	}
 
-	return cfmt.Sprintf(builder.String(), args...)
+	return cfmt.Sprint(builder.String())
 }
 
 // WrapText splits text into lines of the specified width without breaking words.

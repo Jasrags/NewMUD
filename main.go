@@ -3,24 +3,13 @@ package main
 import (
 	"io"
 	"log/slog"
-	"net"
 	"os"
-	"strings"
 	"time"
-
-	"github.com/Jasrags/NewMUD/characters"
-	"github.com/Jasrags/NewMUD/commands"
-	"github.com/Jasrags/NewMUD/connections"
-	"github.com/Jasrags/NewMUD/items"
-	"github.com/Jasrags/NewMUD/mobs"
-	"github.com/Jasrags/NewMUD/rooms"
-	"github.com/Jasrags/NewMUD/users"
 
 	"github.com/fsnotify/fsnotify"
 	"github.com/gliderlabs/ssh"
 	"github.com/i582/cfmt/cmd/cfmt"
 	"github.com/spf13/viper"
-	"golang.org/x/term"
 )
 
 func main() {
@@ -103,46 +92,6 @@ func setupLogger() {
 	slog.SetDefault(logger)
 }
 
-func setupServer() {
-	address := net.JoinHostPort(viper.GetString("server.host"), viper.GetString("server.port"))
-
-	slog.Info("Starting server",
-		slog.String("address", address))
-
-	server := &ssh.Server{
-		Addr: address,
-		// IdleTimeout:              viper.GetDuration("server.idle_timeout"), // TODO: reenable timeout later when we fix the connection close issues
-		Handler: handleConnection,
-		// ConnCallback:             ConnCallback,
-		// ConnectionFailedCallback: ConnectionFailedCallback,
-	}
-	defer server.Close()
-
-	if err := server.ListenAndServe(); err != nil {
-		slog.Error("Error starting server",
-			slog.String("address", address),
-			slog.Any("error", err))
-		return
-	}
-
-	// slog.Info("Server started", slog.String("address", address))
-
-	// return server
-}
-
-// func ConnCallback(ctx ssh.Context, conn net.Conn) net.Conn {
-// 	slog.Info("New connection",
-// 		slog.String("remote_address", conn.RemoteAddr().String()))
-
-// 	return conn
-// }
-
-// func ConnectionFailedCallback(conn net.Conn, err error) {
-// 	slog.Error("Connection failed",
-// 		slog.Any("error", err))
-// 	conn.Close()
-// }
-
 const (
 	// This will skip straight to the game loop
 	StateDebug           = "debug"
@@ -160,32 +109,6 @@ const (
 // 		uintptr(unsafe.Pointer(&struct{ h, w, x, y uint16 }{uint16(h), uint16(w), 0, 0})))
 // }
 
-func PromptForInput(s ssh.Session, prompt string) (string, error) {
-	t := term.NewTerminal(s, prompt)
-	input, err := t.ReadLine()
-	if err != nil {
-		slog.Error("Error reading input", slog.Any("error", err))
-		s.Close()
-
-		return "", err
-	}
-
-	return strings.TrimSpace(input), nil
-}
-
-func PromptForPassword(s ssh.Session, prompt string) string {
-	t := term.NewTerminal(s, prompt)
-	input, err := t.ReadPassword(prompt)
-	if err != nil {
-		slog.Error("Error reading password", slog.Any("error", err))
-		s.Close()
-
-		return ""
-	}
-
-	return strings.TrimSpace(input)
-}
-
 func handleConnection(s ssh.Session) {
 	defer s.Close()
 	// _, winCh, _ := s.Pty()
@@ -200,7 +123,8 @@ func handleConnection(s ssh.Session) {
 	// 	}
 	// }()
 
-	var user *users.User
+	var user *User
+	var char *Character
 	// user := &users.User{
 	// 	NetConn: connections.NewNetConnection(s),
 	// 	// State:   StateWelcome,
@@ -214,21 +138,41 @@ func handleConnection(s ssh.Session) {
 		// Skip straight to the game loop
 		case StateDebug:
 			slog.Debug("Debug state")
-			user = users.Mgr.GetByUsername("admin")
-			user.NetConn = connections.NewNetConnection(s)
-			if user.RoomID == "" {
-				user.RoomID = viper.GetString("server.starting_room")
+
+			t := time.Now()
+
+			// Get our admin user and character
+			user = UserMgr.GetByUsername("admin")
+			char = CharacterMgr.GetCharacterByName("admin")
+
+			user.LastLoginAt = &t
+			user.ActiveCharacter = char
+			char.UserID = user.ID
+			char.CreatedAt = t
+			char.User = user
+
+			// user.NetConn = connections.NewNetConnection(s)
+			if char.RoomID == "" {
+				char.RoomID = viper.GetString("server.starting_room")
 			}
 
-			user.Room = rooms.Mgr.GetRoom(user.RoomID)
-
-			if user.Room == nil {
-				slog.Error("Starting room not found", slog.String("room_id", user.RoomID))
+			// Get the starting room
+			room := EntityMgr.GetRoom(char.RoomID)
+			if room == nil {
+				slog.Error("Starting room not found", slog.String("room_id", char.RoomID))
 				return
 			}
 
-			t := time.Now()
-			user.LastLoginAt = &t
+			// Set the user's active character to the room
+			char.RoomID = room.ReferenceID
+			char.Room = room
+			char.AreaID = room.AreaID
+			char.Area = room.Area
+
+			user.Save()
+			char.Save()
+
+			char.MoveToRoom(char.Room)
 
 			state = StateEnterGame
 		case StateWelcome:
@@ -263,7 +207,7 @@ func handleConnection(s ssh.Session) {
 				slog.String("password", password))
 
 			// Check if user exists
-			user = users.Mgr.GetByUsername(username)
+			user = UserMgr.GetByUsername(username)
 
 			// If user does not exist, we need to go to the registration process
 			if user == nil {
@@ -318,14 +262,14 @@ func handleConnection(s ssh.Session) {
 			if input == "" {
 				continue
 			}
-			commands.Mgr.ParseAndExecute(s, input, nil, nil)
+			CommandMgr.ParseAndExecute(s, input, user, user.ActiveCharacter.Room)
 		case StateExitGame:
 			slog.Debug("Exit game state")
 			// user.NetConn.Close()
 			s.Close()
 			return
 		default:
-			slog.Error("Invalid state", slog.String("user_state", user.State))
+			slog.Error("Invalid state", slog.String("user_state", state))
 		}
 	}
 
@@ -375,12 +319,12 @@ func handleConnection(s ssh.Session) {
 // }
 
 func loadAllDataFiles() {
-	rooms.Mgr.LoadDataFiles()
-	items.Mgr.LoadDataFiles()
-	mobs.Mgr.LoadDataFiles()
-	users.Mgr.LoadDataFiles()
-	characters.Mgr.LoadDataFiles()
-	commands.Mgr.RegisterCommands()
+	slog.Info("Loading data files")
+
+	EntityMgr.LoadDataFiles()
+	UserMgr.LoadDataFiles()
+	CharacterMgr.LoadDataFiles()
+	CommandMgr.RegisterCommands()
 }
 
 // func displayBanner(conn net.Conn) {
