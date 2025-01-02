@@ -1,14 +1,11 @@
 package main
 
 import (
-	"io"
 	"log/slog"
 	"os"
-	"time"
 
 	"github.com/fsnotify/fsnotify"
 	"github.com/gliderlabs/ssh"
-	"github.com/i582/cfmt/cmd/cfmt"
 	"github.com/spf13/viper"
 )
 
@@ -92,18 +89,6 @@ func setupLogger() {
 	slog.SetDefault(logger)
 }
 
-const (
-	// This will skip straight to the game loop
-	StateDebug           = "debug"
-	StateWelcome         = "welcome"
-	StateLogin           = "login"
-	StateRegistration    = "registration"
-	StateMainMenu        = "main_menu"
-	StateCharacterSelect = "character_select"
-	StateEnterGame       = "enter_game"
-	StateExitGame        = "exit_game"
-)
-
 // func setWinsize(f *os.File, w, h int) {
 // 	syscall.Syscall(syscall.SYS_IOCTL, f.Fd(), uintptr(syscall.TIOCSWINSZ),
 // 		uintptr(unsafe.Pointer(&struct{ h, w, x, y uint16 }{uint16(h), uint16(w), 0, 0})))
@@ -111,168 +96,58 @@ const (
 
 func handleConnection(s ssh.Session) {
 	defer s.Close()
-	// _, winCh, _ := s.Pty()
 
-	// // Set the window size
-	// go func() {
-	// 	for win := range winCh {
-	// 		slog.Debug("Window size changed",
-	// 			slog.Int("width", win.Width),
-	// 			slog.Int("height", win.Height),
-	// 		)
-	// 	}
-	// }()
+	_, winCh, _ := s.Pty()
+
+	// Set the window size
+	go func() {
+		for win := range winCh {
+			slog.Debug("Window size changed",
+				slog.Int("width", win.Width),
+				slog.Int("height", win.Height),
+			)
+		}
+	}()
 
 	var user *User
 	var char *Character
-	// user := &users.User{
-	// 	NetConn: connections.NewNetConnection(s),
-	// 	// State:   StateWelcome,
-	// }
+	// var room *Room
+	var state = StateWelcome
 
-	// connections.Mgr.Add(user.NetConn)
-
-	state := viper.GetString("server.initial_state")
 	for {
 		switch state {
-		// Skip straight to the game loop
-		case StateDebug:
-			slog.Debug("Debug state")
-
-			t := time.Now()
-
-			// Get our admin user and character
-			user = UserMgr.GetByUsername("admin")
-			char = CharacterMgr.GetCharacterByName("admin")
-
-			user.LastLoginAt = &t
-			user.ActiveCharacter = char
-			char.UserID = user.ID
-			char.CreatedAt = t
-			char.User = user
-
-			// user.NetConn = connections.NewNetConnection(s)
-			if char.RoomID == "" {
-				char.RoomID = viper.GetString("server.starting_room")
-			}
-
-			// Get the starting room
-			room := EntityMgr.GetRoom(char.RoomID)
-			if room == nil {
-				slog.Error("Starting room not found", slog.String("room_id", char.RoomID))
-				return
-			}
-
-			// Set the user's active character to the room
-			char.RoomID = room.ReferenceID
-			char.Room = room
-			char.AreaID = room.AreaID
-			char.Area = room.Area
-
-			user.Save()
-			char.Save()
-
-			char.MoveToRoom(char.Room)
-
-			state = StateEnterGame
 		case StateWelcome:
-			slog.Debug("Welcome state")
-			banner := `
-{{Welcome to the MUD server!}}::green
-{{==========================}}::white|bold
-`
-
-			io.WriteString(s, cfmt.Sprint(banner))
-			input, _ := PromptForInput(s, cfmt.Sprint("Type {{login}}::green or {{register}}::green to continue: "))
-
-			switch input {
-			case "login":
-				state = StateLogin
-			case "register":
-				state = StateRegistration
-			default:
-				io.WriteString(s, cfmt.Sprint("{{Invalid option}}::red\n"))
-				state = StateWelcome
-			}
+			state = promptWelcome(s)
 		case StateLogin:
-			slog.Debug("Login state")
-			// Collect username
-			username, _ := PromptForInput(s, cfmt.Sprint("{{Enter your username:}}::green "))
-
-			// Collect password
-			password := PromptForPassword(s, cfmt.Sprint("{{Enter your password:}}::green "))
-
-			slog.Debug("Received username and password",
-				slog.String("username", username),
-				slog.String("password", password))
-
-			// Check if user exists
-			user = UserMgr.GetByUsername(username)
-
-			// If user does not exist, we need to go to the registration process
-			if user == nil {
-				io.WriteString(s, "User does not exist\n")
-				state = StateRegistration
-				continue
-			}
-
-			// Validate password against user's hashed password
-			if !user.CheckPassword(password) {
-				io.WriteString(s, cfmt.Sprint("{{Invalid username or password}}::red\n"))
-
-				slog.Debug("Invalid username or password")
-				state = StateLogin
-				return
-			}
-
-			// TODO: Check if user is already logged in
-
-			// TODO: Check if user is banned
-
-			t := time.Now()
-			user.LastLoginAt = &t
-
-			// state = StateMainMenu
-			state = StateMainMenu
-			continue
+			state, user = promptLogin(s)
 		case StateRegistration:
-			slog.Debug("Registration state")
-			io.WriteString(s, cfmt.Sprint("{{Registration}}::green\n"))
-			PromptForInput(s, cfmt.Sprint("{{Press enter to continue...}}::green"))
-			state = StateMainMenu
+			state, user = promptRegistration(s)
 		case StateMainMenu:
-			slog.Debug("Main menu state")
-			io.WriteString(s, cfmt.Sprint("{{Main Menu}}::green\n"))
-			PromptForInput(s, cfmt.Sprint("{{Press enter to continue...}}::green"))
-			state = StateCharacterSelect
-		case StateCharacterSelect:
-			slog.Debug("Character select state")
-			io.WriteString(s, cfmt.Sprint("{{Character Select}}::green\n"))
-			PromptForInput(s, cfmt.Sprint("{{Press enter to continue...}}::green"))
-			state = StateEnterGame
+			state = promptMainMenu(s, user)
+		case StateChangePassword:
+			state = promptChangePassword(s, user)
+		// case StateCharacterSelect:
+		// state, char = promptCharacterSelect(s, user)
 		case StateEnterGame:
-			slog.Debug("Enter game state")
-			input, err := PromptForInput(s, cfmt.Sprint("{{>}}::white|bold "))
-			if err != nil {
-				slog.Error("Error reading input", slog.Any("error", err))
-				state = StateExitGame
-				break
-			}
-
-			if input == "" {
-				continue
-			}
-			CommandMgr.ParseAndExecute(s, input, user, user.ActiveCharacter.Room)
+			state, char = promptEnterGame(s, user)
+		case StateGameLoop:
+			state = promptGameLoop(s, user, char)
 		case StateExitGame:
-			slog.Debug("Exit game state")
-			// user.NetConn.Close()
+			state = promptExitGame(s, user, char)
+		case StateQuit:
+			fallthrough
+		case StateError:
 			s.Close()
+			char = nil
+			user = nil
 			return
 		default:
 			slog.Error("Invalid state", slog.String("user_state", state))
+			s.Close()
+			char = nil
+			user = nil
 		}
 	}
-
 }
 
 // func handleConnection(netConn *connections.NetConnection, wg *sync.WaitGroup) {

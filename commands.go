@@ -42,9 +42,9 @@ type Command struct {
 	Func        CommandFunc
 }
 
-type CommandFunc func(s ssh.Session, cmd string, args []string, user *User, room *Room)
+type CommandFunc func(s ssh.Session, cmd string, args []string, user *User, char *Character, room *Room)
 
-func Help(s ssh.Session, cmd string, args []string, user *User, room *Room) {
+func Help(s ssh.Session, cmd string, args []string, user *User, char *Character, room *Room) {
 	slog.Debug("Help command")
 
 	uniqueCommands := make(map[string]*Command)
@@ -61,22 +61,24 @@ func Help(s ssh.Session, cmd string, args []string, user *User, room *Room) {
 	io.WriteString(s, builder.String())
 }
 
-func Look(s ssh.Session, cmd string, args []string, user *User, room *Room) {
+func Look(s ssh.Session, cmd string, args []string, user *User, char *Character, room *Room) {
 	slog.Debug("Look command")
 
 	// if no arguments are passed, show the room
 	if len(args) == 0 {
-		io.WriteString(s, RenderRoom(user, room))
+		io.WriteString(s, RenderRoom(user, char, room))
 	} else {
 		io.WriteString(s, cfmt.Sprintf("{{Look at what?}}::red\n"))
 	}
 	// TODO: Support looking at other things, like items, characters, mobs
 }
 
-func Move(s ssh.Session, cmd string, args []string, user *User, room *Room) {
-	slog.Debug("Move command")
+func Move(s ssh.Session, cmd string, args []string, user *User, char *Character, room *Room) {
+	slog.Debug("Move command",
+		slog.String("command", cmd),
+		slog.Any("args", args))
 
-	if user.ActiveCharacter.Room == nil {
+	if room == nil {
 		io.WriteString(s, cfmt.Sprintf("{{You are not in a room.}}::red\n"))
 		return
 	}
@@ -85,37 +87,35 @@ func Move(s ssh.Session, cmd string, args []string, user *User, room *Room) {
 		io.WriteString(s, cfmt.Sprintf("{{Move where?}}::red\n"))
 		return
 	}
+
 	// Check if the player specified a direction with the move command or used a direction alias
+	var dir string
+	switch cmd {
+	case "n", "north":
+		dir = "north"
+	case "s", "south":
+		dir = "south"
+	case "e", "east":
+		dir = "east"
+	case "w", "west":
+		dir = "west"
+	case "u", "up":
+		dir = "up"
+	case "d", "down":
+		dir = "down"
+	default:
+		slog.Error("Invalid direction",
+			slog.String("direction", dir))
+	}
 
-	// var dir string
-	// switch cmd {
-	// case "n", "north":
-	// 	dir = "north"
-	// case "s", "south":
-	// 	dir = "south"
-	// case "e", "east":
-	// 	dir = "east"
-	// case "w", "west":
-	// 	dir = "west"
-	// case "u", "up":
-	// 	dir = "up"
-	// case "d", "down":
-	// 	dir = "down"
-	// default:
-	// 	dir = args[0]
-	// }
 	// Check if the exit exists
-	// if exit, ok := user.ActiveCharacter.Room.Exits[dir]; ok {
-	// user.ActiveCharacter.MoveToRoom(exit.Room)
-	// io.WriteString(user.Conn, cfmt.Sprintf("You move %s.\n\n", dir))
-	// } else {
-	// io.WriteString(user.Conn, cfmt.Sprintf("{{You can't go that way.}}::red\n"))
-	// return
-	// }
-
-	// io.WriteString(user.Conn, RenderRoom(user, user.ActiveCharacter.Room))
-	// var builder strings.Builder
-
-	// io.WriteString(s, builder.String())
-
+	if exit, ok := char.Room.Exits[dir]; ok {
+		char.MoveToRoom(exit.Room)
+		char.Save()
+		io.WriteString(s, cfmt.Sprintf("You move %s.\n\n", dir))
+		io.WriteString(s, RenderRoom(user, char, room))
+	} else {
+		io.WriteString(s, cfmt.Sprintf("{{You can't go that way.}}::red\n"))
+		return
+	}
 }

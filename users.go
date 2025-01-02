@@ -7,7 +7,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/gliderlabs/ssh"
 	"github.com/spf13/viper"
 	ee "github.com/vansante/go-event-emitter"
 	"golang.org/x/crypto/bcrypt"
@@ -15,20 +14,17 @@ import (
 
 type User struct {
 	sync.RWMutex
-	Listeners []ee.Listener `yaml:"-"`
+	Listeners []ee.Listener `json:"-"`
 
-	ID              string      `json:"id"`
-	Username        string      `json:"username"`
-	Password        []byte      `json:"password"`
-	Characters      []string    `json:"characters"`
-	ActiveCharacter *Character  `json:"active_character"`
-	CreatedAt       time.Time   `json:"created_at"`
-	UpdatedAt       *time.Time  `json:"updated_at"`
-	LastLoginAt     *time.Time  `json:"last_login_at"`
-	DeletedAt       *time.Time  `json:"deleted_at"`
-	Conn            ssh.Session `json:"-"`
-	State           string      `json:"-"`
-	// NetConn     *connections.NetConnection `json:"-"`
+	ID          string     `json:"id"`
+	Username    string     `json:"username"`
+	Password    []byte     `json:"password"`
+	Characters  []string   `json:"characters"`
+	CreatedAt   time.Time  `json:"created_at"`
+	UpdatedAt   *time.Time `json:"updated_at"`
+	LastLoginAt *time.Time `json:"last_login_at"`
+	DeletedAt   *time.Time `json:"deleted_at"`
+	State       string     `json:"-"`
 }
 
 func NewUser() *User {

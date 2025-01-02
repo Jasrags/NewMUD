@@ -112,13 +112,11 @@ func FileExists(filePath string) bool {
 }
 
 // RenderRoom renders the room to a string for the player.
-func RenderRoom(user *User, room *Room) string {
+func RenderRoom(user *User, char *Character, room *Room) string {
 	var builder strings.Builder
 
-	char := user.ActiveCharacter
-
 	// Optionally display the room ID for admins
-	if user.ActiveCharacter.Role == CharacterRoleAdmin {
+	if char.Role == CharacterRoleAdmin {
 		builder.WriteString(cfmt.Sprintf("{{[%s] }}::green", room.ID))
 	}
 
@@ -158,8 +156,8 @@ func RenderRoom(user *User, room *Room) string {
 		builder.WriteString(cfmt.Sprint("{{There are no exits.}}::red\n"))
 	} else {
 		builder.WriteString(cfmt.Sprint("{{Exits:}}::#2359b0\n"))
-		for _, exit := range char.Room.Exits {
-			builder.WriteString(cfmt.Sprintf("{{ %-5s - %s}}::#2359b0\n", exit.Direction, exit.Room.Title))
+		for dir, exit := range char.Room.Exits {
+			builder.WriteString(cfmt.Sprintf("{{ %-5s - %s}}::#2359b0\n", dir, exit.Room.Title))
 		}
 	}
 

@@ -20,6 +20,7 @@ type Corrdinates struct {
 	Z int `yaml:"z"`
 }
 
+// TODO: Add Doors and Locks
 type Room struct {
 	sync.RWMutex
 	Listeners []ee.Listener `yaml:"-"`
@@ -54,8 +55,8 @@ func (r *Room) Init() {
 
 	r.Listeners = append(r.Listeners, *EventMgr.Subscribe(EventRoomCharacterEnter, r.onRoomCharacterEnter))
 	r.Listeners = append(r.Listeners, *EventMgr.Subscribe(EventRoomCharacterLeave, r.onRoomCharacterLeave))
-	// r.Listeners = append(r.Listeners, *EventMgr.Subscribe(EventRoomNpcEnter, r.onRoomNpcEnter))
-	// r.Listeners = append(r.Listeners, *EventMgr.Subscribe(EventRoomNpcLeave, r.onRoomNpcLeave))
+	r.Listeners = append(r.Listeners, *EventMgr.Subscribe(EventRoomMobEnter, r.onRoomMobEnter))
+	r.Listeners = append(r.Listeners, *EventMgr.Subscribe(EventRoomMobLeave, r.onRoomMobLeave))
 	// r.Listeners = append(r.Listeners, *EventMgr.Subscribe(EventRoomSpawn, r.onRoomSpawn))
 	// r.Listeners = append(r.Listeners, *EventMgr.Subscribe(EventRoomUpdate, r.onRoomUpdate))
 }
@@ -178,7 +179,6 @@ func (r *Room) Broadcast(msg string, excludeIDs []string) {
 }
 
 // Event functions
-
 func (r *Room) onRoomCharacterEnter(arguments ...interface{}) {
 	slog.Debug("Room character enter event",
 		slog.String("room_id", r.ID),
@@ -195,8 +195,7 @@ func (r *Room) onRoomCharacterEnter(arguments ...interface{}) {
 
 func (r *Room) onRoomCharacterLeave(arguments ...interface{}) {
 	slog.Debug("Room character leave event",
-		slog.String("room_id", r.ID),
-		slog.Any("args", arguments))
+		slog.String("room_id", r.ID))
 
 	arg := arguments[0].(*RoomCharacterLeave)
 
@@ -205,4 +204,31 @@ func (r *Room) onRoomCharacterLeave(arguments ...interface{}) {
 	}
 
 	r.Broadcast("A character has left the room", []string{arg.Character.ID})
+}
+
+func (r *Room) onRoomMobEnter(arguments ...interface{}) {
+	slog.Debug("Room mob enter event",
+		slog.String("room_id", r.ID))
+
+	arg := arguments[0].(*RoomMobEnter)
+
+	if arg.Room.ID != r.ID {
+		return
+	}
+
+	r.Broadcast("A mob has entered the room", []string{arg.Mob.ID})
+
+}
+
+func (r *Room) onRoomMobLeave(arguments ...interface{}) {
+	slog.Debug("Room mob leave event",
+		slog.String("room_id", r.ID))
+
+	arg := arguments[0].(*RoomMobLeave)
+
+	if arg.Room.ID != r.ID {
+		return
+	}
+
+	r.Broadcast("A mob has left the room", []string{arg.Mob.ID})
 }

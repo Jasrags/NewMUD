@@ -39,7 +39,7 @@ func (mgr *CommandManager) GetCommands() map[string]*Command {
 	return mgr.commands
 }
 
-func (mgr *CommandManager) ParseAndExecute(s ssh.Session, input string, user *User, room *Room) {
+func (mgr *CommandManager) ParseAndExecute(s ssh.Session, input string, user *User, char *Character, room *Room) {
 	slog.Debug("Parsing and executing command",
 		slog.String("input", input))
 
@@ -56,7 +56,7 @@ func (mgr *CommandManager) ParseAndExecute(s ssh.Session, input string, user *Us
 		slog.Any("args", args))
 
 	if command, ok := mgr.commands[cmd]; ok {
-		command.Func(s, cmd, args, user, user.ActiveCharacter.Room)
+		command.Func(s, cmd, args, user, char, room)
 	} else {
 		io.WriteString(s, cfmt.Sprintf("{{Unknown command.}}::red\n"))
 	}

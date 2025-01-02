@@ -17,15 +17,20 @@ var (
 
 type UserManager struct {
 	sync.RWMutex
+
 	onlineUsers map[string]*User
 	users       map[string]*User
+	bannedNames map[string]bool
 }
 
 func NewUserManager() *UserManager {
-	return &UserManager{
+	um := &UserManager{
 		onlineUsers: make(map[string]*User),
 		users:       make(map[string]*User),
+		bannedNames: make(map[string]bool),
 	}
+
+	return um
 }
 
 func (mgr *UserManager) AddUser(u *User) {
@@ -94,8 +99,35 @@ func (mgr *UserManager) SetOffline(u *User) {
 	delete(mgr.onlineUsers, u.ID)
 }
 
+func (mgr *UserManager) Exists(username string) bool {
+	mgr.RLock()
+	defer mgr.RUnlock()
+
+	slog.Debug("Checking if user exists",
+		slog.String("username", username))
+
+	return mgr.users[strings.ToLower(username)] != nil
+}
+
+func (mgr *UserManager) IsBannedName(name string) bool {
+	mgr.RLock()
+	defer mgr.RUnlock()
+
+	slog.Debug("Checking if user name is banned",
+		slog.String("username", name))
+
+	return mgr.bannedNames[strings.ToLower(name)]
+}
+
 func (mgr *UserManager) LoadDataFiles() {
 	dataFilePath := viper.GetString("data.users_path")
+	bannedNames := viper.GetStringSlice("banned_names")
+
+	// Load banned names
+	slog.Info("Loading banned user names")
+	for _, name := range bannedNames {
+		mgr.bannedNames[strings.ToLower(name)] = true
+	}
 
 	slog.Info("Loading user data files",
 		slog.String("datafile_path", dataFilePath))

@@ -16,12 +16,15 @@ var (
 
 type CharacterManager struct {
 	sync.RWMutex
-	characters map[string]*Character
+
+	characters  map[string]*Character
+	bannedNames map[string]bool
 }
 
 func NewCharacterManager() *CharacterManager {
 	return &CharacterManager{
-		characters: make(map[string]*Character),
+		characters:  make(map[string]*Character),
+		bannedNames: make(map[string]bool),
 	}
 }
 
@@ -46,17 +49,44 @@ func (mgr *CharacterManager) GetCharacterByName(name string) *Character {
 }
 
 func (mgr *CharacterManager) RemoveCharacter(c *Character) {
-	slog.Debug("Removing character",
-		slog.String("character_name", c.Name))
-
 	mgr.Lock()
 	defer mgr.Unlock()
 
+	slog.Debug("Removing character",
+		slog.String("character_name", c.Name))
+
 	delete(mgr.characters, strings.ToLower(c.Name))
+}
+func (mgr *CharacterManager) Exists(name string) bool {
+	mgr.RLock()
+	defer mgr.RUnlock()
+
+	slog.Debug("Checking if character exists",
+		slog.String("character_name", name))
+
+	return mgr.characters[strings.ToLower(name)] != nil
+}
+
+func (mgr *CharacterManager) IsBannedName(name string) bool {
+	mgr.RLock()
+	defer mgr.RUnlock()
+
+	slog.Debug("Checking if character name is banned",
+		slog.String("character_name", name))
+
+	return mgr.bannedNames[strings.ToLower(name)]
 }
 
 func (mgr *CharacterManager) LoadDataFiles() {
 	dataFilePath := viper.GetString("data.characters_path")
+	bannedNames := viper.GetStringSlice("banned_names")
+
+	// Load banned names
+	slog.Info("Loading banned character names")
+	for _, name := range bannedNames {
+		mgr.bannedNames[strings.ToLower(name)] = true
+	}
+
 	slog.Info("Loading character data files",
 		slog.String("datafile_path", dataFilePath))
 

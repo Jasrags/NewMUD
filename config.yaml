@@ -7,8 +7,18 @@ server:
   async_events: True
   input_queue_capacity: 100
   idle_timeout: 30s
-  initial_state: debug
+  initial_state: welcome
   starting_room: limbo:the_void
+  login_enabled: True
+  registration_enabled: True
+  max_players: 100
+  max_input_length: 1024
+  password_min_length: 8
+  password_max_length: 64
+  username_min_length: 3
+  username_max_length: 32
+  charactername_min_length: 3
+  charactername_max_length: 32
 data:
   accounts_path: _data/accounts
   areas_path: _data/areas
@@ -19,3 +29,9 @@ data:
   rooms_file: rooms.yml
   items_file: items.yml
   mobs_file: mobs.yml
+banned_names:
+  - admin
+  - administrator
+  - god
+  - immortal
+  - wizard

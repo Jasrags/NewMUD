@@ -135,6 +135,7 @@ func (mgr *EntityManager) AddRoom(r *Room) {
 		slog.String("room_id", r.ID))
 
 	mgr.rooms[CreateEntityRef(r.AreaID, r.ID)] = r
+	r.Init()
 }
 
 func (mgr *EntityManager) GetRoom(referenceID string) *Room {
@@ -278,10 +279,17 @@ func (mgr *EntityManager) BuildRooms() {
 
 	slog.Info("Building room exits")
 	for _, room := range mgr.rooms {
-		// room := mgr.rooms[id]
-		for _, exit := range room.Exits {
+		for dir, exit := range room.Exits {
 			exit.Room = mgr.GetRoom(exit.RoomID)
-			// room.Exits[exit.Direction] = mgr.GetRoom(exit.ReferenceID)
+			room.Exits[dir] = exit
 		}
+		// r := mgr.rooms[id]
+		// for dir, _ := range r.Exits {
+		// e := r.Exits[dir]
+		// e.Room = mgr.GetRoom(e.RoomID)
+		// exit.Room = mgr.GetRoom(exit.RoomID)
+		// exit.Room = mgr.GetRoom(exit.RoomID)
+		// room.Exits[exit.Direction] = mgr.GetRoom(exit.ReferenceID)
+		// }
 	}
 }

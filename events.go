@@ -6,15 +6,43 @@ const (
 	TestEvent ee.EventType = "test"
 
 	EventRoomChannelReceive ee.EventType = "room_channel_receive"
-	EventRoomNpcEnter       ee.EventType = "room_npc_enter"
-	EventRoomNpcLeave       ee.EventType = "room_npc_leave"
+	EventRoomMobEnter       ee.EventType = "room_mob_enter"
+	EventRoomMobLeave       ee.EventType = "room_mob_leave"
 	EventRoomCharacterEnter ee.EventType = "room_character_enter"
 	EventRoomCharacterLeave ee.EventType = "room_character_leave"
-	EventRoomReady          ee.EventType = "room_ready"
-	EventRoomSpawn          ee.EventType = "room_spawn"
-	EventRoomUpdate         ee.EventType = "room_update"
+	// EventRoomReady          ee.EventType = "room_ready"
+	// EventRoomSpawn          ee.EventType = "room_spawn"
+	// EventRoomUpdate         ee.EventType = "room_update"
 
 	EventPlayerEnterRoom ee.EventType = "player_enter_room"
+)
+
+type (
+	RoomCharacterEnter struct {
+		Character *Character
+		Room      *Room
+		PrevRoom  *Room
+	}
+	RoomCharacterLeave struct {
+		Character *Character
+		Room      *Room
+		NextRoom  *Room
+	}
+	RoomMobEnter struct {
+		Mob      *Mob
+		Room     *Room
+		PrevRoom *Room
+	}
+	RoomMobLeave struct {
+		Mob      *Mob
+		Room     *Room
+		NextRoom *Room
+	}
+	PlayerEnterRoom struct {
+		Character *Character
+		Room      *Room
+	}
+)
 
 // /Users/jrags/Code/Ranvier/core/src/Area.js
 //   69,5:    * @fires Area#roomAdded
@@ -176,22 +204,3 @@ const (
 //   316,7:      * @event Item#spawn
 //   337,7:      * @event Npc#spawn
 //   349,7:      * @event Room#spawn
-
-)
-
-type (
-	RoomCharacterEnter struct {
-		Character *Character
-		Room      *Room
-		PrevRoom  *Room
-	}
-	RoomCharacterLeave struct {
-		Character *Character
-		Room      *Room
-		NextRoom  *Room
-	}
-	PlayerEnterRoom struct {
-		Character *Character
-		Room      *Room
-	}
-)

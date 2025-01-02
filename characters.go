@@ -8,6 +8,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/gliderlabs/ssh"
 	"github.com/spf13/viper"
 	ee "github.com/vansante/go-event-emitter"
 )
@@ -21,7 +22,8 @@ const (
 
 type Character struct {
 	sync.RWMutex
-	Listeners []ee.Listener `yaml:"-"`
+	Listeners []ee.Listener `json:"-"`
+	Conn      ssh.Session   `json:"-"`
 
 	ID        string        `json:"id"`
 	User      *User         `json:"-"`
@@ -54,7 +56,7 @@ func (c *Character) Send(msg string) {
 		slog.String("character_id", c.ID),
 		slog.String("message", msg))
 
-	io.WriteString(c.User.Conn, msg)
+	io.WriteString(c.Conn, msg)
 }
 
 func (c *Character) MoveToRoom(nextRoom *Room) {
@@ -72,8 +74,9 @@ func (c *Character) MoveToRoom(nextRoom *Room) {
 	}
 
 	c.Room = nextRoom
-	c.RoomID = nextRoom.ID
+	c.RoomID = CreateEntityRef(c.AreaID, c.Room.ID)
 	nextRoom.AddCharacter(c)
+
 	EventMgr.Publish(EventRoomCharacterEnter, &RoomCharacterEnter{Character: c, Room: c.Room, PrevRoom: prevRoom})
 	EventMgr.Publish(EventPlayerEnterRoom, &PlayerEnterRoom{Character: c, Room: c.Room})
 }
