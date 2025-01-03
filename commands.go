@@ -66,10 +66,11 @@ func Look(s ssh.Session, cmd string, args []string, user *User, char *Character,
 
 	// if no arguments are passed, show the room
 	if len(args) == 0 {
-		io.WriteString(s, RenderRoom(user, char, room))
+		io.WriteString(s, RenderRoom(user, char, nil))
 	} else {
 		io.WriteString(s, cfmt.Sprintf("{{Look at what?}}::red\n"))
 	}
+
 	// TODO: Support looking at other things, like items, characters, mobs
 }
 
@@ -110,10 +111,17 @@ func Move(s ssh.Session, cmd string, args []string, user *User, char *Character,
 
 	// Check if the exit exists
 	if exit, ok := char.Room.Exits[dir]; ok {
+		// prevRoom := char.Room
+		// char.FromRoom()
+		// char.ToRoom(exit.Room)
+
+		// act("$n has arrived.", TRUE, ch, 0,0, TO_ROOM);
+		// do_look(ch, "\0",15);
 		char.MoveToRoom(exit.Room)
 		char.Save()
+
 		io.WriteString(s, cfmt.Sprintf("You move %s.\n\n", dir))
-		io.WriteString(s, RenderRoom(user, char, room))
+		io.WriteString(s, RenderRoom(user, char, nil))
 	} else {
 		io.WriteString(s, cfmt.Sprintf("{{You can't go that way.}}::red\n"))
 		return

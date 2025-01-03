@@ -49,17 +49,17 @@ func NewRoom() *Room {
 	}
 }
 
-func (r *Room) Init() {
-	slog.Debug("Initializing room",
-		slog.String("room_id", r.ID))
+// func (r *Room) Init() {
+// 	slog.Debug("Initializing room",
+// 		slog.String("room_id", r.ID))
 
-	r.Listeners = append(r.Listeners, *EventMgr.Subscribe(EventRoomCharacterEnter, r.onRoomCharacterEnter))
-	r.Listeners = append(r.Listeners, *EventMgr.Subscribe(EventRoomCharacterLeave, r.onRoomCharacterLeave))
-	r.Listeners = append(r.Listeners, *EventMgr.Subscribe(EventRoomMobEnter, r.onRoomMobEnter))
-	r.Listeners = append(r.Listeners, *EventMgr.Subscribe(EventRoomMobLeave, r.onRoomMobLeave))
-	// r.Listeners = append(r.Listeners, *EventMgr.Subscribe(EventRoomSpawn, r.onRoomSpawn))
-	// r.Listeners = append(r.Listeners, *EventMgr.Subscribe(EventRoomUpdate, r.onRoomUpdate))
-}
+// 	r.Listeners = append(r.Listeners, *EventMgr.Subscribe(EventRoomCharacterEnter, r.onRoomCharacterEnter))
+// 	r.Listeners = append(r.Listeners, *EventMgr.Subscribe(EventRoomCharacterLeave, r.onRoomCharacterLeave))
+// 	r.Listeners = append(r.Listeners, *EventMgr.Subscribe(EventRoomMobEnter, r.onRoomMobEnter))
+// 	r.Listeners = append(r.Listeners, *EventMgr.Subscribe(EventRoomMobLeave, r.onRoomMobLeave))
+// 	// r.Listeners = append(r.Listeners, *EventMgr.Subscribe(EventRoomSpawn, r.onRoomSpawn))
+// 	// r.Listeners = append(r.Listeners, *EventMgr.Subscribe(EventRoomUpdate, r.onRoomUpdate))
+// }
 
 func (r *Room) GetExits() {
 	r.RLock()
@@ -166,11 +166,17 @@ func (r *Room) RemoveItem(i *Item) {
 }
 
 func (r *Room) Broadcast(msg string, excludeIDs []string) {
-	r.RLock()
-	defer r.RUnlock()
+	slog.Debug("Broadcasting message to room",
+		slog.String("room_id", r.ID),
+		slog.String("message", msg),
+		slog.Any("exclude_ids", excludeIDs))
 
-	for _, excludeID := range excludeIDs {
-		for _, char := range r.Characters {
+	for _, char := range r.Characters {
+		slog.Debug("Broadcasting message to character",
+			slog.String("character_id", char.ID),
+			slog.String("message", msg))
+
+		for _, excludeID := range excludeIDs {
 			if char.ID != excludeID {
 				char.Send(msg)
 			}
@@ -178,57 +184,57 @@ func (r *Room) Broadcast(msg string, excludeIDs []string) {
 	}
 }
 
-// Event functions
-func (r *Room) onRoomCharacterEnter(arguments ...interface{}) {
-	slog.Debug("Room character enter event",
-		slog.String("room_id", r.ID),
-		slog.Any("args", arguments))
+// // Event functions
+// func (r *Room) onRoomCharacterEnter(arguments ...interface{}) {
+// 	slog.Debug("Room character enter event",
+// 		slog.String("room_id", r.ID),
+// 		slog.Any("args", arguments))
 
-	arg := arguments[0].(*RoomCharacterEnter)
+// 	arg := arguments[0].(*RoomCharacterEnter)
 
-	if arg.Room.ID != r.ID {
-		return
-	}
+// 	if arg.Room.ID != r.ID {
+// 		return
+// 	}
 
-	r.Broadcast("A character has entered the room", []string{arg.Character.ID})
-}
+// 	r.Broadcast("A character has entered the room", []string{arg.Character.ID})
+// }
 
-func (r *Room) onRoomCharacterLeave(arguments ...interface{}) {
-	slog.Debug("Room character leave event",
-		slog.String("room_id", r.ID))
+// func (r *Room) onRoomCharacterLeave(arguments ...interface{}) {
+// 	slog.Debug("Room character leave event",
+// 		slog.String("room_id", r.ID))
 
-	arg := arguments[0].(*RoomCharacterLeave)
+// 	arg := arguments[0].(*RoomCharacterLeave)
 
-	if arg.Room.ID != r.ID {
-		return
-	}
+// 	if arg.Room.ID != r.ID {
+// 		return
+// 	}
 
-	r.Broadcast("A character has left the room", []string{arg.Character.ID})
-}
+// 	r.Broadcast("A character has left the room", []string{arg.Character.ID})
+// }
 
-func (r *Room) onRoomMobEnter(arguments ...interface{}) {
-	slog.Debug("Room mob enter event",
-		slog.String("room_id", r.ID))
+// func (r *Room) onRoomMobEnter(arguments ...interface{}) {
+// 	slog.Debug("Room mob enter event",
+// 		slog.String("room_id", r.ID))
 
-	arg := arguments[0].(*RoomMobEnter)
+// 	arg := arguments[0].(*RoomMobEnter)
 
-	if arg.Room.ID != r.ID {
-		return
-	}
+// 	if arg.Room.ID != r.ID {
+// 		return
+// 	}
 
-	r.Broadcast("A mob has entered the room", []string{arg.Mob.ID})
+// 	r.Broadcast("A mob has entered the room", []string{arg.Mob.ID})
 
-}
+// }
 
-func (r *Room) onRoomMobLeave(arguments ...interface{}) {
-	slog.Debug("Room mob leave event",
-		slog.String("room_id", r.ID))
+// func (r *Room) onRoomMobLeave(arguments ...interface{}) {
+// 	slog.Debug("Room mob leave event",
+// 		slog.String("room_id", r.ID))
 
-	arg := arguments[0].(*RoomMobLeave)
+// 	arg := arguments[0].(*RoomMobLeave)
 
-	if arg.Room.ID != r.ID {
-		return
-	}
+// 	if arg.Room.ID != r.ID {
+// 		return
+// 	}
 
-	r.Broadcast("A mob has left the room", []string{arg.Mob.ID})
-}
+// 	r.Broadcast("A mob has left the room", []string{arg.Mob.ID})
+// }

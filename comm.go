@@ -112,3 +112,17 @@ func PromptForPassword(s ssh.Session, prompt string) (string, error) {
 
 	return strings.TrimSpace(input), nil
 }
+
+func SendToChar(s ssh.Session, message string) {
+	io.WriteString(s, cfmt.Sprintf("{{%s}}::white\n", message))
+}
+
+// void send_to_all(char *messg)
+
+// void send_to_room(char *messg, int room)
+func SendToRoom(s ssh.Session, message string,
+	room *Room) {
+	// for _, c := range room.Characters {
+	// io.WriteString(s, cfmt.Sprintf("{{%s}}::white\n", message))
+	// }
+}

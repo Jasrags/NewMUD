@@ -310,15 +310,20 @@ func promptEnterGame(s ssh.Session, u *User) (string, *Character) {
 	c := CharacterMgr.GetCharacterByName(option)
 	if c == nil {
 		io.WriteString(s, cfmt.Sprintf("{{Character not found.}}::red\n"))
+
 		return StateEnterGame, nil
 	}
 
 	c.Conn = s
 
+	// Load the character's room
 	c.Room = EntityMgr.GetRoom(c.RoomID)
 	if c.Room == nil {
 		io.WriteString(s, cfmt.Sprintf("{{Room not found.}}::red\n"))
+		c.SetRoom(EntityMgr.GetRoom(viper.GetString("server.starting_room")))
 	}
+
+	c.Room.AddCharacter(c)
 
 	return StateGameLoop, c
 }
@@ -351,8 +356,8 @@ func promptGameLoop(s ssh.Session, u *User, c *Character) string {
 
 func promptExitGame(s ssh.Session, u *User, c *Character) string {
 	slog.Debug("Exit game state",
-		// slog.String("username", u.Username),
-		// slog.String("character_name", c.Name),
+		slog.String("username", u.Username),
+		slog.String("character_name", c.Name),
 		slog.String("remote_address", s.RemoteAddr().String()),
 		slog.String("session_id", s.Context().SessionID()))
 

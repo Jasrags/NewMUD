@@ -113,23 +113,26 @@ func FileExists(filePath string) bool {
 
 // RenderRoom renders the room to a string for the player.
 func RenderRoom(user *User, char *Character, room *Room) string {
+	slog.Debug("Rendering room",
+		slog.String("character_id", char.ID))
+
 	var builder strings.Builder
 
 	// Optionally display the room ID for admins
 	if char.Role == CharacterRoleAdmin {
-		builder.WriteString(cfmt.Sprintf("{{[%s] }}::green", room.ID))
+		builder.WriteString(cfmt.Sprintf("{{[%s] }}::green", char.Room.ID))
 	}
 
 	// Display the room title
-	builder.WriteString(cfmt.Sprintf("{{%s}}::#4287f5\n", room.Title))
+	builder.WriteString(cfmt.Sprintf("{{%s}}::#4287f5\n", char.Room.Title))
 
 	// Display the room description
-	builder.WriteString(cfmt.Sprintf("{{%s}}::white\n", WrapText(room.Description, 80)))
+	builder.WriteString(cfmt.Sprintf("{{%s}}::white\n", WrapText(char.Room.Description, 80)))
 
 	// Display players in the room
-	charCount := len(room.Characters)
+	charCount := len(char.Room.Characters)
 	var charNames []string
-	for _, c := range room.Characters {
+	for _, c := range char.Room.Characters {
 		if c.Name != char.Name {
 			color := "cyan"
 			if c.Role == CharacterRoleAdmin {
@@ -152,7 +155,7 @@ func RenderRoom(user *User, char *Character, room *Room) string {
 	builder.WriteString("\n")
 
 	// Display exits
-	if len(room.Exits) == 0 {
+	if len(char.Room.Exits) == 0 {
 		builder.WriteString(cfmt.Sprint("{{There are no exits.}}::red\n"))
 	} else {
 		builder.WriteString(cfmt.Sprint("{{Exits:}}::#2359b0\n"))
@@ -160,6 +163,10 @@ func RenderRoom(user *User, char *Character, room *Room) string {
 			builder.WriteString(cfmt.Sprintf("{{ %-5s - %s}}::#2359b0\n", dir, exit.Room.Title))
 		}
 	}
+
+	// list_obj_to_char(world[ch->in_room].contents, ch, 0,FALSE);
+
+	// list_char_to_char(world[ch->in_room].people, ch, 0);
 
 	return cfmt.Sprint(builder.String())
 }
