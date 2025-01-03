@@ -199,7 +199,7 @@ func promptMainMenu(s ssh.Session, u *User) string {
 	case "Change Password":
 		return StateChangePassword
 	case "Quit":
-		return StateExitGame
+		return StateQuit
 	}
 
 	slog.Debug("Selected option",
@@ -328,6 +328,9 @@ func promptEnterGame(s ssh.Session, u *User) (string, *Character) {
 
 	c.Room.AddCharacter(c)
 
+	u.Save()
+	c.Save()
+
 	return StateGameLoop, c
 }
 
@@ -364,7 +367,10 @@ func promptExitGame(s ssh.Session, u *User, c *Character) string {
 		slog.String("remote_address", s.RemoteAddr().String()),
 		slog.String("session_id", s.Context().SessionID()))
 
+	c.Room.Broadcast(cfmt.Sprintf("\n%s leaves the game.\n", c.Name), []string{c.ID})
 	io.WriteString(s, cfmt.Sprintf("{{Goodbye, %s!}}::green\n", u.Username))
 
-	return StateQuit
+	c = nil
+
+	return StateMainMenu
 }
