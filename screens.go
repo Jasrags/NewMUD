@@ -53,7 +53,6 @@ func promptWelcome(s ssh.Session) string {
 	return StateLogin
 }
 
-// TODO/BUG: This function while logging in can drop a user into the registration state with no way out except to quit.
 func promptLogin(s ssh.Session) (string, *User) {
 	slog.Debug("Login state",
 		slog.String("remote_address", s.RemoteAddr().String()),
@@ -61,6 +60,7 @@ func promptLogin(s ssh.Session) (string, *User) {
 
 promptUsername:
 	io.WriteString(s, cfmt.Sprint("{{Enter your username to continue or type}}::white|bold {{new}}::green|bold {{to register:}}::white|bold\n"))
+
 	username, err := PromptForInput(s, cfmt.Sprint("{{Username:}}::white|bold "))
 	if err != nil {
 		return StateError, nil
@@ -79,16 +79,18 @@ promptUsername:
 	// Check if user exists
 	u := UserMgr.GetByUsername(username)
 
-	// If user does not exist, we need to go to the registration process
 	if u == nil {
-		io.WriteString(s, cfmt.Sprint("{{User does not exist.}}::red\n"))
-		return StateRegistration, nil
+		slog.Warn("User does not exist")
+		io.WriteString(s, cfmt.Sprint("{{Invalid username or password}}::red\n"))
+
+		goto promptUsername
 	}
 
 	// Validate password against user's hashed password
 	if !u.CheckPassword(password) {
+		slog.Warn("Invalid password")
+
 		io.WriteString(s, cfmt.Sprint("{{Invalid username or password}}::red\n"))
-		slog.Debug("Invalid username or password")
 
 		goto promptUsername
 	}
