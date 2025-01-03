@@ -134,6 +134,22 @@ func (c *Character) AddItem(item *Item) {
 	c.Items = append(c.Items, item)
 }
 
+func (c *Character) RemoveItem(item *Item) {
+	c.Lock()
+	defer c.Unlock()
+
+	slog.Debug("Removing item from character",
+		slog.String("character_id", c.ID),
+		slog.String("item_id", item.ID))
+
+	for i, it := range c.Items {
+		if it.ID == item.ID {
+			c.Items = append(c.Items[:i], c.Items[i+1:]...)
+			break
+		}
+	}
+}
+
 func (c *Character) Save() error {
 	c.Lock()
 	defer c.Unlock()

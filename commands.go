@@ -16,24 +16,58 @@ var (
 		{
 			Name:        "look",
 			Description: "Look around the room",
-			Aliases:     []string{"l"},
-			Func:        Look,
+			Usage: []string{
+				"look [item|character|mob|direction]",
+			},
+			Aliases: []string{"l"},
+			Func:    Look,
 		},
 		{
 			Name:        "get",
 			Description: "Get an item",
-			Aliases:     []string{"g"},
-			Func:        Get,
+			Usage: []string{
+				"get all",
+				"get <item>",
+				"get <number> <items>",
+				"get all <items>",
+			},
+			Aliases: []string{"g"},
+			Func:    Get,
+		},
+		{
+			Name:        "give",
+			Description: "Give an item",
+			Usage: []string{
+				"give <item> [to] <character>",
+				"give 2 <items> [to] <character>",
+				"give all [to] <character>",
+			},
+			Aliases: []string{"gi"},
+			Func:    Give,
+		},
+		{
+			Name:        "drop",
+			Description: "Drop an item",
+			Usage: []string{
+				"drop all",
+				"drop <item>",
+				"drop <number> <items>",
+				"drop all <items>",
+			},
+			Aliases: []string{"d"},
+			Func:    Drop,
 		},
 		{
 			Name:        "help",
 			Description: "List available commands",
+			Usage:       []string{"help"},
 			Aliases:     []string{"h"},
 			Func:        Help,
 		},
 		{
 			Name:        "move",
 			Description: "Move to a different room",
+			Usage:       []string{"move [direction]"},
 			Aliases:     []string{"m", "n", "s", "e", "w", "u", "d", "north", "south", "east", "west", "up", "down"},
 			Func:        Move,
 		},
@@ -43,6 +77,7 @@ var (
 type Command struct {
 	Name        string
 	Description string
+	Usage       []string
 	Aliases     []string
 	IsAdmin     bool
 	Func        CommandFunc
@@ -50,6 +85,11 @@ type Command struct {
 
 type CommandFunc func(s ssh.Session, cmd string, args []string, user *User, char *Character, room *Room)
 
+/*
+Usage:
+  - help
+  - help <command>
+*/
 func Help(s ssh.Session, cmd string, args []string, user *User, char *Character, room *Room) {
 	slog.Debug("Help command",
 		slog.String("command", cmd),
@@ -61,14 +101,142 @@ func Help(s ssh.Session, cmd string, args []string, user *User, char *Character,
 	}
 
 	var builder strings.Builder
-	builder.WriteString(cfmt.Sprintf("{{Available commands:}}::white|bold\n"))
-	for _, cmd := range uniqueCommands {
-		builder.WriteString(cfmt.Sprintf("{{%s}}::cyan - %s (aliases: %s)\n", cmd.Name, cmd.Description, strings.Join(cmd.Aliases, ", ")))
+	switch len(args) {
+	case 0:
+		builder.WriteString(cfmt.Sprintf("{{Available commands:}}::white|bold\n"))
+		for _, cmd := range uniqueCommands {
+			builder.WriteString(cfmt.Sprintf("{{%s}}::cyan - %s (aliases: %s)\n", cmd.Name, cmd.Description, strings.Join(cmd.Aliases, ", ")))
+		}
+	case 1:
+		if command, ok := uniqueCommands[args[0]]; ok {
+			builder.WriteString(cfmt.Sprintf("{{%s}}::cyan\n", strings.ToUpper(command.Name)))
+			builder.WriteString(cfmt.Sprintf("{{Description:}}::white|bold %s\n", command.Description))
+			builder.WriteString(cfmt.Sprintf("{{Aliases:}}::white|bold %s\n", strings.Join(command.Aliases, ", ")))
+			builder.WriteString(cfmt.Sprintf("{{Usage:}}::white|bold\n"))
+			for _, usage := range command.Usage {
+				builder.WriteString(cfmt.Sprintf("{{  - %s}}::green\n", usage))
+			}
+		} else {
+			builder.WriteString(cfmt.Sprintf("{{Unknown command.}}::red\n"))
+		}
 	}
 
 	io.WriteString(s, builder.String())
 }
 
+/*
+Usage:
+  - drop all
+  - drop <item>
+  - drop <number> <items>
+  - drop all <items>
+*/
+func Drop(s ssh.Session, cmd string, args []string, user *User, char *Character, room *Room) {
+	slog.Debug("Drop command",
+		slog.String("command", cmd),
+		slog.Any("args", args))
+
+	if room == nil {
+		io.WriteString(s, cfmt.Sprintf("{{You are not in a room.}}::red\n"))
+		return
+	}
+
+	if len(args) == 0 {
+		io.WriteString(s, cfmt.Sprintf("{{Drop what?}}::red\n"))
+		return
+	}
+
+	arg1 := args[0]
+
+	switch arg1 {
+	case "all":
+		for _, item := range char.Items {
+			char.RemoveItem(item)
+			char.Room.AddItem(item)
+			io.WriteString(s, cfmt.Sprintf("{{You drop %s.}}::green\n", item.Name))
+			char.Room.Broadcast(cfmt.Sprintf("{{%s drops %s.}}::green\n", char.Name, item.Name), []string{char.ID})
+		}
+	default:
+		io.WriteString(s, cfmt.Sprintf("{{You can't drop that.}}::red\n"))
+	}
+}
+
+/*
+Usage:
+  - give <item> [to] <character>
+  - give 2 <items> [to] <character>
+  - give all [to] <character>
+*/
+func Give(s ssh.Session, cmd string, args []string, user *User, char *Character, room *Room) {
+	slog.Debug("Give command",
+		slog.String("command", cmd),
+		slog.Any("args", args))
+
+	if room == nil {
+		io.WriteString(s, cfmt.Sprintf("{{You are not in a room.}}::red\n"))
+		return
+	}
+
+	switch len(args) {
+	case 0:
+		io.WriteString(s, cfmt.Sprintf("{{Give what?}}::red\n"))
+		return
+		// case 1:
+		// 	io.WriteString(s, cfmt.Sprintf("{{Give to who?}}::red\n"))
+		// 	return
+		// case 2:
+		// 	what := args[0]
+		// 	if what == "all" {
+		// 		for _, item := range char.Items {
+		// 			char.RemoveItem(item)
+		// 			char.Room.AddItem(item)
+		// 			io.WriteString(s, cfmt.Sprintf("{{You give %s.}}::green\n", item.Name))
+		// 			char.Room.Broadcast(cfmt.Sprintf("{{%s gives %s.}}::green\n", char.Name, item.Name), []string{char.ID})
+		// 		}
+		// 		return
+	}
+
+	// 	to := args[1]
+	// 	for _, c := range char.Room.Characters {
+	// 		if strings.EqualFold(c.Name, to) {
+	// 			for _, item := range char.Items {
+	// 				char.RemoveItem(item)
+	// 				c.AddItem(item)
+	// 				io.WriteString(s, cfmt.Sprintf("{{You give %s.}}::green\n", item.Name))
+	// 				char.Room.Broadcast(cfmt.Sprintf("{{%s gives %s.}}::green\n", char.Name, item.Name), []string{char.ID})
+	// 			}
+	// 			return
+	// 		}
+	// 	}
+	// }
+
+	// arg1 := args[0]
+	// arg2 := args[1]
+	// if args[1] == nil || args[1] == "" {
+	//     io.WriteString(s, cfmt.Sprintf("{{Give to who?}}::red\n"))
+	//     return
+	// }
+
+	// switch arg1 {
+	// case "all":
+	// 	for _, item := range char.Items {
+	// 		char.RemoveItem(item)
+	// 		char.Room.AddItem(item)
+	// 		io.WriteString(s, cfmt.Sprintf("{{You give %s.}}::green\n", item.Name))
+	// 		char.Room.Broadcast(cfmt.Sprintf("{{%s gives %s.}}::green\n", char.Name, item.Name), []string{char.ID})
+	// 	}
+	// default:
+	io.WriteString(s, cfmt.Sprintf("{{You can't give that.}}::red\n"))
+	// }
+}
+
+/*
+Usage:
+  - get all
+  - get <item>
+  - get <number> <items>
+  - get all <items>
+*/
 func Get(s ssh.Session, cmd string, args []string, user *User, char *Character, room *Room) {
 	slog.Debug("Get command",
 		slog.String("command", cmd),
@@ -92,6 +260,7 @@ func Get(s ssh.Session, cmd string, args []string, user *User, char *Character, 
 			char.Room.RemoveItem(item)
 			char.AddItem(item)
 			io.WriteString(s, cfmt.Sprintf("{{You get %s.}}::green\n", item.Name))
+			char.Room.Broadcast(cfmt.Sprintf("{{%s gets %s.}}::green\n", char.Name, item.Name), []string{char.ID})
 		}
 	default:
 		io.WriteString(s, cfmt.Sprintf("{{You can't get that.}}::red\n"))
