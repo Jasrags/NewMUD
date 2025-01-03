@@ -60,9 +60,12 @@ var (
 		{
 			Name:        "help",
 			Description: "List available commands",
-			Usage:       []string{"help"},
-			Aliases:     []string{"h"},
-			Func:        Help,
+			Usage: []string{
+				"help",
+				"help <command>",
+			},
+			Aliases: []string{"h"},
+			Func:    Help,
 		},
 		{
 			Name:        "move",
