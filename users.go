@@ -49,7 +49,7 @@ func (u *User) SetPassword(password string) {
 			slog.Any("error", err))
 	}
 
-	u.Password = hashedPassword
+	u.Password = string(hashedPassword)
 }
 
 func (u *User) CheckPassword(password string) bool {
@@ -57,7 +57,7 @@ func (u *User) CheckPassword(password string) bool {
 		slog.String("id", u.ID),
 		slog.String("username", u.Username))
 
-	if err := bcrypt.CompareHashAndPassword(u.Password, []byte(password)); err != nil {
+	if err := bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(password)); err != nil {
 		switch err {
 		case bcrypt.ErrMismatchedHashAndPassword:
 			slog.Error("Invalid password for user",

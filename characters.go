@@ -93,9 +93,6 @@ func (c *Character) Send(msg string) {
 // }
 
 func (c *Character) SetRoom(room *Room) {
-	c.Lock()
-	defer c.Unlock()
-
 	slog.Debug("Setting character room",
 		slog.String("character_id", c.ID),
 		slog.String("room_reference_id", room.ReferenceID))
@@ -124,20 +121,15 @@ func (c *Character) MoveToRoom(nextRoom *Room) {
 }
 
 func (c *Character) AddItem(item *Item) {
-	c.Lock()
-	defer c.Unlock()
-
 	slog.Debug("Adding item to character",
 		slog.String("character_id", c.ID),
 		slog.String("item_id", item.ID))
 
 	c.Items = append(c.Items, item)
+	c.Save()
 }
 
 func (c *Character) RemoveItem(item *Item) {
-	c.Lock()
-	defer c.Unlock()
-
 	slog.Debug("Removing item from character",
 		slog.String("character_id", c.ID),
 		slog.String("item_id", item.ID))
@@ -148,11 +140,17 @@ func (c *Character) RemoveItem(item *Item) {
 			break
 		}
 	}
+
+	c.Save()
 }
 
 func (c *Character) Save() error {
 	c.Lock()
 	defer c.Unlock()
+
+	slog.Debug("Saving character",
+		slog.String("character_id", c.ID),
+		slog.String("character_name", c.Name))
 
 	dataFilePath := viper.GetString("data.characters_path")
 
