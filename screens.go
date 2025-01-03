@@ -53,6 +53,7 @@ func promptWelcome(s ssh.Session) string {
 	return StateLogin
 }
 
+// TODO/BUG: This function while logging in can drop a user into the registration state with no way out except to quit.
 func promptLogin(s ssh.Session) (string, *User) {
 	slog.Debug("Login state",
 		slog.String("remote_address", s.RemoteAddr().String()),

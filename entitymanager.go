@@ -271,15 +271,26 @@ func (mgr *EntityManager) LoadDataFiles() {
 
 func (mgr *EntityManager) BuildRooms() {
 	slog.Info("Building rooms")
-	// mgr.Lock()
-	// defer mgr.Unlock()
 
-	slog.Info("Building room exits")
 	for _, room := range mgr.rooms {
+
+		// Build room exits
+		slog.Info("Building room exits",
+			slog.String("room_id", room.ReferenceID))
 		for dir, _ := range room.Exits {
 			exit := room.Exits[dir]
 			exit.Room = mgr.GetRoom(exit.RoomID)
 			room.Exits[dir] = exit
+		}
+
+		// Spawn default items
+		slog.Info("Spawning default items",
+			slog.String("room_id", room.ReferenceID))
+		for _, i := range room.DefaultItems {
+			item := mgr.GetItem(i)
+			if item != nil {
+				room.AddItem(item)
+			}
 		}
 	}
 }

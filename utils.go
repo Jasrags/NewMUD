@@ -154,6 +154,24 @@ func RenderRoom(user *User, char *Character, room *Room) string {
 	}
 	builder.WriteString("\n")
 
+	// Display items in the room
+	itemCount := len(char.Room.Items)
+	var itemNames []string
+	for _, item := range char.Room.Items {
+		itemNames = append(itemNames, item.Name)
+	}
+	if itemCount == 1 {
+		builder.WriteString(cfmt.Sprint("{{There is an item in the room.}}::green\n"))
+	} else if itemCount >= 2 {
+		builder.WriteString(cfmt.Sprintf("{{There are %d items in the room: }}::green|bold", itemCount))
+	} else {
+		builder.WriteString(cfmt.Sprint("{{There are no items in the room.}}::green\n"))
+	}
+	if len(itemNames) > 0 {
+		builder.WriteString(cfmt.Sprintf("{{%s}}::green", WrapText(strings.Join(itemNames, ", "), 80)))
+	}
+	builder.WriteString("\n")
+
 	// Display exits
 	if len(char.Room.Exits) == 0 {
 		builder.WriteString(cfmt.Sprint("{{There are no exits.}}::red\n"))

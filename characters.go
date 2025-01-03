@@ -35,6 +35,7 @@ type Character struct {
 	Area      *Area         `json:"-"`
 	AreaID    string        `json:"area_id"`
 	Role      CharacterRole `json:"role"`
+	Items     []*Item       `json:"items"`
 	CreatedAt time.Time     `json:"created_at"`
 	UpdatedAt *time.Time    `json:"updated_at"`
 	DeletedAt *time.Time    `json:"deleted_at"`
@@ -120,6 +121,17 @@ func (c *Character) MoveToRoom(nextRoom *Room) {
 
 	// EventMgr.Publish(EventRoomCharacterEnter, &RoomCharacterEnter{Character: c, Room: c.Room, PrevRoom: prevRoom})
 	// EventMgr.Publish(EventPlayerEnterRoom, &PlayerEnterRoom{Character: c, Room: c.Room})
+}
+
+func (c *Character) AddItem(item *Item) {
+	c.Lock()
+	defer c.Unlock()
+
+	slog.Debug("Adding item to character",
+		slog.String("character_id", c.ID),
+		slog.String("item_id", item.ID))
+
+	c.Items = append(c.Items, item)
 }
 
 func (c *Character) Save() error {

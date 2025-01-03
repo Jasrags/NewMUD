@@ -20,6 +20,12 @@ var (
 			Func:        Look,
 		},
 		{
+			Name:        "get",
+			Description: "Get an item",
+			Aliases:     []string{"g"},
+			Func:        Get,
+		},
+		{
 			Name:        "help",
 			Description: "List available commands",
 			Aliases:     []string{"h"},
@@ -45,7 +51,9 @@ type Command struct {
 type CommandFunc func(s ssh.Session, cmd string, args []string, user *User, char *Character, room *Room)
 
 func Help(s ssh.Session, cmd string, args []string, user *User, char *Character, room *Room) {
-	slog.Debug("Help command")
+	slog.Debug("Help command",
+		slog.String("command", cmd),
+		slog.Any("args", args))
 
 	uniqueCommands := make(map[string]*Command)
 	for _, cmd := range CommandMgr.GetCommands() {
@@ -61,8 +69,45 @@ func Help(s ssh.Session, cmd string, args []string, user *User, char *Character,
 	io.WriteString(s, builder.String())
 }
 
+func Get(s ssh.Session, cmd string, args []string, user *User, char *Character, room *Room) {
+	slog.Debug("Get command",
+		slog.String("command", cmd),
+		slog.Any("args", args))
+
+	if room == nil {
+		io.WriteString(s, cfmt.Sprintf("{{You are not in a room.}}::red\n"))
+		return
+	}
+
+	if len(args) == 0 {
+		io.WriteString(s, cfmt.Sprintf("{{Get what?}}::red\n"))
+		return
+	}
+
+	arg1 := args[0]
+
+	switch arg1 {
+	case "all":
+		for _, item := range char.Room.Items {
+			char.Room.RemoveItem(item)
+			char.AddItem(item)
+			io.WriteString(s, cfmt.Sprintf("{{You get %s.}}::green\n", item.Name))
+		}
+	default:
+		io.WriteString(s, cfmt.Sprintf("{{You can't get that.}}::red\n"))
+	}
+
+}
+
 func Look(s ssh.Session, cmd string, args []string, user *User, char *Character, room *Room) {
-	slog.Debug("Look command")
+	slog.Debug("Look command",
+		slog.String("command", cmd),
+		slog.Any("args", args))
+
+	if room == nil {
+		io.WriteString(s, cfmt.Sprintf("{{You are not in a room.}}::red\n"))
+		return
+	}
 
 	// if no arguments are passed, show the room
 	if len(args) == 0 {
