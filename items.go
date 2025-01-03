@@ -14,8 +14,8 @@ const (
 )
 
 type Item struct {
-	sync.RWMutex
-	Listeners []ee.Listener `yaml:"-"`
+	sync.RWMutex `yaml:"-"`
+	Listeners    []ee.Listener `yaml:"-"`
 
 	ID          string `yaml:"id"`
 	ReferenceID string `yaml:"reference_id"`

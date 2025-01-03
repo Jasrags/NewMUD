@@ -98,11 +98,11 @@ func (mgr *CharacterManager) LoadDataFiles() {
 	}
 
 	for _, file := range files {
-		if filepath.Ext(file.Name()) == ".json" {
+		if filepath.Ext(file.Name()) == ".yml" {
 			filePath := filepath.Join(dataFilePath, file.Name())
 
 			var c Character
-			if err := LoadJSON(filePath, &c); err != nil {
+			if err := LoadYAML(filePath, &c); err != nil {
 				slog.Error("failed to load character data",
 					slog.Any("error", err),
 					slog.String("file", file.Name()))

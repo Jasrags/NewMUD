@@ -7,28 +7,30 @@ import (
 	"sync"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/spf13/viper"
 	ee "github.com/vansante/go-event-emitter"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type User struct {
-	sync.RWMutex
-	Listeners []ee.Listener `json:"-"`
+	sync.RWMutex `yaml:"-"`
+	Listeners    []ee.Listener `yaml:"-"`
 
-	ID          string     `json:"id"`
-	Username    string     `json:"username"`
-	Password    []byte     `json:"password"`
-	Characters  []string   `json:"characters"`
-	CreatedAt   time.Time  `json:"created_at"`
-	UpdatedAt   *time.Time `json:"updated_at"`
-	LastLoginAt *time.Time `json:"last_login_at"`
-	DeletedAt   *time.Time `json:"deleted_at"`
-	State       string     `json:"-"`
+	ID          string     `yaml:"id"`
+	Username    string     `yaml:"username"`
+	Password    string     `yaml:"password"`
+	Characters  []string   `yaml:"characters"`
+	CreatedAt   time.Time  `yaml:"created_at"`
+	UpdatedAt   *time.Time `yaml:"updated_at"`
+	LastLoginAt *time.Time `yaml:"last_login_at"`
+	DeletedAt   *time.Time `yaml:"deleted_at"`
+	State       string     `yaml:"-"`
 }
 
 func NewUser() *User {
 	return &User{
+		ID:        uuid.New().String(),
 		CreatedAt: time.Now(),
 	}
 }
@@ -36,6 +38,34 @@ func NewUser() *User {
 func (u *User) Init() {
 	slog.Debug("Initializing user",
 		slog.String("user_id", u.ID))
+}
+
+func (u *User) AddCharacter(char *Character) {
+	u.Lock()
+	defer u.Unlock()
+
+	slog.Debug("Adding character to user",
+		slog.String("user_id", u.ID),
+		slog.String("character_id", char.Name))
+
+	u.Characters = append(u.Characters, strings.ToLower(char.Name))
+}
+
+func (u *User) RemoveCharacter(char *Character) {
+	u.Lock()
+	defer u.Unlock()
+
+	slog.Debug("Removing character from user",
+
+		slog.String("user_id", u.ID),
+		slog.String("character_id", char.Name))
+
+	for i, c := range u.Characters {
+		if c == char.Name {
+			u.Characters = append(u.Characters[:i], u.Characters[i+1:]...)
+			break
+		}
+	}
 }
 
 func (u *User) SetPassword(password string) {
@@ -88,30 +118,16 @@ func (u *User) Save() error {
 		slog.String("id", u.ID),
 		slog.String("username", u.Username))
 
-	filePath := filepath.Join(dataFilePath, strings.ToLower(u.Username)+".json")
+	filePath := filepath.Join(dataFilePath, strings.ToLower(u.Username)+".yml")
 
 	t := time.Now()
 	u.UpdatedAt = &t
 
-	if err := SaveJSON(filePath, u); err != nil {
+	if err := SaveYAML(filePath, u); err != nil {
 		slog.Error("failed to save user data",
 			slog.Any("error", err))
 		return err
-		// file, err := os.Create(filePath)
-		// if err != nil {
-		// slog.Error("failed creating file",
-		// slog.String("file", filePath),
-		// slog.Any("error", err))
 	}
-	// defer file.Close()
-
-	// encoder := json.NewEncoder(file)
-	// encoder.SetIndent("", "  ")
-	// encoder.SetEscapeHTML(false)
-	// if err := encoder.Encode(u); err != nil {
-	// 	slog.Error("failed to encode user data",
-	// 		slog.Any("error", err))
-	// }
 
 	return nil
 }

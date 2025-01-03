@@ -140,11 +140,11 @@ func (mgr *UserManager) LoadDataFiles() {
 	}
 
 	for _, file := range files {
-		if filepath.Ext(file.Name()) == ".json" {
+		if filepath.Ext(file.Name()) == ".yml" {
 			filePath := filepath.Join(dataFilePath, file.Name())
 
 			var u User
-			if err := LoadJSON(filePath, &u); err != nil {
+			if err := LoadYAML(filePath, &u); err != nil {
 				slog.Error("failed to unmarshal user data",
 					slog.Any("error", err),
 					slog.String("file", file.Name()))
