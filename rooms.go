@@ -21,9 +21,12 @@ type Corrdinates struct {
 }
 
 // TODO: Add Doors and Locks
+// TODO: Keep track of items in the room between resets
+// TODO: Keep track of mobs in the room between resets
+// TODO: Check respawn chance of items and mobs on update
 type Room struct {
-	sync.RWMutex
-	Listeners []ee.Listener `yaml:"-"`
+	sync.RWMutex `yaml:"-"`
+	Listeners    []ee.Listener `yaml:"-"`
 
 	ID           string          `yaml:"id"`
 	ReferenceID  string          `yaml:"reference_id"`

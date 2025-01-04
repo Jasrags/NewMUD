@@ -7,6 +7,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/google/uuid"
 	"github.com/spf13/viper"
 )
 
@@ -81,7 +82,14 @@ func (mgr *EntityManager) GetItem(referenceID string) *Item {
 	slog.Debug("Getting item",
 		slog.String("item_reference_id", referenceID))
 
-	return mgr.items[strings.ToLower(referenceID)]
+	item := mgr.items[strings.ToLower(referenceID)]
+	if item != nil {
+		item.ID = uuid.New().String()
+
+		return item
+	}
+
+	return nil
 }
 
 func (mgr *EntityManager) RemoveItem(i *Item) {
