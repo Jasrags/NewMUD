@@ -179,7 +179,14 @@ promptPassword:
 		goto promptPassword
 	}
 
-	return StateMainMenu, nil
+	// Create a new user
+	u := NewUser()
+	u.Username = username
+	u.SetPassword(password)
+	u.Save()
+	UserMgr.AddUser(u)
+
+	return StateMainMenu, u
 }
 
 func promptMainMenu(s ssh.Session, u *User) string {
@@ -286,6 +293,16 @@ func promptEnterGame(s ssh.Session, u *User) (string, *Character) {
 	// Check if user has characters
 	if len(u.Characters) == 0 {
 		io.WriteString(s, cfmt.Sprintf("{{You have no characters.}}::red\n"))
+
+		c := NewCharacter()
+		c.Name = u.Username
+		c.Save()
+		CharacterMgr.AddCharacter(c)
+
+		u.AddCharacter(c)
+		u.Save()
+
+		// TODO: Prompt to create a character
 		return StateMainMenu, nil
 	}
 

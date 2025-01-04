@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/gliderlabs/ssh"
+	"github.com/google/uuid"
 	"github.com/i582/cfmt/cmd/cfmt"
 	"github.com/spf13/viper"
 	ee "github.com/vansante/go-event-emitter"
@@ -22,27 +23,28 @@ const (
 )
 
 type Character struct {
-	sync.RWMutex
-	Listeners []ee.Listener `json:"-"`
-	Conn      ssh.Session   `json:"-"`
+	sync.RWMutex `yaml:"-"`
+	Listeners    []ee.Listener `yaml:"-"`
+	Conn         ssh.Session   `yaml:"-"`
 
-	ID        string        `json:"id"`
-	User      *User         `json:"-"`
-	UserID    string        `json:"user_id"`
-	Name      string        `json:"name"`
-	Room      *Room         `json:"-"`
-	RoomID    string        `json:"room_id"`
-	Area      *Area         `json:"-"`
-	AreaID    string        `json:"area_id"`
-	Role      CharacterRole `json:"role"`
-	Items     []*Item       `json:"items"`
-	CreatedAt time.Time     `json:"created_at"`
-	UpdatedAt *time.Time    `json:"updated_at"`
-	DeletedAt *time.Time    `json:"deleted_at"`
+	ID        string        `yaml:"id"`
+	User      *User         `yaml:"-"`
+	UserID    string        `yaml:"user_id"`
+	Name      string        `yaml:"name"`
+	Room      *Room         `yaml:"-"`
+	RoomID    string        `yaml:"room_id"`
+	Area      *Area         `yaml:"-"`
+	AreaID    string        `yaml:"area_id"`
+	Role      CharacterRole `yaml:"role"`
+	Items     []*Item       `yaml:"items"`
+	CreatedAt time.Time     `yaml:"created_at"`
+	UpdatedAt *time.Time    `yaml:"updated_at"`
+	DeletedAt *time.Time    `yaml:"deleted_at"`
 }
 
 func NewCharacter() *Character {
 	return &Character{
+		ID:        uuid.New().String(),
 		CreatedAt: time.Now(),
 		Role:      CharacterRolePlayer,
 	}
@@ -161,8 +163,8 @@ func (c *Character) Save() error {
 	t := time.Now()
 	c.UpdatedAt = &t
 
-	filePath := filepath.Join(dataFilePath, strings.ToLower(c.Name)+".json")
-	if err := SaveJSON(filePath, c); err != nil {
+	filePath := filepath.Join(dataFilePath, strings.ToLower(c.Name)+".yml")
+	if err := SaveYAML(filePath, c); err != nil {
 		slog.Error("failed to save character data",
 			slog.Any("error", err))
 		return err
