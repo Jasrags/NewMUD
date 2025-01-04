@@ -37,7 +37,7 @@ type Room struct {
 	Items        []*Item         `yaml:"-"`
 	Characters   []*Character    `yaml:"-"`
 	Mobs         []*Mob          `yaml:"-"`
-	DefaultItems []string        `yaml:"default_items"` // IDs of items to load into the room
+	DefaultItems []DefaultItem   `yaml:"default_items"` // IDs of items to load into the room
 	DefaultMobs  []string        `yaml:"default_mobs"`  // IDs of mobs to load into the room
 	SpawnedMobs  []*Mob          `yaml:"-"`             // Mobs that have been spawned into the room
 }

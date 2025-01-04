@@ -7,6 +7,14 @@ import (
 	ee "github.com/vansante/go-event-emitter"
 )
 
+type DefaultItem struct {
+	ID               string `yaml:"id"`
+	RespawnChance    int    `yaml:"respawn_chance"`
+	MaxLoad          int    `yaml:"max_load"`
+	ReplaceOnRespawn bool   `yaml:"replace_on_respawn"`
+	Quantity         int    `yaml:"quantity"`
+}
+
 type Type string
 
 const (
@@ -19,7 +27,6 @@ type Item struct {
 
 	ID          string `yaml:"id"`
 	ReferenceID string `yaml:"reference_id"`
-	UUID        string `yaml:"uuid"`
 	Area        *Area  `yaml:"-"`
 	AreaID      string `yaml:"area_id"`
 	Room        *Room  `yaml:"-"`
@@ -31,6 +38,6 @@ type Item struct {
 
 func NewItem() *Item {
 	return &Item{
-		UUID: uuid.New().String(),
+		ID: uuid.New().String(),
 	}
 }

@@ -73,6 +73,7 @@ func (mgr *EntityManager) AddItem(i *Item) {
 	mgr.items[CreateEntityRef(i.AreaID, i.ID)] = i
 }
 
+// TODO: Make this return a unique instance of the item and support quantity
 func (mgr *EntityManager) GetItem(referenceID string) *Item {
 	mgr.RLock()
 	defer mgr.RUnlock()
@@ -284,10 +285,12 @@ func (mgr *EntityManager) BuildRooms() {
 		}
 
 		// Spawn default items
+		// TODO: Support for respawn_chance, max_load, replace_on_respawn, quantity
 		slog.Info("Spawning default items",
 			slog.String("room_id", room.ReferenceID))
+
 		for _, i := range room.DefaultItems {
-			item := mgr.GetItem(i)
+			item := mgr.GetItem(i.ID)
 			if item != nil {
 				room.AddItem(item)
 			}

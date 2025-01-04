@@ -5,7 +5,12 @@
     north:
       room_id: limbo:limbo
   default_mobs: [limbo:goblin]
-  default_items: [limbo:small_rock]
+  default_items: 
+   - id: limbo:small_rock
+     respawn_chance: 100
+     max_load: 1
+     replace_on_respawn: False
+     quantity: 2
   description: >-
     You don't think that you are not floating in nothing.
 - id: limbo
