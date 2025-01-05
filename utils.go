@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"log/slog"
 	"os"
 	"strings"
@@ -15,20 +14,6 @@ func Singularize(word string) string {
 		return word[:len(word)-1] // Remove trailing 's'
 	}
 	return word
-}
-
-// CreateEntityRef creates an entity reference from an area and ID.
-func CreateEntityRef(area, id string) string {
-	return strings.ToLower(fmt.Sprintf("%s:%s", area, id))
-}
-
-// ParseEntityRef parses an entity reference into its area and ID parts.
-func ParseEntityRef(entityRef string) (area, id string) {
-	parts := strings.Split(strings.ToLower(entityRef), ":")
-	if len(parts) != 2 {
-		return "", ""
-	}
-	return parts[0], parts[1]
 }
 
 // WrapText splits text into lines of the specified width without breaking words.
