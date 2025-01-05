@@ -151,17 +151,82 @@ func Drop(s ssh.Session, cmd string, args []string, user *User, char *Character,
 
 	arg1 := args[0]
 
-	switch arg1 {
-	// case "all":
-	// for _, item := range char.Items {
-	// char.RemoveItem(item)
-	// char.Room.AddItem(item)
-	// io.WriteString(s, cfmt.Sprintf("{{You drop %s.}}::green\n", item.Spec.Name))
-	// char.Room.Broadcast(cfmt.Sprintf("{{%s drops %s.}}::green\n", char.Name, item.Spec.Name), []string{char.ID})
-	// }
-	default:
-		io.WriteString(s, cfmt.Sprintf("{{You can't drop that.}}::red\n"))
+	if arg1 == "all" {
+		if len(args) < 2 {
+			// Drop all items in the inventory
+			if len(char.Inventory.Items) == 0 {
+				io.WriteString(s, cfmt.Sprintf("{{You have nothing to drop.}}::yellow\n"))
+				return
+			}
+
+			// Use a copy of the items to safely modify the inventory while iterating
+			itemsToDrop := make([]*Item, len(char.Inventory.Items))
+			copy(itemsToDrop, char.Inventory.Items)
+
+			for _, item := range itemsToDrop {
+				bp := EntityMgr.GetBlueprint(item)
+				if bp == nil {
+					io.WriteString(s, cfmt.Sprintf("{{Error retrieving item blueprint.}}::red\n"))
+					continue
+				}
+
+				char.Inventory.RemoveItem(item)
+				char.Save()
+				room.Inventory.AddItem(item)
+				io.WriteString(s, cfmt.Sprintf("{{You drop %s.}}::green\n", bp.Name))
+				room.Broadcast(cfmt.Sprintf("{{%s drops %s.}}::green\n", char.Name, bp.Name), []string{char.ID})
+			}
+			return
+		}
+
+		// Drop all <items>
+		query := strings.Join(args[1:], " ")
+		singularQuery := Singularize(query)
+		matchingItems := SearchInventory(&char.Inventory, singularQuery)
+
+		if len(matchingItems) == 0 {
+			io.WriteString(s, cfmt.Sprintf("{{You have no %s to drop.}}::yellow\n", query))
+			return
+		}
+
+		for _, item := range matchingItems {
+			bp := EntityMgr.GetBlueprint(item)
+			if bp == nil {
+				io.WriteString(s, cfmt.Sprintf("{{Error retrieving item blueprint.}}::red\n"))
+				continue
+			}
+
+			char.Inventory.RemoveItem(item)
+			char.Save()
+			room.Inventory.AddItem(item)
+			io.WriteString(s, cfmt.Sprintf("{{You drop %s.}}::green\n", bp.Name))
+			room.Broadcast(cfmt.Sprintf("{{%s drops %s.}}::green\n", char.Name, bp.Name), []string{char.ID})
+		}
+		return
 	}
+
+	// Handle single item or numbered items (e.g., "drop rock" or "drop 2 rocks")
+	query := strings.Join(args, " ")
+	singularQuery := Singularize(query)
+	matchingItems := SearchInventory(&char.Inventory, singularQuery)
+
+	if len(matchingItems) == 0 {
+		io.WriteString(s, cfmt.Sprintf("{{You have no %s to drop.}}::yellow\n", query))
+		return
+	}
+
+	item := matchingItems[0] // Default to the first match if ambiguous
+	bp := EntityMgr.GetBlueprint(item)
+	if bp == nil {
+		io.WriteString(s, cfmt.Sprintf("{{Error retrieving item blueprint.}}::red\n"))
+		return
+	}
+
+	char.Inventory.RemoveItem(item)
+	char.Save()
+	room.Inventory.AddItem(item)
+	io.WriteString(s, cfmt.Sprintf("{{You drop %s.}}::green\n", bp.Name))
+	room.Broadcast(cfmt.Sprintf("{{%s drops %s.}}::green\n", char.Name, bp.Name), []string{char.ID})
 }
 
 /*
@@ -170,6 +235,7 @@ Usage:
   - give 2 <items> [to] <character>
   - give all [to] <character>
 */
+// TODO: Fix this to work with new inventory system
 func Give(s ssh.Session, cmd string, args []string, user *User, char *Character, room *Room) {
 	slog.Debug("Give command",
 		slog.String("command", cmd),
@@ -257,20 +323,69 @@ func Get(s ssh.Session, cmd string, args []string, user *User, char *Character, 
 
 	arg1 := args[0]
 
-	switch arg1 {
-	// case "all":
-	// 	for _, item := range char.Room.Inventory.Items {
-	// 		char.Room.RemoveItem(item)
-	// 		char.AddItem(item)
-	// 		io.WriteString(s, cfmt.Sprintf("{{You get %s.}}::green\n", item.Spec.Name))
-	// 		char.Room.Broadcast(cfmt.Sprintf("{{%s gets %s.}}::green\n", char.Name, item.Spec.Name), []string{char.ID})
-	// 	}
-	default:
-		io.WriteString(s, cfmt.Sprintf("{{You can't get that.}}::red\n"))
+	if arg1 == "all" {
+		if len(args) < 2 {
+			io.WriteString(s, cfmt.Sprintf("{{Get all what?}}::red\n"))
+			return
+		}
+
+		// Combine remaining args into the query
+		query := strings.Join(args[1:], " ")
+
+		// Handle plural and singular forms
+		singularQuery := Singularize(query)
+		matchingItems := SearchInventory(&room.Inventory, singularQuery)
+
+		if len(matchingItems) == 0 {
+			io.WriteString(s, cfmt.Sprintf("{{There are no %s here.}}::yellow\n", query))
+			return
+		}
+
+		for _, item := range matchingItems {
+			bp := EntityMgr.GetBlueprint(item) // Fetch the blueprint
+			if bp == nil {
+				io.WriteString(s, cfmt.Sprintf("{{Error retrieving item blueprint.}}::red\n"))
+				continue
+			}
+
+			room.Inventory.RemoveItem(item)
+			char.Inventory.AddItem(item)
+			char.Save()
+			io.WriteString(s, cfmt.Sprintf("{{You get %s.}}::green\n", bp.Name))
+			room.Broadcast(cfmt.Sprintf("{{%s gets %s.}}::green\n", char.Name, bp.Name), []string{char.ID})
+		}
+		return
 	}
 
+	// Handle single item search (e.g., "get rock")
+	query := strings.Join(args, " ")
+	singularQuery := Singularize(query)
+	matchingItems := SearchInventory(&room.Inventory, singularQuery)
+
+	if len(matchingItems) == 0 {
+		io.WriteString(s, cfmt.Sprintf("{{There is no %s here.}}::yellow\n", query))
+		return
+	}
+
+	item := matchingItems[0]           // Default to the first match if ambiguous
+	bp := EntityMgr.GetBlueprint(item) // Fetch the blueprint
+	if bp == nil {
+		io.WriteString(s, cfmt.Sprintf("{{Error retrieving item blueprint.}}::red\n"))
+		return
+	}
+
+	room.Inventory.RemoveItem(item)
+	char.Inventory.AddItem(item)
+	char.Save()
+	io.WriteString(s, cfmt.Sprintf("{{You get %s.}}::green\n", bp.Name))
+	room.Broadcast(cfmt.Sprintf("{{%s gets %s.}}::green\n", char.Name, bp.Name), []string{char.ID})
 }
 
+/*
+Usage:
+  - look
+  - look [at] <item|character|direction|mob>
+*/
 func Look(s ssh.Session, cmd string, args []string, user *User, char *Character, room *Room) {
 	slog.Debug("Look command",
 		slog.String("command", cmd),
@@ -295,6 +410,11 @@ func Look(s ssh.Session, cmd string, args []string, user *User, char *Character,
 	// TODO: Support looking at other things, like items, characters, mobs
 }
 
+/*
+Usage:
+  - move <north,n,south,s,east,e,west,w,up,u,down,d>
+  - <north,n,south,s,east,e,west,w,up,u,down,d>
+*/
 func Move(s ssh.Session, cmd string, args []string, user *User, char *Character, room *Room) {
 	slog.Debug("Move command",
 		slog.String("command", cmd),
@@ -332,10 +452,6 @@ func Move(s ssh.Session, cmd string, args []string, user *User, char *Character,
 
 	// Check if the exit exists
 	if exit, ok := char.Room.Exits[dir]; ok {
-		// prevRoom := char.Room
-		// char.FromRoom()
-		// char.ToRoom(exit.Room)
-
 		// act("$n has arrived.", TRUE, ch, 0,0, TO_ROOM);
 		// do_look(ch, "\0",15);
 		char.MoveToRoom(exit.Room)

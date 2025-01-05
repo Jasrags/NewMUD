@@ -10,6 +10,13 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+func Singularize(word string) string {
+	if strings.HasSuffix(word, "s") && len(word) > 1 {
+		return word[:len(word)-1] // Remove trailing 's'
+	}
+	return word
+}
+
 // CreateEntityRef creates an entity reference from an area and ID.
 func CreateEntityRef(area, id string) string {
 	return strings.ToLower(fmt.Sprintf("%s:%s", area, id))

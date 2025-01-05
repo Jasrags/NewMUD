@@ -349,8 +349,6 @@ func promptEnterGame(s ssh.Session, u *User) (string, *Character) {
 		c.SetRoom(EntityMgr.GetRoom(viper.GetString("server.starting_room")))
 	}
 
-	c.Room.AddCharacter(c)
-
 	u.Save()
 	c.Save()
 
@@ -363,6 +361,11 @@ func promptGameLoop(s ssh.Session, u *User, c *Character) string {
 		slog.String("character_name", c.Name),
 		slog.String("remote_address", s.RemoteAddr().String()),
 		slog.String("session_id", s.Context().SessionID()))
+
+	// Add our character to the room
+	c.Room.AddCharacter(c)
+	// Render the room on initial entry to the game loop
+	io.WriteString(s, RenderRoom(u, c, c.Room))
 
 	for {
 		input, err := PromptForInput(s, cfmt.Sprint("{{>}}::white|bold "))
