@@ -1,36 +1,45 @@
 package main
 
-import (
-	"sync"
+import "github.com/google/uuid"
 
-	"github.com/google/uuid"
-	ee "github.com/vansante/go-event-emitter"
+type (
+	ItemType    string
+	ItemSubtype string
+	EquipSlot   string
 )
-
-type Type string
 
 const (
-	TypeJunk Type = "junk"
+	ItempTypeJunk ItemType = "junk"
+
+	ItemSubtypeNone ItemSubtype = "none"
+
+	EquipSlotNone EquipSlot = "none"
+	EquipSlotHead EquipSlot = "head"
 )
 
-type Item struct {
-	sync.RWMutex `yaml:"-"`
-	Listeners    []ee.Listener `yaml:"-"`
-
-	ID          string `yaml:"id"`
-	ReferenceID string `yaml:"reference_id"`
-	UUID        string `yaml:"uuid"`
-	Area        *Area  `yaml:"-"`
-	AreaID      string `yaml:"area_id"`
-	Room        *Room  `yaml:"-"`
-	RoomID      string `yaml:"room_id"`
-	Name        string `yaml:"name"`
-	Description string `yaml:"description"`
-	Type        Type   `yaml:"type"`
+type ItemBlueprint struct {
+	ID          string         `yaml:"id"`
+	Name        string         `yaml:"name"`
+	Description string         `yaml:"description"`
+	BaseStats   map[string]int `yaml:"base_stats"`
+	EquipSlots  []EquipSlot    `yaml:"equip_slots"`
+	Type        ItemType       `yaml:"type"`
+	Subtype     ItemSubtype    `yaml:"subtype"`
 }
 
-func NewItem() *Item {
+type Item struct {
+	InstanceID  string         `yaml:"instance_id"`
+	BlueprintID string         `yaml:"blueprint_id"`
+	Modifiers   map[string]int `yaml:"modifiers"`
+	Attachments []string       `yaml:"attachments"`
+	NestedInv   *Inventory     `yaml:"nested_inventory"`
+}
+
+func NewItem(blueprint *ItemBlueprint) *Item {
 	return &Item{
-		UUID: uuid.New().String(),
+		InstanceID:  uuid.New().String(),
+		BlueprintID: blueprint.ID,
+		Modifiers:   make(map[string]int),
+		Attachments: []string{},
 	}
 }

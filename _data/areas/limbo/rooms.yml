@@ -3,33 +3,34 @@
   title: The Void
   exits: 
     north:
-      room_id: limbo:limbo
-  default_mobs: [limbo:goblin]
-  default_items: [limbo:small_rock]
+      room_id: limbo
+  default_mobs: ["goblin"]
+  default_items: 
+   - id: small_rock
   description: >-
     You don't think that you are not floating in nothing.
 - id: limbo
   title: Limbo
   exits:
     south:
-      room_id: limbo:the_void
+      room_id: the_void
     east:
-      room_id: limbo:black
+      room_id: black
     west:
-      room_id: limbo:white
+      room_id: white
   description: >-
     You are floating in a formless void, detached from all sensation of physical matter, surrounded by swirling glowing light, which fades into the relative darkness around you without any trace of edges or shadow.
 - id: white
   title: "White Room"
   exits: 
     east:
-      room_id: limbo:limbo
+      room_id: limbo
   description: "A featureless white room. A pitch black void in the shape of archway can be seen on the east side of the room."
 - id: black
   title: "Black Room"
   exits: 
     west:
-      room_id: limbo:limbo
+      room_id: limbo
   description: >-
     A completely black room. Somehow all of the light that should be coming from the room to the west does not pass
     through the archway. A single lightbulb hangs from the ceiling illuminating a small area. 

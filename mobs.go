@@ -12,15 +12,17 @@ type Mob struct {
 	sync.RWMutex
 	Listeners []ee.Listener `yaml:"-"`
 
-	ID          string `yaml:"id"`
-	ReferenceID string `yaml:"reference_id"`
-	UUID        string `yaml:"uuid"`
-	Area        *Area  `yaml:"-"`
-	AreaID      string `yaml:"area_id"`
-	Room        *Room  `yaml:"-"`
-	RoomID      string `yaml:"room_id"`
-	Name        string `yaml:"name"`
-	Description string `yaml:"description"`
+	ID          string           `yaml:"id"`
+	ReferenceID string           `yaml:"reference_id"`
+	UUID        string           `yaml:"uuid"`
+	Area        *Area            `yaml:"-"`
+	AreaID      string           `yaml:"area_id"`
+	Room        *Room            `yaml:"-"`
+	RoomID      string           `yaml:"room_id"`
+	Name        string           `yaml:"name"`
+	Description string           `yaml:"description"`
+	Inventory   Inventory        `yaml:"inventory"`
+	Equipment   map[string]*Item `yaml:"equipment"`
 }
 
 func NewMob() *Mob {

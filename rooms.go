@@ -2,9 +2,11 @@ package main
 
 import (
 	"log/slog"
+	"strings"
 	"sync"
 
 	"github.com/google/uuid"
+	"github.com/i582/cfmt/cmd/cfmt"
 	ee "github.com/vansante/go-event-emitter"
 )
 
@@ -20,26 +22,38 @@ type Corrdinates struct {
 	Z int `yaml:"z"`
 }
 
-// TODO: Add Doors and Locks
-type Room struct {
-	sync.RWMutex
-	Listeners []ee.Listener `yaml:"-"`
+type DefaultItem struct {
+	ID string `yaml:"id"`
+	// RespawnChance    int    `yaml:"respawn_chance"`
+	// MaxLoad int `yaml:"max_load"`
+	// ReplaceOnRespawn bool   `yaml:"replace_on_respawn"`
+	// Quantity int `yaml:"quantity"`
+}
 
-	ID           string          `yaml:"id"`
-	ReferenceID  string          `yaml:"reference_id"`
-	UUID         string          `yaml:"uuid"`
-	AreaID       string          `yaml:"area_id"`
-	Area         *Area           `yaml:"-"`
-	Title        string          `yaml:"title"`
-	Description  string          `yaml:"description"`
-	Exits        map[string]Exit `yaml:"exits"`
-	Corrdinates  *Corrdinates    `yaml:"corrdinates"`
-	Items        []*Item         `yaml:"-"`
-	Characters   []*Character    `yaml:"-"`
-	Mobs         []*Mob          `yaml:"-"`
-	DefaultItems []string        `yaml:"default_items"` // IDs of items to load into the room
-	DefaultMobs  []string        `yaml:"default_mobs"`  // IDs of mobs to load into the room
-	SpawnedMobs  []*Mob          `yaml:"-"`             // Mobs that have been spawned into the room
+// TODO: Add Doors and Locks
+// TODO: Keep track of items in the room between resets
+// TODO: Keep track of mobs in the room between resets
+// TODO: Check respawn chance of items and mobs on update
+type Room struct {
+	sync.RWMutex `yaml:"-"`
+	Listeners    []ee.Listener `yaml:"-"`
+
+	ID          string          `yaml:"id"`
+	ReferenceID string          `yaml:"reference_id"`
+	UUID        string          `yaml:"uuid"`
+	AreaID      string          `yaml:"area_id"`
+	Area        *Area           `yaml:"-"`
+	Title       string          `yaml:"title"`
+	Description string          `yaml:"description"`
+	Exits       map[string]Exit `yaml:"exits"`
+	Corrdinates *Corrdinates    `yaml:"corrdinates"`
+	// Items        []*Item         `yaml:"-"`
+	Inventory    Inventory     `yaml:"inventory"`
+	Characters   []*Character  `yaml:"-"`
+	Mobs         []*Mob        `yaml:"-"`
+	DefaultItems []DefaultItem `yaml:"default_items"` // IDs of items to load into the room
+	DefaultMobs  []string      `yaml:"default_mobs"`  // IDs of mobs to load into the room
+	SpawnedMobs  []*Mob        `yaml:"-"`             // Mobs that have been spawned into the room
 }
 
 func NewRoom() *Room {
@@ -138,33 +152,6 @@ func (r *Room) RemoveMob(m *Mob) {
 	}
 }
 
-func (r *Room) AddItem(i *Item) {
-	r.Lock()
-	defer r.Unlock()
-
-	slog.Debug("Adding item to room",
-		slog.String("room_id", r.ID),
-		slog.String("item_id", i.ID))
-
-	r.Items = append(r.Items, i)
-}
-
-func (r *Room) RemoveItem(i *Item) {
-	r.Lock()
-	defer r.Unlock()
-
-	slog.Debug("Removing item from room",
-		slog.String("room_id", r.ID),
-		slog.String("item_id", i.ID))
-
-	for k, item := range r.Items {
-		if item.ID == i.ID {
-			r.Items = append(r.Items[:k], r.Items[k+1:]...)
-			break
-		}
-	}
-}
-
 func (r *Room) Broadcast(msg string, excludeIDs []string) {
 	slog.Debug("Broadcasting message to room",
 		slog.String("room_id", r.ID),
@@ -238,3 +225,80 @@ func (r *Room) Broadcast(msg string, excludeIDs []string) {
 
 // 	r.Broadcast("A mob has left the room", []string{arg.Mob.ID})
 // }
+
+// RenderRoom renders the room to a string for the player.
+func RenderRoom(user *User, char *Character, room *Room) string {
+	slog.Debug("Rendering room",
+		slog.String("character_id", char.ID))
+
+	var builder strings.Builder
+
+	// Optionally display the room ID for admins
+	if char.Role == CharacterRoleAdmin {
+		builder.WriteString(cfmt.Sprintf("{{[%s] }}::green", char.Room.ID))
+	}
+
+	// Display the room title
+	builder.WriteString(cfmt.Sprintf("{{%s}}::#4287f5\n", char.Room.Title))
+
+	// Display the room description
+	builder.WriteString(cfmt.Sprintf("{{%s}}::white\n", WrapText(char.Room.Description, 80)))
+
+	// Display players in the room
+	charCount := len(char.Room.Characters)
+	var charNames []string
+	for _, c := range char.Room.Characters {
+		if c.Name != char.Name {
+			color := "cyan"
+			if c.Role == CharacterRoleAdmin {
+				color = "yellow"
+			}
+
+			charNames = append(charNames, cfmt.Sprintf("{{%s}}::%s", c.Name, color))
+		}
+	}
+	if charCount == 1 {
+		builder.WriteString(cfmt.Sprint("{{You are alone in the room.}}::cyan\n"))
+	} else if charCount >= 2 {
+		builder.WriteString(cfmt.Sprintf("{{There is %d other person in the room: }}::cyan|bold", charCount-1))
+	} else {
+		builder.WriteString(cfmt.Sprintf("{{There are %d other people in the room: }}::cyan|bold", charCount-1))
+	}
+	if len(charNames) > 0 {
+		builder.WriteString(cfmt.Sprintf("{{%s}}::cyan", WrapText(strings.Join(charNames, ", "), 80)))
+	}
+	builder.WriteString("\n")
+
+	// Display items in the room
+	itemCount := len(char.Room.Inventory.Items)
+	var itemNames []string
+	for _, i := range char.Room.Inventory.Items {
+		bp := EntityMgr.GetBlueprint(i)
+		if bp != nil {
+			itemNames = append(itemNames, bp.Name)
+		}
+	}
+	if itemCount == 1 {
+		builder.WriteString(cfmt.Sprint("{{There is an item in the room.}}::green\n"))
+	} else if itemCount >= 2 {
+		builder.WriteString(cfmt.Sprintf("{{There are %d items in the room: }}::green|bold", itemCount))
+	} else {
+		builder.WriteString(cfmt.Sprint("{{There are no items in the room.}}::green\n"))
+	}
+	if len(itemNames) > 0 {
+		builder.WriteString(cfmt.Sprintf("{{%s}}::green", WrapText(strings.Join(itemNames, ", "), 80)))
+	}
+	builder.WriteString("\n")
+
+	// Display exits
+	if len(char.Room.Exits) == 0 {
+		builder.WriteString(cfmt.Sprint("{{There are no exits.}}::red\n"))
+	} else {
+		builder.WriteString(cfmt.Sprint("{{Exits:}}::#2359b0\n"))
+		for dir, exit := range char.Room.Exits {
+			builder.WriteString(cfmt.Sprintf("{{ %-5s - %s}}::#2359b0\n", dir, exit.Room.Title))
+		}
+	}
+
+	return cfmt.Sprint(builder.String())
+}
