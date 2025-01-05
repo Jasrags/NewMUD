@@ -1,5 +1,7 @@
 package main
 
+import "strings"
+
 type Inventory struct {
 	Items []*Item `yaml:"items"`
 }
@@ -28,6 +30,33 @@ func (inv *Inventory) FindItemByID(instanceID string) *Item {
 		}
 	}
 	return nil
+}
+
+func SearchInventory(inv *Inventory, query string) []*Item {
+	var results []*Item
+
+	for _, item := range inv.Items {
+		blueprint := EntityMgr.GetBlueprint(item) // Assume this fetches the blueprint for the item
+		if blueprint == nil {
+			continue
+		}
+
+		// Match against Name
+		if strings.Contains(strings.ToLower(blueprint.Name), strings.ToLower(query)) {
+			results = append(results, item)
+			continue
+		}
+
+		// Match against Tags
+		for _, tag := range blueprint.Tags {
+			if strings.Contains(strings.ToLower(tag), strings.ToLower(query)) {
+				results = append(results, item)
+				break
+			}
+		}
+	}
+
+	return results
 }
 
 func TransferItem(item *Item, from, to *Inventory) bool {

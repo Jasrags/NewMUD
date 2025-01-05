@@ -2,7 +2,8 @@
 - id: "small_rock"
   name: "Small Rock"
   description: "A small, smooth rock. It's perfect for skipping across water."
-  base_stats: 
+  tags: ["rock", "small"]
+  base_stats:
     weight: 1
   equip_slots: ["none"]
   type: "junk"
@@ -10,7 +11,8 @@
 - id: "jagged_rock"
   name: "Jagged Rock"
   description: "A jagged rock. It's perfect for throwing at things."
-  base_stats: 
+  tags: ["rock", "jagged"]
+  base_stats:
     weight: 1
   equip_slots: ["none"]
   type: "junk"

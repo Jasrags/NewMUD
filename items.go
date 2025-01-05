@@ -21,6 +21,7 @@ type ItemBlueprint struct {
 	ID          string         `yaml:"id"`
 	Name        string         `yaml:"name"`
 	Description string         `yaml:"description"`
+	Tags        []string       `yaml:"tags"`
 	BaseStats   map[string]int `yaml:"base_stats"`
 	EquipSlots  []EquipSlot    `yaml:"equip_slots"`
 	Type        ItemType       `yaml:"type"`
