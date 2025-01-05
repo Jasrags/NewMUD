@@ -294,15 +294,14 @@ func promptEnterGame(s ssh.Session, u *User) (string, *Character) {
 	if len(u.Characters) == 0 {
 		io.WriteString(s, cfmt.Sprintf("{{You have no characters.}}::red\n"))
 
+		// TODO: Remove this when we have character creation
 		c := NewCharacter()
 		c.Name = u.Username
 		c.Save()
 		CharacterMgr.AddCharacter(c)
-
 		u.AddCharacter(c)
 		u.Save()
 
-		// TODO: Prompt to create a character
 		return StateMainMenu, nil
 	}
 
@@ -327,6 +326,7 @@ func promptEnterGame(s ssh.Session, u *User) (string, *Character) {
 	slog.Debug("Selected character",
 		slog.String("character", option))
 
+	// Load the character
 	c := CharacterMgr.GetCharacterByName(option)
 	if c == nil {
 		io.WriteString(s, cfmt.Sprintf("{{Character not found.}}::red\n"))
@@ -336,10 +336,16 @@ func promptEnterGame(s ssh.Session, u *User) (string, *Character) {
 
 	c.Conn = s
 
-	// Load the character's room
+	// If the character has no room, set the starting room
+	if c.RoomID == "" {
+		c.SetRoom(EntityMgr.GetRoom(viper.GetString("server.starting_room")))
+	}
+
+	// If the room is not found, set the starting room
 	c.Room = EntityMgr.GetRoom(c.RoomID)
 	if c.Room == nil {
-		io.WriteString(s, cfmt.Sprintf("{{Room not found.}}::red\n"))
+		slog.Error("Room not found",
+			slog.String("room_id", c.RoomID))
 		c.SetRoom(EntityMgr.GetRoom(viper.GetString("server.starting_room")))
 	}
 

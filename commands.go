@@ -152,13 +152,13 @@ func Drop(s ssh.Session, cmd string, args []string, user *User, char *Character,
 	arg1 := args[0]
 
 	switch arg1 {
-	case "all":
-		for _, item := range char.Items {
-			char.RemoveItem(item)
-			char.Room.AddItem(item)
-			io.WriteString(s, cfmt.Sprintf("{{You drop %s.}}::green\n", item.Name))
-			char.Room.Broadcast(cfmt.Sprintf("{{%s drops %s.}}::green\n", char.Name, item.Name), []string{char.ID})
-		}
+	// case "all":
+	// for _, item := range char.Items {
+	// char.RemoveItem(item)
+	// char.Room.AddItem(item)
+	// io.WriteString(s, cfmt.Sprintf("{{You drop %s.}}::green\n", item.Spec.Name))
+	// char.Room.Broadcast(cfmt.Sprintf("{{%s drops %s.}}::green\n", char.Name, item.Spec.Name), []string{char.ID})
+	// }
 	default:
 		io.WriteString(s, cfmt.Sprintf("{{You can't drop that.}}::red\n"))
 	}
@@ -193,8 +193,8 @@ func Give(s ssh.Session, cmd string, args []string, user *User, char *Character,
 		// 		for _, item := range char.Items {
 		// 			char.RemoveItem(item)
 		// 			char.Room.AddItem(item)
-		// 			io.WriteString(s, cfmt.Sprintf("{{You give %s.}}::green\n", item.Name))
-		// 			char.Room.Broadcast(cfmt.Sprintf("{{%s gives %s.}}::green\n", char.Name, item.Name), []string{char.ID})
+		// 			io.WriteString(s, cfmt.Sprintf("{{You give %s.}}::green\n", item.Spec.Name))
+		// 			char.Room.Broadcast(cfmt.Sprintf("{{%s gives %s.}}::green\n", char.Name, item.Spec.Name), []string{char.ID})
 		// 		}
 		// 		return
 	}
@@ -205,8 +205,8 @@ func Give(s ssh.Session, cmd string, args []string, user *User, char *Character,
 	// 			for _, item := range char.Items {
 	// 				char.RemoveItem(item)
 	// 				c.AddItem(item)
-	// 				io.WriteString(s, cfmt.Sprintf("{{You give %s.}}::green\n", item.Name))
-	// 				char.Room.Broadcast(cfmt.Sprintf("{{%s gives %s.}}::green\n", char.Name, item.Name), []string{char.ID})
+	// 				io.WriteString(s, cfmt.Sprintf("{{You give %s.}}::green\n", item.Spec.Name))
+	// 				char.Room.Broadcast(cfmt.Sprintf("{{%s gives %s.}}::green\n", char.Name, item.Spec.Name), []string{char.ID})
 	// 			}
 	// 			return
 	// 		}
@@ -225,8 +225,8 @@ func Give(s ssh.Session, cmd string, args []string, user *User, char *Character,
 	// 	for _, item := range char.Items {
 	// 		char.RemoveItem(item)
 	// 		char.Room.AddItem(item)
-	// 		io.WriteString(s, cfmt.Sprintf("{{You give %s.}}::green\n", item.Name))
-	// 		char.Room.Broadcast(cfmt.Sprintf("{{%s gives %s.}}::green\n", char.Name, item.Name), []string{char.ID})
+	// 		io.WriteString(s, cfmt.Sprintf("{{You give %s.}}::green\n", item.Spec.Name))
+	// 		char.Room.Broadcast(cfmt.Sprintf("{{%s gives %s.}}::green\n", char.Name, item.Spec.Name), []string{char.ID})
 	// 	}
 	// default:
 	io.WriteString(s, cfmt.Sprintf("{{You can't give that.}}::red\n"))
@@ -258,13 +258,13 @@ func Get(s ssh.Session, cmd string, args []string, user *User, char *Character, 
 	arg1 := args[0]
 
 	switch arg1 {
-	case "all":
-		for _, item := range char.Room.Items {
-			char.Room.RemoveItem(item)
-			char.AddItem(item)
-			io.WriteString(s, cfmt.Sprintf("{{You get %s.}}::green\n", item.Name))
-			char.Room.Broadcast(cfmt.Sprintf("{{%s gets %s.}}::green\n", char.Name, item.Name), []string{char.ID})
-		}
+	// case "all":
+	// 	for _, item := range char.Room.Inventory.Items {
+	// 		char.Room.RemoveItem(item)
+	// 		char.AddItem(item)
+	// 		io.WriteString(s, cfmt.Sprintf("{{You get %s.}}::green\n", item.Spec.Name))
+	// 		char.Room.Broadcast(cfmt.Sprintf("{{%s gets %s.}}::green\n", char.Name, item.Spec.Name), []string{char.ID})
+	// 	}
 	default:
 		io.WriteString(s, cfmt.Sprintf("{{You can't get that.}}::red\n"))
 	}
@@ -277,7 +277,11 @@ func Look(s ssh.Session, cmd string, args []string, user *User, char *Character,
 		slog.Any("args", args))
 
 	if room == nil {
+		slog.Error("Character is not in a room",
+			slog.String("character_id", char.ID))
+
 		io.WriteString(s, cfmt.Sprintf("{{You are not in a room.}}::red\n"))
+
 		return
 	}
 

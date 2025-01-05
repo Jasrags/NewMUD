@@ -27,19 +27,20 @@ type Character struct {
 	Listeners    []ee.Listener `yaml:"-"`
 	Conn         ssh.Session   `yaml:"-"`
 
-	ID        string        `yaml:"id"`
-	User      *User         `yaml:"-"`
-	UserID    string        `yaml:"user_id"`
-	Name      string        `yaml:"name"`
-	Room      *Room         `yaml:"-"`
-	RoomID    string        `yaml:"room_id"`
-	Area      *Area         `yaml:"-"`
-	AreaID    string        `yaml:"area_id"`
-	Role      CharacterRole `yaml:"role"`
-	Items     []*Item       `yaml:"items"`
-	CreatedAt time.Time     `yaml:"created_at"`
-	UpdatedAt *time.Time    `yaml:"updated_at"`
-	DeletedAt *time.Time    `yaml:"deleted_at"`
+	ID        string           `yaml:"id"`
+	User      *User            `yaml:"-"`
+	UserID    string           `yaml:"user_id"`
+	Name      string           `yaml:"name"`
+	Room      *Room            `yaml:"-"`
+	RoomID    string           `yaml:"room_id"`
+	Area      *Area            `yaml:"-"`
+	AreaID    string           `yaml:"area_id"`
+	Role      CharacterRole    `yaml:"role"`
+	Inventory Inventory        `yaml:"inventory"`
+	Equipment map[string]*Item `yaml:"equipment"`
+	CreatedAt time.Time        `yaml:"created_at"`
+	UpdatedAt *time.Time       `yaml:"updated_at"`
+	DeletedAt *time.Time       `yaml:"deleted_at"`
 }
 
 func NewCharacter() *Character {
@@ -47,6 +48,7 @@ func NewCharacter() *Character {
 		ID:        uuid.New().String(),
 		CreatedAt: time.Now(),
 		Role:      CharacterRolePlayer,
+		Equipment: make(map[string]*Item),
 	}
 }
 
@@ -122,30 +124,6 @@ func (c *Character) MoveToRoom(nextRoom *Room) {
 	// EventMgr.Publish(EventPlayerEnterRoom, &PlayerEnterRoom{Character: c, Room: c.Room})
 }
 
-func (c *Character) AddItem(item *Item) {
-	slog.Debug("Adding item to character",
-		slog.String("character_id", c.ID),
-		slog.String("item_id", item.ID))
-
-	c.Items = append(c.Items, item)
-	c.Save()
-}
-
-func (c *Character) RemoveItem(item *Item) {
-	slog.Debug("Removing item from character",
-		slog.String("character_id", c.ID),
-		slog.String("item_id", item.ID))
-
-	for i, it := range c.Items {
-		if it.ID == item.ID {
-			c.Items = append(c.Items[:i], c.Items[i+1:]...)
-			break
-		}
-	}
-
-	c.Save()
-}
-
 func (c *Character) Save() error {
 	c.Lock()
 	defer c.Unlock()
@@ -169,7 +147,6 @@ func (c *Character) Save() error {
 			slog.Any("error", err))
 		return err
 	}
-	// filepath := filepath.Join(viper.GetString("data.characters_path"), c.Name+".json")
 
 	return nil
 }

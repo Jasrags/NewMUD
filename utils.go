@@ -7,7 +7,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/i582/cfmt/cmd/cfmt"
 	"gopkg.in/yaml.v3"
 )
 
@@ -109,82 +108,4 @@ func FileExists(filePath string) bool {
 		return false
 	}
 	return true
-}
-
-// RenderRoom renders the room to a string for the player.
-func RenderRoom(user *User, char *Character, room *Room) string {
-	slog.Debug("Rendering room",
-		slog.String("character_id", char.ID))
-
-	var builder strings.Builder
-
-	// Optionally display the room ID for admins
-	if char.Role == CharacterRoleAdmin {
-		builder.WriteString(cfmt.Sprintf("{{[%s] }}::green", char.Room.ID))
-	}
-
-	// Display the room title
-	builder.WriteString(cfmt.Sprintf("{{%s}}::#4287f5\n", char.Room.Title))
-
-	// Display the room description
-	builder.WriteString(cfmt.Sprintf("{{%s}}::white\n", WrapText(char.Room.Description, 80)))
-
-	// Display players in the room
-	charCount := len(char.Room.Characters)
-	var charNames []string
-	for _, c := range char.Room.Characters {
-		if c.Name != char.Name {
-			color := "cyan"
-			if c.Role == CharacterRoleAdmin {
-				color = "yellow"
-			}
-
-			charNames = append(charNames, cfmt.Sprintf("{{%s}}::%s", c.Name, color))
-		}
-	}
-	if charCount == 1 {
-		builder.WriteString(cfmt.Sprint("{{You are alone in the room.}}::cyan\n"))
-	} else if charCount >= 2 {
-		builder.WriteString(cfmt.Sprintf("{{There is %d other person in the room: }}::cyan|bold", charCount-1))
-	} else {
-		builder.WriteString(cfmt.Sprintf("{{There are %d other people in the room: }}::cyan|bold", charCount-1))
-	}
-	if len(charNames) > 0 {
-		builder.WriteString(cfmt.Sprintf("{{%s}}::cyan", WrapText(strings.Join(charNames, ", "), 80)))
-	}
-	builder.WriteString("\n")
-
-	// Display items in the room
-	itemCount := len(char.Room.Items)
-	var itemNames []string
-	for _, item := range char.Room.Items {
-		itemNames = append(itemNames, item.Name)
-	}
-	if itemCount == 1 {
-		builder.WriteString(cfmt.Sprint("{{There is an item in the room.}}::green\n"))
-	} else if itemCount >= 2 {
-		builder.WriteString(cfmt.Sprintf("{{There are %d items in the room: }}::green|bold", itemCount))
-	} else {
-		builder.WriteString(cfmt.Sprint("{{There are no items in the room.}}::green\n"))
-	}
-	if len(itemNames) > 0 {
-		builder.WriteString(cfmt.Sprintf("{{%s}}::green", WrapText(strings.Join(itemNames, ", "), 80)))
-	}
-	builder.WriteString("\n")
-
-	// Display exits
-	if len(char.Room.Exits) == 0 {
-		builder.WriteString(cfmt.Sprint("{{There are no exits.}}::red\n"))
-	} else {
-		builder.WriteString(cfmt.Sprint("{{Exits:}}::#2359b0\n"))
-		for dir, exit := range char.Room.Exits {
-			builder.WriteString(cfmt.Sprintf("{{ %-5s - %s}}::#2359b0\n", dir, exit.Room.Title))
-		}
-	}
-
-	// list_obj_to_char(world[ch->in_room].contents, ch, 0,FALSE);
-
-	// list_char_to_char(world[ch->in_room].people, ch, 0);
-
-	return cfmt.Sprint(builder.String())
 }

@@ -19,7 +19,7 @@ type EntityManager struct {
 	sync.RWMutex
 
 	areas map[string]*Area
-	items map[string]*Item
+	items map[string]ItemBlueprint
 	mobs  map[string]*Mob
 	rooms map[string]*Room
 }
@@ -27,7 +27,7 @@ type EntityManager struct {
 func NewEntityManager() *EntityManager {
 	return &EntityManager{
 		areas: make(map[string]*Area),
-		items: make(map[string]*Item),
+		items: make(map[string]ItemBlueprint),
 		mobs:  make(map[string]*Mob),
 		rooms: make(map[string]*Room),
 	}
@@ -63,44 +63,52 @@ func (mgr *EntityManager) RemoveArea(a *Area) {
 	delete(mgr.areas, strings.ToLower(a.ID))
 }
 
-func (mgr *EntityManager) AddItem(i *Item) {
+func (mgr *EntityManager) AddItemBlueprint(i ItemBlueprint) {
 	mgr.Lock()
 	defer mgr.Unlock()
 
-	slog.Debug("Adding item",
-		slog.String("area_id", i.AreaID),
+	slog.Debug("Adding item blueprint",
 		slog.String("item_id", i.ID))
 
-	mgr.items[CreateEntityRef(i.AreaID, i.ID)] = i
+	if _, ok := mgr.items[i.ID]; ok {
+		slog.Warn("Item blueprint already exists",
+			slog.String("item_id", i.ID))
+		return
+	}
+
+	mgr.items[i.ID] = i
 }
 
-// TODO: Make this return a unique instance of the item and support quantity
-func (mgr *EntityManager) GetItem(referenceID string) *Item {
+// Create a new item instance
+func (mgr *EntityManager) CreateItemInstance(id string) *Item {
+	slog.Debug("Creating item instance",
+		slog.String("item_blueprint_id", id))
+
+	return &Item{
+		InstanceID:  uuid.New().String(),
+		BlueprintID: id,
+		Modifiers:   make(map[string]int),
+		Attachments: []string{},
+	}
+}
+
+// Get the blueprint for a given instance
+func (mgr *EntityManager) GetBlueprint(instance *Item) *ItemBlueprint {
 	mgr.RLock()
 	defer mgr.RUnlock()
 
-	slog.Debug("Getting item",
-		slog.String("item_reference_id", referenceID))
+	slog.Debug("Getting item blueprint",
+		slog.String("item_instance_id", instance.InstanceID))
 
-	item := mgr.items[strings.ToLower(referenceID)]
-	if item != nil {
-		item.ID = uuid.New().String()
+	blueprint, exists := mgr.items[instance.BlueprintID]
+	if !exists {
+		slog.Error("Item blueprint not found",
+			slog.String("item_blueprint_id", instance.BlueprintID))
 
-		return item
+		return nil
 	}
 
-	return nil
-}
-
-func (mgr *EntityManager) RemoveItem(i *Item) {
-	mgr.Lock()
-	defer mgr.Unlock()
-
-	slog.Debug("Removing item",
-		slog.String("area_id", i.AreaID),
-		slog.String("item_id", i.ID))
-
-	delete(mgr.items, CreateEntityRef(i.AreaID, i.ID))
+	return &blueprint
 }
 
 func (mgr *EntityManager) AddMob(m *Mob) {
@@ -111,17 +119,17 @@ func (mgr *EntityManager) AddMob(m *Mob) {
 		slog.String("area_id", m.AreaID),
 		slog.String("mob_id", m.ID))
 
-	mgr.mobs[CreateEntityRef(m.AreaID, m.ID)] = m
+	mgr.mobs[m.ID] = m
 }
 
-func (mgr *EntityManager) GetMob(referenceID string) *Mob {
+func (mgr *EntityManager) GetMob(id string) *Mob {
 	mgr.RLock()
 	defer mgr.RUnlock()
 
 	slog.Debug("Getting mob",
-		slog.String("mob_reference_id", referenceID))
+		slog.String("id", id))
 
-	return mgr.mobs[strings.ToLower(referenceID)]
+	return mgr.mobs[strings.ToLower(id)]
 }
 
 func (mgr *EntityManager) RemoveMob(m *Mob) {
@@ -132,7 +140,7 @@ func (mgr *EntityManager) RemoveMob(m *Mob) {
 		slog.String("area_id", m.AreaID),
 		slog.String("mob_id", m.ID))
 
-	delete(mgr.mobs, CreateEntityRef(m.AreaID, m.ID))
+	delete(mgr.mobs, m.ID)
 }
 
 func (mgr *EntityManager) AddRoom(r *Room) {
@@ -143,17 +151,23 @@ func (mgr *EntityManager) AddRoom(r *Room) {
 		slog.String("area_id", r.AreaID),
 		slog.String("room_id", r.ID))
 
-	mgr.rooms[CreateEntityRef(r.AreaID, r.ID)] = r
+	if _, ok := mgr.rooms[r.ID]; ok {
+		slog.Warn("Room already exists",
+			slog.String("room_id", r.ID))
+		return
+	}
+
+	mgr.rooms[r.ID] = r
 }
 
-func (mgr *EntityManager) GetRoom(referenceID string) *Room {
+func (mgr *EntityManager) GetRoom(id string) *Room {
 	mgr.RLock()
 	defer mgr.RUnlock()
 
 	slog.Debug("Getting room",
-		slog.String("room_reference_id", referenceID))
+		slog.String("id", id))
 
-	return mgr.rooms[strings.ToLower(referenceID)]
+	return mgr.rooms[strings.ToLower(id)]
 }
 
 func (mgr *EntityManager) RemoveRoom(r *Room) {
@@ -163,7 +177,7 @@ func (mgr *EntityManager) RemoveRoom(r *Room) {
 	slog.Debug("Removing room",
 		slog.String("room_id", r.ID))
 
-	delete(mgr.rooms, CreateEntityRef(r.AreaID, r.ID))
+	delete(mgr.rooms, r.ID)
 }
 
 func (mgr *EntityManager) LoadDataFiles() {
@@ -211,6 +225,10 @@ func (mgr *EntityManager) LoadDataFiles() {
 
 			// Load rooms
 			if FileExists(roomsPath) {
+				slog.Info("Loading rooms",
+					slog.String("path", roomsPath),
+					slog.String("area_id", area.ID))
+
 				var rooms []Room
 				if err := LoadYAML(roomsPath, &rooms); err != nil {
 					slog.Error("failed to unmarshal rooms data",
@@ -220,37 +238,35 @@ func (mgr *EntityManager) LoadDataFiles() {
 				}
 
 				for i := range rooms {
-					room := &rooms[i]
-					// room.Init()
-					room.ReferenceID = CreateEntityRef(area.ID, room.ID)
-					// room.Area = &area
-					room.AreaID = area.ID
-					mgr.AddRoom(room)
+					mgr.AddRoom(&rooms[i])
 				}
 			}
 
 			// Load items
 			if FileExists(itemsPath) {
-				var items []Item
+				slog.Info("Loading items",
+					slog.String("path", itemsPath),
+					slog.String("area_id", area.ID))
+
+				var items []ItemBlueprint
 				if err := LoadYAML(itemsPath, &items); err != nil {
-					slog.Error("failed to unmarshal items data",
+					slog.Error("failed to unmarshal item data",
 						slog.Any("error", err),
 						slog.String("items_path", itemsPath))
 					continue
 				}
 
 				for i := range items {
-					item := &items[i]
-					// item.Init()
-					item.ReferenceID = CreateEntityRef(area.ID, item.ID)
-					// item.Area = &area
-					item.AreaID = area.ID
-					mgr.AddItem(item)
+					mgr.AddItemBlueprint(items[i])
 				}
 			}
 
 			// Load mobs
 			if FileExists(mobsPath) {
+				slog.Info("Loading mobs",
+					slog.String("path", mobsPath),
+					slog.String("area_id", area.ID))
+
 				var mobs []Mob
 				if err := LoadYAML(mobsPath, &mobs); err != nil {
 					slog.Error("failed to unmarshal mobs data",
@@ -260,10 +276,7 @@ func (mgr *EntityManager) LoadDataFiles() {
 				}
 
 				for i := range mobs {
-					mob := &mobs[i]
-					mob.ReferenceID = CreateEntityRef(area.ID, mob.ID)
-					mob.AreaID = area.ID
-					mgr.AddMob(mob)
+					mgr.AddMob(&mobs[i])
 				}
 			}
 		}
@@ -282,26 +295,36 @@ func (mgr *EntityManager) BuildRooms() {
 	slog.Info("Building rooms")
 
 	for _, room := range mgr.rooms {
-
 		// Build room exits
 		slog.Info("Building room exits",
-			slog.String("room_id", room.ReferenceID))
-		for dir, _ := range room.Exits {
-			exit := room.Exits[dir]
-			exit.Room = mgr.GetRoom(exit.RoomID)
-			room.Exits[dir] = exit
+			slog.String("id", room.ID))
+
+		for dir, e := range room.Exits {
+			r := mgr.GetRoom(e.RoomID)
+			if r == nil {
+				slog.Error("Exit room not found",
+					slog.String("exit_dir", dir),
+					slog.String("exit_room_id", e.RoomID))
+				continue
+			}
+
+			slog.Debug("Building room exit",
+				slog.String("room_id", room.ID),
+				slog.String("exit_dir", dir),
+				slog.String("exit_room_id", e.RoomID))
+
+			e.Room = r
+			room.Exits[dir] = e
 		}
 
 		// Spawn default items
 		// TODO: Support for respawn_chance, max_load, replace_on_respawn, quantity
-		slog.Info("Spawning default items",
+		slog.Info("Spawning default room items",
 			slog.String("room_id", room.ReferenceID))
 
-		for _, i := range room.DefaultItems {
-			item := mgr.GetItem(i.ID)
-			if item != nil {
-				room.AddItem(item)
-			}
+		for _, di := range room.DefaultItems {
+			i := mgr.CreateItemInstance(di.ID)
+			room.Inventory.AddItem(i)
 		}
 	}
 }

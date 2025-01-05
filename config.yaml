@@ -8,7 +8,7 @@ server:
   input_queue_capacity: 100
   idle_timeout: 30s
   initial_state: welcome
-  starting_room: limbo:the_void
+  starting_room: the_void
   login_enabled: True
   registration_enabled: True
   max_players: 100
