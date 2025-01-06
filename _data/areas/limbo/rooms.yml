@@ -4,6 +4,11 @@
   exits:
     north:
       room_id: limbo
+      door:
+        locked: False
+        closed: True
+        key_ids: ["test_key"]
+        pick_difficulty: 10
   default_mobs: ["goblin"]
   default_items:
    - id: small_rock

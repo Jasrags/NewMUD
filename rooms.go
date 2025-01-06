@@ -14,6 +14,14 @@ type Exit struct {
 	Room      *Room  `yaml:"-"`
 	RoomID    string `yaml:"room_id"`
 	Direction string `yaml:"direction"`
+	Door      *Door  `yaml:"door"`
+}
+
+type Door struct {
+	IsOpen         bool     `yaml:"is_open"`
+	IsLocked       bool     `yaml:"is_locked"`
+	KeyIDs         []string `yaml:"key_ids"`
+	PickDifficulty int      `yaml:"pick_difficulty"`
 }
 
 type Corrdinates struct {

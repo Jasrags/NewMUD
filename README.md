@@ -5,17 +5,17 @@ Adding a generic list of mud features to check off.
 # MUD Room Functionalities
 
 ## 1. **Core Features**
-- [ ] **Room Name**: A short and descriptive name for the room.
-- [ ] **Room Description**: A detailed text description of the room, including its ambiance and notable features.
+- [X] **Room Name**: A short and descriptive name for the room.
+- [X] **Room Description**: A detailed text description of the room, including its ambiance and notable features.
 - [ ] **Dynamic Descriptions**: Adjust descriptions based on time of day, weather, or events.
 
 ## 2. **Connections**
-- [ ] **Exits**: Define valid directions players can move to and the corresponding connected rooms.
+- [X] **Exits**: Define valid directions players can move to and the corresponding connected rooms.
 - [ ] **Hidden Exits**: Include secret paths or exits that require discovery or specific actions to reveal.
 - [ ] **Locked Doors**: Include doors that can be locked and opened with the proper key or picking.
 
 ## 3. **Environment and Interactivity**
-- [ ] **Room Items**: List objects that players can interact with (e.g., furniture, tools, treasures).
+- [X] **Room Items**: List objects that players can interact with (e.g., furniture, tools, treasures).
 - [ ] **Interactive Objects**: Objects that respond to specific commands (e.g., “open door,” “read sign”).
 - [ ] **Dynamic Events**: Support for triggered events or changes (e.g., a trap activates when a specific object is touched).
 
@@ -29,7 +29,7 @@ Adding a generic list of mud features to check off.
 - [ ] **Puzzle Integration**: Include mechanisms for solving puzzles or unlocking new areas.
 
 ## 6. **Player Interaction**
-- [ ] **Room Messages**: Broadcast messages to all players in the room for certain events (e.g., “A gust of wind blows through the room.”).
+- [X] **Room Messages**: Broadcast messages to all players in the room for certain events (e.g., “A gust of wind blows through the room.”).
 - [ ] **Player Annotations**: Allow players to leave notes, markings, or traces visible to others.
 
 ## 7. **Customization**
@@ -50,8 +50,8 @@ Adding a generic list of mud features to check off.
 
 ## 1. **Core Functionality**
 ### Identification
-- [ ] **Name**: A unique name for the item.
-- [ ] **Description**: A detailed text description of the item’s appearance and purpose.
+- [X] **Name**: A unique name for the item.
+- [X] **Description**: A detailed text description of the item’s appearance and purpose.
 - [ ] **Item Type**: Classification (e.g., weapon, armor, consumable, quest item, crafting material).
 
 ### Attributes
@@ -104,7 +104,7 @@ Adding a generic list of mud features to check off.
 - [ ] **Ownership Tracking**: Link items to specific players or NPCs.
 
 ### Accessibility
-- [ ] **Help Commands**: Provide guidance on how to use or interact with the item.
+- [X] **Help Commands**: Provide guidance on how to use or interact with the item.
 - [ ] **Flavor Text**: Include descriptive text for immersion without gameplay impact.
 
 ---
@@ -112,7 +112,7 @@ Adding a generic list of mud features to check off.
 # MUD Character Functionalities
 
 ## 1. **Core Attributes**
-- [ ] **Name**: A unique and identifiable name for the character.
+- [X] **Name**: A unique and identifiable name for the character.
 - [ ] **Race and Class**: Define race (e.g., human, elf) and class (e.g., warrior, mage) for diversity in abilities.
 - [ ] **Attributes**: Core stats like Strength, Dexterity, Intelligence, Constitution, and Charisma.
 - [ ] **Health and Mana**: Tracks health points (HP) and mana for abilities.
@@ -147,12 +147,12 @@ Adding a generic list of mud features to check off.
 - [ ] **Titles and Achievements**: Unlockable designations based on actions or accomplishments.
 
 ## 8. **Persistence and Accessibility**
-- [ ] **Save/Load Support**: Retain character progress and inventory.
+- [X] **Save/Load Support**: Retain character progress and inventory.
 - [ ] **Respawn System**: Define mechanics for character death and revival.
 - [ ] **Help Commands**: Provide assistance specific to character management.
 
 
-Inspired by: 
+Inspired by:
  - https://github.com/Volte6/GoMud
  - https://ranviermud.com
  - https://dikumud.com/
@@ -165,4 +165,4 @@ Other versions of this as well
 
 
 Thanks to:
- - Dr Pogi for porting the LO [pluralizer](https://github.com/RahjIII/pluralizer) code 
+ - Dr Pogi for porting the LO [pluralizer](https://github.com/RahjIII/pluralizer) code

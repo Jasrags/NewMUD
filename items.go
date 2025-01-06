@@ -9,7 +9,8 @@ type (
 )
 
 const (
-	ItempTypeJunk ItemType = "junk"
+	ItemTypeJunk ItemType = "junk"
+	ItemTypeKey  ItemType = "key"
 
 	ItemSubtypeNone ItemSubtype = "none"
 

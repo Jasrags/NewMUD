@@ -17,3 +17,12 @@
   equip_slots: ["none"]
   type: "junk"
   subtype: "none"
+- id: "test_key"
+  name: "Test Key"
+  description: "A key that looks like it might fit in a lock."
+  tags: ["key"]
+  base_stats:
+    weight: 0.1
+  equip_slots: ["none"]
+  type: "key"
+  subtype: "none"
