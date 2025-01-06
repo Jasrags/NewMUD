@@ -15,6 +15,12 @@ import (
 	ee "github.com/vansante/go-event-emitter"
 )
 
+type Interactable interface {
+	GetName() string
+	GetID() string
+	ReactToMessage(sender *Character, message string)
+}
+
 type CharacterRole string
 
 const (
@@ -63,6 +69,21 @@ func (c *Character) Send(msg string) {
 		slog.String("message", msg))
 
 	io.WriteString(c.Conn, msg)
+}
+
+func (c *Character) GetName() string {
+	return c.Name
+}
+
+func (c *Character) GetID() string {
+	return c.ID
+}
+
+func (c *Character) ReactToMessage(sender *Character, message string) {
+	// For Characters, send the message via their session.
+	if c.Conn != nil {
+		io.WriteString(c.Conn, cfmt.Sprintf("{{%s says to you: '%s'}}::green\n", sender.Name, message))
+	}
 }
 
 // func (c *Character) FromRoom() {

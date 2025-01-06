@@ -84,6 +84,15 @@ var (
 			Func:        DoInventory,
 		},
 		{
+			Name:        "say",
+			Description: "Say something to the room or to a character or mob",
+			Usage: []string{
+				"say <message>",
+				"say @<name> <message>",
+			},
+			Func: DoSay,
+		},
+		{
 			Name:        "spawn",
 			Description: "Spawn an item or mob into the room",
 			Usage: []string{
@@ -107,6 +116,62 @@ type Command struct {
 }
 
 type CommandFunc func(s ssh.Session, cmd string, args []string, user *User, char *Character, room *Room)
+
+/*
+Usage:
+  - say <message>
+  - say @<name> <message>
+*/
+func DoSay(s ssh.Session, cmd string, args []string, user *User, char *Character, room *Room) {
+	slog.Debug("Say command",
+		slog.String("command", cmd),
+		slog.Any("args", args))
+
+	if room == nil {
+		io.WriteString(s, cfmt.Sprintf("{{You are not in a room.}}::red\n"))
+		return
+	}
+
+	if len(args) == 0 {
+		io.WriteString(s, cfmt.Sprintf("{{Say what?}}::yellow\n"))
+		return
+	}
+
+	message := strings.Join(args, " ")
+
+	if strings.HasPrefix(message, "@") {
+		// Handle targeted messages
+		splitMessage := strings.SplitN(message, " ", 2)
+		if len(splitMessage) < 2 {
+			io.WriteString(s, cfmt.Sprintf("{{Say what to whom?}}::yellow\n"))
+			return
+		}
+
+		targetName := splitMessage[0][1:] // Remove '@'
+		targetedMessage := splitMessage[1]
+
+		// Find the target in the room
+		target := room.FindInteractableByName(targetName)
+		if target == nil {
+			io.WriteString(s, cfmt.Sprintf("{{No one named '%s' is here.}}::red\n", targetName))
+			return
+		}
+
+		// Notify the speaker
+		io.WriteString(s, cfmt.Sprintf("{{You say to %s: '%s'}}::cyan\n", target.GetName(), targetedMessage))
+
+		// Let the target react to the message
+		target.ReactToMessage(char, targetedMessage)
+
+		// Broadcast to the room (excluding speaker and target)
+		room.Broadcast(cfmt.Sprintf("{{%s says something to %s.}}::green\n", char.Name, target.GetName()), []string{char.ID, target.GetID()})
+
+	} else {
+		// General message to the room
+		io.WriteString(s, cfmt.Sprintf("{{You say: '%s'}}::cyan\n", message))
+		room.Broadcast(cfmt.Sprintf("{{%s says: '%s'}}::green\n", char.Name, message), []string{char.ID})
+	}
+}
 
 /*
 Usage:
