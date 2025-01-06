@@ -12,7 +12,7 @@ import (
 )
 
 // TODO: need a manager for this as well
-
+// TODO: We need a RP consistent way to communicate directly with other individuals or groups of individuals I.E. for shadowrun it could be via comlinks and some group or party system
 var (
 	registeredCommands = []Command{
 		{
@@ -122,6 +122,8 @@ Usage:
   - say <message>
   - say @<name> <message>
 */
+// TODO: overall for communication commands we need to log messages to a database with time, to/from, and message.
+// TODO: need to implement a block/unblock function for preventing messages from certain users
 func DoSay(s ssh.Session, cmd string, args []string, user *User, char *Character, room *Room) {
 	slog.Debug("Say command",
 		slog.String("command", cmd),
