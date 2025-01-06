@@ -83,18 +83,12 @@ func (mgr *EntityManager) GetItemBlueprintByID(id string) *ItemBlueprint {
 	mgr.RLock()
 	defer mgr.RUnlock()
 
-	slog.Debug("Getting item blueprint",
-		slog.String("item_blueprint_id", id))
-
 	return mgr.items[id]
 }
 
 func (mgr *EntityManager) GetItemBlueprintByInstance(item *Item) *ItemBlueprint {
 	mgr.RLock()
 	defer mgr.RUnlock()
-
-	slog.Debug("Getting item blueprint",
-		slog.String("item_instance_id", item.InstanceID))
 
 	return mgr.items[item.BlueprintID]
 }
@@ -141,9 +135,6 @@ func (mgr *EntityManager) GetItemBlueprint(id string) *ItemBlueprint {
 	mgr.RLock()
 	defer mgr.RUnlock()
 
-	slog.Debug("Getting item blueprint",
-		slog.String("item_blueprint_id", id))
-
 	bp, ok := mgr.items[id]
 	if !ok {
 		slog.Error("Item blueprint not found",
@@ -158,9 +149,11 @@ func (mgr *EntityManager) AddMob(m *Mob) {
 	mgr.Lock()
 	defer mgr.Unlock()
 
-	slog.Debug("Adding mob",
-		slog.String("area_id", m.AreaID),
-		slog.String("mob_id", m.ID))
+	if _, ok := mgr.mobs[m.ID]; ok {
+		slog.Warn("Mob already exists",
+			slog.String("mob_id", m.ID))
+		return
+	}
 
 	mgr.mobs[m.ID] = m
 }
@@ -169,9 +162,6 @@ func (mgr *EntityManager) GetMob(id string) *Mob {
 	mgr.RLock()
 	defer mgr.RUnlock()
 
-	slog.Debug("Getting mob",
-		slog.String("id", id))
-
 	return mgr.mobs[strings.ToLower(id)]
 }
 
@@ -179,20 +169,12 @@ func (mgr *EntityManager) RemoveMob(m *Mob) {
 	mgr.Lock()
 	defer mgr.Unlock()
 
-	slog.Debug("Removing mob",
-		slog.String("area_id", m.AreaID),
-		slog.String("mob_id", m.ID))
-
 	delete(mgr.mobs, m.ID)
 }
 
 func (mgr *EntityManager) AddRoom(r *Room) {
 	mgr.Lock()
 	defer mgr.Unlock()
-
-	slog.Debug("Adding room",
-		slog.String("area_id", r.AreaID),
-		slog.String("room_id", r.ID))
 
 	if _, ok := mgr.rooms[r.ID]; ok {
 		slog.Warn("Room already exists",
@@ -207,18 +189,12 @@ func (mgr *EntityManager) GetRoom(id string) *Room {
 	mgr.RLock()
 	defer mgr.RUnlock()
 
-	slog.Debug("Getting room",
-		slog.String("id", id))
-
 	return mgr.rooms[strings.ToLower(id)]
 }
 
 func (mgr *EntityManager) RemoveRoom(r *Room) {
 	mgr.Lock()
 	defer mgr.Unlock()
-
-	slog.Debug("Removing room",
-		slog.String("room_id", r.ID))
 
 	delete(mgr.rooms, r.ID)
 }
@@ -338,33 +314,77 @@ func (mgr *EntityManager) BuildRooms() {
 	slog.Info("Building rooms")
 
 	for _, room := range mgr.rooms {
-		// Build room exits
-		slog.Info("Building room exits",
-			slog.String("id", room.ID))
+		// room
+		// room := mgr.rooms[id]
+		// Build exits
+		for dir, exit := range room.Exits {
+			exit.Room = mgr.GetRoom(exit.RoomID)
 
-		for dir, e := range room.Exits {
-			r := mgr.GetRoom(e.RoomID)
-			if r == nil {
-				slog.Error("Exit room not found",
+			slog.Debug("Building exit",
+				slog.String("room_id", room.ID),
+				slog.String("exit_dir", dir),
+				slog.String("exit_room_id", exit.RoomID))
+
+			if exit.Room == nil {
+				slog.Warn("Exit room not found",
+					slog.String("room_id", room.ID),
 					slog.String("exit_dir", dir),
-					slog.String("exit_room_id", e.RoomID))
+					slog.String("exit_room_id", exit.RoomID))
+				// TODO: Do we need to remove the exit from the room?
 				continue
 			}
 
-			slog.Debug("Building room exit",
-				slog.String("room_id", room.ID),
-				slog.String("exit_dir", dir),
-				slog.String("exit_room_id", e.RoomID))
+			if exit.Door != nil {
+				slog.Debug("Building shared door",
+					slog.String("room_id", room.ID),
+					slog.String("exit_dir", dir),
+					slog.String("exit_room_id", exit.RoomID))
+				exit.Room.Exits[ReverseDirection(dir)].Door = exit.Door
 
-			e.Room = r
-			room.Exits[dir] = e
+			}
+
+			slog.Debug("Building shared door")
+			// if
+			// exit[dir].Room = mgr.GetRoom(exit.RoomID)
+			// room.Exits[dir].Room = mgr.GetRoom(room.Exits[dir].RoomID)
+			// mgr.rooms[id].Exits[dir].Room = mgr.GetRoom(mgr.rooms[id].Exits[dir].RoomID)
+			// room.Exits[dir].Room = mgr.GetRoom(room.Exits[dir].RoomID)
+
+			// exit.Room := mgr.GetRoom(exit.RoomID)
+			// if exit.Room == nil {
+			// slog.Warn("Exit room not found",
+			// 		slog.String("room_id", room.ID),
+			// 		slog.String("exit_dir", dir),
+			// 		slog.String("exit_room_id", exit.RoomID))
+			// 	// TODO: Do we need to remove the exit from the room?
+			// 	continue
+			// }
+
+			// Create shared doors
+			// if exit.Door != nil {
+			// 	exit.Room.Exits[ReverseDirection(dir)].Door = exit.Door
+			// }
+			// e.Room = r
+			// room.Exits[dir] = e
+			// e.Room = r
+
+			// Create shared doors
+			// if e.Door != nil {
+			// 	sharedDoor := &Door{}
+			// 	e.Door = sharedDoor
+			// 	if oppositeExit, ok := r.Exits[ReverseDirection(dir)]; ok {
+			// 		oppositeExit.Door = sharedDoor
+			// 		r.Exits[ReverseDirection(dir)] = oppositeExit
+			// 	}
+			// }
+
+			// room.Exits[dir] = e
+
+			// TODO: Build shared doors, we need the door in the exit room to share state with the door in the current room.
 		}
 
 		// Spawn default items
 		// TODO: Support for respawn_chance, max_load, replace_on_respawn, quantity
-		slog.Info("Spawning default room items",
-			slog.String("room_id", room.ReferenceID))
-
 		for _, di := range room.DefaultItems {
 			i := EntityMgr.CreateItemInstanceFromBlueprintID(di.ID)
 			room.Inventory.AddItem(i)

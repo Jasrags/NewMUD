@@ -217,11 +217,7 @@ func DoClose(s ssh.Session, cmd string, args []string, user *User, char *Charact
 		return
 	}
 
-	direction, err := ParseDirection(args[0])
-	if err != nil {
-		io.WriteString(s, cfmt.Sprintf("{{Invalid direction.}}::red\n"))
-		return
-	}
+	direction := ParseDirection(args[0])
 
 	exit, exists := room.Exits[direction]
 	if !exists {
@@ -242,6 +238,11 @@ func DoClose(s ssh.Session, cmd string, args []string, user *User, char *Charact
 	exit.Door.IsOpen = false
 	io.WriteString(s, cfmt.Sprintf("{{You close the door to the %s.}}::green\n", direction))
 	room.Broadcast(cfmt.Sprintf("{{%s closes the door to the %s.}}::green\n", char.Name, direction), []string{char.ID})
+
+	// Notify the adjacent room
+	if exit.Room != nil {
+		exit.Room.Broadcast(cfmt.Sprintf("{{The door to the %s closes from the other side.}}::green\n", ReverseDirection(direction)), []string{})
+	}
 }
 
 func DoLock(s ssh.Session, cmd string, args []string, user *User, char *Character, room *Room) {
@@ -250,7 +251,12 @@ func DoLock(s ssh.Session, cmd string, args []string, user *User, char *Characte
 		return
 	}
 
-	direction := args[0]
+	direction := ParseDirection(args[0])
+	if direction == "" {
+		io.WriteString(s, cfmt.Sprintf("{{Invalid direction.}}::red\n"))
+		return
+	}
+
 	exit, exists := room.Exits[direction]
 	if !exists {
 		io.WriteString(s, cfmt.Sprintf("{{There is no exit to the %s.}}::red\n", direction))
@@ -281,7 +287,6 @@ func DoLock(s ssh.Session, cmd string, args []string, user *User, char *Characte
 	hasKey := false
 	for _, item := range char.Inventory.Items {
 		bp := EntityMgr.GetItemBlueprintByInstance(item)
-
 		if bp.Type == ItemTypeKey && validKeys[bp.ID] {
 			hasKey = true
 			break
@@ -304,7 +309,7 @@ func DoUnlock(s ssh.Session, cmd string, args []string, user *User, char *Charac
 		return
 	}
 
-	direction := args[0]
+	direction := ParseDirection(args[0])
 	exit, exists := room.Exits[direction]
 	if !exists {
 		io.WriteString(s, cfmt.Sprintf("{{There is no exit to the %s.}}::red\n", direction))
@@ -330,7 +335,6 @@ func DoUnlock(s ssh.Session, cmd string, args []string, user *User, char *Charac
 	hasKey := false
 	for _, item := range char.Inventory.Items {
 		bp := EntityMgr.GetItemBlueprintByInstance(item)
-
 		if bp.Type == ItemTypeKey && validKeys[bp.ID] {
 			hasKey = true
 			break
@@ -354,12 +358,7 @@ func DoOpen(s ssh.Session, cmd string, args []string, user *User, char *Characte
 		return
 	}
 
-	direction, err := ParseDirection(args[0])
-	if err != nil {
-		io.WriteString(s, cfmt.Sprintf("{{Invalid direction.}}::red\n"))
-		return
-	}
-
+	direction := ParseDirection(args[0])
 	exit, exists := room.Exits[direction]
 	if !exists {
 		io.WriteString(s, cfmt.Sprintf("{{There is no exit to the %s.}}::red\n", direction))
@@ -384,6 +383,11 @@ func DoOpen(s ssh.Session, cmd string, args []string, user *User, char *Characte
 	exit.Door.IsOpen = true
 	io.WriteString(s, cfmt.Sprintf("{{You open the door to the %s.}}::green\n", direction))
 	room.Broadcast(cfmt.Sprintf("{{%s opens the door to the %s.}}::green\n", char.Name, direction), []string{char.ID})
+
+	// Notify the adjacent room
+	if exit.Room != nil {
+		exit.Room.Broadcast(cfmt.Sprintf("{{The door to the %s opens from the other side.}}::green\n", ReverseDirection(direction)), []string{})
+	}
 }
 
 /*
@@ -882,11 +886,7 @@ func DoMove(s ssh.Session, cmd string, args []string, user *User, char *Characte
 		return
 	}
 
-	dir, err := ParseDirection(cmd)
-	if err != nil {
-		io.WriteString(s, cfmt.Sprintf("{{Invalid direction.}}::red\n"))
-		return
-	}
+	dir := ParseDirection(cmd)
 
 	// Check if the exit exists
 	if exit, ok := char.Room.Exits[dir]; ok {

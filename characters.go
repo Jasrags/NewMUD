@@ -65,10 +65,6 @@ func (c *Character) Init() {
 }
 
 func (c *Character) Send(msg string) {
-	slog.Debug("Sending message to character",
-		slog.String("character_id", c.ID),
-		slog.String("message", msg))
-
 	io.WriteString(c.Conn, msg)
 }
 
@@ -134,13 +130,13 @@ func (c *Character) MoveToRoom(nextRoom *Room) {
 
 	if c.Room != nil && c.Room.ID != nextRoom.ID {
 		// EventMgr.Publish(EventRoomCharacterLeave, &RoomCharacterLeave{Character: c, Room: c.Room, NextRoom: nextRoom})
-		c.Room.Broadcast(cfmt.Sprintf("\n%s leaves the room.\n", c.Name), []string{c.ID})
+		c.Room.Broadcast(cfmt.Sprintf("\n{{%s leaves the room.}}::green\n", c.Name), []string{c.ID})
 		c.Room.RemoveCharacter(c)
 	}
 
 	c.SetRoom(nextRoom)
 	nextRoom.AddCharacter(c)
-	c.Room.Broadcast(cfmt.Sprintf("\n%s enters the room.\n", c.Name), []string{c.ID})
+	c.Room.Broadcast(cfmt.Sprintf("\n{{%s enters the room.}::green}\n", c.Name), []string{c.ID})
 
 	// EventMgr.Publish(EventRoomCharacterEnter, &RoomCharacterEnter{Character: c, Room: c.Room, PrevRoom: prevRoom})
 	// EventMgr.Publish(EventPlayerEnterRoom, &PlayerEnterRoom{Character: c, Room: c.Room})

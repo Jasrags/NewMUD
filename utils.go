@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"log/slog"
 	"os"
 	"strings"
@@ -103,7 +102,7 @@ func FileExists(filePath string) bool {
 	return true
 }
 
-func ParseDirection(dir string) (string, error) {
+func ParseDirection(dir string) string {
 	switch dir {
 	case "n", "north":
 		dir = "north"
@@ -118,8 +117,28 @@ func ParseDirection(dir string) (string, error) {
 	case "d", "down":
 		dir = "down"
 	default:
-		return "", fmt.Errorf("invalid direction: %s", dir)
+		return ""
 	}
 
-	return dir, nil
+	return dir
+}
+
+func ReverseDirection(dir string) string {
+	switch dir {
+	case "n", "north":
+		dir = "south"
+	case "s", "south":
+		dir = "north"
+	case "e", "east":
+		dir = "west"
+	case "w", "west":
+		dir = "east"
+	case "u", "up":
+		dir = "down"
+	case "d", "down":
+		dir = "up"
+	default:
+		return ""
+	}
+	return dir
 }

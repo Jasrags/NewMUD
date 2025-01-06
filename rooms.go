@@ -46,15 +46,15 @@ type Room struct {
 	sync.RWMutex `yaml:"-"`
 	Listeners    []ee.Listener `yaml:"-"`
 
-	ID          string          `yaml:"id"`
-	ReferenceID string          `yaml:"reference_id"`
-	UUID        string          `yaml:"uuid"`
-	AreaID      string          `yaml:"area_id"`
-	Area        *Area           `yaml:"-"`
-	Title       string          `yaml:"title"`
-	Description string          `yaml:"description"`
-	Exits       map[string]Exit `yaml:"exits"`
-	Corrdinates *Corrdinates    `yaml:"corrdinates"`
+	ID          string           `yaml:"id"`
+	ReferenceID string           `yaml:"reference_id"`
+	UUID        string           `yaml:"uuid"`
+	AreaID      string           `yaml:"area_id"`
+	Area        *Area            `yaml:"-"`
+	Title       string           `yaml:"title"`
+	Description string           `yaml:"description"`
+	Exits       map[string]*Exit `yaml:"exits"`
+	Corrdinates *Corrdinates     `yaml:"corrdinates"`
 	// Items        []*Item         `yaml:"-"`
 	Inventory    Inventory     `yaml:"inventory"`
 	Characters   []*Character  `yaml:"-"`
@@ -67,7 +67,7 @@ type Room struct {
 func NewRoom() *Room {
 	return &Room{
 		UUID:  uuid.New().String(),
-		Exits: make(map[string]Exit),
+		Exits: make(map[string]*Exit),
 	}
 }
 
@@ -189,11 +189,6 @@ func (r *Room) RemoveMob(m *Mob) {
 }
 
 func (r *Room) Broadcast(msg string, excludeIDs []string) {
-	slog.Debug("Broadcasting message to room",
-		slog.String("room_id", r.ID),
-		slog.String("message", msg),
-		slog.Any("exclude_ids", excludeIDs))
-
 	excludes := make(map[string]bool)
 
 	for _, id := range excludeIDs {
@@ -201,10 +196,6 @@ func (r *Room) Broadcast(msg string, excludeIDs []string) {
 	}
 
 	for _, char := range r.Characters {
-		slog.Debug("Broadcasting message to character",
-			slog.String("character_id", char.ID),
-			slog.String("message", msg))
-
 		if _, ok := excludes[char.ID]; !ok {
 			char.Send(msg)
 		}
@@ -268,9 +259,6 @@ func (r *Room) Broadcast(msg string, excludeIDs []string) {
 
 // RenderRoom renders the room to a string for the player.
 func RenderRoom(user *User, char *Character, room *Room) string {
-	slog.Debug("Rendering room",
-		slog.String("character_id", char.ID))
-
 	var builder strings.Builder
 
 	// Optionally display the room ID for admins

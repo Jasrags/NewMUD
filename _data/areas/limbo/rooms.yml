@@ -5,14 +5,15 @@
     north:
       room_id: limbo
       door:
-        locked: False
-        closed: True
+        is_locked: False
+        is_open: False
         key_ids: ["test_key"]
         pick_difficulty: 10
   default_mobs: ["goblin"]
   default_items:
    - id: small_rock
    - id: jagged_rock
+   - id: test_key
   description: >-
     You don't think that you are not floating in nothing.
 - id: limbo
