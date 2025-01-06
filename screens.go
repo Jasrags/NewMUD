@@ -352,6 +352,8 @@ func promptEnterGame(s ssh.Session, u *User) (string, *Character) {
 	u.Save()
 	c.Save()
 
+	CharacterMgr.SetCharacterOnline(c)
+
 	return StateGameLoop, c
 }
 
@@ -395,6 +397,8 @@ func promptExitGame(s ssh.Session, u *User, c *Character) string {
 
 	c.Room.Broadcast(cfmt.Sprintf("\n%s leaves the game.\n", c.Name), []string{c.ID})
 	io.WriteString(s, cfmt.Sprintf("{{Goodbye, %s!}}::green\n", u.Username))
+
+	CharacterMgr.SetCharacterOffline(c)
 
 	c = nil
 

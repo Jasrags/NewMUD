@@ -17,15 +17,44 @@ var (
 type CharacterManager struct {
 	sync.RWMutex
 
-	characters  map[string]*Character
-	bannedNames map[string]bool
+	characters       map[string]*Character
+	onlineCharacters map[string]*Character
+	bannedNames      map[string]bool
 }
 
 func NewCharacterManager() *CharacterManager {
 	return &CharacterManager{
-		characters:  make(map[string]*Character),
-		bannedNames: make(map[string]bool),
+		characters:       make(map[string]*Character),
+		onlineCharacters: make(map[string]*Character),
+		bannedNames:      make(map[string]bool),
 	}
+}
+
+func (mgr *CharacterManager) GetOnlineCharacters() map[string]*Character {
+	mgr.RLock()
+	defer mgr.RUnlock()
+
+	return mgr.onlineCharacters
+}
+
+func (mgr *CharacterManager) SetCharacterOnline(c *Character) {
+	mgr.Lock()
+	defer mgr.Unlock()
+
+	slog.Debug("Setting character online",
+		slog.String("character_id", c.ID))
+
+	mgr.onlineCharacters[strings.ToLower(c.Name)] = c
+}
+
+func (mgr *CharacterManager) SetCharacterOffline(c *Character) {
+	mgr.Lock()
+	defer mgr.Unlock()
+
+	slog.Debug("Setting character offline",
+		slog.String("character_id", c.ID))
+
+	delete(mgr.onlineCharacters, strings.ToLower(c.Name))
 }
 
 func (mgr *CharacterManager) AddCharacter(c *Character) {

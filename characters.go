@@ -37,6 +37,7 @@ type Character struct {
 	User      *User            `yaml:"-"`
 	UserID    string           `yaml:"user_id"`
 	Name      string           `yaml:"name"`
+	Title     string           `yaml:"title"`
 	Room      *Room            `yaml:"-"`
 	RoomID    string           `yaml:"room_id"`
 	Area      *Area            `yaml:"-"`

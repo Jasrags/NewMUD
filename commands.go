@@ -16,6 +16,13 @@ import (
 var (
 	registeredCommands = []Command{
 		{
+			Name:        "who",
+			Description: "List players currently in the game",
+			Usage:       []string{"who"},
+			Aliases:     []string{"w"},
+			Func:        DoWho,
+		},
+		{
 			Name:        "look",
 			Description: "Look around the room",
 			Usage: []string{
@@ -116,6 +123,42 @@ type Command struct {
 }
 
 type CommandFunc func(s ssh.Session, cmd string, args []string, user *User, char *Character, room *Room)
+
+/*
+Usage:
+  - who
+*/
+// TODO: Sort all admins to the top of the list
+// TODO: Add a CanSee function for characters and have this function use that to determine if a character can see another character in the who list
+func DoWho(s ssh.Session, cmd string, args []string, user *User, char *Character, room *Room) {
+	slog.Debug("Who command",
+		slog.String("command", cmd),
+		slog.Any("args", args))
+
+	// Simulated global list of active characters
+	activeCharacters := CharacterMgr.GetOnlineCharacters()
+
+	if len(activeCharacters) == 0 {
+		io.WriteString(s, cfmt.Sprintf("{{No one else is in the game right now.}}::yellow\n"))
+		return
+	}
+
+	io.WriteString(s, cfmt.Sprintf("{{Players currently in the game:}}::green\n"))
+
+	for _, activeChar := range activeCharacters {
+		color := "cyan"
+		if activeChar.Role == CharacterRoleAdmin {
+			color = "yellow"
+		}
+
+		if activeChar.Title == "" {
+			activeChar.Title = "the Basic"
+		}
+
+		// Display character title and name
+		io.WriteString(s, cfmt.Sprintf("{{%s - %s}}::%s\n", activeChar.Name, activeChar.Title, color))
+	}
+}
 
 /*
 Usage:
