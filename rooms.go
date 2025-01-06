@@ -63,6 +63,34 @@ func NewRoom() *Room {
 	}
 }
 
+// func (r *Room) FindCharacterOrMobByName(name string) *Entity {
+// 	for _, c := range r.Characters {
+// 		if strings.EqualFold(c.Name, name) {
+// 			return c
+// 		}
+// 	}
+// 	for _, m := range r.Mobs {
+// 		if strings.EqualFold(m.Name, name) {
+// 			return m
+// 		}
+// 	}
+// 	return nil
+// }
+
+func (r *Room) FindInteractableByName(name string) Interactable {
+	for _, c := range r.Characters {
+		if strings.EqualFold(c.Name, name) {
+			return c
+		}
+	}
+	for _, m := range r.Mobs {
+		if strings.EqualFold(m.Name, name) {
+			return m
+		}
+	}
+	return nil
+}
+
 // func (r *Room) Init() {
 // 	slog.Debug("Initializing room",
 // 		slog.String("room_id", r.ID))
@@ -158,15 +186,19 @@ func (r *Room) Broadcast(msg string, excludeIDs []string) {
 		slog.String("message", msg),
 		slog.Any("exclude_ids", excludeIDs))
 
+	excludes := make(map[string]bool)
+
+	for _, id := range excludeIDs {
+		excludes[id] = true
+	}
+
 	for _, char := range r.Characters {
 		slog.Debug("Broadcasting message to character",
 			slog.String("character_id", char.ID),
 			slog.String("message", msg))
 
-		for _, excludeID := range excludeIDs {
-			if char.ID != excludeID {
-				char.Send(msg)
-			}
+		if _, ok := excludes[char.ID]; !ok {
+			char.Send(msg)
 		}
 	}
 }
