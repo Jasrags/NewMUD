@@ -283,7 +283,6 @@ func DoLock(s ssh.Session, cmd string, args []string, user *User, char *Characte
 		validKeys[key] = true
 	}
 
-	// Check if character has the correct key
 	hasKey := false
 	for _, item := range char.Inventory.Items {
 		bp := EntityMgr.GetItemBlueprintByInstance(item)
