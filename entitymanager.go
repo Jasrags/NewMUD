@@ -19,7 +19,7 @@ type EntityManager struct {
 	sync.RWMutex
 
 	areas map[string]*Area
-	items map[string]ItemBlueprint
+	items map[string]*ItemBlueprint
 	mobs  map[string]*Mob
 	rooms map[string]*Room
 }
@@ -27,7 +27,7 @@ type EntityManager struct {
 func NewEntityManager() *EntityManager {
 	return &EntityManager{
 		areas: make(map[string]*Area),
-		items: make(map[string]ItemBlueprint),
+		items: make(map[string]*ItemBlueprint),
 		mobs:  make(map[string]*Mob),
 		rooms: make(map[string]*Room),
 	}
@@ -63,7 +63,7 @@ func (mgr *EntityManager) RemoveArea(a *Area) {
 	delete(mgr.areas, strings.ToLower(a.ID))
 }
 
-func (mgr *EntityManager) AddItemBlueprint(i ItemBlueprint) {
+func (mgr *EntityManager) AddItemBlueprint(i *ItemBlueprint) {
 	mgr.Lock()
 	defer mgr.Unlock()
 
@@ -79,36 +79,79 @@ func (mgr *EntityManager) AddItemBlueprint(i ItemBlueprint) {
 	mgr.items[i.ID] = i
 }
 
-// Create a new item instance
-func (mgr *EntityManager) CreateItemInstance(id string) *Item {
-	slog.Debug("Creating item instance",
+func (mgr *EntityManager) GetItemBlueprintByID(id string) *ItemBlueprint {
+	mgr.RLock()
+	defer mgr.RUnlock()
+
+	slog.Debug("Getting item blueprint",
 		slog.String("item_blueprint_id", id))
+
+	return mgr.items[id]
+}
+
+func (mgr *EntityManager) GetItemBlueprintByInstance(item *Item) *ItemBlueprint {
+	mgr.RLock()
+	defer mgr.RUnlock()
+
+	slog.Debug("Getting item blueprint",
+		slog.String("item_instance_id", item.InstanceID))
+
+	return mgr.items[item.BlueprintID]
+}
+
+func (mgr *EntityManager) CreateItemInstanceFromBlueprintID(id string) *Item {
+	slog.Debug("Creating item instance from blueprint",
+		slog.String("item_blueprint_id", id))
+
+	bp, ok := mgr.items[id]
+	if !ok {
+		slog.Error("Item blueprint not found",
+			slog.String("item_blueprint_id", id))
+		return nil
+	}
+
+	return mgr.CreateItemInstanceFromBlueprint(bp)
+}
+
+func (mgr *EntityManager) CreateItemInstanceFromBlueprint(bp *ItemBlueprint) *Item {
+	slog.Debug("Creating item instance from blueprint",
+		slog.String("item_blueprint_id", bp.ID))
 
 	return &Item{
 		InstanceID:  uuid.New().String(),
-		BlueprintID: id,
+		BlueprintID: bp.ID,
 		Modifiers:   make(map[string]int),
 		Attachments: []string{},
 	}
 }
 
-// Get the blueprint for a given instance
-func (mgr *EntityManager) GetBlueprint(instance *Item) *ItemBlueprint {
+func (mgr *EntityManager) CreateItemFromBlueprint(bp ItemBlueprint) *Item {
+	slog.Debug("Creating item instance from blueprint",
+		slog.String("item_blueprint_id", bp.ID))
+
+	return &Item{
+		InstanceID:  uuid.New().String(),
+		BlueprintID: bp.ID,
+		Modifiers:   make(map[string]int),
+		Attachments: []string{},
+	}
+}
+
+func (mgr *EntityManager) GetItemBlueprint(id string) *ItemBlueprint {
 	mgr.RLock()
 	defer mgr.RUnlock()
 
 	slog.Debug("Getting item blueprint",
-		slog.String("item_instance_id", instance.InstanceID))
+		slog.String("item_blueprint_id", id))
 
-	blueprint, exists := mgr.items[instance.BlueprintID]
-	if !exists {
+	bp, ok := mgr.items[id]
+	if !ok {
 		slog.Error("Item blueprint not found",
-			slog.String("item_blueprint_id", instance.BlueprintID))
-
+			slog.String("item_blueprint_id", id))
 		return nil
 	}
 
-	return &blueprint
+	return bp
 }
 
 func (mgr *EntityManager) AddMob(m *Mob) {
@@ -257,7 +300,7 @@ func (mgr *EntityManager) LoadDataFiles() {
 				}
 
 				for i := range items {
-					mgr.AddItemBlueprint(items[i])
+					mgr.AddItemBlueprint(&items[i])
 				}
 			}
 
@@ -323,7 +366,7 @@ func (mgr *EntityManager) BuildRooms() {
 			slog.String("room_id", room.ReferenceID))
 
 		for _, di := range room.DefaultItems {
-			i := mgr.CreateItemInstance(di.ID)
+			i := EntityMgr.CreateItemInstanceFromBlueprintID(di.ID)
 			room.Inventory.AddItem(i)
 		}
 	}

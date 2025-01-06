@@ -55,9 +55,30 @@ func (mgr *CommandManager) ParseAndExecute(s ssh.Session, input string, user *Us
 		slog.String("command_name", cmd),
 		slog.Any("args", args))
 
-	if command, ok := mgr.commands[cmd]; ok {
+	if command, ok := mgr.commands[cmd]; ok && CanRunCommand(char, command) {
 		command.Func(s, cmd, args, user, char, room)
 	} else {
 		io.WriteString(s, cfmt.Sprintf("{{Unknown command.}}::red\n"))
 	}
+}
+
+func CanRunCommand(char *Character, cmd *Command) bool {
+	slog.Debug("Checking if character can run command",
+		slog.String("character_id", char.ID),
+		slog.String("command", cmd.Name))
+
+	if len(cmd.RequiredRoles) == 0 {
+		return true
+	}
+
+	requiredRoles := make(map[CharacterRole]bool)
+	for _, role := range cmd.RequiredRoles {
+		requiredRoles[role] = true
+	}
+
+	if _, ok := requiredRoles[char.Role]; !ok {
+		return false
+	}
+
+	return true
 }

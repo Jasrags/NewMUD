@@ -36,7 +36,7 @@ func SearchInventory(inv *Inventory, query string) []*Item {
 	var results []*Item
 
 	for _, item := range inv.Items {
-		blueprint := EntityMgr.GetBlueprint(item) // Assume this fetches the blueprint for the item
+		blueprint := EntityMgr.GetItemBlueprintByInstance(item) // Assume this fetches the blueprint for the item
 		if blueprint == nil {
 			continue
 		}
@@ -69,7 +69,7 @@ func TransferItem(item *Item, from, to *Inventory) bool {
 
 // Combine base stats and modifiers for a given item instance
 func GetCombinedStats(instance *Item, em *EntityManager) map[string]int {
-	blueprint := em.GetBlueprint(instance)
+	blueprint := em.GetItemBlueprintByInstance(instance)
 	if blueprint == nil {
 		return nil
 	}

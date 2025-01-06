@@ -273,7 +273,7 @@ func RenderRoom(user *User, char *Character, room *Room) string {
 	itemCount := len(char.Room.Inventory.Items)
 	var itemNames []string
 	for _, i := range char.Room.Inventory.Items {
-		bp := EntityMgr.GetBlueprint(i)
+		bp := EntityMgr.GetItemBlueprintByInstance(i)
 		if bp != nil {
 			itemNames = append(itemNames, bp.Name)
 		}

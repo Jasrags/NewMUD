@@ -7,6 +7,7 @@ import (
 
 	"github.com/Jasrags/NewMUD/pluralizer"
 	"github.com/gliderlabs/ssh"
+	"github.com/google/uuid"
 	"github.com/i582/cfmt/cmd/cfmt"
 )
 
@@ -82,16 +83,27 @@ var (
 			Aliases:     []string{"i"},
 			Func:        DoInventory,
 		},
+		{
+			Name:        "spawn",
+			Description: "Spawn an item or mob into the room",
+			Usage: []string{
+				"spawn item <item>",
+				"spawn mob <mob>",
+			},
+			RequiredRoles: []CharacterRole{CharacterRoleAdmin},
+			Func:          DoSpawn,
+		},
 	}
 )
 
 type Command struct {
-	Name        string
-	Description string
-	Usage       []string
-	Aliases     []string
-	IsAdmin     bool
-	Func        CommandFunc
+	Name          string
+	Description   string
+	Usage         []string
+	Aliases       []string
+	RequiredRoles []CharacterRole
+	IsAdmin       bool
+	Func          CommandFunc
 }
 
 type CommandFunc func(s ssh.Session, cmd string, args []string, user *User, char *Character, room *Room)
@@ -108,7 +120,9 @@ func DoHelp(s ssh.Session, cmd string, args []string, user *User, char *Characte
 
 	uniqueCommands := make(map[string]*Command)
 	for _, cmd := range CommandMgr.GetCommands() {
-		uniqueCommands[cmd.Name] = cmd
+		if CanRunCommand(char, cmd) {
+			uniqueCommands[cmd.Name] = cmd
+		}
 	}
 
 	var builder strings.Builder
@@ -122,7 +136,9 @@ func DoHelp(s ssh.Session, cmd string, args []string, user *User, char *Characte
 		if command, ok := uniqueCommands[args[0]]; ok {
 			builder.WriteString(cfmt.Sprintf("{{%s}}::cyan\n", strings.ToUpper(command.Name)))
 			builder.WriteString(cfmt.Sprintf("{{Description:}}::white|bold %s\n", command.Description))
-			builder.WriteString(cfmt.Sprintf("{{Aliases:}}::white|bold %s\n", strings.Join(command.Aliases, ", ")))
+			if len(command.Aliases) > 0 {
+				builder.WriteString(cfmt.Sprintf("{{Aliases:}}::white|bold %s\n", strings.Join(command.Aliases, ", ")))
+			}
 			builder.WriteString(cfmt.Sprintf("{{Usage:}}::white|bold\n"))
 			for _, usage := range command.Usage {
 				builder.WriteString(cfmt.Sprintf("{{  - %s}}::green\n", usage))
@@ -172,7 +188,7 @@ func DoDrop(s ssh.Session, cmd string, args []string, user *User, char *Characte
 			copy(itemsToDrop, char.Inventory.Items)
 
 			for _, item := range itemsToDrop {
-				bp := EntityMgr.GetBlueprint(item)
+				bp := EntityMgr.GetItemBlueprintByInstance(item)
 				if bp == nil {
 					io.WriteString(s, cfmt.Sprintf("{{Error retrieving item blueprint.}}::red\n"))
 					continue
@@ -198,7 +214,7 @@ func DoDrop(s ssh.Session, cmd string, args []string, user *User, char *Characte
 		}
 
 		for _, item := range matchingItems {
-			bp := EntityMgr.GetBlueprint(item)
+			bp := EntityMgr.GetItemBlueprintByInstance(item)
 			if bp == nil {
 				io.WriteString(s, cfmt.Sprintf("{{Error retrieving item blueprint.}}::red\n"))
 				continue
@@ -224,7 +240,7 @@ func DoDrop(s ssh.Session, cmd string, args []string, user *User, char *Characte
 	}
 
 	item := matchingItems[0] // Default to the first match if ambiguous
-	bp := EntityMgr.GetBlueprint(item)
+	bp := EntityMgr.GetItemBlueprintByInstance(item)
 	if bp == nil {
 		io.WriteString(s, cfmt.Sprintf("{{Error retrieving item blueprint.}}::red\n"))
 		return
@@ -294,7 +310,7 @@ func DoGive(s ssh.Session, cmd string, args []string, user *User, char *Characte
 			copy(itemsToGive, char.Inventory.Items)
 
 			for _, item := range itemsToGive {
-				bp := EntityMgr.GetBlueprint(item)
+				bp := EntityMgr.GetItemBlueprintByInstance(item)
 				if bp == nil {
 					io.WriteString(s, cfmt.Sprintf("{{Error retrieving item blueprint.}}::red\n"))
 					continue
@@ -321,7 +337,7 @@ func DoGive(s ssh.Session, cmd string, args []string, user *User, char *Characte
 		}
 
 		for _, item := range matchingItems {
-			bp := EntityMgr.GetBlueprint(item)
+			bp := EntityMgr.GetItemBlueprintByInstance(item)
 			if bp == nil {
 				io.WriteString(s, cfmt.Sprintf("{{Error retrieving item blueprint.}}::red\n"))
 				continue
@@ -348,7 +364,7 @@ func DoGive(s ssh.Session, cmd string, args []string, user *User, char *Characte
 		}
 
 		item := matchingItems[0] // Default to the first match if ambiguous
-		bp := EntityMgr.GetBlueprint(item)
+		bp := EntityMgr.GetItemBlueprintByInstance(item)
 		if bp == nil {
 			io.WriteString(s, cfmt.Sprintf("{{Error retrieving item blueprint.}}::red\n"))
 			return
@@ -406,7 +422,7 @@ func DoGet(s ssh.Session, cmd string, args []string, user *User, char *Character
 		}
 
 		for _, item := range matchingItems {
-			bp := EntityMgr.GetBlueprint(item) // Fetch the blueprint
+			bp := EntityMgr.GetItemBlueprintByInstance(item) // Fetch the blueprint
 			if bp == nil {
 				io.WriteString(s, cfmt.Sprintf("{{Error retrieving item blueprint.}}::red\n"))
 				continue
@@ -431,8 +447,8 @@ func DoGet(s ssh.Session, cmd string, args []string, user *User, char *Character
 		return
 	}
 
-	item := matchingItems[0]           // Default to the first match if ambiguous
-	bp := EntityMgr.GetBlueprint(item) // Fetch the blueprint
+	item := matchingItems[0]                         // Default to the first match if ambiguous
+	bp := EntityMgr.GetItemBlueprintByInstance(item) // Fetch the blueprint
 	if bp == nil {
 		io.WriteString(s, cfmt.Sprintf("{{Error retrieving item blueprint.}}::red\n"))
 		return
@@ -529,6 +545,55 @@ func DoMove(s ssh.Session, cmd string, args []string, user *User, char *Characte
 	}
 }
 
+func DoSpawn(s ssh.Session, cmd string, args []string, user *User, char *Character, room *Room) {
+	slog.Debug("Spawn command",
+		slog.String("command", cmd),
+		slog.Any("args", args))
+
+	if room == nil {
+		io.WriteString(s, cfmt.Sprintf("{{You are not in a room.}}::red\n"))
+		return
+	}
+
+	if len(args) < 2 {
+		io.WriteString(s, cfmt.Sprintf("{{Usage: spawn <item|mob> <name>}}::yellow\n"))
+		return
+	}
+
+	entityType := args[0]
+	entityName := strings.Join(args[1:], " ")
+
+	switch entityType {
+	case "i":
+		// Spawn an item into the character inventory
+		bp := EntityMgr.GetItemBlueprintByID(entityName)
+		i := EntityMgr.CreateItemInstanceFromBlueprint(bp)
+		if i == nil {
+			io.WriteString(s, cfmt.Sprintf("{{Error: No item blueprint named '%s' found.}}::red\n", entityName))
+			return
+		}
+
+		char.Inventory.AddItem(i)
+		// room.Inventory.AddItem(i)
+		io.WriteString(s, cfmt.Sprintf("{{You spawn a %s.}}::green\n", bp.Name))
+		room.Broadcast(cfmt.Sprintf("{{%s spawns a %s.}}::green\n", char.Name, bp.Name), []string{char.ID})
+
+	case "m":
+		// Spawn a mob into the room
+		mob := &Mob{
+			ID:   uuid.New().String(),
+			Name: entityName,
+		}
+
+		room.AddMob(mob)
+		io.WriteString(s, cfmt.Sprintf("{{You spawn a mob named %s.}}::green\n", entityName))
+		room.Broadcast(cfmt.Sprintf("{{%s spawns a mob named %s.}}::green\n", char.Name, entityName), []string{char.ID})
+
+	default:
+		io.WriteString(s, cfmt.Sprintf("{{Invalid entity type. Usage: spawn <item|mob> <name>}}::yellow\n"))
+	}
+}
+
 func DoInventory(s ssh.Session, cmd string, args []string, user *User, char *Character, room *Room) {
 	slog.Debug("Inventory command",
 		slog.String("command", cmd),
@@ -549,7 +614,7 @@ func DoInventory(s ssh.Session, cmd string, args []string, user *User, char *Cha
 
 	// Count items based on their blueprint name
 	for _, item := range char.Inventory.Items {
-		bp := EntityMgr.GetBlueprint(item)
+		bp := EntityMgr.GetItemBlueprintByInstance(item)
 		if bp == nil {
 			io.WriteString(s, cfmt.Sprintf("{{Error: Unable to retrieve item blueprint.}}::red\n"))
 			continue
