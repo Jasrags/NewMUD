@@ -888,26 +888,6 @@ func DoMove(s ssh.Session, cmd string, args []string, user *User, char *Characte
 		return
 	}
 
-	// // Check if the player specified a direction with the move command or used a direction alias
-	// var dir string
-	// switch cmd {
-	// case "n", "north":
-	// 	dir = "north"
-	// case "s", "south":
-	// 	dir = "south"
-	// case "e", "east":
-	// 	dir = "east"
-	// case "w", "west":
-	// 	dir = "west"
-	// case "u", "up":
-	// 	dir = "up"
-	// case "d", "down":
-	// 	dir = "down"
-	// default:
-	// 	slog.Error("Invalid direction",
-	// 		slog.String("direction", dir))
-	// }
-
 	// Check if the exit exists
 	if exit, ok := char.Room.Exits[dir]; ok {
 		if exit.Door != nil && !exit.Door.IsOpen {
