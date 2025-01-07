@@ -15,6 +15,7 @@
    - id: orc
   default_items:
    - id: small_rock
+   - id: small_rock
    - id: jagged_rock
    - id: test_key
   description: >-
