@@ -40,9 +40,6 @@ func (mgr *CommandManager) GetCommands() map[string]*Command {
 }
 
 func (mgr *CommandManager) ParseAndExecute(s ssh.Session, input string, user *User, char *Character, room *Room) {
-	slog.Debug("Parsing and executing command",
-		slog.String("input", input))
-
 	if input == "" {
 		return
 	}
@@ -50,10 +47,6 @@ func (mgr *CommandManager) ParseAndExecute(s ssh.Session, input string, user *Us
 	parts := strings.Fields(input)
 	cmd := parts[0]
 	args := parts[1:]
-
-	slog.Debug("Command name",
-		slog.String("command_name", cmd),
-		slog.Any("args", args))
 
 	if command, ok := mgr.commands[cmd]; ok && CanRunCommand(char, command) {
 		command.Func(s, cmd, args, user, char, room)
@@ -63,10 +56,6 @@ func (mgr *CommandManager) ParseAndExecute(s ssh.Session, input string, user *Us
 }
 
 func CanRunCommand(char *Character, cmd *Command) bool {
-	slog.Debug("Checking if character can run command",
-		slog.String("character_id", char.ID),
-		slog.String("command", cmd.Name))
-
 	if len(cmd.RequiredRoles) == 0 {
 		return true
 	}

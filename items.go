@@ -8,8 +8,14 @@ type (
 	EquipSlot   string
 )
 
+// TODO: For keys we need subtypes for the different locks they can open.
+// TODO: For picks they also need subtypes for the different locks they can pick.
+// TODO: For locks they should have a rating of how difficult they are to pick
+// TODO: For picks they should have a raiting of how good they are at picking locks
+// TODO: Locks should somehow tie into alarm/traps or other events
 const (
-	ItempTypeJunk ItemType = "junk"
+	ItemTypeJunk ItemType = "junk"
+	ItemTypeKey  ItemType = "key"
 
 	ItemSubtypeNone ItemSubtype = "none"
 

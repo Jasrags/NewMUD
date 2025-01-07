@@ -101,3 +101,44 @@ func FileExists(filePath string) bool {
 	}
 	return true
 }
+
+func ParseDirection(dir string) string {
+	switch dir {
+	case "n", "north":
+		dir = "north"
+	case "s", "south":
+		dir = "south"
+	case "e", "east":
+		dir = "east"
+	case "w", "west":
+		dir = "west"
+	case "u", "up":
+		dir = "up"
+	case "d", "down":
+		dir = "down"
+	default:
+		return ""
+	}
+
+	return dir
+}
+
+func ReverseDirection(dir string) string {
+	switch dir {
+	case "n", "north":
+		dir = "south"
+	case "s", "south":
+		dir = "north"
+	case "e", "east":
+		dir = "west"
+	case "w", "west":
+		dir = "east"
+	case "u", "up":
+		dir = "down"
+	case "d", "down":
+		dir = "up"
+	default:
+		return ""
+	}
+	return dir
+}

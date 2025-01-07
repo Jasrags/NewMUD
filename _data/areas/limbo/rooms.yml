@@ -4,10 +4,19 @@
   exits:
     north:
       room_id: limbo
-  default_mobs: ["goblin"]
+      door:
+        is_locked: False
+        is_open: False
+        key_ids: ["test_key"]
+        pick_difficulty: 10
+  default_mobs:
+   - id: goblin
+   - id: orc
+   - id: orc
   default_items:
    - id: small_rock
    - id: jagged_rock
+   - id: test_key
   description: >-
     You don't think that you are not floating in nothing.
 - id: limbo

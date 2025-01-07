@@ -10,6 +10,8 @@ import (
 	ee "github.com/vansante/go-event-emitter"
 )
 
+// TODO: Implement mob AI behaviors.
+// TODO: Do we want mobs to be an "instance" that will persist after spawning?
 type Mob struct {
 	sync.RWMutex
 	Listeners []ee.Listener `yaml:"-"`
