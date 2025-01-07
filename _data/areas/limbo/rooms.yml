@@ -9,7 +9,10 @@
         is_open: False
         key_ids: ["test_key"]
         pick_difficulty: 10
-  default_mobs: ["goblin"]
+  default_mobs:
+   - id: goblin
+   - id: orc
+   - id: orc
   default_items:
    - id: small_rock
    - id: jagged_rock

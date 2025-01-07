@@ -230,12 +230,12 @@ func DoClose(s ssh.Session, cmd string, args []string, user *User, char *Charact
 		return
 	}
 
-	if !exit.Door.IsOpen {
+	if exit.Door.IsClosed {
 		io.WriteString(s, cfmt.Sprintf("{{The door to the %s is already closed.}}::yellow\n", direction))
 		return
 	}
 
-	exit.Door.IsOpen = false
+	exit.Door.IsClosed = true
 	io.WriteString(s, cfmt.Sprintf("{{You close the door to the %s.}}::green\n", direction))
 	room.Broadcast(cfmt.Sprintf("{{%s closes the door to the %s.}}::green\n", char.Name, direction), []string{char.ID})
 
@@ -273,7 +273,7 @@ func DoLock(s ssh.Session, cmd string, args []string, user *User, char *Characte
 		return
 	}
 
-	if exit.Door.IsOpen {
+	if !exit.Door.IsClosed {
 		io.WriteString(s, cfmt.Sprintf("{{You must close the door to the %s before locking it.}}::yellow\n", direction))
 		return
 	}
@@ -369,7 +369,7 @@ func DoOpen(s ssh.Session, cmd string, args []string, user *User, char *Characte
 		return
 	}
 
-	if exit.Door.IsOpen {
+	if !exit.Door.IsClosed {
 		io.WriteString(s, cfmt.Sprintf("{{The door to the %s is already open.}}::yellow\n", direction))
 		return
 	}
@@ -379,7 +379,7 @@ func DoOpen(s ssh.Session, cmd string, args []string, user *User, char *Characte
 		return
 	}
 
-	exit.Door.IsOpen = true
+	exit.Door.IsClosed = false
 	io.WriteString(s, cfmt.Sprintf("{{You open the door to the %s.}}::green\n", direction))
 	room.Broadcast(cfmt.Sprintf("{{%s opens the door to the %s.}}::green\n", char.Name, direction), []string{char.ID})
 
@@ -889,7 +889,7 @@ func DoMove(s ssh.Session, cmd string, args []string, user *User, char *Characte
 
 	// Check if the exit exists
 	if exit, ok := char.Room.Exits[dir]; ok {
-		if exit.Door != nil && !exit.Door.IsOpen {
+		if exit.Door != nil && exit.Door.IsClosed {
 			io.WriteString(s, cfmt.Sprintf("{{The door to the %s is closed.}}::red\n", dir))
 			return
 		}

@@ -1,6 +1,8 @@
 # Change these variables as necessary.
 MAIN_PACKAGE_PATH := .
 BINARY_NAME := main
+IMAGE_NAME = your-docker-username/game
+TAG = latest
 
 # ==================================================================================== #
 # HELPERS
@@ -62,7 +64,6 @@ test/cover:
 ## build: build the application
 .PHONY: build
 build:
-	# Include additional build steps, like TypeScript, SCSS or Tailwind compilation here...
 	go build -o=/tmp/bin/${BINARY_NAME} ${MAIN_PACKAGE_PATH}
 
 ## run: run the  application
@@ -78,6 +79,23 @@ run/live:
 		--build.exclude_dir "" \
 		--build.include_ext "go, tpl, tmpl, html, css, scss, js, ts, sql, jpeg, jpg, gif, png, bmp, svg, webp, ico" \
 		--misc.clean_on_exit "true"
+
+
+# Deploy
+
+# Build the Docker image
+.PHONY: docker-build
+docker-build:
+	docker build -t $(IMAGE_NAME):$(TAG) .
+
+# Push the Docker image to a registry
+.PHONY: docker-push
+docker-push:
+	docker push $(IMAGE_NAME):$(TAG)
+
+# Full pipeline: build, tag, and push
+.PHONY: release
+release: build docker-build docker-push
 
 # ==================================================================================== #
 # OPERATIONS

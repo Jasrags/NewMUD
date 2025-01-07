@@ -314,16 +314,9 @@ func (mgr *EntityManager) BuildRooms() {
 	slog.Info("Building rooms")
 
 	for _, room := range mgr.rooms {
-		// room
-		// room := mgr.rooms[id]
 		// Build exits
 		for dir, exit := range room.Exits {
 			exit.Room = mgr.GetRoom(exit.RoomID)
-
-			slog.Debug("Building exit",
-				slog.String("room_id", room.ID),
-				slog.String("exit_dir", dir),
-				slog.String("exit_room_id", exit.RoomID))
 
 			if exit.Room == nil {
 				slog.Warn("Exit room not found",
@@ -335,52 +328,8 @@ func (mgr *EntityManager) BuildRooms() {
 			}
 
 			if exit.Door != nil {
-				slog.Debug("Building shared door",
-					slog.String("room_id", room.ID),
-					slog.String("exit_dir", dir),
-					slog.String("exit_room_id", exit.RoomID))
 				exit.Room.Exits[ReverseDirection(dir)].Door = exit.Door
-
 			}
-
-			slog.Debug("Building shared door")
-			// if
-			// exit[dir].Room = mgr.GetRoom(exit.RoomID)
-			// room.Exits[dir].Room = mgr.GetRoom(room.Exits[dir].RoomID)
-			// mgr.rooms[id].Exits[dir].Room = mgr.GetRoom(mgr.rooms[id].Exits[dir].RoomID)
-			// room.Exits[dir].Room = mgr.GetRoom(room.Exits[dir].RoomID)
-
-			// exit.Room := mgr.GetRoom(exit.RoomID)
-			// if exit.Room == nil {
-			// slog.Warn("Exit room not found",
-			// 		slog.String("room_id", room.ID),
-			// 		slog.String("exit_dir", dir),
-			// 		slog.String("exit_room_id", exit.RoomID))
-			// 	// TODO: Do we need to remove the exit from the room?
-			// 	continue
-			// }
-
-			// Create shared doors
-			// if exit.Door != nil {
-			// 	exit.Room.Exits[ReverseDirection(dir)].Door = exit.Door
-			// }
-			// e.Room = r
-			// room.Exits[dir] = e
-			// e.Room = r
-
-			// Create shared doors
-			// if e.Door != nil {
-			// 	sharedDoor := &Door{}
-			// 	e.Door = sharedDoor
-			// 	if oppositeExit, ok := r.Exits[ReverseDirection(dir)]; ok {
-			// 		oppositeExit.Door = sharedDoor
-			// 		r.Exits[ReverseDirection(dir)] = oppositeExit
-			// 	}
-			// }
-
-			// room.Exits[dir] = e
-
-			// TODO: Build shared doors, we need the door in the exit room to share state with the door in the current room.
 		}
 
 		// Spawn default items
@@ -388,6 +337,17 @@ func (mgr *EntityManager) BuildRooms() {
 		for _, di := range room.DefaultItems {
 			i := EntityMgr.CreateItemInstanceFromBlueprintID(di.ID)
 			room.Inventory.AddItem(i)
+		}
+
+		for _, dm := range room.DefaultMobs {
+			m := EntityMgr.GetMob(dm.ID)
+			if m == nil {
+				slog.Warn("Mob not found",
+					slog.String("mob_id", dm.ID))
+				continue
+			}
+
+			room.AddMob(m)
 		}
 	}
 }
