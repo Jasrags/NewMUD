@@ -268,26 +268,29 @@ func RenderRoom(user *User, char *Character, room *Room) string {
 
 	// Display players in the room
 	charCount := len(char.Room.Characters)
-	var charNames []string
-	for _, c := range char.Room.Characters {
-		if c.Name != char.Name {
-			color := "cyan"
-			if c.Role == CharacterRoleAdmin {
-				color = "yellow"
-			}
+	if charCount > 0 {
+		var charNames []string
+		for _, c := range char.Room.Characters {
+			if c.Name != char.Name {
+				color := "cyan"
+				if c.Role == CharacterRoleAdmin {
+					color = "yellow"
+				}
 
-			charNames = append(charNames, cfmt.Sprintf("{{%s}}::%s", c.Name, color))
+				charNames = append(charNames, cfmt.Sprintf("{{%s}}::%s", c.Name, color))
+			}
 		}
-	}
-	if charCount == 1 {
-		builder.WriteString(cfmt.Sprint("{{You are the only player in the room.}}::cyan\n"))
-	} else if charCount >= 2 {
-		builder.WriteString(cfmt.Sprintf("{{There is %d other person in the room: }}::cyan|bold", charCount-1))
-	} else {
-		builder.WriteString(cfmt.Sprintf("{{There are %d other people in the room: }}::cyan|bold", charCount-1))
-	}
-	if len(charNames) > 0 {
-		builder.WriteString(cfmt.Sprintf("{{%s}}::cyan", WrapText(strings.Join(charNames, ", "), 80)))
+		if charCount == 1 {
+			builder.WriteString(cfmt.Sprint("{{You are the only player in the room.}}::cyan|bold"))
+		} else if charCount >= 2 {
+			builder.WriteString(cfmt.Sprintf("{{There is %d other person in the room: }}::cyan|bold", charCount-1))
+		} else {
+			builder.WriteString(cfmt.Sprintf("{{There are %d other people in the room: }}::cyan|bold", charCount-1))
+		}
+		if len(charNames) > 0 {
+			builder.WriteString(cfmt.Sprintf("{{%s}}::cyan", WrapText(strings.Join(charNames, ", "), 80)))
+		}
+		builder.WriteString("\n")
 	}
 
 	// Display mobs in the room
@@ -307,28 +310,24 @@ func RenderRoom(user *User, char *Character, room *Room) string {
 		builder.WriteString(cfmt.Sprintf("{{%s}}::magenta\n", WrapText(strings.Join(mobNames, ", "), 80)))
 	}
 
-	// Display items in the room
+	// Display mobs in the room
 	itemCount := len(char.Room.Inventory.Items)
-	if itemCount > 0 {
-		var itemNames []string
-		for _, i := range char.Room.Inventory.Items {
-			bp := EntityMgr.GetItemBlueprintByInstance(i)
-			if bp != nil {
-				itemNames = append(itemNames, bp.Name)
-			}
-		}
-		if itemCount == 1 {
-			builder.WriteString(cfmt.Sprint("{{There is an item in the room.}}::green\n"))
-		} else if itemCount >= 2 {
-			builder.WriteString(cfmt.Sprintf("{{There are %d items in the room: }}::green|bold", itemCount))
-		} else {
-			builder.WriteString(cfmt.Sprint("{{There are no items in the room.}}::green\n"))
-		}
-		if len(itemNames) > 0 {
-			builder.WriteString(cfmt.Sprintf("{{%s}}::green", WrapText(strings.Join(itemNames, ", "), 80)))
-		}
-		builder.WriteString("\n")
+	itemNameCounts := make(map[string]int)
+	for _, i := range char.Room.Inventory.Items {
+		bp := EntityMgr.GetItemBlueprintByInstance(i)
+		itemNameCounts[bp.Name]++
 	}
+
+	// Display the mobs in the room
+	if itemCount > 0 {
+		builder.WriteString(cfmt.Sprintf("{{There are %d items in the room: }}::green|bold", itemCount))
+		itemNames := []string{}
+		for name, count := range itemNameCounts {
+			itemNames = append(itemNames, pluralizer.PluralizeNounPhrase(name, count))
+		}
+		builder.WriteString(cfmt.Sprintf("{{%s}}::green\n", WrapText(strings.Join(itemNames, ", "), 80)))
+	}
+
 	// Display exits
 	if len(char.Room.Exits) == 0 {
 		builder.WriteString(cfmt.Sprint("{{There are no exits.}}::red\n"))
