@@ -11,6 +11,8 @@ import (
 	ee "github.com/vansante/go-event-emitter"
 )
 
+// TODO: do we want to persist the room state between resets (mobs, items, etc)?
+
 type Exit struct {
 	Room      *Room  `yaml:"-"`
 	RoomID    string `yaml:"room_id"`
