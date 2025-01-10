@@ -265,10 +265,6 @@ Usage:
 // TODO: Sort all admins to the top of the list
 // TODO: Add a CanSee function for characters and have this function use that to determine if a character can see another character in the who list
 func DoWho(s ssh.Session, cmd string, args []string, user *User, char *Character, room *Room) {
-	slog.Debug("Who command",
-		slog.String("command", cmd),
-		slog.Any("args", args))
-
 	// Simulated global list of active characters
 	activeCharacters := CharacterMgr.GetOnlineCharacters()
 
@@ -301,12 +297,6 @@ Usage:
 // TODO: overall for communication commands we need to log messages to a database with time, to/from, and message.
 // TODO: need to implement a block/unblock function for preventing messages from certain users
 func DoSay(s ssh.Session, cmd string, args []string, user *User, char *Character, room *Room) {
-	slog.Debug("Say command",
-		slog.String("command", cmd),
-		slog.Any("args", args),
-		slog.String("character_id", char.ID),
-		slog.String("character_name", char.Name))
-
 	if room == nil {
 		io.WriteString(s, cfmt.Sprintf("{{You are not in a room.}}::red\n"))
 		return
@@ -327,12 +317,6 @@ func DoSay(s ssh.Session, cmd string, args []string, user *User, char *Character
 }
 
 func DoTell(s ssh.Session, cmd string, args []string, user *User, char *Character, room *Room) {
-	slog.Debug("Tell command",
-		slog.String("command", cmd),
-		slog.Any("args", args),
-		slog.String("character_id", char.ID),
-		slog.String("character_name", char.Name))
-
 	if room == nil {
 		io.WriteString(s, cfmt.Sprintf("{{You are not in a room.}}::red\n"))
 		return
@@ -396,10 +380,6 @@ Usage:
   - help <command>
 */
 func DoHelp(s ssh.Session, cmd string, args []string, user *User, char *Character, room *Room) {
-	slog.Debug("Help command",
-		slog.String("command", cmd),
-		slog.Any("args", args))
-
 	uniqueCommands := make(map[string]*Command)
 	for _, cmd := range CommandMgr.GetCommands() {
 		if CommandMgr.CanRunCommand(char, cmd) {
@@ -440,12 +420,6 @@ Usage:
   - drop all
 */
 func DoDrop(s ssh.Session, cmd string, args []string, user *User, char *Character, room *Room) {
-	slog.Debug("Drop command",
-		slog.String("command", cmd),
-		slog.Any("args", args),
-		slog.String("character_id", char.ID),
-		slog.String("character_name", char.Name))
-
 	if room == nil {
 		io.WriteString(s, cfmt.Sprintf("{{You are not in a room.}}::red\n"))
 		return
@@ -589,12 +563,6 @@ Usage:
   - give <character> [<quantity>] <item>
 */
 func DoGive(s ssh.Session, cmd string, args []string, user *User, char *Character, room *Room) {
-	slog.Debug("Give command",
-		slog.String("command", cmd),
-		slog.Any("args", args),
-		slog.String("character_id", char.ID),
-		slog.String("character_name", char.Name))
-
 	if room == nil {
 		io.WriteString(s, cfmt.Sprintf("{{You are not in a room.}}::red\n"))
 		return
@@ -726,10 +694,6 @@ Usage:
   - get all
 */
 func DoGet(s ssh.Session, cmd string, args []string, user *User, char *Character, room *Room) {
-	slog.Debug("Get command",
-		slog.String("command", cmd),
-		slog.Any("args", args))
-
 	if room == nil {
 		io.WriteString(s, cfmt.Sprintf("{{You are not in a room.}}::red\n"))
 		return
@@ -871,10 +835,6 @@ Usage:
   - look [at] <item|character|direction|mob>
 */
 func DoLook(s ssh.Session, cmd string, args []string, user *User, char *Character, room *Room) {
-	slog.Debug("Look command",
-		slog.String("command", cmd),
-		slog.Any("args", args))
-
 	if room == nil {
 		slog.Error("Character is not in a room",
 			slog.String("character_id", char.ID))
@@ -900,10 +860,6 @@ Usage:
   - <north,n,south,s,east,e,west,w,up,u,down,d>
 */
 func DoMove(s ssh.Session, cmd string, args []string, user *User, char *Character, room *Room) {
-	slog.Debug("Move command",
-		slog.String("command", cmd),
-		slog.Any("args", args))
-
 	if room == nil {
 		io.WriteString(s, cfmt.Sprintf("{{You are not in a room.}}::red\n"))
 		return
@@ -935,10 +891,6 @@ func DoMove(s ssh.Session, cmd string, args []string, user *User, char *Characte
 }
 
 func DoSpawn(s ssh.Session, cmd string, args []string, user *User, char *Character, room *Room) {
-	slog.Debug("Spawn command",
-		slog.String("command", cmd),
-		slog.Any("args", args))
-
 	if room == nil {
 		io.WriteString(s, cfmt.Sprintf("{{You are not in a room.}}::red\n"))
 		return
@@ -984,10 +936,6 @@ func DoSpawn(s ssh.Session, cmd string, args []string, user *User, char *Charact
 }
 
 func DoInventory(s ssh.Session, cmd string, args []string, user *User, char *Character, room *Room) {
-	slog.Debug("Inventory command",
-		slog.String("command", cmd),
-		slog.Any("args", args))
-
 	if char == nil {
 		io.WriteString(s, cfmt.Sprintf("{{Error: No character is associated with this session.}}::red\n"))
 		return
