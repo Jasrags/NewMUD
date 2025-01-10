@@ -265,10 +265,6 @@ Usage:
 // TODO: Sort all admins to the top of the list
 // TODO: Add a CanSee function for characters and have this function use that to determine if a character can see another character in the who list
 func DoWho(s ssh.Session, cmd string, args []string, user *User, char *Character, room *Room) {
-	slog.Debug("Who command",
-		slog.String("command", cmd),
-		slog.Any("args", args))
-
 	// Simulated global list of active characters
 	activeCharacters := CharacterMgr.GetOnlineCharacters()
 
@@ -297,59 +293,85 @@ func DoWho(s ssh.Session, cmd string, args []string, user *User, char *Character
 /*
 Usage:
   - say <message>
-  - say @<name> <message>
 */
 // TODO: overall for communication commands we need to log messages to a database with time, to/from, and message.
 // TODO: need to implement a block/unblock function for preventing messages from certain users
 func DoSay(s ssh.Session, cmd string, args []string, user *User, char *Character, room *Room) {
-	slog.Debug("Say command",
-		slog.String("command", cmd),
-		slog.Any("args", args))
-
 	if room == nil {
 		io.WriteString(s, cfmt.Sprintf("{{You are not in a room.}}::red\n"))
 		return
 	}
 
 	if len(args) == 0 {
-		io.WriteString(s, cfmt.Sprintf("{{Say what?}}::yellow\n"))
+		io.WriteString(s, cfmt.Sprintf("{{What do you want to say?}}::red\n"))
 		return
 	}
 
 	message := strings.Join(args, " ")
 
-	if strings.HasPrefix(message, "@") {
-		// Handle targeted messages
-		splitMessage := strings.SplitN(message, " ", 2)
-		if len(splitMessage) < 2 {
-			io.WriteString(s, cfmt.Sprintf("{{Say what to whom?}}::yellow\n"))
-			return
-		}
+	// Broadcast message to the room
+	room.Broadcast(cfmt.Sprintf("{{%s says: \"%s\"}}::green\n", char.Name, message), []string{char.ID})
 
-		targetName := splitMessage[0][1:] // Remove '@'
-		targetedMessage := splitMessage[1]
+	// Message the player
+	io.WriteString(s, cfmt.Sprintf("{{You say: \"%s\"}}::green\n", message))
+}
 
-		// Find the target in the room
-		target := room.FindInteractableByName(targetName)
-		if target == nil {
-			io.WriteString(s, cfmt.Sprintf("{{No one named '%s' is here.}}::red\n", targetName))
-			return
-		}
-
-		// Notify the speaker
-		io.WriteString(s, cfmt.Sprintf("{{You say to %s: '%s'}}::cyan\n", target.GetName(), targetedMessage))
-
-		// Let the target react to the message
-		target.ReactToMessage(char, targetedMessage)
-
-		// Broadcast to the room (excluding speaker and target)
-		room.Broadcast(cfmt.Sprintf("{{%s says something to %s.}}::green\n", char.Name, target.GetName()), []string{char.ID, target.GetID()})
-
-	} else {
-		// General message to the room
-		io.WriteString(s, cfmt.Sprintf("{{You say: '%s'}}::cyan\n", message))
-		room.Broadcast(cfmt.Sprintf("{{%s says: '%s'}}::green\n", char.Name, message), []string{char.ID})
+func DoTell(s ssh.Session, cmd string, args []string, user *User, char *Character, room *Room) {
+	if room == nil {
+		io.WriteString(s, cfmt.Sprintf("{{You are not in a room.}}::red\n"))
+		return
 	}
+
+	if len(args) < 2 {
+		io.WriteString(s, cfmt.Sprintf("{{Usage: tell <username> <message>.}}::red\n"))
+		return
+	}
+
+	recipientName := args[0]
+	message := strings.Join(args[1:], " ")
+
+	var recipient *Character
+	for _, r := range room.Characters {
+		if strings.EqualFold(r.Name, recipientName) {
+			recipient = r
+			break
+		}
+	}
+
+	if recipient == nil {
+		io.WriteString(s, cfmt.Sprintf("{{There is no one named '%s' here.}}::yellow\n", recipientName))
+		return
+	}
+
+	// Message the recipient
+	io.WriteString(recipient.Conn, cfmt.Sprintf("{{%s tells you: \"%s\"}}::cyan\n", char.Name, message))
+
+	// Message the sender
+	io.WriteString(s, cfmt.Sprintf("{{You tell %s: \"%s\"}}::green\n", recipient.Name, message))
+
+	// Message the room (excluding sender and recipient)
+	room.Broadcast(cfmt.Sprintf("{{%s tells %s something privately.}}::green\n", char.Name, recipient.Name), []string{char.ID, recipient.ID})
+}
+
+func SuggestTell(line string, args []string, char *Character, room *Room) []string {
+	suggestions := []string{}
+
+	switch len(args) {
+	case 0: // Suggest names of characters in the room
+		for _, r := range room.Characters {
+			if !strings.EqualFold(r.Name, char.Name) { // Exclude self
+				suggestions = append(suggestions, r.Name)
+			}
+		}
+	case 1: // Suggest partial names
+		for _, r := range room.Characters {
+			if !strings.EqualFold(r.Name, char.Name) && strings.HasPrefix(strings.ToLower(r.Name), strings.ToLower(args[0])) {
+				suggestions = append(suggestions, r.Name)
+			}
+		}
+	}
+
+	return suggestions
 }
 
 /*
@@ -358,10 +380,6 @@ Usage:
   - help <command>
 */
 func DoHelp(s ssh.Session, cmd string, args []string, user *User, char *Character, room *Room) {
-	slog.Debug("Help command",
-		slog.String("command", cmd),
-		slog.Any("args", args))
-
 	uniqueCommands := make(map[string]*Command)
 	for _, cmd := range CommandMgr.GetCommands() {
 		if CommandMgr.CanRunCommand(char, cmd) {
@@ -402,12 +420,6 @@ Usage:
   - drop all
 */
 func DoDrop(s ssh.Session, cmd string, args []string, user *User, char *Character, room *Room) {
-	slog.Debug("Drop command",
-		slog.String("command", cmd),
-		slog.Any("args", args),
-		slog.String("character_id", char.ID),
-		slog.String("character_name", char.Name))
-
 	if room == nil {
 		io.WriteString(s, cfmt.Sprintf("{{You are not in a room.}}::red\n"))
 		return
@@ -512,101 +524,6 @@ func DoDrop(s ssh.Session, cmd string, args []string, user *User, char *Characte
 	room.Broadcast(cfmt.Sprintf("{{%s drops %d %s.}}::green\n", char.Name, quantity, itemName), []string{char.ID})
 }
 
-// func DoDrop(s ssh.Session, cmd string, args []string, user *User, char *Character, room *Room) {
-// 	slog.Debug("Drop command",
-// 		slog.String("command", cmd),
-// 		slog.Any("args", args))
-
-// 	if room == nil {
-// 		io.WriteString(s, cfmt.Sprintf("{{You are not in a room.}}::red\n"))
-// 		return
-// 	}
-
-// 	if len(args) == 0 {
-// 		io.WriteString(s, cfmt.Sprintf("{{Drop what?}}::red\n"))
-// 		return
-// 	}
-
-// 	arg1 := args[0]
-
-// 	if arg1 == "all" {
-// 		if len(args) < 2 {
-// 			// Drop all items in the inventory
-// 			if len(char.Inventory.Items) == 0 {
-// 				io.WriteString(s, cfmt.Sprintf("{{You have nothing to drop.}}::yellow\n"))
-// 				return
-// 			}
-
-// 			// Use a copy of the items to safely modify the inventory while iterating
-// 			itemsToDrop := make([]*Item, len(char.Inventory.Items))
-// 			copy(itemsToDrop, char.Inventory.Items)
-
-// 			for _, item := range itemsToDrop {
-// 				bp := EntityMgr.GetItemBlueprintByInstance(item)
-// 				if bp == nil {
-// 					io.WriteString(s, cfmt.Sprintf("{{Error retrieving item blueprint.}}::red\n"))
-// 					continue
-// 				}
-
-// 				char.Inventory.RemoveItem(item)
-// 				char.Save()
-// 				room.Inventory.AddItem(item)
-// 				io.WriteString(s, cfmt.Sprintf("{{You drop %s.}}::green\n", bp.Name))
-// 				room.Broadcast(cfmt.Sprintf("{{%s drops %s.}}::green\n", char.Name, bp.Name), []string{char.ID})
-// 			}
-// 			return
-// 		}
-
-// 		// Drop all <items>
-// 		query := strings.Join(args[1:], " ")
-// 		singularQuery := Singularize(query)
-// 		matchingItems := SearchInventory(&char.Inventory, singularQuery)
-
-// 		if len(matchingItems) == 0 {
-// 			io.WriteString(s, cfmt.Sprintf("{{You have no %s to drop.}}::yellow\n", query))
-// 			return
-// 		}
-
-// 		for _, item := range matchingItems {
-// 			bp := EntityMgr.GetItemBlueprintByInstance(item)
-// 			if bp == nil {
-// 				io.WriteString(s, cfmt.Sprintf("{{Error retrieving item blueprint.}}::red\n"))
-// 				continue
-// 			}
-
-// 			char.Inventory.RemoveItem(item)
-// 			char.Save()
-// 			room.Inventory.AddItem(item)
-// 			io.WriteString(s, cfmt.Sprintf("{{You drop %s.}}::green\n", bp.Name))
-// 			room.Broadcast(cfmt.Sprintf("{{%s drops %s.}}::green\n", char.Name, bp.Name), []string{char.ID})
-// 		}
-// 		return
-// 	}
-
-// 	// Handle single item or numbered items (e.g., "drop rock" or "drop 2 rocks")
-// 	query := strings.Join(args, " ")
-// 	singularQuery := Singularize(query)
-// 	matchingItems := SearchInventory(&char.Inventory, singularQuery)
-
-// 	if len(matchingItems) == 0 {
-// 		io.WriteString(s, cfmt.Sprintf("{{You have no %s to drop.}}::yellow\n", query))
-// 		return
-// 	}
-
-// 	item := matchingItems[0] // Default to the first match if ambiguous
-// 	bp := EntityMgr.GetItemBlueprintByInstance(item)
-// 	if bp == nil {
-// 		io.WriteString(s, cfmt.Sprintf("{{Error retrieving item blueprint.}}::red\n"))
-// 		return
-// 	}
-
-// 	char.Inventory.RemoveItem(item)
-// 	char.Save()
-// 	room.Inventory.AddItem(item)
-// 	io.WriteString(s, cfmt.Sprintf("{{You drop %s.}}::green\n", bp.Name))
-// 	room.Broadcast(cfmt.Sprintf("{{%s drops %s.}}::green\n", char.Name, bp.Name), []string{char.ID})
-// }
-
 func SuggestDrop(line string, args []string, char *Character, room *Room) []string {
 	suggestions := []string{}
 
@@ -646,12 +563,6 @@ Usage:
   - give <character> [<quantity>] <item>
 */
 func DoGive(s ssh.Session, cmd string, args []string, user *User, char *Character, room *Room) {
-	slog.Debug("Give command",
-		slog.String("command", cmd),
-		slog.Any("args", args),
-		slog.String("character_id", char.ID),
-		slog.String("character_name", char.Name))
-
 	if room == nil {
 		io.WriteString(s, cfmt.Sprintf("{{You are not in a room.}}::red\n"))
 		return
@@ -783,10 +694,6 @@ Usage:
   - get all
 */
 func DoGet(s ssh.Session, cmd string, args []string, user *User, char *Character, room *Room) {
-	slog.Debug("Get command",
-		slog.String("command", cmd),
-		slog.Any("args", args))
-
 	if room == nil {
 		io.WriteString(s, cfmt.Sprintf("{{You are not in a room.}}::red\n"))
 		return
@@ -928,10 +835,6 @@ Usage:
   - look [at] <item|character|direction|mob>
 */
 func DoLook(s ssh.Session, cmd string, args []string, user *User, char *Character, room *Room) {
-	slog.Debug("Look command",
-		slog.String("command", cmd),
-		slog.Any("args", args))
-
 	if room == nil {
 		slog.Error("Character is not in a room",
 			slog.String("character_id", char.ID))
@@ -957,10 +860,6 @@ Usage:
   - <north,n,south,s,east,e,west,w,up,u,down,d>
 */
 func DoMove(s ssh.Session, cmd string, args []string, user *User, char *Character, room *Room) {
-	slog.Debug("Move command",
-		slog.String("command", cmd),
-		slog.Any("args", args))
-
 	if room == nil {
 		io.WriteString(s, cfmt.Sprintf("{{You are not in a room.}}::red\n"))
 		return
@@ -992,10 +891,6 @@ func DoMove(s ssh.Session, cmd string, args []string, user *User, char *Characte
 }
 
 func DoSpawn(s ssh.Session, cmd string, args []string, user *User, char *Character, room *Room) {
-	slog.Debug("Spawn command",
-		slog.String("command", cmd),
-		slog.Any("args", args))
-
 	if room == nil {
 		io.WriteString(s, cfmt.Sprintf("{{You are not in a room.}}::red\n"))
 		return
@@ -1041,10 +936,6 @@ func DoSpawn(s ssh.Session, cmd string, args []string, user *User, char *Charact
 }
 
 func DoInventory(s ssh.Session, cmd string, args []string, user *User, char *Character, room *Room) {
-	slog.Debug("Inventory command",
-		slog.String("command", cmd),
-		slog.Any("args", args))
-
 	if char == nil {
 		io.WriteString(s, cfmt.Sprintf("{{Error: No character is associated with this session.}}::red\n"))
 		return

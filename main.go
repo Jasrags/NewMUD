@@ -265,13 +265,19 @@ func RegisterCommands() {
 	})
 	CommandMgr.RegisterCommand(Command{
 		Name:        "say",
-		Description: "Say something to the room or to a character or mob",
-		Usage: []string{
-			"say <message>",
-			"say @<name> <message>",
-		},
-		Func: DoSay,
+		Description: "Say something to everyone in the room.",
+		Usage:       []string{"say <message>"},
+		Func:        DoSay,
 	})
+
+	CommandMgr.RegisterCommand(Command{
+		Name:        "tell",
+		Description: "Send a private message to a specific character.",
+		Usage:       []string{"tell <username> <message>"},
+		Func:        DoTell,
+		SuggestFunc: SuggestTell,
+	})
+
 	CommandMgr.RegisterCommand(Command{
 		Name:        "spawn",
 		Description: "Spawn an item or mob into the room",
