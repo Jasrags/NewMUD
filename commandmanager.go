@@ -50,12 +50,12 @@ func (mgr *CommandManager) ParseAndExecute(s ssh.Session, input string, user *Us
 	}
 
 	if !mgr.CanRunCommand(char, command) {
-		io.WriteString(s, cfmt.Sprintf("{{You don't have permission to run '%s'.}}::red\n", cmd))
+		io.WriteString(s, cfmt.Sprintf("{{Unknown command '%s'. Type 'help' for a list of commands.}}::red\n", cmd))
 		return
 	}
 
-	if command.Suggest != nil {
-		suggestions := command.Suggest(input, args, char, room)
+	if command.SuggestFunc != nil {
+		suggestions := command.SuggestFunc(input, args, char, room)
 		if len(suggestions) > 0 {
 			io.WriteString(s, cfmt.Sprintf("{{Suggestions:}}::green %s\n", strings.Join(suggestions, ", ")))
 		}
@@ -87,26 +87,4 @@ func ParseArguments(input string) (string, []string) {
 		return "", nil
 	}
 	return parts[0], parts[1:]
-}
-
-func SuggestGive(line string, args []string, char *Character, room *Room) []string {
-	switch len(args) {
-	case 1: // Suggest items for the first argument
-		var names []string
-		for _, item := range char.Inventory.Items {
-			bp := EntityMgr.GetItemBlueprintByInstance(item)
-			names = append(names, bp.Name)
-		}
-		return names
-	case 2: // Suggest "to" as the second token
-		return []string{"to"}
-	case 3: // Suggest characters in the room for the third token
-		var names []string
-		for _, character := range room.Characters {
-			names = append(names, character.Name)
-		}
-		return names
-	default:
-		return nil
-	}
 }

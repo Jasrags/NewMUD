@@ -3,6 +3,7 @@ package main
 import (
 	"io"
 	"log/slog"
+	"strconv"
 	"strings"
 
 	"github.com/Jasrags/NewMUD/pluralizer"
@@ -12,151 +13,7 @@ import (
 	"golang.org/x/exp/rand"
 )
 
-// TODO: need a manager for this as well
 // TODO: We need a RP consistent way to communicate directly with other individuals or groups of individuals I.E. for shadowrun it could be via comlinks and some group or party system
-var (
-	registeredCommands = []Command{
-		{
-			Name:        "pick",
-			Description: "Pick a lock",
-			Usage:       []string{"pick [direction]"},
-			// Aliases:     []string{"p"},
-			Func: DoPick,
-		},
-		{
-			Name:        "lock",
-			Description: "Lock a door",
-			Usage:       []string{"lock [direction]"},
-			// Aliases:     []string{"l"},
-			Func: DoLock,
-		},
-		{
-			Name:        "unlock",
-			Description: "Unlock a door",
-			Usage:       []string{"unlock [direction]"},
-			// Aliases:     []string{"u"},
-			Func: DoUnlock,
-		},
-		{
-			Name:        "open",
-			Description: "Open a door",
-			Usage:       []string{"open [direction]"},
-			// Aliases:     []string{"o"},
-			Func: DoOpen,
-		},
-		{
-			Name:        "close",
-			Description: "Close a door",
-			Usage:       []string{"close [direction]"},
-			// Aliases:     []string{"c"},
-			Func: DoClose,
-		},
-		{
-			Name:        "who",
-			Description: "List players currently in the game",
-			Usage:       []string{"who"},
-			Aliases:     []string{"w"},
-			Func:        DoWho,
-		},
-		{
-			Name:        "look",
-			Description: "Look around the room",
-			Usage: []string{
-				"look [item|character|mob|direction]",
-			},
-			Aliases: []string{"l"},
-			Func:    DoLook,
-		},
-		{
-			Name:        "get",
-			Description: "Get an item",
-			Usage: []string{
-				"get all",
-				"get <item>",
-				"get <number> <items>",
-				"get all <items>",
-			},
-			Aliases: []string{"g"},
-			Func:    DoGet,
-		},
-		{
-			Name:        "give",
-			Description: "Give an item",
-			Usage: []string{
-				"give <item> [to] <character>",
-				"give 2 <items> [to] <character>",
-				"give all [to] <character>",
-			},
-			Aliases: []string{"gi"},
-			Func:    DoGive,
-		},
-		{
-			Name:        "drop",
-			Description: "Drop an item",
-			Usage: []string{
-				"drop all",
-				"drop <item>",
-				"drop <number> <items>",
-				"drop all <items>",
-			},
-			Aliases: []string{"d"},
-			Func:    DoDrop,
-		},
-		{
-			Name:        "help",
-			Description: "List available commands",
-			Usage: []string{
-				"help",
-				"help <command>",
-			},
-			Aliases: []string{"h"},
-			Func:    DoHelp,
-		},
-		{
-			Name:        "move",
-			Description: "Move to a different room",
-			Usage:       []string{"move [direction]"},
-			Aliases:     []string{"m", "n", "s", "e", "w", "u", "d", "north", "south", "east", "west", "up", "down"},
-			Func:        DoMove,
-		},
-		{
-			Name:        "inventory",
-			Description: "List your inventory",
-			Usage:       []string{"inventory"},
-			Aliases:     []string{"i"},
-			Func:        DoInventory,
-		},
-		{
-			Name:        "say",
-			Description: "Say something to the room or to a character or mob",
-			Usage: []string{
-				"say <message>",
-				"say @<name> <message>",
-			},
-			Func: DoSay,
-		},
-		{
-			Name:        "spawn",
-			Description: "Spawn an item or mob into the room",
-			Usage: []string{
-				"spawn item <item>",
-				"spawn mob <mob>",
-			},
-			RequiredRoles: []CharacterRole{CharacterRoleAdmin},
-			Func:          DoSpawn,
-		},
-	}
-)
-
-// type Command struct {
-// 	Name          string
-// 	Description   string
-// 	Usage         []string
-// 	Aliases       []string
-// 	RequiredRoles []CharacterRole
-// 	IsAdmin       bool
-// 	Func          CommandFunc
-// }
 
 type SuggestFunc func(line string, args []string, char *Character, room *Room) []string
 
@@ -167,7 +24,7 @@ type Command struct {
 	Aliases       []string
 	RequiredRoles []CharacterRole
 	Func          CommandFunc
-	Suggest       SuggestFunc // Optional suggestion logic
+	SuggestFunc   SuggestFunc // Optional suggestion logic
 }
 
 type CommandFunc func(s ssh.Session, cmd string, args []string, user *User, char *Character, room *Room)
@@ -642,15 +499,14 @@ func DoDrop(s ssh.Session, cmd string, args []string, user *User, char *Characte
 
 /*
 Usage:
-  - give <item> [to] <character>
-  - give 2 <items> [to] <character>
-  - give all <item> [to] <character>
+  - give <character> [<quantity>] <item>
 */
-// TODO: Fix this to work with new inventory system
 func DoGive(s ssh.Session, cmd string, args []string, user *User, char *Character, room *Room) {
 	slog.Debug("Give command",
 		slog.String("command", cmd),
-		slog.Any("args", args))
+		slog.Any("args", args),
+		slog.String("character_id", char.ID),
+		slog.String("character_name", char.Name))
 
 	if room == nil {
 		io.WriteString(s, cfmt.Sprintf("{{You are not in a room.}}::red\n"))
@@ -658,19 +514,12 @@ func DoGive(s ssh.Session, cmd string, args []string, user *User, char *Characte
 	}
 
 	if len(args) < 2 {
-		io.WriteString(s, cfmt.Sprintf("{{Give what to who?}}::red\n"))
+		io.WriteString(s, cfmt.Sprintf("{{Usage: give <character> [<quantity>] <item>.}}::red\n"))
 		return
 	}
 
-	// Parse the command arguments
-	what := args[0]
-	recipientName := args[1]
-
-	if len(args) > 2 && (recipientName == "to" || args[2] == "to") {
-		recipientName = args[len(args)-1]
-	}
-
-	// Find the recipient in the room
+	// Parse recipient
+	recipientName := args[0]
 	var recipient *Character
 	for _, r := range room.Characters {
 		if strings.EqualFold(r.Name, recipientName) {
@@ -678,92 +527,121 @@ func DoGive(s ssh.Session, cmd string, args []string, user *User, char *Characte
 			break
 		}
 	}
-
 	if recipient == nil {
 		io.WriteString(s, cfmt.Sprintf("{{There is no one named '%s' here.}}::red\n", recipientName))
 		return
 	}
 
-	switch what {
-	case "all":
-		if len(args) == 2 {
-			// Give all items to the recipient
-			if len(char.Inventory.Items) == 0 {
-				io.WriteString(s, cfmt.Sprintf("{{You have nothing to give.}}::yellow\n"))
-				return
+	// Parse item and quantity
+	quantity := 1
+	itemArgs := args[1:]
+	if len(itemArgs) > 1 {
+		// Check if the second argument is numeric
+		if parsedQuantity, err := strconv.Atoi(itemArgs[0]); err == nil {
+			quantity = parsedQuantity
+			itemArgs = itemArgs[1:] // Remove quantity from arguments
+		}
+	}
+
+	// Ensure the item query is provided
+	if len(itemArgs) == 0 {
+		io.WriteString(s, cfmt.Sprintf("{{You must specify an item to give.}}::yellow\n"))
+		return
+	}
+
+	itemQuery := strings.Join(itemArgs, " ")
+	singularQuery := Singularize(itemQuery)
+
+	// Search inventory
+	matchingItems := SearchInventory(&char.Inventory, singularQuery)
+	if len(matchingItems) == 0 {
+		io.WriteString(s, cfmt.Sprintf("{{You have no %s to give.}}::yellow\n", itemQuery))
+		return
+	}
+
+	if quantity > len(matchingItems) {
+		io.WriteString(s, cfmt.Sprintf("{{You do not have %d %s.}}::yellow\n", quantity, itemQuery))
+		return
+	}
+
+	// Transfer items
+	itemsToGive := matchingItems[:quantity]
+	for _, item := range itemsToGive {
+		char.Inventory.RemoveItem(item)
+		recipient.Inventory.AddItem(item)
+	}
+	char.Save()
+	recipient.Save()
+
+	// Get item blueprint for consistent naming
+	bp := EntityMgr.GetItemBlueprintByInstance(itemsToGive[0])
+	if bp == nil {
+		io.WriteString(s, cfmt.Sprintf("{{Error retrieving item blueprint.}}::red\n"))
+		return
+	}
+
+	itemName := bp.Name
+	if quantity > 1 {
+		itemName = pluralizer.PluralizeNoun(itemName, quantity)
+	}
+
+	// Message the giver
+	io.WriteString(s, cfmt.Sprintf("{{You give %s %d %s.}}::green\n", recipient.Name, quantity, itemName))
+
+	// Message the room
+	room.Broadcast(cfmt.Sprintf("{{%s gives %s %d %s.}}::green\n", char.Name, recipient.Name, quantity, itemName), []string{char.ID, recipient.ID})
+
+	// Message the recipient
+	io.WriteString(recipient.Conn, cfmt.Sprintf("{{%s gives you %d %s.}}::cyan\n", char.Name, quantity, itemName))
+}
+
+func SuggestGive(line string, args []string, char *Character, room *Room) []string {
+	suggestions := []string{}
+
+	switch len(args) {
+	case 0: // Suggest character names for the first argument
+		for _, r := range room.Characters {
+			if !strings.EqualFold(r.Name, char.Name) { // Exclude self
+				suggestions = append(suggestions, r.Name)
 			}
-
-			itemsToGive := make([]*Item, len(char.Inventory.Items))
-			copy(itemsToGive, char.Inventory.Items)
-
-			for _, item := range itemsToGive {
+		}
+	case 1: // Suggest numeric quantities or items
+		if parsedQuantity, err := strconv.Atoi(args[0]); err == nil {
+			suggestions = append(suggestions, strconv.Itoa(parsedQuantity+1), strconv.Itoa(parsedQuantity+2))
+		} else {
+			for _, item := range char.Inventory.Items {
 				bp := EntityMgr.GetItemBlueprintByInstance(item)
 				if bp == nil {
-					io.WriteString(s, cfmt.Sprintf("{{Error retrieving item blueprint.}}::red\n"))
 					continue
 				}
-
-				char.Inventory.RemoveItem(item)
-				char.Save()
-				recipient.Inventory.AddItem(item)
-				recipient.Save()
-				io.WriteString(s, cfmt.Sprintf("{{You give %s to %s.}}::green\n", bp.Name, recipient.Name))
-				room.Broadcast(cfmt.Sprintf("{{%s gives %s to %s.}}::green\n", char.Name, bp.Name, recipient.Name), []string{char.ID})
+				suggestions = append(suggestions, bp.Name)
 			}
-			return
 		}
-
-		// Give all <items> to the recipient
-		query := strings.Join(args[1:len(args)-1], " ")
-		singularQuery := Singularize(query)
-		matchingItems := SearchInventory(&char.Inventory, singularQuery)
-
-		if len(matchingItems) == 0 {
-			io.WriteString(s, cfmt.Sprintf("{{You have no %s to give.}}::yellow\n", query))
-			return
-		}
-
-		for _, item := range matchingItems {
+	case 2: // Suggest item names if quantity is already provided
+		for _, item := range char.Inventory.Items {
 			bp := EntityMgr.GetItemBlueprintByInstance(item)
 			if bp == nil {
-				io.WriteString(s, cfmt.Sprintf("{{Error retrieving item blueprint.}}::red\n"))
 				continue
 			}
-
-			char.Inventory.RemoveItem(item)
-			char.Save()
-			recipient.Inventory.AddItem(item)
-			recipient.Save()
-			io.WriteString(s, cfmt.Sprintf("{{You give %s to %s.}}::green\n", bp.Name, recipient.Name))
-			room.Broadcast(cfmt.Sprintf("{{%s gives %s to %s.}}::green\n", char.Name, bp.Name, recipient.Name), []string{char.ID})
+			suggestions = append(suggestions, bp.Name)
 		}
-		return
-
 	default:
-		// Give single or numbered items
-		query := what
-		singularQuery := Singularize(query)
-		matchingItems := SearchInventory(&char.Inventory, singularQuery)
-
-		if len(matchingItems) == 0 {
-			io.WriteString(s, cfmt.Sprintf("{{You have no %s to give.}}::yellow\n", query))
-			return
-		}
-
-		item := matchingItems[0] // Default to the first match if ambiguous
-		bp := EntityMgr.GetItemBlueprintByInstance(item)
-		if bp == nil {
-			io.WriteString(s, cfmt.Sprintf("{{Error retrieving item blueprint.}}::red\n"))
-			return
-		}
-
-		char.Inventory.RemoveItem(item)
-		char.Save()
-		recipient.Inventory.AddItem(item)
-		recipient.Save()
-		io.WriteString(s, cfmt.Sprintf("{{You give %s to %s.}}::green\n", bp.Name, recipient.Name))
-		room.Broadcast(cfmt.Sprintf("{{%s gives %s to %s.}}::green\n", char.Name, bp.Name, recipient.Name), []string{char.ID})
+		// No suggestions for further arguments
 	}
+
+	return suggestions
+	// return FilterSuggestions(line, suggestions)
+}
+
+func FilterSuggestions(input string, suggestions []string) []string {
+	matches := []string{}
+	lowerInput := strings.ToLower(input) // Normalize input to lowercase for case-insensitive matching
+	for _, suggestion := range suggestions {
+		if strings.HasPrefix(strings.ToLower(suggestion), lowerInput) {
+			matches = append(matches, suggestion)
+		}
+	}
+	return matches
 }
 
 /*
@@ -988,7 +866,6 @@ func DoInventory(s ssh.Session, cmd string, args []string, user *User, char *Cha
 	for _, item := range char.Inventory.Items {
 		bp := EntityMgr.GetItemBlueprintByInstance(item)
 		if bp == nil {
-			io.WriteString(s, cfmt.Sprintf("{{Error: Unable to retrieve item blueprint.}}::red\n"))
 			continue
 		}
 		itemCounts[bp.Name]++

@@ -263,19 +263,16 @@ func RegisterCommands() {
 			"get <number> <items>",
 			"get all <items>",
 		},
-		Aliases: []string{"g"},
-		Func:    DoGet,
+		Func: DoGet,
 	})
 	CommandMgr.RegisterCommand(Command{
 		Name:        "give",
 		Description: "Give an item",
 		Usage: []string{
-			"give <item> [to] <character>",
-			"give 2 <items> [to] <character>",
-			"give all [to] <character>",
+			"give <character> [<quantity>] <item>",
 		},
-		Aliases: []string{"gi"},
-		Func:    DoGive,
+		Func:        DoGive,
+		SuggestFunc: SuggestGive,
 	})
 	CommandMgr.RegisterCommand(Command{
 		Name:        "drop",
