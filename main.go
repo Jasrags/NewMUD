@@ -257,7 +257,11 @@ func RegisterCommands() {
 	CommandMgr.RegisterCommand(Command{
 		Name:        "get",
 		Description: "Get an item from the room.",
-		Usage:       []string{"get [<quantity>] <item>"},
+		Usage: []string{
+			"get [<quantity>] <item>",
+			"get all <item>",
+			"get all",
+		},
 		Func:        DoGet,
 		SuggestFunc: SuggestGet,
 	})
@@ -271,16 +275,16 @@ func RegisterCommands() {
 	})
 	CommandMgr.RegisterCommand(Command{
 		Name:        "drop",
-		Description: "Drop an item",
+		Description: "Drop items in the room.",
 		Usage: []string{
+			"drop [<quantity>] <item>",
+			"drop all <item>",
 			"drop all",
-			"drop <item>",
-			"drop <number> <items>",
-			"drop all <items>",
 		},
-		Aliases: []string{"d"},
-		Func:    DoDrop,
+		Func:        DoDrop,
+		SuggestFunc: SuggestDrop,
 	})
+
 	CommandMgr.RegisterCommand(Command{
 		Name:        "help",
 		Description: "List available commands",
