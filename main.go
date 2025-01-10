@@ -256,21 +256,16 @@ func RegisterCommands() {
 	})
 	CommandMgr.RegisterCommand(Command{
 		Name:        "get",
-		Description: "Get an item",
-		Usage: []string{
-			"get all",
-			"get <item>",
-			"get <number> <items>",
-			"get all <items>",
-		},
-		Func: DoGet,
+		Description: "Get an item from the room.",
+		Usage:       []string{"get [<quantity>] <item>"},
+		Func:        DoGet,
+		SuggestFunc: SuggestGet,
 	})
+
 	CommandMgr.RegisterCommand(Command{
 		Name:        "give",
 		Description: "Give an item",
-		Usage: []string{
-			"give <character> [<quantity>] <item>",
-		},
+		Usage:       []string{"give <character> [<quantity>] <item>"},
 		Func:        DoGive,
 		SuggestFunc: SuggestGive,
 	})

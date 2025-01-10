@@ -630,27 +630,13 @@ func SuggestGive(line string, args []string, char *Character, room *Room) []stri
 	}
 
 	return suggestions
-	// return FilterSuggestions(line, suggestions)
-}
-
-func FilterSuggestions(input string, suggestions []string) []string {
-	matches := []string{}
-	lowerInput := strings.ToLower(input) // Normalize input to lowercase for case-insensitive matching
-	for _, suggestion := range suggestions {
-		if strings.HasPrefix(strings.ToLower(suggestion), lowerInput) {
-			matches = append(matches, suggestion)
-		}
-	}
-	return matches
 }
 
 /*
 Usage:
-  - get all
-  - get <item>
-  - get <number> <items>
-  - get all <items>
+  - get [<quantity>] <item>
 */
+// TODO: Support getting items from "containers" i.e. chests, bags, etc.
 func DoGet(s ssh.Session, cmd string, args []string, user *User, char *Character, room *Room) {
 	slog.Debug("Get command",
 		slog.String("command", cmd),
@@ -666,64 +652,86 @@ func DoGet(s ssh.Session, cmd string, args []string, user *User, char *Character
 		return
 	}
 
-	arg1 := args[0]
+	quantity := 1
+	itemArgs := args
 
-	if arg1 == "all" {
-		if len(args) < 2 {
-			io.WriteString(s, cfmt.Sprintf("{{Get all what?}}::red\n"))
-			return
+	if len(args) > 1 {
+		// Check if the first argument is numeric (quantity)
+		if parsedQuantity, err := strconv.Atoi(args[0]); err == nil {
+			quantity = parsedQuantity
+			itemArgs = args[1:]
 		}
-
-		// Combine remaining args into the query
-		query := strings.Join(args[1:], " ")
-
-		// Handle plural and singular forms
-		singularQuery := Singularize(query)
-		matchingItems := SearchInventory(&room.Inventory, singularQuery)
-
-		if len(matchingItems) == 0 {
-			io.WriteString(s, cfmt.Sprintf("{{There are no %s here.}}::yellow\n", query))
-			return
-		}
-
-		for _, item := range matchingItems {
-			bp := EntityMgr.GetItemBlueprintByInstance(item) // Fetch the blueprint
-			if bp == nil {
-				io.WriteString(s, cfmt.Sprintf("{{Error retrieving item blueprint.}}::red\n"))
-				continue
-			}
-
-			room.Inventory.RemoveItem(item)
-			char.Inventory.AddItem(item)
-			char.Save()
-			io.WriteString(s, cfmt.Sprintf("{{You get %s.}}::green\n", bp.Name))
-			room.Broadcast(cfmt.Sprintf("{{%s gets %s.}}::green\n", char.Name, bp.Name), []string{char.ID})
-		}
-		return
 	}
 
-	// Handle single item search (e.g., "get rock")
-	query := strings.Join(args, " ")
-	singularQuery := Singularize(query)
+	itemQuery := strings.Join(itemArgs, " ")
+	singularQuery := Singularize(itemQuery)
+
+	// Search for matching items in the room's inventory
 	matchingItems := SearchInventory(&room.Inventory, singularQuery)
-
 	if len(matchingItems) == 0 {
-		io.WriteString(s, cfmt.Sprintf("{{There is no %s here.}}::yellow\n", query))
+		io.WriteString(s, cfmt.Sprintf("{{There are no %s here.}}::yellow\n", itemQuery))
 		return
 	}
 
-	item := matchingItems[0]                         // Default to the first match if ambiguous
-	bp := EntityMgr.GetItemBlueprintByInstance(item) // Fetch the blueprint
+	if quantity > len(matchingItems) {
+		io.WriteString(s, cfmt.Sprintf("{{There are not %d %s here.}}::yellow\n", quantity, itemQuery))
+		return
+	}
+
+	// Transfer items
+	itemsToGet := matchingItems[:quantity]
+	for _, item := range itemsToGet {
+		room.Inventory.RemoveItem(item)
+		char.Inventory.AddItem(item)
+	}
+	char.Save()
+
+	// Use the first item's blueprint to format the message
+	bp := EntityMgr.GetItemBlueprintByInstance(itemsToGet[0])
 	if bp == nil {
 		io.WriteString(s, cfmt.Sprintf("{{Error retrieving item blueprint.}}::red\n"))
 		return
 	}
 
-	room.Inventory.RemoveItem(item)
-	char.Inventory.AddItem(item)
-	char.Save()
-	io.WriteString(s, cfmt.Sprintf("{{You get %s.}}::green\n", bp.Name))
-	room.Broadcast(cfmt.Sprintf("{{%s gets %s.}}::green\n", char.Name, bp.Name), []string{char.ID})
+	itemName := bp.Name
+	if quantity > 1 {
+		itemName = pluralizer.PluralizeNoun(itemName, quantity)
+	}
+
+	// Message the player
+	io.WriteString(s, cfmt.Sprintf("{{You get %d %s.}}::green\n", quantity, itemName))
+
+	// Message the room
+	room.Broadcast(cfmt.Sprintf("{{%s gets %d %s.}}::green\n", char.Name, quantity, itemName), []string{char.ID})
+}
+
+func SuggestGet(line string, args []string, char *Character, room *Room) []string {
+	suggestions := []string{}
+
+	switch len(args) {
+	case 0: // Suggest items in the room
+		for _, item := range room.Inventory.Items {
+			bp := EntityMgr.GetItemBlueprintByInstance(item)
+			if bp != nil {
+				suggestions = append(suggestions, bp.Name)
+			}
+		}
+	case 1: // Suggest quantities or items
+		if parsedQuantity, err := strconv.Atoi(args[0]); err == nil {
+			suggestions = append(suggestions, strconv.Itoa(parsedQuantity+1), strconv.Itoa(parsedQuantity+2))
+		} else {
+			for _, item := range room.Inventory.Items {
+				bp := EntityMgr.GetItemBlueprintByInstance(item)
+				if bp != nil {
+					suggestions = append(suggestions, bp.Name)
+				}
+			}
+		}
+	default:
+		// No suggestions for further arguments
+	}
+
+	return suggestions
 }
 
 /*
