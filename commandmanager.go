@@ -23,15 +23,13 @@ func NewCommandManager() *CommandManager {
 	}
 }
 
-func (mgr *CommandManager) RegisterCommands() {
-	slog.Info("Registering commands")
-	for _, command := range registeredCommands {
-		slog.Debug("Registering command",
-			slog.String("command", command.Name))
-		mgr.commands[command.Name] = &command
-		for _, alias := range command.Aliases {
-			mgr.commands[alias] = &command
-		}
+func (mgr *CommandManager) RegisterCommand(command Command) {
+	slog.Debug("Registering command",
+		slog.String("command", command.Name),
+		slog.Any("aliases", command.Aliases))
+	mgr.commands[command.Name] = &command
+	for _, alias := range command.Aliases {
+		mgr.commands[alias] = &command
 	}
 }
 
@@ -40,22 +38,33 @@ func (mgr *CommandManager) GetCommands() map[string]*Command {
 }
 
 func (mgr *CommandManager) ParseAndExecute(s ssh.Session, input string, user *User, char *Character, room *Room) {
-	if input == "" {
+	cmd, args := ParseArguments(input)
+	if cmd == "" {
 		return
 	}
 
-	parts := strings.Fields(input)
-	cmd := parts[0]
-	args := parts[1:]
-
-	if command, ok := mgr.commands[cmd]; ok && CanRunCommand(char, command) {
-		command.Func(s, cmd, args, user, char, room)
-	} else {
-		io.WriteString(s, cfmt.Sprintf("{{Unknown command.}}::red\n"))
+	command, ok := mgr.commands[cmd]
+	if !ok {
+		io.WriteString(s, cfmt.Sprintf("{{Unknown command '%s'. Type 'help' for a list of commands.}}::red\n", cmd))
+		return
 	}
+
+	if !mgr.CanRunCommand(char, command) {
+		io.WriteString(s, cfmt.Sprintf("{{Unknown command '%s'. Type 'help' for a list of commands.}}::red\n", cmd))
+		return
+	}
+
+	if command.SuggestFunc != nil {
+		suggestions := command.SuggestFunc(input, args, char, room)
+		if len(suggestions) > 0 {
+			io.WriteString(s, cfmt.Sprintf("{{Suggestions:}}::green %s\n", strings.Join(suggestions, ", ")))
+		}
+	}
+
+	command.Func(s, cmd, args, user, char, room)
 }
 
-func CanRunCommand(char *Character, cmd *Command) bool {
+func (mgr *CommandManager) CanRunCommand(char *Character, cmd *Command) bool {
 	if len(cmd.RequiredRoles) == 0 {
 		return true
 	}
@@ -70,4 +79,12 @@ func CanRunCommand(char *Character, cmd *Command) bool {
 	}
 
 	return true
+}
+
+func ParseArguments(input string) (string, []string) {
+	parts := strings.Fields(input)
+	if len(parts) == 0 {
+		return "", nil
+	}
+	return parts[0], parts[1:]
 }

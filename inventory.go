@@ -32,6 +32,10 @@ func (inv *Inventory) FindItemByID(instanceID string) *Item {
 	return nil
 }
 
+func (inv *Inventory) Clear() {
+	inv.Items = nil
+}
+
 func SearchInventory(inv *Inventory, query string) []*Item {
 	var results []*Item
 

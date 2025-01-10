@@ -90,7 +90,14 @@ func (mgr *EntityManager) GetItemBlueprintByInstance(item *Item) *ItemBlueprint 
 	mgr.RLock()
 	defer mgr.RUnlock()
 
-	return mgr.items[item.BlueprintID]
+	bp, ok := mgr.items[item.BlueprintID]
+	if !ok {
+		slog.Error("Item blueprint not found",
+			slog.String("item_blueprint_id", item.BlueprintID))
+		return nil
+	}
+
+	return bp
 }
 
 func (mgr *EntityManager) CreateItemInstanceFromBlueprintID(id string) *Item {
