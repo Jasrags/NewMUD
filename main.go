@@ -10,9 +10,6 @@ import (
 )
 
 func main() {
-	// gs := mud.NewGameServer()
-	// gs.Start()
-
 	setupConfig()
 	loadAllDataFiles()
 	setupServer()
@@ -150,49 +147,6 @@ func handleConnection(s ssh.Session) {
 	}
 }
 
-// func handleConnection(netConn *connections.NetConnection, wg *sync.WaitGroup) {
-// 	defer wg.Done()
-
-// 	slog.Debug("New client connected",
-// 		slog.String("id", netConn.ID),
-// 		slog.String("remote_address", netConn.Conn.RemoteAddr().String()))
-
-// 	user := users.NewUser()
-// 	user.Conn = netConn
-
-// 	// // Initialize state machine
-// 	// sm := NewStateMachine(user)
-// 	// sm.RegisterState(StateWelcome, func(input string) { handleWelcome(sm) })
-// 	// sm.RegisterState(StateLogin, func(input string) { handleLogin(sm) })
-// 	// sm.RegisterState(StateMainMenu, func(input string) { handleMainMenu(sm) })
-
-// 	// sm.TransitionTo(StateWelcome)
-
-// 	// // Main input loop
-// 	// reader := bufio.NewReader(netConn.Conn)
-// 	// for {
-// 	// 	// Read player input
-// 	// 	input, err := reader.ReadString('\n')
-// 	// 	if err != nil {
-// 	// 		if errors.Is(err, io.EOF) {
-// 	// 			slog.Info("Client disconnected", slog.String("id", user.ID))
-// 	// 		} else {
-// 	// 			slog.Error("Error reading input", slog.String("id", user.ID), slog.Any("error", err))
-// 	// 		}
-// 	// 		return
-// 	// 	}
-
-// 	// 	// Trim input and route to state machine
-// 	// 	input = strings.TrimSpace(input)
-// 	// 	sm.HandleInput(input)
-// 	// }
-
-// 	displayBanner(netConn.Conn)
-// 	promptLogin(netConn.Conn)
-// 	gameLoop(netConn.Conn)
-
-// }
-
 func loadAllDataFiles() {
 	slog.Info("Loading data files")
 
@@ -328,119 +282,4 @@ func RegisterCommands() {
 		RequiredRoles: []CharacterRole{CharacterRoleAdmin},
 		Func:          DoSpawn,
 	})
-	// }
 }
-
-// func displayBanner(conn net.Conn) {
-// 	slog.Debug("Displaying banner")
-
-// 	banner := `
-// {{Welcome to the MUD server!}}::green
-// {{==========================}}::white|bold
-// {{Press enter to continue...}}::green
-
-// `
-
-// 	io.WriteString(conn, cfmt.Sprint(banner))
-
-// 	bufio.NewReader(conn).ReadString('\n')
-// }
-
-// func promptLogin(conn net.Conn) {
-// 	slog.Debug("Prompting for login")
-
-// 	// Prompt for username
-// 	io.WriteString(conn, "Please enter your username: ")
-// 	reader := bufio.NewReader(conn)
-// 	username, err := reader.ReadString('\n')
-// 	if err != nil {
-// 		slog.Error("Error reading username",
-// 			slog.Any("error", err))
-// 		return
-// 	}
-
-// 	username = strings.TrimSpace(username)
-// 	slog.Debug("Received username",
-// 		slog.String("username", username))
-
-// 	// Prompt for password
-// 	io.WriteString(conn, "Please enter your password: ")
-// 	// io.WriteString(conn, "\xff\xfb\x01") // IAC WILL ECHO
-
-// 	password, err := reader.ReadString('\n')
-// 	if err != nil {
-// 		slog.Error("Error reading password",
-// 			slog.Any("error", err))
-// 		return
-// 	}
-
-// 	// io.WriteString(conn, "\xff\xfc\x01") // IAC WONT ECHO
-// 	io.WriteString(conn, "\n")
-
-// 	password = strings.TrimSpace(password)
-// 	slog.Debug("Received password",
-// 		slog.String("password", password))
-
-// 	// Check if user exists
-// 	u := users.Mgr.GetByUsername(username)
-// 	if u == nil {
-// 		// TODO: User does not exist, we need to go to the registration process
-// 		io.WriteString(conn, "User does not exist\n")
-// 		conn.Close()
-// 		return
-// 	}
-
-// 	// Check if password matches the user's password
-// 	if ok := u.CheckPassword(password); !ok {
-// 		io.WriteString(conn, "Invalid username or password \n")
-// 		conn.Close()
-// 	}
-
-// 	t := time.Now()
-// 	u.CreatedAt = t
-// 	u.LastLoginAt = &t
-
-// 	u.Save()
-
-// 	// TODO: Check if user is already logged in
-
-// 	// TODO: Check if user is banned
-
-// 	users.Mgr.SetOnline(u)
-// }
-
-// func gameLoop(conn net.Conn) {
-// 	slog.Debug("Game Loop")
-
-// 	reader := bufio.NewReader(conn)
-// 	for {
-// 		io.WriteString(conn, "> ")
-// 		input, err := reader.ReadString('\n')
-// 		if err != nil {
-// 			slog.Error("Error reading input",
-// 				slog.Any("error", err))
-
-// 			return
-// 		}
-
-// 		input = strings.TrimSpace(input)
-// 		slog.Debug("Received text",
-// 			slog.String("input", input))
-// 	}
-
-// 	// // Create a new player for this connection
-// 	// player := NewPlayer(gs.Log, conn)
-// 	// if i == 0 {
-// 	// 	player.Role = "admin"
-// 	// 	player.Name = "Admin"
-// 	// } else {
-// 	// 	player.Role = "player"
-// 	// 	player.Name = "Player"
-// 	// }
-// 	// i++
-
-// 	// player.MoveTo(gs.GameContext.RoomManager.GetRoom("limbo:the_void"))
-// 	// io.WriteString(player.Conn, RenderRoom(player, player.Room))
-
-// 	// gs.GameLoop(conn, player)
-// }
