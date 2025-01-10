@@ -148,14 +148,26 @@ var (
 	}
 )
 
+// type Command struct {
+// 	Name          string
+// 	Description   string
+// 	Usage         []string
+// 	Aliases       []string
+// 	RequiredRoles []CharacterRole
+// 	IsAdmin       bool
+// 	Func          CommandFunc
+// }
+
+type SuggestFunc func(line string, args []string, char *Character, room *Room) []string
+
 type Command struct {
 	Name          string
 	Description   string
 	Usage         []string
 	Aliases       []string
 	RequiredRoles []CharacterRole
-	IsAdmin       bool
 	Func          CommandFunc
+	Suggest       SuggestFunc // Optional suggestion logic
 }
 
 type CommandFunc func(s ssh.Session, cmd string, args []string, user *User, char *Character, room *Room)
@@ -495,7 +507,7 @@ func DoHelp(s ssh.Session, cmd string, args []string, user *User, char *Characte
 
 	uniqueCommands := make(map[string]*Command)
 	for _, cmd := range CommandMgr.GetCommands() {
-		if CanRunCommand(char, cmd) {
+		if CommandMgr.CanRunCommand(char, cmd) {
 			uniqueCommands[cmd.Name] = cmd
 		}
 	}

@@ -199,7 +199,140 @@ func loadAllDataFiles() {
 	EntityMgr.LoadDataFiles()
 	UserMgr.LoadDataFiles()
 	CharacterMgr.LoadDataFiles()
-	CommandMgr.RegisterCommands()
+	RegisterCommands()
+}
+
+func RegisterCommands() {
+	CommandMgr.RegisterCommand(Command{
+		Name:        "pick",
+		Description: "Pick a lock",
+		Usage:       []string{"pick [direction]"},
+		// Aliases:     []string{"p"},
+		Func: DoPick,
+	})
+	CommandMgr.RegisterCommand(Command{
+		Name:        "lock",
+		Description: "Lock a door",
+		Usage:       []string{"lock [direction]"},
+		// Aliases:     []string{"l"},
+		Func: DoLock,
+	})
+	CommandMgr.RegisterCommand(Command{
+		Name:        "unlock",
+		Description: "Unlock a door",
+		Usage:       []string{"unlock [direction]"},
+		// Aliases:     []string{"u"},
+		Func: DoUnlock,
+	})
+	CommandMgr.RegisterCommand(Command{
+		Name:        "open",
+		Description: "Open a door",
+		Usage:       []string{"open [direction]"},
+		// Aliases:     []string{"o"},
+		Func: DoOpen,
+	})
+	CommandMgr.RegisterCommand(Command{
+		Name:        "close",
+		Description: "Close a door",
+		Usage:       []string{"close [direction]"},
+		// Aliases:     []string{"c"},
+		Func: DoClose,
+	})
+	CommandMgr.RegisterCommand(Command{
+		Name:        "who",
+		Description: "List players currently in the game",
+		Usage:       []string{"who"},
+		Aliases:     []string{"w"},
+		Func:        DoWho,
+	})
+	CommandMgr.RegisterCommand(Command{
+		Name:        "look",
+		Description: "Look around the room",
+		Usage: []string{
+			"look [item|character|mob|direction]",
+		},
+		Aliases: []string{"l"},
+		Func:    DoLook,
+	})
+	CommandMgr.RegisterCommand(Command{
+		Name:        "get",
+		Description: "Get an item",
+		Usage: []string{
+			"get all",
+			"get <item>",
+			"get <number> <items>",
+			"get all <items>",
+		},
+		Aliases: []string{"g"},
+		Func:    DoGet,
+	})
+	CommandMgr.RegisterCommand(Command{
+		Name:        "give",
+		Description: "Give an item",
+		Usage: []string{
+			"give <item> [to] <character>",
+			"give 2 <items> [to] <character>",
+			"give all [to] <character>",
+		},
+		Aliases: []string{"gi"},
+		Func:    DoGive,
+	})
+	CommandMgr.RegisterCommand(Command{
+		Name:        "drop",
+		Description: "Drop an item",
+		Usage: []string{
+			"drop all",
+			"drop <item>",
+			"drop <number> <items>",
+			"drop all <items>",
+		},
+		Aliases: []string{"d"},
+		Func:    DoDrop,
+	})
+	CommandMgr.RegisterCommand(Command{
+		Name:        "help",
+		Description: "List available commands",
+		Usage: []string{
+			"help",
+			"help <command>",
+		},
+		Aliases: []string{"h"},
+		Func:    DoHelp,
+	})
+	CommandMgr.RegisterCommand(Command{
+		Name:        "move",
+		Description: "Move to a different room",
+		Usage:       []string{"move [direction]"},
+		Aliases:     []string{"m", "n", "s", "e", "w", "u", "d", "north", "south", "east", "west", "up", "down"},
+		Func:        DoMove,
+	})
+	CommandMgr.RegisterCommand(Command{
+		Name:        "inventory",
+		Description: "List your inventory",
+		Usage:       []string{"inventory"},
+		Aliases:     []string{"i"},
+		Func:        DoInventory,
+	})
+	CommandMgr.RegisterCommand(Command{
+		Name:        "say",
+		Description: "Say something to the room or to a character or mob",
+		Usage: []string{
+			"say <message>",
+			"say @<name> <message>",
+		},
+		Func: DoSay,
+	})
+	CommandMgr.RegisterCommand(Command{
+		Name:        "spawn",
+		Description: "Spawn an item or mob into the room",
+		Usage: []string{
+			"spawn item <item>",
+			"spawn mob <mob>",
+		},
+		RequiredRoles: []CharacterRole{CharacterRoleAdmin},
+		Func:          DoSpawn,
+	})
+	// }
 }
 
 // func displayBanner(conn net.Conn) {
