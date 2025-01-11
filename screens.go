@@ -281,6 +281,7 @@ func promptChangePassword(s ssh.Session, u *User) string {
 // 	return StateCharacterSelect, nil
 // }
 
+// TODO: Before we enter the game, we need to validate the character inventory is valid, if any item is invalid, we need to remove it from the character's inventory and let them know.
 func promptEnterGame(s ssh.Session, u *User) (string, *Character) {
 	slog.Debug("Enter game state",
 		slog.String("username", u.Username),

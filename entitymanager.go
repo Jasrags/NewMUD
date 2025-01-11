@@ -67,12 +67,14 @@ func (mgr *EntityManager) AddItemBlueprint(i *ItemBlueprint) {
 	mgr.Lock()
 	defer mgr.Unlock()
 
-	slog.Debug("Adding item blueprint",
-		slog.String("item_id", i.ID))
+	// Validate specific types
+	if i.IsWeapon() && i.BaseStats["damage"] == 0 {
+		slog.Warn("Weapon blueprint missing damage stat", slog.String("item_id", i.ID))
+		return
+	}
 
-	if _, ok := mgr.items[i.ID]; ok {
-		slog.Warn("Item blueprint already exists",
-			slog.String("item_id", i.ID))
+	if i.IsFood() && i.BaseStats["healthRestore"] == 0 {
+		slog.Warn("Food blueprint missing healthRestore stat", slog.String("item_id", i.ID))
 		return
 	}
 
@@ -115,15 +117,29 @@ func (mgr *EntityManager) CreateItemInstanceFromBlueprintID(id string) *Item {
 }
 
 func (mgr *EntityManager) CreateItemInstanceFromBlueprint(bp *ItemBlueprint) *Item {
-	slog.Debug("Creating item instance from blueprint",
-		slog.String("item_blueprint_id", bp.ID))
+	slog.Debug("Creating item instance from blueprint", slog.String("item_blueprint_id", bp.ID))
 
-	return &Item{
+	instance := &Item{
 		InstanceID:  uuid.New().String(),
 		BlueprintID: bp.ID,
 		Modifiers:   make(map[string]int),
 		Attachments: []string{},
+		Properties:  make(map[string]interface{}),
 	}
+
+	if bp.IsFood() {
+		instance.Modifiers["healthRestore"] = bp.BaseStats["healthRestore"]
+	}
+
+	if bp.IsWeapon() {
+		instance.Modifiers["damage"] = bp.BaseStats["damage"]
+	}
+
+	if bp.IsArmor() {
+		instance.Modifiers["protection"] = bp.BaseStats["protection"]
+	}
+
+	return instance
 }
 
 func (mgr *EntityManager) CreateItemFromBlueprint(bp ItemBlueprint) *Item {

@@ -8,6 +8,7 @@
   equip_slots: ["none"]
   type: "junk"
   subtype: "none"
+
 - id: "jagged_rock"
   name: "Jagged Rock"
   description: "A jagged rock. It's perfect for throwing at things."
@@ -17,6 +18,7 @@
   equip_slots: ["none"]
   type: "junk"
   subtype: "none"
+
 - id: "test_key"
   name: "Test Key"
   description: "A key that looks like it might fit in a lock."
@@ -26,3 +28,39 @@
   equip_slots: ["none"]
   type: "key"
   subtype: "none"
+
+- id: "apple_001"
+  name: "Apple"
+  description: "A fresh red apple."
+  type: "food"
+  base_stats:
+    healthRestore: 10
+  properties:
+    expiration: 1672531199
+
+- id: "sword_001"
+  name: "Iron Sword"
+  description: "A sturdy sword made of iron."
+  type: "weapon"
+  subtype: "melee"
+  base_stats:
+    damage: 15
+    durability: 100
+  properties:
+    twoHanded: false
+    element: "none"
+
+- id: "helmet_001"
+  name: "Steel Helmet"
+  description: "A helmet forged from steel."
+  type: "armor"
+  subtype: "head"
+  base_stats:
+    protection: 8
+    weight: 5
+  properties:
+    material: "steel"
+    resistances:
+      fire: 5
+      ice: 3
+
