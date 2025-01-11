@@ -22,6 +22,17 @@ func (inv *Inventory) RemoveItem(item *Item) bool {
 	return false
 }
 
+// Find an item by its name
+func (inv *Inventory) FindItemByName(name string) *Item {
+	for _, item := range inv.Items {
+		blueprint := EntityMgr.GetItemBlueprintByInstance(item) // Fetch the blueprint for the item
+		if blueprint != nil && strings.EqualFold(blueprint.Name, name) {
+			return item
+		}
+	}
+	return nil
+}
+
 // Find an item by its instance ID
 func (inv *Inventory) FindItemByID(instanceID string) *Item {
 	for _, item := range inv.Items {

@@ -15,24 +15,108 @@ Usage:
   - look
   - look [at] <item|character|direction|mob>
 */
+// TODO: This needs work still but it's functional
 func DoLook(s ssh.Session, cmd string, args []string, user *User, char *Character, room *Room) {
 	if room == nil {
 		slog.Error("Character is not in a room",
 			slog.String("character_id", char.ID))
 
 		io.WriteString(s, cfmt.Sprintf("{{You are not in a room.}}::red\n"))
-
 		return
 	}
 
-	// if no arguments are passed, show the room
 	if len(args) == 0 {
+		// No arguments: Look at the room
 		io.WriteString(s, RenderRoom(user, char, nil))
-	} else {
-		io.WriteString(s, cfmt.Sprintf("{{Look at what?}}::red\n"))
+		return
 	}
 
-	// TODO: Support looking at other things, like items, characters, mobs
+	target := strings.Join(args, " ")
+
+	// Check if the target is an item in the room
+	if item := room.Inventory.FindItemByName(target); item != nil {
+		io.WriteString(s, RenderItemDescription(item))
+		return
+	}
+
+	// Check if the target is a mob in the room
+	if mob := room.FindMobByName(target); mob != nil {
+		io.WriteString(s, RenderMobDescription(mob))
+		return
+	}
+
+	// Check if the target is another character in the room
+	if targetChar := room.FindCharacterByName(target); targetChar != nil {
+		io.WriteString(s, RenderCharacterDescription(targetChar))
+		return
+	}
+
+	// Check if the target is a direction
+	if room.HasExit(target) {
+		io.WriteString(s, RenderExitDescription(target))
+		return
+	}
+
+	// Target not found
+	io.WriteString(s, cfmt.Sprintf("{{You see nothing special about '%s'.}}::yellow\n", target))
+}
+
+func SuggestLook(line string, args []string, char *Character, room *Room) []string {
+	suggestions := []string{}
+
+	if room == nil {
+		return suggestions
+	}
+
+	switch len(args) {
+	case 0:
+		// Suggest "at" keyword
+		suggestions = append(suggestions, "at")
+	case 1:
+		if strings.EqualFold(args[0], "at") {
+			// Suggest items, mobs, characters, and directions
+			for _, i := range room.Inventory.Items {
+				bp := EntityMgr.GetItemBlueprintByInstance(i)
+				suggestions = append(suggestions, bp.Name)
+			}
+			for _, m := range room.Mobs {
+				suggestions = append(suggestions, m.Name)
+			}
+			for _, c := range room.Characters {
+				if c.ID != char.ID { // Exclude the player themselves
+					suggestions = append(suggestions, char.Name)
+				}
+			}
+			for _, e := range room.Exits {
+				suggestions = append(suggestions, e.Direction)
+			}
+		} else {
+			// Suggest items, mobs, characters, and directions directly
+			for _, i := range room.Inventory.Items {
+				bp := EntityMgr.GetItemBlueprintByInstance(i)
+				if strings.HasPrefix(strings.ToLower(bp.Name), strings.ToLower(args[0])) {
+					suggestions = append(suggestions, bp.Name)
+				}
+			}
+			for _, m := range room.Mobs {
+				if strings.HasPrefix(strings.ToLower(m.Name), strings.ToLower(args[0])) {
+					suggestions = append(suggestions, m.Name)
+				}
+			}
+			for _, c := range room.Characters {
+				if c.ID != char.ID && strings.HasPrefix(strings.ToLower(char.Name), strings.ToLower(args[0])) {
+					suggestions = append(suggestions, char.Name)
+				}
+			}
+			for _, e := range room.Exits {
+				if strings.HasPrefix(strings.ToLower(e.Direction), strings.ToLower(args[0])) {
+					suggestions = append(suggestions, e.Direction)
+				}
+			}
+		}
+	}
+
+	return suggestions
 }
 
 /*

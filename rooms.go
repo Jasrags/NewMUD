@@ -105,6 +105,36 @@ func (r *Room) FindInteractableByName(name string) Interactable {
 // 	// r.Listeners = append(r.Listeners, *EventMgr.Subscribe(EventRoomUpdate, r.onRoomUpdate))
 // }
 
+// FindMobByName searches for a mob in the room by name and returns the first match or nil if not found
+func (r *Room) FindMobByName(name string) *Mob {
+	r.RLock()
+	defer r.RUnlock()
+
+	for _, mob := range r.Mobs {
+		if strings.EqualFold(mob.Name, name) {
+			return mob
+		}
+	}
+	return nil
+}
+
+func (r *Room) HasExit(dir string) bool {
+	return r.Exits[dir] != nil
+}
+
+// FindCharacterByName searches for a character in the room by name and returns the first match or nil if not found
+func (r *Room) FindCharacterByName(name string) *Character {
+	r.RLock()
+	defer r.RUnlock()
+
+	for _, char := range r.Characters {
+		if strings.EqualFold(char.Name, name) {
+			return char
+		}
+	}
+	return nil
+}
+
 func (r *Room) GetExits() {
 	r.RLock()
 	defer r.RUnlock()
