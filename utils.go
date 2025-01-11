@@ -6,6 +6,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/i582/cfmt/cmd/cfmt"
 	"gopkg.in/yaml.v3"
 )
 
@@ -141,4 +142,21 @@ func ReverseDirection(dir string) string {
 		return ""
 	}
 	return dir
+}
+
+func RenderItemDescription(item *Item) string {
+	bp := EntityMgr.GetItemBlueprintByInstance(item)
+	return cfmt.Sprintf("{{%s}}::green\n{{Description: %s}}::white\n", bp.Name, bp.Description)
+}
+
+func RenderMobDescription(mob *Mob) string {
+	return cfmt.Sprintf("{{%s}}::red\n{{Description: %s}}::white\n", mob.Name, mob.Description)
+}
+
+func RenderCharacterDescription(char *Character) string {
+	return cfmt.Sprintf("{{%s}}::blue\n{{Description: %s}}::white\n", char.Name, char.Description)
+}
+
+func RenderExitDescription(direction string) string {
+	return cfmt.Sprintf("{{To the %s, you see an exit.}}::cyan\n", direction)
 }

@@ -205,8 +205,9 @@ func RegisterCommands() {
 		Usage: []string{
 			"look [item|character|mob|direction]",
 		},
-		Aliases: []string{"l"},
-		Func:    DoLook,
+		Aliases:     []string{"l"},
+		Func:        DoLook,
+		SuggestFunc: SuggestLook,
 	})
 	CommandMgr.RegisterCommand(Command{
 		Name:        "get",

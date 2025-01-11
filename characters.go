@@ -33,21 +33,22 @@ type Character struct {
 	Listeners    []ee.Listener `yaml:"-"`
 	Conn         ssh.Session   `yaml:"-"`
 
-	ID        string           `yaml:"id"`
-	User      *User            `yaml:"-"`
-	UserID    string           `yaml:"user_id"`
-	Name      string           `yaml:"name"`
-	Title     string           `yaml:"title"`
-	Room      *Room            `yaml:"-"`
-	RoomID    string           `yaml:"room_id"`
-	Area      *Area            `yaml:"-"`
-	AreaID    string           `yaml:"area_id"`
-	Role      CharacterRole    `yaml:"role"`
-	Inventory Inventory        `yaml:"inventory"`
-	Equipment map[string]*Item `yaml:"equipment"`
-	CreatedAt time.Time        `yaml:"created_at"`
-	UpdatedAt *time.Time       `yaml:"updated_at"`
-	DeletedAt *time.Time       `yaml:"deleted_at"`
+	ID          string           `yaml:"id"`
+	User        *User            `yaml:"-"`
+	UserID      string           `yaml:"user_id"`
+	Name        string           `yaml:"name"`
+	Title       string           `yaml:"title"`
+	Description string           `yaml:"description"`
+	Room        *Room            `yaml:"-"`
+	RoomID      string           `yaml:"room_id"`
+	Area        *Area            `yaml:"-"`
+	AreaID      string           `yaml:"area_id"`
+	Role        CharacterRole    `yaml:"role"`
+	Inventory   Inventory        `yaml:"inventory"`
+	Equipment   map[string]*Item `yaml:"equipment"`
+	CreatedAt   time.Time        `yaml:"created_at"`
+	UpdatedAt   *time.Time       `yaml:"updated_at"`
+	DeletedAt   *time.Time       `yaml:"deleted_at"`
 }
 
 func NewCharacter() *Character {
