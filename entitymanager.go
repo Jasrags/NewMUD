@@ -67,16 +67,47 @@ func (mgr *EntityManager) AddItemBlueprint(i *ItemBlueprint) {
 	mgr.Lock()
 	defer mgr.Unlock()
 
-	slog.Debug("Adding item blueprint",
-		slog.String("item_id", i.ID))
-
-	if _, ok := mgr.items[i.ID]; ok {
-		slog.Warn("Item blueprint already exists",
-			slog.String("item_id", i.ID))
+	// Base item validation
+	if err := ValidateItemBaseStats(i); err != nil {
+		slog.Warn("Item blueprint validation failed", slog.String("item_id", i.ID), slog.String("error", err.Error()))
 		return
 	}
 
+	// Perform type-specific validation
+	switch i.Type {
+	case ItemTypeWeapon:
+		if err := ValidateWeaponBlueprint(i); err != nil {
+			slog.Warn("Weapon blueprint validation failed", slog.String("item_id", i.ID), slog.String("error", err.Error()))
+			return
+		}
+	case ItemTypeArmor:
+		if err := ValidateArmorBlueprint(i); err != nil {
+			slog.Warn("Armor blueprint validation failed", slog.String("item_id", i.ID), slog.String("error", err.Error()))
+			return
+		}
+	case ItemTypeFood:
+		if err := ValidateFoodBlueprint(i); err != nil {
+			slog.Warn("Food blueprint validation failed", slog.String("item_id", i.ID), slog.String("error", err.Error()))
+			return
+		}
+	case ItemTypeKey:
+		if err := ValidateKeyBlueprint(i); err != nil {
+			slog.Warn("Food blueprint validation failed", slog.String("item_id", i.ID), slog.String("error", err.Error()))
+			return
+		}
+	case ItemTypeJunk:
+		if err := ValidateJunkBlueprint(i); err != nil {
+			slog.Warn("Food blueprint validation failed", slog.String("item_id", i.ID), slog.String("error", err.Error()))
+			return
+		}
+	default:
+		slog.Warn("Unknown item type", slog.String("item_id", i.ID), slog.String("type", string(i.Type)))
+		return
+	}
+
+	// Add the blueprint to the manager
 	mgr.items[i.ID] = i
+	slog.Info("Item blueprint added successfully", slog.String("item_id", i.ID), slog.String("type", string(i.Type)))
 }
 
 func (mgr *EntityManager) GetItemBlueprintByID(id string) *ItemBlueprint {
@@ -101,9 +132,6 @@ func (mgr *EntityManager) GetItemBlueprintByInstance(item *Item) *ItemBlueprint 
 }
 
 func (mgr *EntityManager) CreateItemInstanceFromBlueprintID(id string) *Item {
-	slog.Debug("Creating item instance from blueprint",
-		slog.String("item_blueprint_id", id))
-
 	bp, ok := mgr.items[id]
 	if !ok {
 		slog.Error("Item blueprint not found",
@@ -115,21 +143,31 @@ func (mgr *EntityManager) CreateItemInstanceFromBlueprintID(id string) *Item {
 }
 
 func (mgr *EntityManager) CreateItemInstanceFromBlueprint(bp *ItemBlueprint) *Item {
-	slog.Debug("Creating item instance from blueprint",
-		slog.String("item_blueprint_id", bp.ID))
-
-	return &Item{
+	instance := &Item{
 		InstanceID:  uuid.New().String(),
 		BlueprintID: bp.ID,
 		Modifiers:   make(map[string]int),
 		Attachments: []string{},
+		Properties:  make(map[string]interface{}),
 	}
+
+	// TODO: Add item properties based on blueprint properties
+	if bp.IsFood() {
+		instance.Modifiers["healthRestore"] = bp.BaseStats["healthRestore"]
+	}
+
+	if bp.IsWeapon() {
+		instance.Modifiers["damage"] = bp.BaseStats["damage"]
+	}
+
+	if bp.IsArmor() {
+		instance.Modifiers["protection"] = bp.BaseStats["protection"]
+	}
+
+	return instance
 }
 
 func (mgr *EntityManager) CreateItemFromBlueprint(bp ItemBlueprint) *Item {
-	slog.Debug("Creating item instance from blueprint",
-		slog.String("item_blueprint_id", bp.ID))
-
 	return &Item{
 		InstanceID:  uuid.New().String(),
 		BlueprintID: bp.ID,
