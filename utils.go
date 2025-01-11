@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"log/slog"
 	"os"
 	"strings"
@@ -141,4 +142,55 @@ func ReverseDirection(dir string) string {
 		return ""
 	}
 	return dir
+}
+
+func ValidateItemBaseStats(i *ItemBlueprint) error {
+	if i.BaseStats["weight"] <= 0 {
+		return fmt.Errorf("weight must be greater than 0")
+	}
+	if i.BaseStats["value"] <= 0 {
+		return fmt.Errorf("value must be greater than 0")
+	}
+	return nil
+}
+
+func ValidateWeaponBlueprint(i *ItemBlueprint) error {
+	if i.BaseStats["damage"] <= 0 {
+		return fmt.Errorf("damage must be greater than 0")
+	}
+	if _, exists := i.Properties["twoHanded"]; !exists {
+		return fmt.Errorf("missing required property 'twoHanded'")
+	}
+	return nil
+}
+
+func ValidateArmorBlueprint(i *ItemBlueprint) error {
+	if i.BaseStats["protection"] <= 0 {
+		return fmt.Errorf("protection must be greater than 0")
+	}
+	if _, exists := i.Properties["slot"]; !exists {
+		return fmt.Errorf("missing required property 'slot'")
+	}
+	if _, exists := i.Properties["material"]; !exists {
+		return fmt.Errorf("missing required property 'material'")
+	}
+	return nil
+}
+
+func ValidateFoodBlueprint(i *ItemBlueprint) error {
+	if i.BaseStats["healthRestore"] <= 0 {
+		return fmt.Errorf("healthRestore must be greater than 0")
+	}
+	if _, exists := i.Properties["expiration"]; !exists {
+		return fmt.Errorf("missing required property 'expiration'")
+	}
+	return nil
+}
+
+func ValidateKeyBlueprint(i *ItemBlueprint) error {
+	return nil
+}
+
+func ValidateJunkBlueprint(i *ItemBlueprint) error {
+	return nil
 }

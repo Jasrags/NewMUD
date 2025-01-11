@@ -4,6 +4,7 @@
   description: "A small, smooth rock. It's perfect for skipping across water."
   tags: ["rock", "small"]
   base_stats:
+    value: 1
     weight: 1
   equip_slots: ["none"]
   type: "junk"
@@ -14,19 +15,10 @@
   description: "A jagged rock. It's perfect for throwing at things."
   tags: ["rock", "jagged"]
   base_stats:
+    value: 1
     weight: 1
   equip_slots: ["none"]
   type: "junk"
-  subtype: "none"
-
-- id: "test_key"
-  name: "Test Key"
-  description: "A key that looks like it might fit in a lock."
-  tags: ["key"]
-  base_stats:
-    weight: 0.1
-  equip_slots: ["none"]
-  type: "key"
   subtype: "none"
 
 - id: "apple_001"
@@ -34,7 +26,9 @@
   description: "A fresh red apple."
   type: "food"
   base_stats:
+    value: 1
     healthRestore: 10
+    weight: 5
   properties:
     expiration: 1672531199
 
@@ -44,8 +38,10 @@
   type: "weapon"
   subtype: "melee"
   base_stats:
+    value: 1
     damage: 15
     durability: 100
+    weight: 5
   properties:
     twoHanded: false
     element: "none"
@@ -56,11 +52,24 @@
   type: "armor"
   subtype: "head"
   base_stats:
+    value: 1
     protection: 8
     weight: 5
   properties:
+    slot: "head"
     material: "steel"
     resistances:
       fire: 5
       ice: 3
+
+- id: "key_001"
+  name: "Rusty Key"
+  description: "A small rusty key with intricate engravings."
+  type: "key"
+  base_stats:
+    value: 1
+    weight: 1
+  properties:
+    keyType: "door"
+    unlocks: "door_123" # ID of the object this key unlocks
 

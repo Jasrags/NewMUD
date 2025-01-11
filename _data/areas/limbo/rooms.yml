@@ -7,7 +7,7 @@
       door:
         is_locked: False
         is_open: False
-        key_ids: ["test_key"]
+        key_ids: ["key_001"]
         pick_difficulty: 10
   default_mobs:
    - id: goblin

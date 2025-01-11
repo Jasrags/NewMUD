@@ -65,6 +65,14 @@ func (i *ItemBlueprint) IsFood() bool {
 	return i.Type == ItemTypeFood
 }
 
+func (i *ItemBlueprint) IsKey() bool {
+	return i.Type == ItemTypeKey
+}
+
+func (i *ItemBlueprint) IsJunk() bool {
+	return i.Type == ItemTypeJunk
+}
+
 func NewItem(blueprint *ItemBlueprint) *Item {
 	return &Item{
 		InstanceID:  uuid.New().String(),
