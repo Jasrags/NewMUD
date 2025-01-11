@@ -279,13 +279,11 @@ func RegisterCommands() {
 	})
 
 	CommandMgr.RegisterCommand(Command{
-		Name:        "spawn",
-		Description: "Spawn an item or mob into the room",
-		Usage: []string{
-			"spawn item <item>",
-			"spawn mob <mob>",
-		},
+		Name:          "spawn",
+		Description:   "Spawn an item or mob into the room",
+		Usage:         []string{"spawn <item|mob> [<quantity>] <id>"},
 		RequiredRoles: []CharacterRole{CharacterRoleAdmin},
 		Func:          DoSpawn,
+		SuggestFunc:   SuggestSpawn,
 	})
 }
