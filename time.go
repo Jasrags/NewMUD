@@ -42,7 +42,7 @@ func (t *GameTime) String() string {
 	return fmt.Sprintf("%02d:%02d", hour, minute)
 }
 
-func startTicker(tickDuration time.Duration) {
+func startTicker() {
 	slog.Debug("Starting game ticker",
 		slog.Duration("tick_duration", tickDuration))
 
@@ -73,14 +73,6 @@ func handleGameTick() {
 	triggerTimeBasedEvents()
 }
 
-// func handleGameTick() {
-// start := time.Now()
-// defer func() {
-// slog.Debug("Game tick completed", slog.Duration("duration", time.Since(start)))
-// }()
-// HANDLE GAME TICK LOGIC HERE
-// }
-
 func triggerTimeBasedEvents() {
 	hour := gameTime.CurrentHour()
 
@@ -94,4 +86,38 @@ func triggerTimeBasedEvents() {
 			c.Send("The sun sets, and darkness envelops the world.")
 		}
 	}
+}
+
+// Calculate the number of in-game minutes until the next occurrence of a given hour
+func calculateTimeUntil(targetHour int) int {
+	currentHour := gameTime.CurrentHour()
+	currentMinute := gameTime.CurrentMinute()
+
+	if currentHour < targetHour {
+		return (targetHour-currentHour)*60 - currentMinute
+	} else if currentHour > targetHour {
+		return (24-currentHour+targetHour)*60 - currentMinute
+	}
+	return -currentMinute
+}
+
+// Converts total minutes into a human-readable format like "1 hour 33 minutes"
+func formatMinutesAsTime(minutes int) string {
+	hours := minutes / 60
+	minutes = minutes % 60
+
+	if hours > 0 && minutes > 0 {
+		return fmt.Sprintf("%d hour%s %d minute%s", hours, pluralize(hours), minutes, pluralize(minutes))
+	} else if hours > 0 {
+		return fmt.Sprintf("%d hour%s", hours, pluralize(hours))
+	} else {
+		return fmt.Sprintf("%d minute%s", minutes, pluralize(minutes))
+	}
+}
+
+func pluralize(value int) string {
+	if value == 1 {
+		return ""
+	}
+	return "s"
 }
