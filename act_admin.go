@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"github.com/gliderlabs/ssh"
-	"github.com/google/uuid"
 	"github.com/i582/cfmt/cmd/cfmt"
 )
 
@@ -40,10 +39,12 @@ func DoSpawn(s ssh.Session, cmd string, args []string, user *User, char *Charact
 
 	case "m":
 		// Spawn a mob into the room
-		mob := &Mob{
-			ID:   uuid.New().String(),
-			Name: entityName,
-		}
+		mob := NewMob()
+		mob.Name = entityName
+		// mob := &Mob{
+		// ID:   uuid.New().String(),
+		// Name: entityName,
+		// }
 
 		room.AddMob(mob)
 		io.WriteString(s, cfmt.Sprintf("{{You spawn a mob named %s.}}::green\n", entityName))

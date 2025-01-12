@@ -5,14 +5,12 @@ import (
 	"log/slog"
 	"path/filepath"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/gliderlabs/ssh"
 	"github.com/google/uuid"
 	"github.com/i582/cfmt/cmd/cfmt"
 	"github.com/spf13/viper"
-	ee "github.com/vansante/go-event-emitter"
 )
 
 type Interactable interface {
@@ -29,34 +27,25 @@ const (
 )
 
 type Character struct {
-	sync.RWMutex `yaml:"-"`
-	Listeners    []ee.Listener `yaml:"-"`
-	Conn         ssh.Session   `yaml:"-"`
-
-	ID          string           `yaml:"id"`
-	User        *User            `yaml:"-"`
-	UserID      string           `yaml:"user_id"`
-	Name        string           `yaml:"name"`
-	Title       string           `yaml:"title"`
-	Description string           `yaml:"description"`
-	Room        *Room            `yaml:"-"`
-	RoomID      string           `yaml:"room_id"`
-	Area        *Area            `yaml:"-"`
-	AreaID      string           `yaml:"area_id"`
-	Role        CharacterRole    `yaml:"role"`
-	Inventory   Inventory        `yaml:"inventory"`
-	Equipment   map[string]*Item `yaml:"equipment"`
-	CreatedAt   time.Time        `yaml:"created_at"`
-	UpdatedAt   *time.Time       `yaml:"updated_at"`
-	DeletedAt   *time.Time       `yaml:"deleted_at"`
+	GameEntity `yaml:",inline"`
+	Title      string        `yaml:"title"`
+	User       *User         `yaml:"-"`
+	UserID     string        `yaml:"user_id"`
+	Role       CharacterRole `yaml:"role"`
+	Conn       ssh.Session   `yaml:"-"`
+	CreatedAt  time.Time     `yaml:"created_at"`
+	UpdatedAt  *time.Time    `yaml:"updated_at"`
+	DeletedAt  *time.Time    `yaml:"deleted_at"`
 }
 
 func NewCharacter() *Character {
 	return &Character{
-		ID:        uuid.New().String(),
-		CreatedAt: time.Now(),
+		GameEntity: GameEntity{
+			ID:        uuid.New().String(),
+			Equipment: make(map[string]*Item),
+		},
 		Role:      CharacterRolePlayer,
-		Equipment: make(map[string]*Item),
+		CreatedAt: time.Now(),
 	}
 }
 

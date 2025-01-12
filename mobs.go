@@ -3,35 +3,23 @@ package main
 import (
 	"log/slog"
 	"strings"
-	"sync"
 
 	"github.com/google/uuid"
 	"github.com/i582/cfmt/cmd/cfmt"
-	ee "github.com/vansante/go-event-emitter"
 )
 
 // TODO: Implement mob AI behaviors.
 // TODO: Do we want mobs to be an "instance" that will persist after spawning?
 type Mob struct {
-	sync.RWMutex
-	Listeners []ee.Listener `yaml:"-"`
-
-	ID          string           `yaml:"id"`
-	ReferenceID string           `yaml:"reference_id"`
-	UUID        string           `yaml:"uuid"`
-	Area        *Area            `yaml:"-"`
-	AreaID      string           `yaml:"area_id"`
-	Room        *Room            `yaml:"-"`
-	RoomID      string           `yaml:"room_id"`
-	Name        string           `yaml:"name"`
-	Description string           `yaml:"description"`
-	Inventory   Inventory        `yaml:"inventory"`
-	Equipment   map[string]*Item `yaml:"equipment"`
+	GameEntity `yaml:",inline"`
 }
 
 func NewMob() *Mob {
 	return &Mob{
-		UUID: uuid.New().String(),
+		GameEntity: GameEntity{
+			ID:        uuid.New().String(),
+			Equipment: make(map[string]*Item),
+		},
 	}
 }
 
