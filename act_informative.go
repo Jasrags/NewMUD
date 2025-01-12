@@ -219,3 +219,32 @@ func DoWho(s ssh.Session, cmd string, args []string, user *User, char *Character
 		io.WriteString(s, cfmt.Sprintf("{{%s - %s}}::%s\n", activeChar.Name, activeChar.Title, color))
 	}
 }
+
+/*
+Usage:
+  - time
+  - time details
+*/
+func DoTime(s ssh.Session, cmd string, args []string, user *User, char *Character, room *Room) {
+	switch len(args) {
+	case 0:
+		// Basic time display
+		io.WriteString(s, cfmt.Sprintf("{{The current in-game time is %s.}}::cyan\n", gameTime.String()))
+	case 1:
+		if strings.EqualFold(args[0], "details") {
+			// Detailed time information
+			hour := gameTime.CurrentHour()
+			minute := gameTime.CurrentMinute()
+			timeUntilSunrise := calculateTimeUntil(6) // Example sunrise time
+			timeUntilSunset := calculateTimeUntil(18) // Example sunset time
+
+			io.WriteString(s, cfmt.Sprintf("{{Current in-game time: %02d:%02d}}::cyan\n", hour, minute))
+			io.WriteString(s, cfmt.Sprintf("{{Time until sunrise:}}::green %s\n", formatMinutesAsTime(timeUntilSunrise)))
+			io.WriteString(s, cfmt.Sprintf("{{Time until sunset:}}::yellow %s\n", formatMinutesAsTime(timeUntilSunset)))
+		} else {
+			io.WriteString(s, cfmt.Sprintf("{{Unknown argument '%s'. Usage: time [details]}}::red\n", args[0]))
+		}
+	default:
+		io.WriteString(s, cfmt.Sprintf("{{Invalid usage. Usage: time [details]}}::red\n"))
+	}
+}

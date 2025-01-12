@@ -1,18 +1,25 @@
 package main
 
 import (
+	"fmt"
 	"log/slog"
 	"os"
+	"time"
 
 	"github.com/fsnotify/fsnotify"
 	"github.com/gliderlabs/ssh"
 	"github.com/spf13/viper"
 )
 
+// Add this near the top of your main.go file
+var tickDuration time.Duration
+
 func main() {
 	setupConfig()
 	loadAllDataFiles()
+	go startTicker()
 	setupServer()
+
 	slog.Info("Shutting down")
 }
 
@@ -24,6 +31,13 @@ func setupConfig() {
 	}
 
 	setupLogger()
+
+	// Parse tick duration
+	var err error
+	tickDuration, err = time.ParseDuration(viper.GetString("server.tick_duration"))
+	if err != nil {
+		panic(fmt.Sprintf("Invalid tick_duration format: %s", viper.GetString("server.tick_duration")))
+	}
 
 	// Update configuration on change
 	viper.OnConfigChange(func(e fsnotify.Event) {
@@ -157,6 +171,13 @@ func loadAllDataFiles() {
 }
 
 func RegisterCommands() {
+	CommandMgr.RegisterCommand(Command{
+		Name:        "time",
+		Description: "Display the current in-game time.",
+		Usage:       []string{"time", "time details"},
+		Func:        DoTime,
+	})
+
 	CommandMgr.RegisterCommand(Command{
 		Name:        "pick",
 		Description: "Pick a lock",
