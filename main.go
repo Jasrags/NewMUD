@@ -12,7 +12,9 @@ import (
 func main() {
 	setupConfig()
 	loadAllDataFiles()
+	go startTicker(viper.GetDuration("server.tick_duration"))
 	setupServer()
+
 	slog.Info("Shutting down")
 }
 

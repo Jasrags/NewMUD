@@ -19,6 +19,7 @@ server:
   username_max_length: 32
   charactername_min_length: 3
   charactername_max_length: 32
+  tick_duration: 1000ms
 data:
   accounts_path: _data/accounts
   areas_path: _data/areas
