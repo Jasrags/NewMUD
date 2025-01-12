@@ -32,7 +32,7 @@ func (t *GameTime) Advance(ticks int) {
 	if t.TickAccumulator >= GameTicksPerMinute {
 		minutesToAdd := t.TickAccumulator / GameTicksPerMinute
 		t.Minutes = (t.Minutes + minutesToAdd) % GameDayLength
-		t.TickAccumulator %= GameTicksPerMinute // Keep the remainder ticks
+		t.TickAccumulator %= GameTicksPerMinute
 	}
 }
 
@@ -66,7 +66,7 @@ var gameTime = &GameTime{Minutes: 0}
 func handleGameTick() {
 	gameTime.Advance(1) // Advance by one tick
 
-	if gameTime.TickAccumulator == 0 { // Log only when a new minute starts
+	if gameTime.TickAccumulator == 0 {
 		slog.Debug("Game time updated", slog.String("time", gameTime.String()))
 	}
 
