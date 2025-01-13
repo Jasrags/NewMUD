@@ -334,6 +334,24 @@ func promptEnterGame(s ssh.Session, u *User) (string, *Character) {
 		return StateEnterGame, nil
 	}
 
+	// // TODO: Remove me when we have attributes set
+	// // c.Attributes = NewAttributes()
+	// c.Attributes = &Attributes{
+	// 	Body:      Attribute[int]{Name: "Body", Base: 5},
+	// 	Agility:   Attribute[int]{Name: "Agility", Base: 6},
+	// 	Reaction:  Attribute[int]{Name: "Reaction", Base: 4},
+	// 	Strength:  Attribute[int]{Name: "Strength", Base: 5},
+	// 	Willpower: Attribute[int]{Name: "Willpower", Base: 4},
+	// 	Logic:     Attribute[int]{Name: "Logic", Base: 4},
+	// 	Intuition: Attribute[int]{Name: "Intuition", Base: 5},
+	// 	Charisma:  Attribute[int]{Name: "Charisma", Base: 4},
+	// 	Edge:      Attribute[int]{Name: "Edge", Base: 5},
+	// 	Essence:   Attribute[float64]{Name: "Essence", Base: 5.6},
+	// 	Magic:     Attribute[int]{Name: "Magic", Base: 0},
+	// 	Resonance: Attribute[int]{Name: "Resonance", Base: 0},
+	// }
+	// c.Save()
+
 	c.Conn = s
 
 	// If the character has no room, set the starting room

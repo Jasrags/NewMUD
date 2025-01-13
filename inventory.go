@@ -1,6 +1,8 @@
 package main
 
-import "strings"
+import (
+	"strings"
+)
 
 type Inventory struct {
 	Items []*Item `yaml:"items"`
