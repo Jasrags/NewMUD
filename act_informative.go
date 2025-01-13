@@ -14,7 +14,7 @@ import (
 Usage:
   - stats
 */
-func DoStats(s ssh.Session, cmd string, args []string, user *Account, char *Character, room *Room) {
+func DoStats(s ssh.Session, cmd string, args []string, acct *Account, char *Character, room *Room) {
 	if char == nil {
 		io.WriteString(s, cfmt.Sprintf("{{Error: No character is associated with this session.}}::red\n"))
 		return
@@ -23,21 +23,36 @@ func DoStats(s ssh.Session, cmd string, args []string, user *Account, char *Char
 	io.WriteString(s, cfmt.Sprintf("{{Your current stats:}}::cyan\n"))
 
 	attributes := char.Attributes
+	attributes.Recalculate()
 
-	// Display all attributes
-	format := "{{%-15s}}::white|bold {{Base: %3d}}::green {{Delta: %+3d}}::yellow {{Total: %3d}}::cyan\n"
-	io.WriteString(s, cfmt.Sprintf(format, "Body", attributes.Body.Base, attributes.Body.Delta, attributes.Body.TotalValue))
-	io.WriteString(s, cfmt.Sprintf(format, "Agility", attributes.Agility.Base, attributes.Agility.Delta, attributes.Agility.TotalValue))
-	io.WriteString(s, cfmt.Sprintf(format, "Reaction", attributes.Reaction.Base, attributes.Reaction.Delta, attributes.Reaction.TotalValue))
-	io.WriteString(s, cfmt.Sprintf(format, "Strength", attributes.Strength.Base, attributes.Strength.Delta, attributes.Strength.TotalValue))
-	io.WriteString(s, cfmt.Sprintf(format, "Willpower", attributes.Willpower.Base, attributes.Willpower.Delta, attributes.Willpower.TotalValue))
-	io.WriteString(s, cfmt.Sprintf(format, "Logic", attributes.Logic.Base, attributes.Logic.Delta, attributes.Logic.TotalValue))
-	io.WriteString(s, cfmt.Sprintf(format, "Intuition", attributes.Intuition.Base, attributes.Intuition.Delta, attributes.Intuition.TotalValue))
-	io.WriteString(s, cfmt.Sprintf(format, "Charisma", attributes.Charisma.Base, attributes.Charisma.Delta, attributes.Charisma.TotalValue))
-	io.WriteString(s, cfmt.Sprintf(format, "Edge", attributes.Edge.Base, attributes.Edge.Delta, attributes.Edge.TotalValue))
-	io.WriteString(s, cfmt.Sprintf(format, "Essence", int(attributes.Essence.Base), int(attributes.Essence.Delta), int(attributes.Essence.TotalValue)))
-	io.WriteString(s, cfmt.Sprintf(format, "Magic", attributes.Magic.Base, attributes.Magic.Delta, attributes.Magic.TotalValue))
-	io.WriteString(s, cfmt.Sprintf(format, "Resonance", attributes.Resonance.Base, attributes.Resonance.Delta, attributes.Resonance.TotalValue))
+	// Helper function to format attributes
+	formatAttribute := func(name string, attr Attribute[int]) string {
+		if attr.TotalValue > attr.Base {
+			return cfmt.Sprintf("{{%-15s}}::white|bold {{%3d}}::cyan{{(}}::white {{%d}}::red{{)}}::white\n", name, attr.Base, attr.TotalValue)
+		}
+		return cfmt.Sprintf("{{%-15s}}::white|bold {{%3d}}::cyan\n", name, attr.Base)
+	}
+	// Handle float attributes like Essence separately
+	formatFloatAttribute := func(name string, attr Attribute[float64]) string {
+		if attr.TotalValue > attr.Base {
+			return cfmt.Sprintf("{{%-15s}}::white|bold {{%.1f}}::cyan {{(}}::white{{%.1f}}::red{{)}}::white\n", name, attr.Base, attr.TotalValue)
+		}
+		return cfmt.Sprintf("{{%-15s}}::white|bold {{%.1f}}::cyan\n", name, attr.Base)
+	}
+
+	io.WriteString(s, formatAttribute("Body", attributes.Body))
+	io.WriteString(s, formatAttribute("Agility", attributes.Agility))
+	io.WriteString(s, formatAttribute("Reaction", attributes.Reaction))
+	io.WriteString(s, formatAttribute("Strength", attributes.Strength))
+	io.WriteString(s, formatAttribute("Willpower", attributes.Willpower))
+	io.WriteString(s, formatAttribute("Logic", attributes.Logic))
+	io.WriteString(s, formatAttribute("Intuition", attributes.Intuition))
+	io.WriteString(s, formatAttribute("Charisma", attributes.Charisma))
+	io.WriteString(s, formatAttribute("Edge", attributes.Edge))
+
+	io.WriteString(s, formatFloatAttribute("Essence", attributes.Essence))
+	io.WriteString(s, formatAttribute("Magic", attributes.Magic))
+	io.WriteString(s, formatAttribute("Resonance", attributes.Resonance))
 }
 
 /*
