@@ -282,7 +282,7 @@ func (r *Room) Broadcast(msg string, excludeIDs []string) {
 // }
 
 // RenderRoom renders the room to a string for the player.
-func RenderRoom(user *User, char *Character, room *Room) string {
+func RenderRoom(user *Account, char *Character, room *Room) string {
 	var builder strings.Builder
 
 	// Optionally display the room ID for admins

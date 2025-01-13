@@ -16,7 +16,7 @@ Usage:
   - drop all <item>
   - drop all
 */
-func DoDrop(s ssh.Session, cmd string, args []string, user *User, char *Character, room *Room) {
+func DoDrop(s ssh.Session, cmd string, args []string, user *Account, char *Character, room *Room) {
 	if room == nil {
 		io.WriteString(s, cfmt.Sprintf("{{You are not in a room.}}::red\n"))
 		return
@@ -159,7 +159,7 @@ func SuggestDrop(line string, args []string, char *Character, room *Room) []stri
 Usage:
   - give <character> [<quantity>] <item>
 */
-func DoGive(s ssh.Session, cmd string, args []string, user *User, char *Character, room *Room) {
+func DoGive(s ssh.Session, cmd string, args []string, user *Account, char *Character, room *Room) {
 	if room == nil {
 		io.WriteString(s, cfmt.Sprintf("{{You are not in a room.}}::red\n"))
 		return
@@ -290,7 +290,7 @@ Usage:
   - get all <item>
   - get all
 */
-func DoGet(s ssh.Session, cmd string, args []string, user *User, char *Character, room *Room) {
+func DoGet(s ssh.Session, cmd string, args []string, user *Account, char *Character, room *Room) {
 	if room == nil {
 		io.WriteString(s, cfmt.Sprintf("{{You are not in a room.}}::red\n"))
 		return

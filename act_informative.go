@@ -12,11 +12,41 @@ import (
 
 /*
 Usage:
+  - stats
+*/
+func DoStats(s ssh.Session, cmd string, args []string, user *Account, char *Character, room *Room) {
+	if char == nil {
+		io.WriteString(s, cfmt.Sprintf("{{Error: No character is associated with this session.}}::red\n"))
+		return
+	}
+
+	io.WriteString(s, cfmt.Sprintf("{{Your current stats:}}::cyan\n"))
+
+	attributes := char.Attributes
+
+	// Display all attributes
+	format := "{{%-15s}}::white|bold {{Base: %3d}}::green {{Delta: %+3d}}::yellow {{Total: %3d}}::cyan\n"
+	io.WriteString(s, cfmt.Sprintf(format, "Body", attributes.Body.Base, attributes.Body.Delta, attributes.Body.TotalValue))
+	io.WriteString(s, cfmt.Sprintf(format, "Agility", attributes.Agility.Base, attributes.Agility.Delta, attributes.Agility.TotalValue))
+	io.WriteString(s, cfmt.Sprintf(format, "Reaction", attributes.Reaction.Base, attributes.Reaction.Delta, attributes.Reaction.TotalValue))
+	io.WriteString(s, cfmt.Sprintf(format, "Strength", attributes.Strength.Base, attributes.Strength.Delta, attributes.Strength.TotalValue))
+	io.WriteString(s, cfmt.Sprintf(format, "Willpower", attributes.Willpower.Base, attributes.Willpower.Delta, attributes.Willpower.TotalValue))
+	io.WriteString(s, cfmt.Sprintf(format, "Logic", attributes.Logic.Base, attributes.Logic.Delta, attributes.Logic.TotalValue))
+	io.WriteString(s, cfmt.Sprintf(format, "Intuition", attributes.Intuition.Base, attributes.Intuition.Delta, attributes.Intuition.TotalValue))
+	io.WriteString(s, cfmt.Sprintf(format, "Charisma", attributes.Charisma.Base, attributes.Charisma.Delta, attributes.Charisma.TotalValue))
+	io.WriteString(s, cfmt.Sprintf(format, "Edge", attributes.Edge.Base, attributes.Edge.Delta, attributes.Edge.TotalValue))
+	io.WriteString(s, cfmt.Sprintf(format, "Essence", int(attributes.Essence.Base), int(attributes.Essence.Delta), int(attributes.Essence.TotalValue)))
+	io.WriteString(s, cfmt.Sprintf(format, "Magic", attributes.Magic.Base, attributes.Magic.Delta, attributes.Magic.TotalValue))
+	io.WriteString(s, cfmt.Sprintf(format, "Resonance", attributes.Resonance.Base, attributes.Resonance.Delta, attributes.Resonance.TotalValue))
+}
+
+/*
+Usage:
   - look
   - look [at] <item|character|direction|mob>
 */
 // TODO: This needs work still but it's functional
-func DoLook(s ssh.Session, cmd string, args []string, user *User, char *Character, room *Room) {
+func DoLook(s ssh.Session, cmd string, args []string, user *Account, char *Character, room *Room) {
 	if room == nil {
 		slog.Error("Character is not in a room",
 			slog.String("character_id", char.ID))
@@ -124,7 +154,7 @@ Usage:
   - help
   - help <command>
 */
-func DoHelp(s ssh.Session, cmd string, args []string, user *User, char *Character, room *Room) {
+func DoHelp(s ssh.Session, cmd string, args []string, user *Account, char *Character, room *Room) {
 	uniqueCommands := make(map[string]*Command)
 	for _, cmd := range CommandMgr.GetCommands() {
 		if CommandMgr.CanRunCommand(char, cmd) {
@@ -158,7 +188,7 @@ func DoHelp(s ssh.Session, cmd string, args []string, user *User, char *Characte
 	io.WriteString(s, builder.String())
 }
 
-func DoInventory(s ssh.Session, cmd string, args []string, user *User, char *Character, room *Room) {
+func DoInventory(s ssh.Session, cmd string, args []string, user *Account, char *Character, room *Room) {
 	if char == nil {
 		io.WriteString(s, cfmt.Sprintf("{{Error: No character is associated with this session.}}::red\n"))
 		return
@@ -194,7 +224,7 @@ Usage:
 */
 // TODO: Sort all admins to the top of the list
 // TODO: Add a CanSee function for characters and have this function use that to determine if a character can see another character in the who list
-func DoWho(s ssh.Session, cmd string, args []string, user *User, char *Character, room *Room) {
+func DoWho(s ssh.Session, cmd string, args []string, user *Account, char *Character, room *Room) {
 	// Simulated global list of active characters
 	activeCharacters := CharacterMgr.GetOnlineCharacters()
 
@@ -225,7 +255,7 @@ Usage:
   - time
   - time details
 */
-func DoTime(s ssh.Session, cmd string, args []string, user *User, char *Character, room *Room) {
+func DoTime(s ssh.Session, cmd string, args []string, user *Account, char *Character, room *Room) {
 	switch len(args) {
 	case 0:
 		// Basic time display

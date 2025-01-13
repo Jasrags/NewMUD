@@ -29,7 +29,7 @@ const (
 type Character struct {
 	GameEntity `yaml:",inline"`
 	Title      string        `yaml:"title"`
-	User       *User         `yaml:"-"`
+	User       *Account      `yaml:"-"`
 	UserID     string        `yaml:"user_id"`
 	Role       CharacterRole `yaml:"role"`
 	Conn       ssh.Session   `yaml:"-"`

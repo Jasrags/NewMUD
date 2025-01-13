@@ -25,7 +25,6 @@ data:
   areas_path: _data/areas
   players_path: _data/players
   characters_path: _data/characters
-  users_path: _data/users
   manifest_file: manifest.yml
   rooms_file: rooms.yml
   items_file: items.yml

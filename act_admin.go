@@ -8,7 +8,7 @@ import (
 	"github.com/i582/cfmt/cmd/cfmt"
 )
 
-func DoSpawn(s ssh.Session, cmd string, args []string, user *User, char *Character, room *Room) {
+func DoSpawn(s ssh.Session, cmd string, args []string, user *Account, char *Character, room *Room) {
 	if room == nil {
 		io.WriteString(s, cfmt.Sprintf("{{You are not in a room.}}::red\n"))
 		return

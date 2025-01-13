@@ -4,8 +4,10 @@ import (
 	"io"
 	"log/slog"
 	"strings"
+	"time"
 
 	"github.com/gliderlabs/ssh"
+	"github.com/google/uuid"
 	"github.com/i582/cfmt/cmd/cfmt"
 	"github.com/spf13/viper"
 )
@@ -19,6 +21,7 @@ const (
 	StateMainMenu        = "main_menu"
 	StateChangePassword  = "change_password"
 	StateCharacterSelect = "character_select"
+	StateCharacterCreate = "character_create"
 	StateEnterGame       = "enter_game"
 	StateGameLoop        = "game_loop"
 	StateExitGame        = "exit_game"
@@ -53,7 +56,7 @@ func promptWelcome(s ssh.Session) string {
 	return StateLogin
 }
 
-func promptLogin(s ssh.Session) (string, *User) {
+func promptLogin(s ssh.Session) (string, *Account) {
 	slog.Debug("Login state",
 		slog.String("remote_address", s.RemoteAddr().String()),
 		slog.String("session_id", s.Context().SessionID()))
@@ -77,7 +80,7 @@ promptUsername:
 	}
 
 	// Check if user exists
-	u := UserMgr.GetByUsername(username)
+	u := AccountMgr.GetByUsername(username)
 
 	if u == nil {
 		slog.Warn("User does not exist")
@@ -102,7 +105,7 @@ promptUsername:
 	return StateMainMenu, u
 }
 
-func promptRegistration(s ssh.Session) (string, *User) {
+func promptRegistration(s ssh.Session) (string, *Account) {
 	slog.Debug("Registration state",
 		slog.String("remote_address", s.RemoteAddr().String()),
 		slog.String("session_id", s.Context().SessionID()))
@@ -133,13 +136,13 @@ promptUsername:
 	}
 
 	// Check if username already exists
-	if UserMgr.Exists(username) {
+	if AccountMgr.Exists(username) {
 		io.WriteString(s, cfmt.Sprint("{{Username already exists.}}::red\n"))
 		goto promptUsername
 	}
 
 	// Check if username is banned
-	if UserMgr.IsBannedName(username) {
+	if AccountMgr.IsBannedName(username) {
 		io.WriteString(s, cfmt.Sprint("{{Username is not allowed.}}::red\n"))
 		goto promptUsername
 	}
@@ -180,22 +183,23 @@ promptPassword:
 	}
 
 	// Create a new user
-	u := NewUser()
+	u := NewAccount()
 	u.Username = username
 	u.SetPassword(password)
 	u.Save()
-	UserMgr.AddUser(u)
+	AccountMgr.AddAccount(u)
 
 	return StateMainMenu, u
 }
 
-func promptMainMenu(s ssh.Session, u *User) string {
+func promptMainMenu(s ssh.Session, u *Account) string {
 	slog.Debug("Main menu state",
 		slog.String("username", u.Username),
 		slog.String("remote_address", s.RemoteAddr().String()),
 		slog.String("session_id", s.Context().SessionID()))
 
-	option, err := PromptForMenu(s, cfmt.Sprint("{{Main Menu}}::green\n"), []string{"Enter Game", "Change Password", "Quit"})
+	option, err := PromptForMenu(s, cfmt.Sprint("{{Main Menu}}::green\n"),
+		[]string{"Enter Game", "Create Character", "Change Password", "Quit"})
 	if err != nil {
 		return StateError
 	}
@@ -203,6 +207,8 @@ func promptMainMenu(s ssh.Session, u *User) string {
 	switch option {
 	case "Enter Game":
 		return StateEnterGame
+	case "Create Character":
+		return StateCharacterCreate
 	case "Change Password":
 		return StateChangePassword
 	case "Quit":
@@ -219,7 +225,7 @@ func promptMainMenu(s ssh.Session, u *User) string {
 	return StateMainMenu
 }
 
-func promptChangePassword(s ssh.Session, u *User) string {
+func promptChangePassword(s ssh.Session, u *Account) string {
 	slog.Debug("Change password state",
 		slog.String("username", u.Username),
 		slog.String("remote_address", s.RemoteAddr().String()),
@@ -258,6 +264,86 @@ func promptChangePassword(s ssh.Session, u *User) string {
 	return StateMainMenu
 }
 
+func promptCharacterCreate(s ssh.Session, u *Account) string {
+	slog.Debug("Character create state",
+		slog.String("username", u.Username),
+		slog.String("remote_address", s.RemoteAddr().String()),
+		slog.String("session_id", s.Context().SessionID()))
+
+	// Step 1: Prompt for character name
+	io.WriteString(s, cfmt.Sprintf("{{Enter your character's name:}}::cyan\n"))
+	name, err := PromptForInput(s, "> ")
+	if err != nil {
+		slog.Error("Error reading character name", slog.Any("error", err))
+		io.WriteString(s, cfmt.Sprintf("{{Error reading input. Returning to main menu.}}::red\n"))
+		return StateMainMenu
+	}
+	name = strings.TrimSpace(name)
+
+	if len(name) == 0 {
+		io.WriteString(s, cfmt.Sprintf("{{Name cannot be empty. Returning to main menu.}}::red\n"))
+		return StateMainMenu
+	}
+
+	// Step 2: Prompt for character description
+	io.WriteString(s, cfmt.Sprintf("{{Enter a short description for your character:}}::cyan\n"))
+	description, err := PromptForInput(s, "> ")
+	if err != nil {
+		slog.Error("Error reading character description", slog.Any("error", err))
+		io.WriteString(s, cfmt.Sprintf("{{Error reading input. Returning to main menu.}}::red\n"))
+		return StateMainMenu
+	}
+	description = strings.TrimSpace(description)
+
+	// Step 3: Set base attributes
+	io.WriteString(s, cfmt.Sprintf("{{Setting base attributes...}}::green\n"))
+	baseAttributes := &Attributes{
+		Body:      Attribute[int]{Name: "Body", Base: 5},
+		Agility:   Attribute[int]{Name: "Agility", Base: 6},
+		Reaction:  Attribute[int]{Name: "Reaction", Base: 4},
+		Strength:  Attribute[int]{Name: "Strength", Base: 5},
+		Willpower: Attribute[int]{Name: "Willpower", Base: 4},
+		Logic:     Attribute[int]{Name: "Logic", Base: 4},
+		Intuition: Attribute[int]{Name: "Intuition", Base: 5},
+		Charisma:  Attribute[int]{Name: "Charisma", Base: 4},
+		Edge:      Attribute[int]{Name: "Edge", Base: 5},
+		Essence:   Attribute[float64]{Name: "Essence", Base: 5.6},
+		Magic:     Attribute[int]{Name: "Magic", Base: 0},
+		Resonance: Attribute[int]{Name: "Resonance", Base: 0},
+	}
+
+	// Step 4: Create the character
+	char := &Character{
+		GameEntity: GameEntity{
+			ID:          uuid.New().String(),
+			Name:        name,
+			Description: description,
+			Attributes:  baseAttributes,
+			Equipment:   make(map[string]*Item),
+		},
+		UserID:    u.ID,
+		Role:      CharacterRolePlayer,
+		CreatedAt: time.Now(),
+	}
+	char.Save()
+
+	// Step 5: Add character to user
+	u.Characters = append(u.Characters, char.Name)
+	u.Save()
+
+	// Step 6: Save user
+	// err = UserMgr.SaveUser(u)
+	// if err != nil {
+	// 	slog.Error("Error saving user after character creation", slog.Any("error", err))
+	// 	io.WriteString(s, cfmt.Sprintf("{{Error saving character. Returning to main menu.}}::red\n"))
+	// 	return StateMainMenu
+	// }
+
+	// Step 7: Confirmation and return to main menu
+	io.WriteString(s, cfmt.Sprintf("{{Character '%s' created successfully! Returning to main menu.}}::green\n", name))
+	return StateMainMenu
+}
+
 // func promptCharacterSelect(s ssh.Session, u *User) (string, *Character) {
 // 	slog.Debug("Character select state",
 // 		slog.String("username", u.Username),
@@ -281,7 +367,7 @@ func promptChangePassword(s ssh.Session, u *User) string {
 // 	return StateCharacterSelect, nil
 // }
 
-func promptEnterGame(s ssh.Session, u *User) (string, *Character) {
+func promptEnterGame(s ssh.Session, u *Account) (string, *Character) {
 	slog.Debug("Enter game state",
 		slog.String("username", u.Username),
 		// slog.String("character_name", c.Name),
@@ -290,20 +376,20 @@ func promptEnterGame(s ssh.Session, u *User) (string, *Character) {
 
 	io.WriteString(s, cfmt.Sprintf("{{Welcome to the game, %s!}}::green\n", u.Username))
 
-	// Check if user has characters
-	if len(u.Characters) == 0 {
-		io.WriteString(s, cfmt.Sprintf("{{You have no characters.}}::red\n"))
+	// // Check if user has characters
+	// if len(u.Characters) == 0 {
+	// 	io.WriteString(s, cfmt.Sprintf("{{You have no characters.}}::red\n"))
 
-		// TODO: Remove this when we have character creation
-		c := NewCharacter()
-		c.Name = u.Username
-		c.Save()
-		CharacterMgr.AddCharacter(c)
-		u.AddCharacter(c)
-		u.Save()
+	// 	// TODO: Remove this when we have character creation
+	// 	c := NewCharacter()
+	// 	c.Name = u.Username
+	// 	c.Save()
+	// 	CharacterMgr.AddCharacter(c)
+	// 	u.AddCharacter(c)
+	// 	u.Save()
 
-		return StateMainMenu, nil
-	}
+	// 	return StateMainMenu, nil
+	// }
 
 	var characters []string
 	for _, name := range u.Characters {
@@ -375,7 +461,7 @@ func promptEnterGame(s ssh.Session, u *User) (string, *Character) {
 	return StateGameLoop, c
 }
 
-func promptGameLoop(s ssh.Session, u *User, c *Character) string {
+func promptGameLoop(s ssh.Session, u *Account, c *Character) string {
 	slog.Debug("Game loop state",
 		slog.String("username", u.Username),
 		slog.String("character_name", c.Name),
@@ -406,7 +492,7 @@ func promptGameLoop(s ssh.Session, u *User, c *Character) string {
 	}
 }
 
-func promptExitGame(s ssh.Session, u *User, c *Character) string {
+func promptExitGame(s ssh.Session, u *Account, c *Character) string {
 	slog.Debug("Exit game state",
 		slog.String("username", u.Username),
 		slog.String("character_name", c.Name),
