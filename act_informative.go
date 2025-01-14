@@ -49,10 +49,15 @@ func DoStats(s ssh.Session, cmd string, args []string, acct *Account, char *Char
 	io.WriteString(s, formatAttribute("Intuition", attributes.Intuition))
 	io.WriteString(s, formatAttribute("Charisma", attributes.Charisma))
 	io.WriteString(s, formatAttribute("Edge", attributes.Edge))
-
 	io.WriteString(s, formatFloatAttribute("Essence", attributes.Essence))
 	io.WriteString(s, formatAttribute("Magic", attributes.Magic))
 	io.WriteString(s, formatAttribute("Resonance", attributes.Resonance))
+
+	// Carry weight stats
+	maxCarryWeight := char.GetLiftCarry()
+	currentCarryWeight := char.GetCurrentCarryWeight()
+
+	io.WriteString(s, cfmt.Sprintf("{{Carry Weight}}::white|bold {{%d}}::cyan{{/}}::white{{%d}}::cyan{{kg}}::white\n", currentCarryWeight, maxCarryWeight))
 }
 
 /*
