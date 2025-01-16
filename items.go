@@ -28,12 +28,15 @@ type ItemBlueprint struct {
 	Name        string         `yaml:"name"`
 	Description string         `yaml:"description"`
 	Tags        []string       `yaml:"tags"`
+	Weight      float64        `yaml:"weight"`
+	Value       int            `yaml:"value"`
 	BaseStats   map[string]int `yaml:"base_stats"`
 	EquipSlots  []EquipSlot    `yaml:"equip_slots"`
 	Type        ItemType       `yaml:"type"`
 	Subtype     ItemSubtype    `yaml:"subtype"`
 }
 
+// TODO: need to add the weight of attachments to the weight of the item
 type Item struct {
 	InstanceID  string         `yaml:"instance_id"`
 	BlueprintID string         `yaml:"blueprint_id"`

@@ -51,16 +51,13 @@ func (e *GameEntity) GetLiftCarry() int {
 	return (e.Attributes.Strength.TotalValue + e.Attributes.Body.TotalValue) * baseCarryWeight
 }
 
-func (e *GameEntity) GetCurrentCarryWeight() int {
-	totalWeight := 0
+func (e *GameEntity) GetCurrentCarryWeight() float64 {
+	totalWeight := 0.0
 
 	for _, item := range e.Inventory.Items {
-		blueprint := EntityMgr.GetItemBlueprintByInstance(item)
-		if blueprint != nil {
-			weight, ok := blueprint.BaseStats["weight"]
-			if ok {
-				totalWeight += weight
-			}
+		bp := EntityMgr.GetItemBlueprintByInstance(item)
+		if bp != nil {
+			totalWeight += bp.Weight
 		}
 	}
 

@@ -77,7 +77,7 @@ func DoDrop(s ssh.Session, cmd string, args []string, user *Account, char *Chara
 
 	// Handle "drop all <item>" or "drop [<quantity>] <item>"
 	singularQuery := Singularize(itemQuery)
-	matchingItems := SearchInventory(&char.Inventory, singularQuery)
+	matchingItems := SearchInventory(char.Inventory, singularQuery)
 	if len(matchingItems) == 0 {
 		if strings.EqualFold(itemQuery, "all") {
 			io.WriteString(s, cfmt.Sprintf("{{You have no items to drop.}}::yellow\n"))
@@ -188,24 +188,17 @@ func DoGive(s ssh.Session, cmd string, args []string, user *Account, char *Chara
 	quantity := 1
 	itemArgs := args[1:]
 	if len(itemArgs) > 1 {
-		// Check if the second argument is numeric
 		if parsedQuantity, err := strconv.Atoi(itemArgs[0]); err == nil {
 			quantity = parsedQuantity
-			itemArgs = itemArgs[1:] // Remove quantity from arguments
+			itemArgs = itemArgs[1:]
 		}
-	}
-
-	// Ensure the item query is provided
-	if len(itemArgs) == 0 {
-		io.WriteString(s, cfmt.Sprintf("{{You must specify an item to give.}}::yellow\n"))
-		return
 	}
 
 	itemQuery := strings.Join(itemArgs, " ")
 	singularQuery := Singularize(itemQuery)
 
 	// Search inventory
-	matchingItems := SearchInventory(&char.Inventory, singularQuery)
+	matchingItems := SearchInventory(char.Inventory, singularQuery)
 	if len(matchingItems) == 0 {
 		io.WriteString(s, cfmt.Sprintf("{{You have no %s to give.}}::yellow\n", itemQuery))
 		return
@@ -216,35 +209,44 @@ func DoGive(s ssh.Session, cmd string, args []string, user *Account, char *Chara
 		return
 	}
 
-	// Transfer items
-	itemsToGive := matchingItems[:quantity]
-	for _, item := range itemsToGive {
+	// Calculate recipient's capacity and transfer items
+	remainingCapacity := float64(recipient.GetLiftCarry()) - recipient.GetCurrentCarryWeight()
+	givenItems := []*Item{}
+	totalWeight := 0.0
+
+	for _, item := range matchingItems[:quantity] {
+		bp := EntityMgr.GetItemBlueprintByInstance(item)
+		if bp != nil && bp.Weight <= remainingCapacity {
+			totalWeight += bp.Weight
+			if totalWeight > remainingCapacity {
+				break
+			}
+			givenItems = append(givenItems, item)
+			remainingCapacity -= bp.Weight
+		}
+	}
+
+	// Transfer given items
+	for _, item := range givenItems {
 		char.Inventory.RemoveItem(item)
 		recipient.Inventory.AddItem(item)
 	}
+
 	char.Save()
 	recipient.Save()
 
-	// Get item blueprint for consistent naming
-	bp := EntityMgr.GetItemBlueprintByInstance(itemsToGive[0])
-	if bp == nil {
-		io.WriteString(s, cfmt.Sprintf("{{Error retrieving item blueprint.}}::red\n"))
+	if len(givenItems) == 0 {
+		io.WriteString(s, cfmt.Sprintf("{{%s cannot carry any more weight.}}::yellow\n", recipient.Name))
 		return
 	}
 
-	itemName := bp.Name
-	if quantity > 1 {
-		itemName = pluralizer.PluralizeNoun(itemName, quantity)
+	itemName := pluralizer.PluralizeNoun(EntityMgr.GetItemBlueprintByInstance(givenItems[0]).Name, len(givenItems))
+	io.WriteString(s, cfmt.Sprintf("{{You give %s %d %s.}}::green\n", recipient.Name, len(givenItems), itemName))
+	room.Broadcast(cfmt.Sprintf("{{%s gives %s %d %s.}}::green\n", char.Name, recipient.Name, len(givenItems), itemName), []string{char.ID, recipient.ID})
+
+	if len(givenItems) < quantity {
+		io.WriteString(s, cfmt.Sprintf("{{%s could not take all items due to weight limits.}}::yellow\n", recipient.Name))
 	}
-
-	// Message the giver
-	io.WriteString(s, cfmt.Sprintf("{{You give %s %d %s.}}::green\n", recipient.Name, quantity, itemName))
-
-	// Message the room
-	room.Broadcast(cfmt.Sprintf("{{%s gives %s %d %s.}}::green\n", char.Name, recipient.Name, quantity, itemName), []string{char.ID, recipient.ID})
-
-	// Message the recipient
-	io.WriteString(recipient.Conn, cfmt.Sprintf("{{%s gives you %d %s.}}::cyan\n", char.Name, quantity, itemName))
 }
 
 func SuggestGive(line string, args []string, char *Character, room *Room) []string {
@@ -307,16 +309,15 @@ func DoGet(s ssh.Session, cmd string, args []string, user *Account, char *Charac
 	// Parse arguments
 	if strings.EqualFold(args[0], "all") {
 		if len(args) == 1 {
-			// Usage: "get all" (all items in the room)
-			quantity = -1 // Indicate "all"
+			// "get all"
+			quantity = -1
 			itemQuery = "all"
 		} else {
-			// Usage: "get all <item>"
+			// "get all <item>"
 			itemQuery = strings.Join(args[1:], " ")
 			quantity = -1
 		}
 	} else if len(args) > 1 {
-		// Usage: "get [<quantity>] <item>"
 		if parsedQuantity, err := strconv.Atoi(args[0]); err == nil {
 			quantity = parsedQuantity
 			itemQuery = strings.Join(args[1:], " ")
@@ -324,40 +325,18 @@ func DoGet(s ssh.Session, cmd string, args []string, user *Account, char *Charac
 			itemQuery = strings.Join(args, " ")
 		}
 	} else {
-		// Usage: "get <item>"
 		itemQuery = args[0]
 	}
 
-	if itemQuery == "all" {
-		// Handle "get all" (retrieve all items in the room)
-		if len(room.Inventory.Items) == 0 {
-			io.WriteString(s, cfmt.Sprintf("{{There are no items here to get.}}::yellow\n"))
-			return
-		}
-
-		for _, item := range room.Inventory.Items {
-			char.Inventory.AddItem(item)
-		}
-
-		count := len(room.Inventory.Items)
-		room.Inventory.Clear()
-		char.Save()
-
-		// Messaging
-		io.WriteString(s, cfmt.Sprintf("{{You get %d items.}}::green\n", count))
-		room.Broadcast(cfmt.Sprintf("{{%s gets all items.}}::green\n", char.Name), []string{char.ID})
-		return
-	}
-
-	// Handle "get all <item>" or "get [<quantity>] <item>"
+	// Search for items
 	singularQuery := Singularize(itemQuery)
-	matchingItems := SearchInventory(&room.Inventory, singularQuery)
+	matchingItems := SearchInventory(room.Inventory, singularQuery)
 	if len(matchingItems) == 0 {
 		io.WriteString(s, cfmt.Sprintf("{{There are no %s here.}}::yellow\n", itemQuery))
 		return
 	}
 
-	if quantity == -1 { // Handle "all <item>"
+	if quantity == -1 { // "get all <item>"
 		quantity = len(matchingItems)
 	}
 
@@ -366,61 +345,83 @@ func DoGet(s ssh.Session, cmd string, args []string, user *Account, char *Charac
 		return
 	}
 
-	// Transfer items
-	itemsToGet := matchingItems[:quantity]
-	for _, item := range itemsToGet {
+	// Calculate carry capacity and transfer items
+	remainingCapacity := float64(char.GetLiftCarry()) - char.GetCurrentCarryWeight()
+	pickedItems := []*Item{}
+	totalWeight := 0.0
+
+	for _, item := range matchingItems[:quantity] {
+		bp := EntityMgr.GetItemBlueprintByInstance(item)
+		if bp != nil && bp.Weight <= remainingCapacity {
+			totalWeight += bp.Weight
+			if totalWeight > remainingCapacity {
+				break
+			}
+			pickedItems = append(pickedItems, item)
+			remainingCapacity -= bp.Weight
+		}
+	}
+
+	// Transfer picked items
+	for _, item := range pickedItems {
 		room.Inventory.RemoveItem(item)
 		char.Inventory.AddItem(item)
 	}
+
 	char.Save()
 
-	// Use the first item's blueprint to format the message
-	bp := EntityMgr.GetItemBlueprintByInstance(itemsToGet[0])
-	if bp == nil {
-		io.WriteString(s, cfmt.Sprintf("{{Error retrieving item blueprint.}}::red\n"))
+	if len(pickedItems) == 0 {
+		io.WriteString(s, cfmt.Sprintf("{{You cannot carry any more weight.}}::yellow\n"))
 		return
 	}
 
-	itemName := bp.Name
-	if quantity > 1 {
-		itemName = pluralizer.PluralizeNoun(itemName, quantity)
-	}
+	itemName := pluralizer.PluralizeNoun(EntityMgr.GetItemBlueprintByInstance(pickedItems[0]).Name, len(pickedItems))
+	io.WriteString(s, cfmt.Sprintf("{{You get %d %s.}}::green\n", len(pickedItems), itemName))
+	room.Broadcast(cfmt.Sprintf("{{%s picks up %d %s.}}::green\n", char.Name, len(pickedItems), itemName), []string{char.ID})
 
-	// Messaging
-	io.WriteString(s, cfmt.Sprintf("{{You get %d %s.}}::green\n", quantity, itemName))
-	room.Broadcast(cfmt.Sprintf("{{%s gets %d %s.}}::green\n", char.Name, quantity, itemName), []string{char.ID})
+	// Specifically handle "get all" feedback
+	if itemQuery == "all" && len(pickedItems) < len(room.Inventory.Items) {
+		io.WriteString(s, cfmt.Sprintf("{{You left some items behind due to weight limits.}}::yellow\n"))
+	} else if len(pickedItems) < quantity {
+		io.WriteString(s, cfmt.Sprintf("{{You left some %s behind due to weight limits.}}::yellow\n", itemQuery))
+	}
 }
 
 func SuggestGet(line string, args []string, char *Character, room *Room) []string {
 	suggestions := []string{}
 
 	switch len(args) {
-	case 0: // Suggest "all" or items
+	case 0: // Suggest "all" or individual items
 		suggestions = append(suggestions, "all")
+		seenItems := map[string]bool{}
 		for _, item := range room.Inventory.Items {
 			bp := EntityMgr.GetItemBlueprintByInstance(item)
-			if bp != nil {
+			if bp != nil && !seenItems[bp.Name] {
+				seenItems[bp.Name] = true
 				suggestions = append(suggestions, bp.Name)
 			}
 		}
-	case 1: // Suggest items or "all <item>"
+	case 1: // Handle "all" case explicitly
 		if strings.EqualFold(args[0], "all") {
+			suggestions = append(suggestions, "all")
+			seenItems := map[string]bool{}
 			for _, item := range room.Inventory.Items {
 				bp := EntityMgr.GetItemBlueprintByInstance(item)
-				if bp != nil {
+				if bp != nil && !seenItems[bp.Name] {
+					seenItems[bp.Name] = true
 					suggestions = append(suggestions, "all "+bp.Name)
 				}
 			}
-		} else {
-			suggestions = append(suggestions, "all")
+		} else { // Suggest individual items
+			seenItems := map[string]bool{}
 			for _, item := range room.Inventory.Items {
 				bp := EntityMgr.GetItemBlueprintByInstance(item)
-				if bp != nil {
+				if bp != nil && !seenItems[bp.Name] {
+					seenItems[bp.Name] = true
 					suggestions = append(suggestions, bp.Name)
 				}
 			}
 		}
-	default: // No suggestions for further arguments
 	}
 
 	return suggestions

@@ -14,6 +14,7 @@ import (
 Usage:
   - stats
 */
+// TODO: Change the color of the currenty carry wight when we get closer to max
 func DoStats(s ssh.Session, cmd string, args []string, acct *Account, char *Character, room *Room) {
 	if char == nil {
 		io.WriteString(s, cfmt.Sprintf("{{Error: No character is associated with this session.}}::red\n"))
@@ -57,7 +58,7 @@ func DoStats(s ssh.Session, cmd string, args []string, acct *Account, char *Char
 	maxCarryWeight := char.GetLiftCarry()
 	currentCarryWeight := char.GetCurrentCarryWeight()
 
-	io.WriteString(s, cfmt.Sprintf("{{Carry Weight}}::white|bold {{%d}}::cyan{{/}}::white{{%d}}::cyan{{kg}}::white\n", currentCarryWeight, maxCarryWeight))
+	io.WriteString(s, cfmt.Sprintf("{{Carry Weight}}::white|bold {{%.2f}}::cyan{{/}}::white{{%d}}::cyan{{kg}}::white\n", currentCarryWeight, maxCarryWeight))
 }
 
 /*
