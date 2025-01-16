@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/gliderlabs/ssh"
-	"github.com/google/uuid"
 	"github.com/i582/cfmt/cmd/cfmt"
 	"github.com/spf13/viper"
 )
@@ -40,12 +39,9 @@ type Character struct {
 
 func NewCharacter() *Character {
 	return &Character{
-		GameEntity: GameEntity{
-			ID:        uuid.New().String(),
-			Equipment: make(map[string]*Item),
-		},
-		Role:      CharacterRolePlayer,
-		CreatedAt: time.Now(),
+		GameEntity: NewGameEntity(),
+		Role:       CharacterRolePlayer,
+		CreatedAt:  time.Now(),
 	}
 }
 

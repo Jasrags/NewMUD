@@ -32,6 +32,23 @@ type Attributes struct {
 	Resonance Attribute[int]     `yaml:"resonance"`
 }
 
+func NewAttributes() *Attributes {
+	return &Attributes{
+		Body:      Attribute[int]{Name: "Body"},
+		Agility:   Attribute[int]{Name: "Agility"},
+		Reaction:  Attribute[int]{Name: "Reaction"},
+		Strength:  Attribute[int]{Name: "Strength"},
+		Willpower: Attribute[int]{Name: "Willpower"},
+		Logic:     Attribute[int]{Name: "Logic"},
+		Intuition: Attribute[int]{Name: "Intuition"},
+		Charisma:  Attribute[int]{Name: "Charisma"},
+		Edge:      Attribute[int]{Name: "Edge"},
+		Essence:   Attribute[float64]{Name: "Essence"},
+		Magic:     Attribute[int]{Name: "Magic"},
+		Resonance: Attribute[int]{Name: "Resonance"},
+	}
+}
+
 func (a *Attributes) Recalculate() {
 	a.Body.Recalculate()
 	a.Agility.Recalculate()

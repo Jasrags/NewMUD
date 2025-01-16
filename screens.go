@@ -297,7 +297,7 @@ func promptCharacterCreate(s ssh.Session, a *Account) string {
 
 	// Step 3: Set base attributes
 	io.WriteString(s, cfmt.Sprintf("{{Setting base attributes...}}::green\n"))
-	baseAttributes := &Attributes{
+	baseAttributes := Attributes{
 		Body:      Attribute[int]{Name: "Body", Base: 5},
 		Agility:   Attribute[int]{Name: "Agility", Base: 6},
 		Reaction:  Attribute[int]{Name: "Reaction", Base: 4},

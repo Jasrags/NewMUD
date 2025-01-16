@@ -8,6 +8,13 @@ type Inventory struct {
 	Items []*Item `yaml:"items"`
 }
 
+// NewInventory creates a new inventory
+func NewInventory() *Inventory {
+	return &Inventory{
+		Items: []*Item{},
+	}
+}
+
 // Add an item to the inventory
 func (inv *Inventory) AddItem(item *Item) {
 	inv.Items = append(inv.Items, item)
@@ -49,7 +56,7 @@ func (inv *Inventory) Clear() {
 	inv.Items = nil
 }
 
-func SearchInventory(inv *Inventory, query string) []*Item {
+func SearchInventory(inv Inventory, query string) []*Item {
 	var results []*Item
 
 	for _, item := range inv.Items {
@@ -76,7 +83,7 @@ func SearchInventory(inv *Inventory, query string) []*Item {
 	return results
 }
 
-func TransferItem(item *Item, from, to *Inventory) bool {
+func TransferItem(item *Item, from, to Inventory) bool {
 	if from.RemoveItem(item) {
 		to.AddItem(item)
 		return true

@@ -54,22 +54,21 @@ type Room struct {
 	sync.RWMutex `yaml:"-"`
 	Listeners    []ee.Listener `yaml:"-"`
 
-	ID          string           `yaml:"id"`
-	ReferenceID string           `yaml:"reference_id"`
-	UUID        string           `yaml:"uuid"`
-	AreaID      string           `yaml:"area_id"`
-	Area        *Area            `yaml:"-"`
-	Title       string           `yaml:"title"`
-	Description string           `yaml:"description"`
-	Exits       map[string]*Exit `yaml:"exits"`
-	Corrdinates *Corrdinates     `yaml:"corrdinates"`
-	// Items        []*Item         `yaml:"-"`
-	Inventory    Inventory     `yaml:"inventory"`
-	Characters   []*Character  `yaml:"-"`
-	Mobs         []*Mob        `yaml:"-"`
-	DefaultItems []DefaultItem `yaml:"default_items"` // IDs of items to load into the room
-	DefaultMobs  []DefaultMob  `yaml:"default_mobs"`  // IDs of mobs to load into the room
-	SpawnedMobs  []*Mob        `yaml:"-"`             // Mobs that have been spawned into the room
+	ID           string           `yaml:"id"`
+	ReferenceID  string           `yaml:"reference_id"`
+	UUID         string           `yaml:"uuid"`
+	AreaID       string           `yaml:"area_id"`
+	Area         *Area            `yaml:"-"`
+	Title        string           `yaml:"title"`
+	Description  string           `yaml:"description"`
+	Exits        map[string]*Exit `yaml:"exits"`
+	Corrdinates  *Corrdinates     `yaml:"corrdinates"`
+	Inventory    Inventory        `yaml:"inventory"`
+	Characters   []*Character     `yaml:"-"`
+	Mobs         []*Mob           `yaml:"-"`
+	DefaultItems []DefaultItem    `yaml:"default_items"` // IDs of items to load into the room
+	DefaultMobs  []DefaultMob     `yaml:"default_mobs"`  // IDs of mobs to load into the room
+	SpawnedMobs  []*Mob           `yaml:"-"`             // Mobs that have been spawned into the room
 }
 
 func NewRoom() *Room {
