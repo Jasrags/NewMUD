@@ -18,15 +18,30 @@ Adding a generic list of mud features to check off.
 - [X] **Room Items**: List objects that players can interact with (e.g., furniture, tools, treasures).
 - [ ] **Interactive Objects**: Objects that respond to specific commands (e.g., “open door,” “read sign”).
 - [ ] **Dynamic Events**: Support for triggered events or changes (e.g., a trap activates when a specific object is touched).
+- [ ] **Weather Effects**: Alter room descriptions based on weather conditions (e.g., rain, snow, or fog).
+- [ ] **Time of Day Effects**: Alter room descriptions based on the time of day (e.g., “The sun is setting, casting a warm glow on the room.”).
+- [ ] **Seasonal Effects**: Alter room descriptions based on the season (e.g., “The leaves are turning red and falling from the trees.”).
+- [ ] **Holiday Effects**: Alter room descriptions based on holidays or special events (e.g., “The room is decorated with holiday lights.”).
 
 ## 4. **Non-Player Characters (NPCs)**
 - [ ] **Resident NPCs**: NPCs stationed in the room who provide dialogue, quests, or trading options.
 - [ ] **Wandering NPCs**: NPCs that move between rooms or zones.
+- [ ] **NPC Behavior**: Define how NPCs react to players (e.g., hostile, friendly, or neutral).
+- [ ] **NPC Dialogue**: Define dialogue options for NPCs in the room.
+- [ ] **NPC Actions**: Define actions NPCs can perform (e.g., “The guard stands at the door, checking IDs.”).
+- [ ] **NPC Inventory**: Define items NPCs carry or can trade.
+- [ ] **NPC Quests**: Define quests NPCs can offer or require.
+- [ ] **NPC Loot**: Define items NPCs drop upon death or defeat.
+- [ ] **NPC Spawning**: Define conditions for NPCs to spawn in the room.
 
 ## 5. **Gameplay Features**
 - [ ] **Combat Zones**: Mark rooms as safe zones or areas where combat is permitted.
 - [ ] **Resource Points**: Define areas where players can gather resources (e.g., mining, foraging).
 - [ ] **Puzzle Integration**: Include mechanisms for solving puzzles or unlocking new areas.
+- [ ] **Gameplay Events**: Define events that occur in the room (e.g., “A storm rages outside, making it difficult to see.”).
+- [ ] **Gameplay Mechanics**: Define gameplay mechanics specific to the room (e.g., “The room is filled with traps.”).
+- [ ] **Gameplay Rules**: Define rules for gameplay in the room (e.g., “You can’t use magic in this room.”).
+- [ ] **Gameplay Rewards**: Define rewards for completing tasks or achievements in the room (e.g., “You receive a rare item for completing the quest.”).
 
 ## 6. **Player Interaction**
 - [X] **Room Messages**: Broadcast messages to all players in the room for certain events (e.g., “A gust of wind blows through the room.”).
