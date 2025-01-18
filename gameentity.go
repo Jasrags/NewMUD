@@ -1,6 +1,7 @@
 package main
 
 import (
+	"math"
 	"sync"
 
 	"github.com/google/uuid"
@@ -62,4 +63,59 @@ func (e *GameEntity) GetCurrentCarryWeight() float64 {
 	}
 
 	return totalWeight
+}
+
+func (e *GameEntity) GetMentalLimit() int {
+	e.Attributes.Recalculate()
+	logic := e.Attributes.Logic.TotalValue
+	intuition := e.Attributes.Intuition.TotalValue
+	willpower := e.Attributes.Willpower.TotalValue
+	return (logic*2 + intuition + willpower) / 3
+}
+
+func (e *GameEntity) GetSocialLimit() int {
+	e.Attributes.Recalculate()
+	charisma := e.Attributes.Charisma.TotalValue
+	willpower := e.Attributes.Willpower.TotalValue
+	essence := e.Attributes.Essence.TotalValue
+	return (charisma*2 + willpower + int(essence)) / 3
+}
+
+func (e *GameEntity) GetPhysicalLimit() int {
+	e.Attributes.Recalculate()
+	strength := e.Attributes.Strength.TotalValue
+	body := e.Attributes.Body.TotalValue
+	reaction := e.Attributes.Reaction.TotalValue
+	return int(math.Ceil(float64(strength*2+body+reaction) / 3.0))
+}
+
+func (e *GameEntity) GetEncumbrancePenalty() int {
+	e.Attributes.Recalculate()
+	currentWeight := e.GetCurrentCarryWeight()
+	maxCarryWeight := float64(e.GetLiftCarry()) // Carrying capacity from Strength
+	excessWeight := currentWeight - maxCarryWeight
+
+	if excessWeight <= 0 {
+		return 0 // No penalty if within carrying capacity
+	}
+
+	return int(math.Ceil(excessWeight / 15.0)) // -1 penalty for every 15 kg over capacity
+}
+
+func (e *GameEntity) GetAdjustedPhysicalLimit() int {
+	e.Attributes.Recalculate()
+	basePhysicalLimit := e.GetPhysicalLimit()
+	penalty := e.GetEncumbrancePenalty()
+
+	// Physical Limit cannot go below 1
+	adjustedLimit := basePhysicalLimit - penalty
+	if adjustedLimit < 1 {
+		adjustedLimit = 1
+	}
+
+	return adjustedLimit
+}
+
+func (e *GameEntity) IsEncumbered() bool {
+	return e.GetEncumbrancePenalty() > 0
 }
