@@ -14,7 +14,7 @@ Usage:
 */
 // TODO: overall for communication commands we need to log messages to a database with time, to/from, and message.
 // TODO: need to implement a block/unblock function for preventing messages from certain users
-func DoSay(s ssh.Session, cmd string, args []string, user *User, char *Character, room *Room) {
+func DoSay(s ssh.Session, cmd string, args []string, user *Account, char *Character, room *Room) {
 	if room == nil {
 		io.WriteString(s, cfmt.Sprintf("{{You are not in a room.}}::red\n"))
 		return
@@ -34,7 +34,7 @@ func DoSay(s ssh.Session, cmd string, args []string, user *User, char *Character
 	io.WriteString(s, cfmt.Sprintf("{{You say: \"%s\"}}::green\n", message))
 }
 
-func DoTell(s ssh.Session, cmd string, args []string, user *User, char *Character, room *Room) {
+func DoTell(s ssh.Session, cmd string, args []string, user *Account, char *Character, room *Room) {
 	if room == nil {
 		io.WriteString(s, cfmt.Sprintf("{{You are not in a room.}}::red\n"))
 		return

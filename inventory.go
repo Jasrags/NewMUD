@@ -1,9 +1,18 @@
 package main
 
-import "strings"
+import (
+	"strings"
+)
 
 type Inventory struct {
 	Items []*Item `yaml:"items"`
+}
+
+// NewInventory creates a new inventory
+func NewInventory() *Inventory {
+	return &Inventory{
+		Items: []*Item{},
+	}
 }
 
 // Add an item to the inventory
@@ -47,34 +56,45 @@ func (inv *Inventory) Clear() {
 	inv.Items = nil
 }
 
-func SearchInventory(inv *Inventory, query string) []*Item {
-	var results []*Item
+func (inv *Inventory) Search(query string) []*Item {
+	results := []*Item{}
+
+	if len(inv.Items) == 0 {
+		return results
+	}
+
+	lowerQuery := strings.ToLower(query)
 
 	for _, item := range inv.Items {
-		blueprint := EntityMgr.GetItemBlueprintByInstance(item) // Assume this fetches the blueprint for the item
+		blueprint := EntityMgr.GetItemBlueprintByInstance(item)
 		if blueprint == nil {
 			continue
 		}
 
-		// Match against Name
-		if strings.Contains(strings.ToLower(blueprint.Name), strings.ToLower(query)) {
+		if strings.Contains(strings.ToLower(blueprint.Name), lowerQuery) {
 			results = append(results, item)
 			continue
 		}
 
-		// Match against Tags
-		for _, tag := range blueprint.Tags {
-			if strings.Contains(strings.ToLower(tag), strings.ToLower(query)) {
-				results = append(results, item)
-				break
-			}
+		if matchesTags(blueprint.Tags, lowerQuery) {
+			results = append(results, item)
 		}
 	}
 
 	return results
 }
 
-func TransferItem(item *Item, from, to *Inventory) bool {
+// Helper function to check if any tag matches the query
+func matchesTags(tags []string, query string) bool {
+	for _, tag := range tags {
+		if strings.Contains(strings.ToLower(tag), query) {
+			return true
+		}
+	}
+	return false
+}
+
+func TransferItem(item *Item, from, to Inventory) bool {
 	if from.RemoveItem(item) {
 		to.AddItem(item)
 		return true

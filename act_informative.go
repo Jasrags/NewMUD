@@ -12,11 +12,62 @@ import (
 
 /*
 Usage:
+  - stats
+*/
+// TODO: Change the color of the currenty carry wight when we get closer to max
+func DoStats(s ssh.Session, cmd string, args []string, acct *Account, char *Character, room *Room) {
+	if char == nil {
+		io.WriteString(s, cfmt.Sprintf("{{Error: No character is associated with this session.}}::red\n"))
+		return
+	}
+
+	io.WriteString(s, cfmt.Sprintf("{{Your current stats:}}::cyan\n"))
+
+	attributes := char.Attributes
+	attributes.Recalculate()
+
+	// Helper function to format attributes
+	formatAttribute := func(name string, attr Attribute[int]) string {
+		if attr.TotalValue > attr.Base {
+			return cfmt.Sprintf("{{%-15s}}::white|bold {{%3d}}::cyan{{(}}::white {{%d}}::red{{)}}::white\n", name, attr.Base, attr.TotalValue)
+		}
+		return cfmt.Sprintf("{{%-15s}}::white|bold {{%3d}}::cyan\n", name, attr.Base)
+	}
+	// Handle float attributes like Essence separately
+	formatFloatAttribute := func(name string, attr Attribute[float64]) string {
+		if attr.TotalValue > attr.Base {
+			return cfmt.Sprintf("{{%-15s}}::white|bold {{%.1f}}::cyan {{(}}::white{{%.1f}}::red{{)}}::white\n", name, attr.Base, attr.TotalValue)
+		}
+		return cfmt.Sprintf("{{%-15s}}::white|bold {{%.1f}}::cyan\n", name, attr.Base)
+	}
+
+	io.WriteString(s, formatAttribute("Body", attributes.Body))
+	io.WriteString(s, formatAttribute("Agility", attributes.Agility))
+	io.WriteString(s, formatAttribute("Reaction", attributes.Reaction))
+	io.WriteString(s, formatAttribute("Strength", attributes.Strength))
+	io.WriteString(s, formatAttribute("Willpower", attributes.Willpower))
+	io.WriteString(s, formatAttribute("Logic", attributes.Logic))
+	io.WriteString(s, formatAttribute("Intuition", attributes.Intuition))
+	io.WriteString(s, formatAttribute("Charisma", attributes.Charisma))
+	io.WriteString(s, formatAttribute("Edge", attributes.Edge))
+	io.WriteString(s, formatFloatAttribute("Essence", attributes.Essence))
+	io.WriteString(s, formatAttribute("Magic", attributes.Magic))
+	io.WriteString(s, formatAttribute("Resonance", attributes.Resonance))
+
+	// Carry weight stats
+	maxCarryWeight := char.GetLiftCarry()
+	currentCarryWeight := char.GetCurrentCarryWeight()
+
+	io.WriteString(s, cfmt.Sprintf("{{Carry Weight}}::white|bold {{%.2f}}::cyan{{/}}::white{{%d}}::cyan{{kg}}::white\n", currentCarryWeight, maxCarryWeight))
+}
+
+/*
+Usage:
   - look
   - look [at] <item|character|direction|mob>
 */
 // TODO: This needs work still but it's functional
-func DoLook(s ssh.Session, cmd string, args []string, user *User, char *Character, room *Room) {
+func DoLook(s ssh.Session, cmd string, args []string, user *Account, char *Character, room *Room) {
 	if room == nil {
 		slog.Error("Character is not in a room",
 			slog.String("character_id", char.ID))
@@ -124,7 +175,7 @@ Usage:
   - help
   - help <command>
 */
-func DoHelp(s ssh.Session, cmd string, args []string, user *User, char *Character, room *Room) {
+func DoHelp(s ssh.Session, cmd string, args []string, user *Account, char *Character, room *Room) {
 	uniqueCommands := make(map[string]*Command)
 	for _, cmd := range CommandMgr.GetCommands() {
 		if CommandMgr.CanRunCommand(char, cmd) {
@@ -158,7 +209,7 @@ func DoHelp(s ssh.Session, cmd string, args []string, user *User, char *Characte
 	io.WriteString(s, builder.String())
 }
 
-func DoInventory(s ssh.Session, cmd string, args []string, user *User, char *Character, room *Room) {
+func DoInventory(s ssh.Session, cmd string, args []string, user *Account, char *Character, room *Room) {
 	if char == nil {
 		io.WriteString(s, cfmt.Sprintf("{{Error: No character is associated with this session.}}::red\n"))
 		return
@@ -194,7 +245,7 @@ Usage:
 */
 // TODO: Sort all admins to the top of the list
 // TODO: Add a CanSee function for characters and have this function use that to determine if a character can see another character in the who list
-func DoWho(s ssh.Session, cmd string, args []string, user *User, char *Character, room *Room) {
+func DoWho(s ssh.Session, cmd string, args []string, user *Account, char *Character, room *Room) {
 	// Simulated global list of active characters
 	activeCharacters := CharacterMgr.GetOnlineCharacters()
 
@@ -225,7 +276,7 @@ Usage:
   - time
   - time details
 */
-func DoTime(s ssh.Session, cmd string, args []string, user *User, char *Character, room *Room) {
+func DoTime(s ssh.Session, cmd string, args []string, user *Account, char *Character, room *Room) {
 	switch len(args) {
 	case 0:
 		// Basic time display

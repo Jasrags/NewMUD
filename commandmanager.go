@@ -37,7 +37,7 @@ func (mgr *CommandManager) GetCommands() map[string]*Command {
 	return mgr.commands
 }
 
-func (mgr *CommandManager) ParseAndExecute(s ssh.Session, input string, user *User, char *Character, room *Room) {
+func (mgr *CommandManager) ParseAndExecute(s ssh.Session, input string, user *Account, char *Character, room *Room) {
 	cmd, args := ParseArguments(input)
 	if cmd == "" {
 		return

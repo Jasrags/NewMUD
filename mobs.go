@@ -4,7 +4,6 @@ import (
 	"log/slog"
 	"strings"
 
-	"github.com/google/uuid"
 	"github.com/i582/cfmt/cmd/cfmt"
 )
 
@@ -16,10 +15,7 @@ type Mob struct {
 
 func NewMob() *Mob {
 	return &Mob{
-		GameEntity: GameEntity{
-			ID:        uuid.New().String(),
-			Equipment: make(map[string]*Item),
-		},
+		GameEntity: NewGameEntity(),
 	}
 }
 

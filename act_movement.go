@@ -9,7 +9,7 @@ import (
 )
 
 // This command is for opening closed entities
-func DoOpen(s ssh.Session, cmd string, args []string, user *User, char *Character, room *Room) {
+func DoOpen(s ssh.Session, cmd string, args []string, user *Account, char *Character, room *Room) {
 	if len(args) < 1 {
 		io.WriteString(s, cfmt.Sprintf("{{Open what?}}::yellow\n"))
 		return
@@ -47,7 +47,7 @@ func DoOpen(s ssh.Session, cmd string, args []string, user *User, char *Characte
 	}
 }
 
-func DoClose(s ssh.Session, cmd string, args []string, user *User, char *Character, room *Room) {
+func DoClose(s ssh.Session, cmd string, args []string, user *Account, char *Character, room *Room) {
 	if len(args) < 1 {
 		io.WriteString(s, cfmt.Sprintf("{{Close what?}}::yellow\n"))
 		return
@@ -86,7 +86,7 @@ Usage:
   - move <north,n,south,s,east,e,west,w,up,u,down,d>
   - <north,n,south,s,east,e,west,w,up,u,down,d>
 */
-func DoMove(s ssh.Session, cmd string, args []string, user *User, char *Character, room *Room) {
+func DoMove(s ssh.Session, cmd string, args []string, user *Account, char *Character, room *Room) {
 	if room == nil {
 		io.WriteString(s, cfmt.Sprintf("{{You are not in a room.}}::red\n"))
 		return
@@ -117,7 +117,7 @@ func DoMove(s ssh.Session, cmd string, args []string, user *User, char *Characte
 	}
 }
 
-func DoLock(s ssh.Session, cmd string, args []string, user *User, char *Character, room *Room) {
+func DoLock(s ssh.Session, cmd string, args []string, user *Account, char *Character, room *Room) {
 	if len(args) < 1 {
 		io.WriteString(s, cfmt.Sprintf("{{Lock what?}}::yellow\n"))
 		return
@@ -174,7 +174,7 @@ func DoLock(s ssh.Session, cmd string, args []string, user *User, char *Characte
 	room.Broadcast(cfmt.Sprintf("{{%s locks the door to the %s.}}::green\n", char.Name, direction), []string{char.ID})
 }
 
-func DoUnlock(s ssh.Session, cmd string, args []string, user *User, char *Character, room *Room) {
+func DoUnlock(s ssh.Session, cmd string, args []string, user *Account, char *Character, room *Room) {
 	if len(args) < 1 {
 		io.WriteString(s, cfmt.Sprintf("{{Unlock what?}}::yellow\n"))
 		return
@@ -222,7 +222,7 @@ func DoUnlock(s ssh.Session, cmd string, args []string, user *User, char *Charac
 	room.Broadcast(cfmt.Sprintf("{{%s unlocks the door to the %s.}}::green\n", char.Name, direction), []string{char.ID})
 }
 
-func DoPick(s ssh.Session, cmd string, args []string, user *User, char *Character, room *Room) {
+func DoPick(s ssh.Session, cmd string, args []string, user *Account, char *Character, room *Room) {
 	if len(args) < 1 {
 		io.WriteString(s, cfmt.Sprintf("{{Pick what?}}::yellow\n"))
 		return

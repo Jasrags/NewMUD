@@ -13,7 +13,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-type User struct {
+type Account struct {
 	sync.RWMutex `yaml:"-"`
 	Listeners    []ee.Listener `yaml:"-"`
 
@@ -28,19 +28,19 @@ type User struct {
 	State       string     `yaml:"-"`
 }
 
-func NewUser() *User {
-	return &User{
+func NewAccount() *Account {
+	return &Account{
 		ID:        uuid.New().String(),
 		CreatedAt: time.Now(),
 	}
 }
 
-func (u *User) Init() {
+func (u *Account) Init() {
 	slog.Debug("Initializing user",
 		slog.String("user_id", u.ID))
 }
 
-func (u *User) AddCharacter(char *Character) {
+func (u *Account) AddCharacter(char *Character) {
 	u.Lock()
 	defer u.Unlock()
 
@@ -51,7 +51,7 @@ func (u *User) AddCharacter(char *Character) {
 	u.Characters = append(u.Characters, strings.ToLower(char.Name))
 }
 
-func (u *User) RemoveCharacter(char *Character) {
+func (u *Account) RemoveCharacter(char *Character) {
 	u.Lock()
 	defer u.Unlock()
 
@@ -68,7 +68,7 @@ func (u *User) RemoveCharacter(char *Character) {
 	}
 }
 
-func (u *User) SetPassword(password string) {
+func (u *Account) SetPassword(password string) {
 	slog.Debug("Setting password",
 		slog.String("id", u.ID),
 		slog.String("username", u.Username))
@@ -82,7 +82,7 @@ func (u *User) SetPassword(password string) {
 	u.Password = string(hashedPassword)
 }
 
-func (u *User) CheckPassword(password string) bool {
+func (u *Account) CheckPassword(password string) bool {
 	slog.Debug("Checking password",
 		slog.String("id", u.ID),
 		slog.String("username", u.Username))
@@ -107,11 +107,11 @@ func (u *User) CheckPassword(password string) bool {
 	return true
 }
 
-func (u *User) Save() error {
+func (u *Account) Save() error {
 	u.Lock()
 	defer u.Unlock()
 
-	dataFilePath := viper.GetString("data.users_path")
+	dataFilePath := viper.GetString("data.accounts_path")
 
 	slog.Info("Saving user data",
 		slog.String("datafile_path", dataFilePath),

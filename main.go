@@ -120,7 +120,7 @@ func handleConnection(s ssh.Session) {
 		}
 	}()
 
-	var user *User
+	var account *Account
 	var char *Character
 	// var room *Room
 	var state = StateWelcome
@@ -130,33 +130,35 @@ func handleConnection(s ssh.Session) {
 		case StateWelcome:
 			state = promptWelcome(s)
 		case StateLogin:
-			state, user = promptLogin(s)
+			state, account = promptLogin(s)
 		case StateRegistration:
-			state, user = promptRegistration(s)
+			state, account = promptRegistration(s)
 		case StateMainMenu:
-			state = promptMainMenu(s, user)
+			state = promptMainMenu(s, account)
 		case StateChangePassword:
-			state = promptChangePassword(s, user)
-		// case StateCharacterSelect:
-		// state, char = promptCharacterSelect(s, user)
+			state = promptChangePassword(s, account)
+			// case StateCharacterSelect:
+			// state, char = promptCharacterSelect(s, user)
+		case StateCharacterCreate:
+			state = promptCharacterCreate(s, account)
 		case StateEnterGame:
-			state, char = promptEnterGame(s, user)
+			state, char = promptEnterGame(s, account)
 		case StateGameLoop:
-			state = promptGameLoop(s, user, char)
+			state = promptGameLoop(s, account, char)
 		case StateExitGame:
-			state = promptExitGame(s, user, char)
+			state = promptExitGame(s, account, char)
 		case StateQuit:
 			fallthrough
 		case StateError:
 			s.Close()
 			char = nil
-			user = nil
+			account = nil
 			return
 		default:
 			slog.Error("Invalid state", slog.String("user_state", state))
 			s.Close()
 			char = nil
-			user = nil
+			account = nil
 		}
 	}
 }
@@ -165,12 +167,19 @@ func loadAllDataFiles() {
 	slog.Info("Loading data files")
 
 	EntityMgr.LoadDataFiles()
-	UserMgr.LoadDataFiles()
+	AccountMgr.LoadDataFiles()
 	CharacterMgr.LoadDataFiles()
 	RegisterCommands()
 }
 
 func RegisterCommands() {
+	CommandMgr.RegisterCommand(Command{
+		Name:        "stats",
+		Description: "Display your current attributes and stats.",
+		Usage:       []string{"stats"},
+		Func:        DoStats,
+	})
+
 	CommandMgr.RegisterCommand(Command{
 		Name:        "time",
 		Description: "Display the current in-game time.",

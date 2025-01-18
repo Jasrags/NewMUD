@@ -18,4 +18,4 @@ type Command struct {
 	SuggestFunc   SuggestFunc // Optional suggestion logic
 }
 
-type CommandFunc func(s ssh.Session, cmd string, args []string, user *User, char *Character, room *Room)
+type CommandFunc func(s ssh.Session, cmd string, args []string, user *Account, char *Character, room *Room)
