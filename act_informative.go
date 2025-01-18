@@ -299,3 +299,42 @@ func DoTime(s ssh.Session, cmd string, args []string, user *Account, char *Chara
 		io.WriteString(s, cfmt.Sprintf("{{Invalid usage. Usage: time [details]}}::red\n"))
 	}
 }
+
+// func DoHistory(s ssh.Session, cmd string, args []string, user *Account, char *Character, room *Room) {
+// 	if char == nil || len(char.CommandHistory) == 0 {
+// 		io.WriteString(s, "{{No command history available.}}::yellow\n")
+// 		return
+// 	}
+
+// 	for i, entry := range char.CommandHistory {
+// 		io.WriteString(s, cfmt.Sprintf("{{%d: %s}}::cyan\n", i+1, entry))
+// 	}
+// }
+
+func DoHistory(s ssh.Session, cmd string, args []string, user *Account, char *Character, room *Room) {
+	if char == nil || len(char.CommandHistory) == 0 {
+		io.WriteString(s, "{{No command history available.}}::yellow\n")
+		return
+	}
+
+	if len(args) > 0 {
+		search := strings.ToLower(args[0])
+		io.WriteString(s, cfmt.Sprintf("{{Search results for '%s':}}::green\n", search))
+		found := false
+		for i, entry := range char.CommandHistory {
+			if strings.Contains(strings.ToLower(entry), search) {
+				io.WriteString(s, cfmt.Sprintf("{{%d: %s}}::cyan\n", i+1, entry))
+				found = true
+			}
+		}
+		if !found {
+			io.WriteString(s, cfmt.Sprintf("{{No history entries found for '%s'.}}::red\n", search))
+		}
+		return
+	}
+
+	io.WriteString(s, "{{Command history:}}::green\n")
+	for i, entry := range char.CommandHistory {
+		io.WriteString(s, cfmt.Sprintf("{{%d: %s}}::cyan\n", i+1, entry))
+	}
+}
