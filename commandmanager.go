@@ -3,10 +3,12 @@ package main
 import (
 	"io"
 	"log/slog"
+	"strconv"
 	"strings"
 
 	"github.com/gliderlabs/ssh"
 	"github.com/i582/cfmt/cmd/cfmt"
+	"github.com/spf13/viper"
 )
 
 var (
@@ -38,6 +40,26 @@ func (mgr *CommandManager) GetCommands() map[string]*Command {
 }
 
 func (mgr *CommandManager) ParseAndExecute(s ssh.Session, input string, user *Account, char *Character, room *Room) {
+
+	if char != nil && input != "" {
+		if strings.HasPrefix(input, "!") {
+			historyIndex, err := strconv.Atoi(input[1:])
+			if err == nil && historyIndex > 0 && historyIndex <= len(char.CommandHistory) {
+				input = char.CommandHistory[historyIndex-1]
+				io.WriteString(s, cfmt.Sprintf("{{Re-executing: %s}}::green\n", input))
+			} else {
+				io.WriteString(s, "{{Invalid history index.}}::red\n")
+				return
+			}
+		}
+
+		char.CommandHistory = append(char.CommandHistory, input)
+		maxHistorySize := viper.GetInt("server.max_history_size")
+		if len(char.CommandHistory) > maxHistorySize {
+			char.CommandHistory = char.CommandHistory[1:] // Remove the oldest entry
+		}
+	}
+
 	cmd, args := ParseArguments(input)
 	if cmd == "" {
 		return

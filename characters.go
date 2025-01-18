@@ -26,15 +26,16 @@ const (
 )
 
 type Character struct {
-	GameEntity `yaml:",inline"`
-	Title      string        `yaml:"title"`
-	User       *Account      `yaml:"-"`
-	UserID     string        `yaml:"user_id"`
-	Role       CharacterRole `yaml:"role"`
-	Conn       ssh.Session   `yaml:"-"`
-	CreatedAt  time.Time     `yaml:"created_at"`
-	UpdatedAt  *time.Time    `yaml:"updated_at"`
-	DeletedAt  *time.Time    `yaml:"deleted_at"`
+	GameEntity     `yaml:",inline"`
+	Title          string        `yaml:"title"`
+	User           *Account      `yaml:"-"`
+	UserID         string        `yaml:"user_id"`
+	Role           CharacterRole `yaml:"role"`
+	Conn           ssh.Session   `yaml:"-"`
+	CreatedAt      time.Time     `yaml:"created_at"`
+	UpdatedAt      *time.Time    `yaml:"updated_at"`
+	DeletedAt      *time.Time    `yaml:"deleted_at"`
+	CommandHistory []string      `yaml:"-"`
 }
 
 func NewCharacter() *Character {

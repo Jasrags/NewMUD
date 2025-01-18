@@ -174,6 +174,13 @@ func loadAllDataFiles() {
 
 func RegisterCommands() {
 	CommandMgr.RegisterCommand(Command{
+		Name:        "history",
+		Description: "Show the list of commands executed in this session.",
+		Usage:       []string{"history"},
+		Func:        DoHistory,
+	})
+
+	CommandMgr.RegisterCommand(Command{
 		Name:        "stats",
 		Description: "Display your current attributes and stats.",
 		Usage:       []string{"stats"},
