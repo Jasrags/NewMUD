@@ -29,16 +29,16 @@ func DoStats(s ssh.Session, cmd string, args []string, acct *Account, char *Char
 	// Helper function to format attributes
 	formatAttribute := func(name string, attr Attribute[int]) string {
 		if attr.TotalValue > attr.Base {
-			return cfmt.Sprintf("{{%-15s}}::white|bold {{%3d}}::cyan{{(}}::white {{%d}}::red{{)}}::white\n", name, attr.Base, attr.TotalValue)
+			return cfmt.Sprintf("{{%-20s}}::white|bold {{%3d}}::cyan{{(}}::white {{%d}}::red{{)}}::white\n", name, attr.Base, attr.TotalValue)
 		}
-		return cfmt.Sprintf("{{%-15s}}::white|bold {{%3d}}::cyan\n", name, attr.Base)
+		return cfmt.Sprintf("{{%-20s}}::white|bold {{%3d}}::cyan\n", name, attr.Base)
 	}
 	// Handle float attributes like Essence separately
 	formatFloatAttribute := func(name string, attr Attribute[float64]) string {
 		if attr.TotalValue > attr.Base {
-			return cfmt.Sprintf("{{%-15s}}::white|bold {{%.1f}}::cyan {{(}}::white{{%.1f}}::red{{)}}::white\n", name, attr.Base, attr.TotalValue)
+			return cfmt.Sprintf("{{%-20s}}::white|bold {{%.1f}}::cyan {{(}}::white{{%.1f}}::red{{)}}::white\n", name, attr.Base, attr.TotalValue)
 		}
-		return cfmt.Sprintf("{{%-15s}}::white|bold {{%.1f}}::cyan\n", name, attr.Base)
+		return cfmt.Sprintf("{{%-20s}}::white|bold {{%.1f}}::cyan\n", name, attr.Base)
 	}
 
 	io.WriteString(s, formatAttribute("Body", attributes.Body))
@@ -51,14 +51,32 @@ func DoStats(s ssh.Session, cmd string, args []string, acct *Account, char *Char
 	io.WriteString(s, formatAttribute("Charisma", attributes.Charisma))
 	io.WriteString(s, formatAttribute("Edge", attributes.Edge))
 	io.WriteString(s, formatFloatAttribute("Essence", attributes.Essence))
-	io.WriteString(s, formatAttribute("Magic", attributes.Magic))
-	io.WriteString(s, formatAttribute("Resonance", attributes.Resonance))
+	if attributes.Magic.Base > 0 {
+		io.WriteString(s, formatAttribute("Magic", attributes.Magic))
+	}
+	if attributes.Resonance.Base > 0 {
+		io.WriteString(s, formatAttribute("Resonance", attributes.Resonance))
+	}
 
 	// Carry weight stats
 	maxCarryWeight := char.GetLiftCarry()
 	currentCarryWeight := char.GetCurrentCarryWeight()
+	io.WriteString(s, cfmt.Sprintf("{{%-20s}}::white|bold {{%.2f}}::cyan{{/}}::white{{%d}}::cyan{{kg}}::white\n", "Carry Weight", currentCarryWeight, maxCarryWeight))
 
-	io.WriteString(s, cfmt.Sprintf("{{Carry Weight}}::white|bold {{%.2f}}::cyan{{/}}::white{{%d}}::cyan{{kg}}::white\n", currentCarryWeight, maxCarryWeight))
+	// New limits
+	physicalLimit := char.GetPhysicalLimit()
+	adjustedPhysicalLimit := char.GetAdjustedPhysicalLimit()
+	mentalLimit := char.GetMentalLimit()
+	socialLimit := char.GetSocialLimit()
+
+	if adjustedPhysicalLimit < physicalLimit {
+		io.WriteString(s, cfmt.Sprintf("{{%-20s}}::white|bold {{%d}}::cyan {{(Adjusted: %d)}}::yellow\n", "Physical Limit", physicalLimit, adjustedPhysicalLimit))
+	} else {
+		io.WriteString(s, cfmt.Sprintf("{{%-20s}}::white|bold {{%d}}::cyan\n", "Physical Limit", physicalLimit))
+	}
+
+	io.WriteString(s, cfmt.Sprintf("{{%-20s}}::white|bold {{%d}}::cyan\n", "Mental Limit", mentalLimit))
+	io.WriteString(s, cfmt.Sprintf("{{%-20s}}::white|bold {{%d}}::cyan\n", "Social Limit", socialLimit))
 }
 
 /*
@@ -299,17 +317,6 @@ func DoTime(s ssh.Session, cmd string, args []string, user *Account, char *Chara
 		io.WriteString(s, cfmt.Sprintf("{{Invalid usage. Usage: time [details]}}::red\n"))
 	}
 }
-
-// func DoHistory(s ssh.Session, cmd string, args []string, user *Account, char *Character, room *Room) {
-// 	if char == nil || len(char.CommandHistory) == 0 {
-// 		io.WriteString(s, "{{No command history available.}}::yellow\n")
-// 		return
-// 	}
-
-// 	for i, entry := range char.CommandHistory {
-// 		io.WriteString(s, cfmt.Sprintf("{{%d: %s}}::cyan\n", i+1, entry))
-// 	}
-// }
 
 func DoHistory(s ssh.Session, cmd string, args []string, user *Account, char *Character, room *Room) {
 	if char == nil || len(char.CommandHistory) == 0 {
