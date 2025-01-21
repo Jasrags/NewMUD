@@ -26,9 +26,7 @@ type GameEntity struct {
 
 func NewGameEntity() GameEntity {
 	return GameEntity{
-		ID: uuid.New().String(),
-		// Attributes: NewAttributes(),
-		// Inventory:  NewInventory(),
+		ID:        uuid.New().String(),
 		Equipment: make(map[string]*Item),
 		Listeners: make([]ee.Listener, 0),
 	}
@@ -47,6 +45,14 @@ func (e *GameEntity) SetRoom(room *Room) {
 	e.RoomID = room.ReferenceID
 }
 
+// Attributes
+// Initiative							(Reaction + Intuition) + 1D6			Add appropriate attribute and Initiative Dice bonu
+// Astral Initiative					(Intuition x 2) + 2D6					—
+// Matrix AR Initiative				(Reaction + Intuition) + 1D6				—
+// Matrix VR Initiative (Hot Sim)		(Data Processing + Intuition) + 4D6		—
+// Matrix VR Initiative (Cold Sim)		(Data Processing + Intuition) + 3D6		—
+
+// Lifting and Carrying (STR + BOD)
 func (e *GameEntity) GetLiftCarry() int {
 	baseCarryWeight := 10
 	return (e.Attributes.Strength.TotalValue + e.Attributes.Body.TotalValue) * baseCarryWeight
@@ -65,6 +71,16 @@ func (e *GameEntity) GetCurrentCarryWeight() float64 {
 	return totalWeight
 }
 
+// TODO: Implement encumbered penatlies for combat
+func (e *GameEntity) IsEncumbered() bool {
+	return e.GetEncumbrancePenalty() > 0
+}
+
+// Composure (WIL + CHA)
+// Judge Intentions (INT + CHA)
+// Memory (LOG + WIL)
+
+// Inherent Limits
 func (e *GameEntity) GetMentalLimit() int {
 	e.Attributes.Recalculate()
 	logic := e.Attributes.Logic.TotalValue
@@ -116,7 +132,7 @@ func (e *GameEntity) GetAdjustedPhysicalLimit() int {
 	return adjustedLimit
 }
 
-// TODO: Implement encumbered penatlies for combat
-func (e *GameEntity) IsEncumbered() bool {
-	return e.GetEncumbrancePenalty() > 0
-}
+// Condition Monitor Boxes
+// Physical 							[Body x 2] + 8												Add bonuses to Body before calculating; round up final results
+// Stun								[Willpower x 2] + 8											Add bonuses to Willpower before calculating; round up final results
+// Overflow							Body + Augmentation bonuses									-
