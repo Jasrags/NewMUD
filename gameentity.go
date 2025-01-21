@@ -116,6 +116,7 @@ func (e *GameEntity) GetAdjustedPhysicalLimit() int {
 	return adjustedLimit
 }
 
+// TODO: Implement encumbered penatlies for combat
 func (e *GameEntity) IsEncumbered() bool {
 	return e.GetEncumbrancePenalty() > 0
 }
