@@ -80,6 +80,43 @@ run/live:
 		--build.include_ext "go, tpl, tmpl, html, css, scss, js, ts, sql, jpeg, jpg, gif, png, bmp, svg, webp, ico" \
 		--misc.clean_on_exit "true"
 
+## build/ssh: build the ssh command
+.PHONY: build/ssh
+build/ssh:
+	go build -o=/tmp/bin/ssh cmd/ssh/main.go
+
+## run/ssh: run the ssh command
+.PHONY: run/ssh
+run/ssh: build/ssh
+	/tmp/bin/ssh
+
+## run/live/ssh: run the ssh command with reloading on file changes
+.PHONY: run/live/ssh
+run/live/ssh:
+	go mod tidy;go run github.com/cosmtrek/air@v1.43.0 \
+		--build.cmd "make build/ssh" --build.bin "/tmp/bin/ssh" --build.delay "100" \
+		--build.exclude_dir "" \
+		--build.include_ext "go, tpl, tmpl, html, css, scss, js, ts, sql, jpeg, jpg, gif, png, bmp, svg, webp, ico" \
+		--misc.clean_on_exit "true"
+
+## build/bubbletea: build the bubbletea command
+.PHONY: build/bubbletea
+build/bubbletea:
+	go build -o=/tmp/bin/bubbletea cmd/bubbletea/main.go
+
+## run/bubbletea: run the bubbletea command
+.PHONY: run/bubbletea
+run/bubbletea: build/bubbletea
+	/tmp/bin/bubbletea
+
+## run/live/bubbletea: run the bubbletea command with reloading on file changes
+.PHONY: run/live/bubbletea
+run/live/bubbletea:
+	go mod tidy;go run github.com/cosmtrek/air@v1.43.0 \
+		--build.cmd "make build/bubbletea" --build.bin "/tmp/bin/bubbletea" --build.delay "100" \
+		--build.exclude_dir "" \
+		--build.include_ext "go, tpl, tmpl, html, css, scss, js, ts, sql, jpeg, jpg, gif, png, bmp, svg, webp, ico" \
+		--misc.clean_on_exit "true"
 
 # Deploy
 
@@ -111,4 +148,3 @@ push: tidy audit no-dirty
 production/deploy: confirm tidy audit no-dirty
 	GOOS=linux GOARCH=amd64 go build -ldflags='-s' -o=/tmp/bin/linux_amd64/${BINARY_NAME} ${MAIN_PACKAGE_PATH}
 	upx -5 /tmp/bin/linux_amd64/${BINARY_NAME}
-	# Include additional deployment steps here...

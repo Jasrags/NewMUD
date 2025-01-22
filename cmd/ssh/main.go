@@ -6,8 +6,8 @@ import (
 	"os"
 	"time"
 
+	"github.com/Jasrags/NewMUD/internal/game"
 	"github.com/fsnotify/fsnotify"
-	"github.com/gliderlabs/ssh"
 	"github.com/spf13/viper"
 )
 
@@ -17,8 +17,8 @@ var tickDuration time.Duration
 func main() {
 	setupConfig()
 	loadAllDataFiles()
-	go startTicker()
-	setupServer()
+	go game.StartTicker(tickDuration)
+	game.SetupServer()
 
 	slog.Info("Shutting down")
 }
@@ -105,148 +105,148 @@ func setupLogger() {
 // 		uintptr(unsafe.Pointer(&struct{ h, w, x, y uint16 }{uint16(h), uint16(w), 0, 0})))
 // }
 
-func handleConnection(s ssh.Session) {
-	defer s.Close()
+// func handleConnection(s ssh.Session) {
+// 	defer s.Close()
 
-	_, winCh, _ := s.Pty()
+// 	_, winCh, _ := s.Pty()
 
-	// Set the window size
-	go func() {
-		for win := range winCh {
-			slog.Debug("Window size changed",
-				slog.Int("width", win.Width),
-				slog.Int("height", win.Height),
-			)
-		}
-	}()
+// 	// Set the window size
+// 	go func() {
+// 		for win := range winCh {
+// 			slog.Debug("Window size changed",
+// 				slog.Int("width", win.Width),
+// 				slog.Int("height", win.Height),
+// 			)
+// 		}
+// 	}()
 
-	var account *Account
-	var char *Character
-	// var room *Room
-	var state = StateWelcome
+// 	var account *game.Account
+// 	var char *game.Character
+// 	// var room *Room
+// 	var state = game.StateWelcome
 
-	for {
-		switch state {
-		case StateWelcome:
-			state = promptWelcome(s)
-		case StateLogin:
-			state, account = promptLogin(s)
-		case StateRegistration:
-			state, account = promptRegistration(s)
-		case StateMainMenu:
-			state = promptMainMenu(s, account)
-		case StateChangePassword:
-			state = promptChangePassword(s, account)
-			// case StateCharacterSelect:
-			// state, char = promptCharacterSelect(s, user)
-		case StateCharacterCreate:
-			state = promptCharacterCreate(s, account)
-		case StateEnterGame:
-			state, char = promptEnterGame(s, account)
-		case StateGameLoop:
-			state = promptGameLoop(s, account, char)
-		case StateExitGame:
-			state = promptExitGame(s, account, char)
-		case StateQuit:
-			fallthrough
-		case StateError:
-			s.Close()
-			char = nil
-			account = nil
-			return
-		default:
-			slog.Error("Invalid state", slog.String("user_state", state))
-			s.Close()
-			char = nil
-			account = nil
-		}
-	}
-}
+// 	for {
+// 		switch state {
+// 		case game.StateWelcome:
+// 			state = game.PromptWelcome(s)
+// 		case game.StateLogin:
+// 			state, account = game.PromptLogin(s)
+// 		case game.StateRegistration:
+// 			state, account = game.PromptRegistration(s)
+// 		case game.StateMainMenu:
+// 			state = game.PromptMainMenu(s, account)
+// 		case game.StateChangePassword:
+// 			state = game.PromptChangePassword(s, account)
+// 			// case StateCharacterSelect:
+// 			// state, char = game.PromptCharacterSelect(s, user)
+// 		case game.StateCharacterCreate:
+// 			state = game.PromptCharacterCreate(s, account)
+// 		case game.StateEnterGame:
+// 			state, char = game.PromptEnterGame(s, account)
+// 		case game.StateGameLoop:
+// 			state = game.PromptGameLoop(s, account, char)
+// 		case game.StateExitGame:
+// 			state = game.PromptExitGame(s, account, char)
+// 		case game.StateQuit:
+// 			fallthrough
+// 		case game.StateError:
+// 			s.Close()
+// 			char = nil
+// 			account = nil
+// 			return
+// 		default:
+// 			slog.Error("Invalid state", slog.String("user_state", state))
+// 			s.Close()
+// 			char = nil
+// 			account = nil
+// 		}
+// 	}
+// }
 
 func loadAllDataFiles() {
 	slog.Info("Loading data files")
 
-	EntityMgr.LoadDataFiles()
-	AccountMgr.LoadDataFiles()
-	CharacterMgr.LoadDataFiles()
+	game.EntityMgr.LoadDataFiles()
+	game.AccountMgr.LoadDataFiles()
+	game.CharacterMgr.LoadDataFiles()
 	RegisterCommands()
 }
 
 func RegisterCommands() {
-	CommandMgr.RegisterCommand(Command{
+	game.CommandMgr.RegisterCommand(game.Command{
 		Name:        "history",
 		Description: "Show the list of commands executed in this session.",
 		Usage:       []string{"history"},
-		Func:        DoHistory,
+		Func:        game.DoHistory,
 	})
 
-	CommandMgr.RegisterCommand(Command{
+	game.CommandMgr.RegisterCommand(game.Command{
 		Name:        "stats",
 		Description: "Display your current attributes and stats.",
 		Usage:       []string{"stats"},
-		Func:        DoStats,
+		Func:        game.DoStats,
 	})
 
-	CommandMgr.RegisterCommand(Command{
+	game.CommandMgr.RegisterCommand(game.Command{
 		Name:        "time",
 		Description: "Display the current in-game time.",
 		Usage:       []string{"time", "time details"},
-		Func:        DoTime,
+		Func:        game.DoTime,
 	})
 
-	CommandMgr.RegisterCommand(Command{
+	game.CommandMgr.RegisterCommand(game.Command{
 		Name:        "pick",
 		Description: "Pick a lock",
 		Usage:       []string{"pick [direction]"},
 		// Aliases:     []string{"p"},
-		Func: DoPick,
+		Func: game.DoPick,
 	})
-	CommandMgr.RegisterCommand(Command{
+	game.CommandMgr.RegisterCommand(game.Command{
 		Name:        "lock",
 		Description: "Lock a door",
 		Usage:       []string{"lock [direction]"},
 		// Aliases:     []string{"l"},
-		Func: DoLock,
+		Func: game.DoLock,
 	})
-	CommandMgr.RegisterCommand(Command{
+	game.CommandMgr.RegisterCommand(game.Command{
 		Name:        "unlock",
 		Description: "Unlock a door",
 		Usage:       []string{"unlock [direction]"},
 		// Aliases:     []string{"u"},
-		Func: DoUnlock,
+		Func: game.DoUnlock,
 	})
-	CommandMgr.RegisterCommand(Command{
+	game.CommandMgr.RegisterCommand(game.Command{
 		Name:        "open",
 		Description: "Open a door",
 		Usage:       []string{"open [direction]"},
 		// Aliases:     []string{"o"},
-		Func: DoOpen,
+		Func: game.DoOpen,
 	})
-	CommandMgr.RegisterCommand(Command{
+	game.CommandMgr.RegisterCommand(game.Command{
 		Name:        "close",
 		Description: "Close a door",
 		Usage:       []string{"close [direction]"},
 		// Aliases:     []string{"c"},
-		Func: DoClose,
+		Func: game.DoClose,
 	})
-	CommandMgr.RegisterCommand(Command{
+	game.CommandMgr.RegisterCommand(game.Command{
 		Name:        "who",
 		Description: "List players currently in the game",
 		Usage:       []string{"who"},
 		Aliases:     []string{"w"},
-		Func:        DoWho,
+		Func:        game.DoWho,
 	})
-	CommandMgr.RegisterCommand(Command{
+	game.CommandMgr.RegisterCommand(game.Command{
 		Name:        "look",
 		Description: "Look around the room",
 		Usage: []string{
 			"look [item|character|mob|direction]",
 		},
 		Aliases:     []string{"l"},
-		Func:        DoLook,
-		SuggestFunc: SuggestLook,
+		Func:        game.DoLook,
+		SuggestFunc: game.SuggestLook,
 	})
-	CommandMgr.RegisterCommand(Command{
+	game.CommandMgr.RegisterCommand(game.Command{
 		Name:        "get",
 		Description: "Get an item from the room.",
 		Usage: []string{
@@ -254,18 +254,18 @@ func RegisterCommands() {
 			"get all <item>",
 			"get all",
 		},
-		Func:        DoGet,
-		SuggestFunc: SuggestGet,
+		Func:        game.DoGet,
+		SuggestFunc: game.SuggestGet,
 	})
 
-	CommandMgr.RegisterCommand(Command{
+	game.CommandMgr.RegisterCommand(game.Command{
 		Name:        "give",
 		Description: "Give an item",
 		Usage:       []string{"give <character> [<quantity>] <item>"},
-		Func:        DoGive,
-		SuggestFunc: SuggestGive,
+		Func:        game.DoGive,
+		SuggestFunc: game.SuggestGive,
 	})
-	CommandMgr.RegisterCommand(Command{
+	game.CommandMgr.RegisterCommand(game.Command{
 		Name:        "drop",
 		Description: "Drop items in the room.",
 		Usage: []string{
@@ -273,11 +273,11 @@ func RegisterCommands() {
 			"drop all <item>",
 			"drop all",
 		},
-		Func:        DoDrop,
-		SuggestFunc: SuggestDrop,
+		Func:        game.DoDrop,
+		SuggestFunc: game.SuggestDrop,
 	})
 
-	CommandMgr.RegisterCommand(Command{
+	game.CommandMgr.RegisterCommand(game.Command{
 		Name:        "help",
 		Description: "List available commands",
 		Usage: []string{
@@ -285,45 +285,45 @@ func RegisterCommands() {
 			"help <command>",
 		},
 		Aliases: []string{"h"},
-		Func:    DoHelp,
+		Func:    game.DoHelp,
 	})
-	CommandMgr.RegisterCommand(Command{
+	game.CommandMgr.RegisterCommand(game.Command{
 		Name:        "move",
 		Description: "Move to a different room",
 		Usage:       []string{"move [direction]"},
 		Aliases:     []string{"m", "n", "s", "e", "w", "u", "d", "north", "south", "east", "west", "up", "down"},
-		Func:        DoMove,
+		Func:        game.DoMove,
 	})
-	CommandMgr.RegisterCommand(Command{
+	game.CommandMgr.RegisterCommand(game.Command{
 		Name:        "inventory",
 		Description: "List your inventory",
 		Usage:       []string{"inventory"},
 		Aliases:     []string{"i"},
-		Func:        DoInventory,
+		Func:        game.DoInventory,
 	})
-	CommandMgr.RegisterCommand(Command{
+	game.CommandMgr.RegisterCommand(game.Command{
 		Name:        "say",
 		Description: "Say something to everyone in the room.",
 		Usage:       []string{"say <message>"},
-		Func:        DoSay,
+		Func:        game.DoSay,
 	})
 
-	CommandMgr.RegisterCommand(Command{
+	game.CommandMgr.RegisterCommand(game.Command{
 		Name:        "tell",
 		Description: "Send a private message to a specific character.",
 		Usage:       []string{"tell <username> <message>"},
-		Func:        DoTell,
-		SuggestFunc: SuggestTell,
+		Func:        game.DoTell,
+		SuggestFunc: game.SuggestTell,
 	})
 
-	CommandMgr.RegisterCommand(Command{
+	game.CommandMgr.RegisterCommand(game.Command{
 		Name:        "spawn",
 		Description: "Spawn an item or mob into the room",
 		Usage: []string{
 			"spawn item <item>",
 			"spawn mob <mob>",
 		},
-		RequiredRoles: []CharacterRole{CharacterRoleAdmin},
-		Func:          DoSpawn,
+		RequiredRoles: []game.CharacterRole{game.CharacterRoleAdmin},
+		Func:          game.DoSpawn,
 	})
 }
