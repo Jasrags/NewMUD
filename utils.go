@@ -27,15 +27,20 @@ func WrapText(text string, width int) string {
 
 	for _, word := range words {
 		if len(line)+len(word)+1 > width {
-			result.WriteString(line + "\n")
+			// Append the current line to the result and reset the line
+			if line != "" {
+				result.WriteString(line + "\n")
+			}
 			line = word
 		} else {
+			// Append the word to the current line
 			if line != "" {
 				line += " "
 			}
 			line += word
 		}
 	}
+	// Append the last line, if any, without an extra newline
 	if line != "" {
 		result.WriteString(line)
 	}

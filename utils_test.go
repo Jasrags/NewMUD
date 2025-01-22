@@ -100,3 +100,102 @@ func TestRollWithEdge(t *testing.T) {
 		})
 	}
 }
+func TestSingularize(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{"cats", "cat"},
+		{"dogs", "dog"},
+		{"buses", "buse"},
+		{"", ""},
+		{"a", "a"},
+		{"s", "s"},
+		{"class", "clas"},
+		{"boss", "bos"},
+	}
+
+	for _, test := range tests {
+		t.Run(fmt.Sprintf("Singularize(%s)", test.input), func(t *testing.T) {
+			result := Singularize(test.input)
+			assert.Equal(t, test.expected, result)
+		})
+	}
+}
+func TestWrapText(t *testing.T) {
+	tests := []struct {
+		text     string
+		width    int
+		expected string
+	}{
+		{"This is a test of the wrap text function.", 10, "This is a\ntest of\nthe wrap\ntext\nfunction."},
+		{"Another example with different width.", 15, "Another example\nwith different\nwidth."},
+		{"Short text.", 20, "Short text."},
+		{"A very long word that exceeds the width.", 5, "A\nvery\nlong\nword\nthat\nexceeds\nthe\nwidth."},
+		{"", 10, ""},
+		{"Singleword", 10, "Singleword"},
+	}
+
+	for _, test := range tests {
+		t.Run(fmt.Sprintf("WrapText(%s,%d)", test.text, test.width), func(t *testing.T) {
+			result := WrapText(test.text, test.width)
+			assert.Equal(t, test.expected, result)
+		})
+	}
+}
+func TestParseDirection(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{"n", "north"},
+		{"north", "north"},
+		{"s", "south"},
+		{"south", "south"},
+		{"e", "east"},
+		{"east", "east"},
+		{"w", "west"},
+		{"west", "west"},
+		{"u", "up"},
+		{"up", "up"},
+		{"d", "down"},
+		{"down", "down"},
+		{"invalid", ""},
+		{"", ""},
+	}
+
+	for _, test := range tests {
+		t.Run(fmt.Sprintf("ParseDirection(%s)", test.input), func(t *testing.T) {
+			result := ParseDirection(test.input)
+			assert.Equal(t, test.expected, result)
+		})
+	}
+}
+func TestReverseDirection(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{"n", "south"},
+		{"north", "south"},
+		{"s", "north"},
+		{"south", "north"},
+		{"e", "west"},
+		{"east", "west"},
+		{"w", "east"},
+		{"west", "east"},
+		{"u", "down"},
+		{"up", "down"},
+		{"d", "up"},
+		{"down", "up"},
+		{"invalid", ""},
+		{"", ""},
+	}
+
+	for _, test := range tests {
+		t.Run(fmt.Sprintf("ReverseDirection(%s)", test.input), func(t *testing.T) {
+			result := ReverseDirection(test.input)
+			assert.Equal(t, test.expected, result)
+		})
+	}
+}
