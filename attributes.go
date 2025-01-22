@@ -11,7 +11,6 @@ const (
 	AttributeLogic     AttributeType = "Logic"
 	AttributeIntuition AttributeType = "Intuition"
 	AttributeCharisma  AttributeType = "Charisma"
-	AttributeEdge      AttributeType = "Edge"
 	AttributeEssence   AttributeType = "Essence"
 	AttributeMagic     AttributeType = "Magic"
 	AttributeResonance AttributeType = "Resonance"
@@ -26,7 +25,6 @@ type Attributes struct {
 	Logic     Attribute[int]     `yaml:"logic"`
 	Intuition Attribute[int]     `yaml:"intuition"`
 	Charisma  Attribute[int]     `yaml:"charisma"`
-	Edge      Attribute[int]     `yaml:"edge"`
 	Essence   Attribute[float64] `yaml:"essence"`
 	Magic     Attribute[int]     `yaml:"magic"`
 	Resonance Attribute[int]     `yaml:"resonance"`
@@ -42,7 +40,6 @@ func NewAttributes() *Attributes {
 		Logic:     Attribute[int]{Name: "Logic"},
 		Intuition: Attribute[int]{Name: "Intuition"},
 		Charisma:  Attribute[int]{Name: "Charisma"},
-		Edge:      Attribute[int]{Name: "Edge"},
 		Essence:   Attribute[float64]{Name: "Essence"},
 		Magic:     Attribute[int]{Name: "Magic"},
 		Resonance: Attribute[int]{Name: "Resonance"},
@@ -58,7 +55,6 @@ func (a *Attributes) Recalculate() {
 	a.Logic.Recalculate()
 	a.Intuition.Recalculate()
 	a.Charisma.Recalculate()
-	a.Edge.Recalculate()
 	a.Essence.Recalculate()
 	a.Magic.Recalculate()
 	a.Resonance.Recalculate()
@@ -73,7 +69,6 @@ func (a *Attributes) Reset() {
 	a.Logic.Reset()
 	a.Intuition.Reset()
 	a.Charisma.Reset()
-	a.Edge.Reset()
 	a.Essence.Reset()
 	a.Magic.Reset()
 	a.Resonance.Reset()
