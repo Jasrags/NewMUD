@@ -46,6 +46,12 @@ func (e *GameEntity) SetRoom(room *Room) {
 }
 
 // Attributes
+func (e *GameEntity) GetInitative() int {
+	poolSize := 1
+	_, _, results := RollDice(poolSize)
+	return (e.Attributes.Reaction.TotalValue + e.Attributes.Intuition.TotalValue) + RollResultsTotal(results)
+}
+
 // Initiative							(Reaction + Intuition) + 1D6			Add appropriate attribute and Initiative Dice bonu
 // Astral Initiative					(Intuition x 2) + 2D6					—
 // Matrix AR Initiative				(Reaction + Intuition) + 1D6				—
