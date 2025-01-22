@@ -191,36 +191,36 @@ Usage:
 // 	io.WriteString(s, builder.String())
 // }
 
-// FormatColumn formats a single column with dynamic width and data type.
-func FormatColumn(label string, value interface{}, width int) string {
-	switch v := value.(type) {
-	case int:
-		return cfmt.Sprintf("%-*s %d", width, label, v)
-	case float64:
-		return cfmt.Sprintf("%-*s %.2f", width, label, v)
-	case string:
-		return cfmt.Sprintf("%-*s %s", width, label, v)
-	default:
-		return cfmt.Sprintf("%-*s %v", width, label, v) // Fallback for other types
-	}
-}
+// // FormatColumn formats a single column with dynamic width and data type.
+// func FormatColumn(label string, value interface{}, width int) string {
+// 	switch v := value.(type) {
+// 	case int:
+// 		return cfmt.Sprintf("%-*s %d", width, label, v)
+// 	case float64:
+// 		return cfmt.Sprintf("%-*s %.2f", width, label, v)
+// 	case string:
+// 		return cfmt.Sprintf("%-*s %s", width, label, v)
+// 	default:
+// 		return cfmt.Sprintf("%-*s %v", width, label, v) // Fallback for other types
+// 	}
+// }
 
-func FormatSingleColumn(label string, value interface{}) string {
-	return FormatColumn(label, value, 20)
-}
+// func FormatSingleColumn(label string, value interface{}) string {
+// 	return FormatColumn(label, value, 20)
+// }
 
-func FormatDoubleColumn(label1 string, value1 interface{}, label2 string, value2 interface{}) string {
-	return cfmt.Sprintf("%-20s %-8v %-20s %-8v",
-		FormatColumn(label1, value1, 20),
-		FormatColumn(label2, value2, 20))
-}
+// func FormatDoubleColumn(label1 string, value1 interface{}, label2 string, value2 interface{}) string {
+// 	return cfmt.Sprintf("%-20s %-8v %-20s %-8v",
+// 		FormatColumn(label1, value1, 20),
+// 		FormatColumn(label2, value2, 20))
+// }
 
-func FormatTripleColumn(label1 string, value1 interface{}, label2 string, value2 interface{}, label3 string, value3 interface{}) string {
-	return fmt.Sprintf("%-26s %-26s %-26s",
-		FormatColumn(label1, value1, 20),
-		FormatColumn(label2, value2, 20),
-		FormatColumn(label3, value3, 20))
-}
+// func FormatTripleColumn(label1 string, value1 interface{}, label2 string, value2 interface{}, label3 string, value3 interface{}) string {
+// 	return fmt.Sprintf("%-26s %-26s %-26s",
+// 		FormatColumn(label1, value1, 20),
+// 		FormatColumn(label2, value2, 20),
+// 		FormatColumn(label3, value3, 20))
+// }
 
 func DoStats(s ssh.Session, cmd string, args []string, acct *Account, char *Character, room *Room) {
 
