@@ -99,25 +99,6 @@ run/live/ssh:
 		--build.include_ext "go, tpl, tmpl, html, css, scss, js, ts, sql, jpeg, jpg, gif, png, bmp, svg, webp, ico" \
 		--misc.clean_on_exit "true"
 
-## build/bubbletea: build the bubbletea command
-.PHONY: build/bubbletea
-build/bubbletea:
-	go build -o=/tmp/bin/bubbletea cmd/bubbletea/main.go
-
-## run/bubbletea: run the bubbletea command
-.PHONY: run/bubbletea
-run/bubbletea: build/bubbletea
-	/tmp/bin/bubbletea
-
-## run/live/bubbletea: run the bubbletea command with reloading on file changes
-.PHONY: run/live/bubbletea
-run/live/bubbletea:
-	go mod tidy;go run github.com/cosmtrek/air@v1.43.0 \
-		--build.cmd "make build/bubbletea" --build.bin "/tmp/bin/bubbletea" --build.delay "100" \
-		--build.exclude_dir "" \
-		--build.include_ext "go, tpl, tmpl, html, css, scss, js, ts, sql, jpeg, jpg, gif, png, bmp, svg, webp, ico" \
-		--misc.clean_on_exit "true"
-
 # Deploy
 
 # Build the Docker image
