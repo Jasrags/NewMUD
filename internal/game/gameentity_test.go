@@ -8,11 +8,11 @@ import (
 
 var (
 	testStreetSamurai = &Character{
-		Title:  "Street Samurai",
 		UserID: "test_user",
 		Role:   CharacterRolePlayer,
 		GameEntity: GameEntity{
 			Name:            "Street Samurai",
+			Title:           "Street Samurai",
 			ID:              "ID",
 			Metatype:        "Ork",
 			Age:             25,
@@ -56,11 +56,11 @@ var (
 		},
 	}
 	testCovertOpsSpecialist = &Character{
-		Title:  "Covert Ops Specialist",
 		UserID: "test_user",
 		Role:   CharacterRolePlayer,
 		GameEntity: GameEntity{
 			Name:            "Covert Ops Specialist",
+			Title:           "Covert Ops Specialist",
 			ID:              "ID",
 			Metatype:        "Dwarf",
 			Age:             25,

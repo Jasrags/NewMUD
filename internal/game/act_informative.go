@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/Jasrags/NewMUD/pluralizer"
-	"github.com/charmbracelet/lipgloss"
 	"github.com/gliderlabs/ssh"
 	"github.com/i582/cfmt/cmd/cfmt"
 )
@@ -242,14 +241,6 @@ func DoStats(s ssh.Session, cmd string, args []string, acct *Account, char *Char
 	// 	"Overflow", 0)
 
 	var output strings.Builder
-
-	var style = lipgloss.NewStyle().
-		SetString("What’s for lunch?").
-		Width(24).
-		Height(32).
-		Foreground(lipgloss.Color("63"))
-
-	output.WriteString(style.Render("Hello, World!"))
 
 	// Character Info Block
 	// output.WriteString(FormatDoubleColumn("Name:", char.Name, "Title:", char.Title))

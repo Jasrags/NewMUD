@@ -15,6 +15,7 @@ type GameEntity struct {
 
 	ID              string           `yaml:"id"`
 	Name            string           `yaml:"name"`
+	Title           string           `yaml:"title"`
 	Metatype        string           `yaml:"metatype"`
 	Age             int              `yaml:"age"`
 	Sex             string           `yaml:"sex"`
