@@ -236,10 +236,13 @@ func (e *GameEntity) ApplyWoundModifiers(baseDicePool int) int {
 // Matrix VR Initiative (Cold Sim)		(Data Processing + Intuition) + 3D6		—
 
 // GetLiftCarry calculates and returns the Lift Carry of the character.
+// The baseline for lifting weight is 15 kilograms per point of Strength. Anything more than that requires a Strength + Body Test. Each hit increases the max weight lifted by 15 kilograms. Lifting weight above your head, as with a clean & jerk, is more difficult. The baseline for lifting weight above the head is 5 kilograms per point Strength. Each hit on the Lifting Test increases the maximum weight you can lift by 5 kilograms.
+// Carrying weight is significantly different than lifting weight. Characters can carry Strength x 10 kilograms in gear without effort. Additional weight requires a Lifting Test. Each hit increases the maximum by 10 kilograms.
 func (e *GameEntity) GetLiftCarry() float64 {
 	e.Attributes.Recalculate()
 	baseCarryWeight := 10
-	// Formula: (STR + BOD) * 10
+	// Lift Formula: STR * 15
+	// Carry Formula: STR * 10
 	return float64(e.Attributes.Strength.TotalValue+e.Attributes.Body.TotalValue) * float64(baseCarryWeight)
 }
 
@@ -260,11 +263,13 @@ func (e *GameEntity) GetCurrentCarryWeight() float64 {
 
 // GetEncumberancePenalty calculates and returns if the character is encumbered.
 // TODO: Implement encumbered penatlies for combat
+// If a character overburdens himself with gear, he suffers encumbrance modifiers. For every 15 kilograms (or part thereof) by which you exceed your carrying capacity, you suffer a –1 modifier to your Physical Limit (minimum limit of 1). This means that a character with Strength 3 (Carrying Capacity 30) that is trudging along with 50 kilograms of equipment suffers a –2 penalty to his Physical Limit.
 func (e *GameEntity) IsEncumbered() bool {
 	return e.GetEncumbrancePenalty() > 0
 }
 
 // GetComposure calculates and returns the Composure of the character.
+// Some situations are tough to deal with, even for hardened professionals like shadowrunners. When a character is faced with an emotionally overwhelming situation there are only two choices. Stay and fight or turn into a quivering lump of goo. To find out which one happens, make a Willpower + Charisma Test, with a threshold based on the severity of the situation.Take note that repeating similar situations over and again eventually eliminates the need to perform this test. Staring down a group of well-armed gangers will be scary at first, but after a character does it a few times the fear gives way to instinct.
 // (WIL + CHA)
 func (e *GameEntity) GetComposure() int {
 	e.Attributes.Recalculate()
@@ -273,6 +278,7 @@ func (e *GameEntity) GetComposure() int {
 }
 
 // GetJudgeIntentions calculates and returns the Judge Intentions of the character.
+// Reading another person is also a matter of instinct. A character can use their instincts to guess at the intentions of another person or to gauge how much they can trust someone. Make an Opposed Intuition + Charisma Test against the target’s Willpower + Charisma. This is not an exact science. A successful test doesn’t mean the target will never betray you (intentions have been known to change), and deceptive characters can gain another’s confidence easily. This primarily serves as a benchmark or gut instinct about how much you can trust the person you are dealing with.
 func (e *GameEntity) GetJudgeIntentions() int {
 	e.Attributes.Recalculate()
 	// Formula: (INT + CHA)
@@ -280,6 +286,8 @@ func (e *GameEntity) GetJudgeIntentions() int {
 }
 
 // GetMemory calculates and returns the Memory of the character.
+// While there are numerous mnemonic devices, and even a few select pieces of bioware, designed for remembering information, memory is not a skill. If a character needs to recall information make a Logic + Willpower Test. Use the Knowledge Skill Table to determine the threshold. If a character actively tries to memorize information, make a Logic + Willpower Test at the time of memorization. Each hit adds a dice to the Recall Test later on.
+// Glitches can have a devastating effect on memory. A glitch means the character misremembers some portion of the information, such as order of numbers in a passcode. A critical glitch means the character has completely fooled himself into believing and thus remembering something that never actually happened.
 func (e *GameEntity) GetMemory() int {
 	e.Attributes.Recalculate()
 	// Formula: (LOG + WIL)

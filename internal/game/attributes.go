@@ -30,8 +30,8 @@ type Attributes struct {
 	Resonance Attribute[int]     `yaml:"resonance"`
 }
 
-func NewAttributes() *Attributes {
-	return &Attributes{
+func NewAttributes() Attributes {
+	return Attributes{
 		Body:      Attribute[int]{Name: "Body"},
 		Agility:   Attribute[int]{Name: "Agility"},
 		Reaction:  Attribute[int]{Name: "Reaction"},
