@@ -4,7 +4,28 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/charmbracelet/lipgloss"
+	"github.com/charmbracelet/lipgloss/table"
 	"github.com/i582/cfmt/cmd/cfmt"
+)
+
+const (
+	ColorBlack = iota
+	ColorRed
+	ColorGreen
+	ColorYellow
+	ColorBlue
+	ColorMagenta
+	ColorCyan
+	ColorWhite
+	ColorBrightBlack
+	ColorBrightRed
+	ColorBrightGreen
+	ColorBrightYellow
+	ColorBrightBlue
+	ColorBrightMagenta
+	ColorBrightCyan
+	ColorBrightWhite
 )
 
 func main() {
@@ -89,18 +110,21 @@ func main() {
 	output.WriteString(cfmt.Sprintf("│                         │                         │                         │\n"))
 	output.WriteString(cfmt.Sprintf("╰─────────────────────────┴─────────────────────────┴─────────────────────────╯\n"))
 	output.WriteString("\n")
-	// s := lipgloss.NewStyle().Foreground(lipgloss.Color("240")).Render
+	n := lipgloss.NewStyle().Foreground(lipgloss.Color("240")).Padding(0, 1, 0, 1).Render
+	// v := lipgloss.NewStyle().Foreground(lipgloss.Color("240")).Padding(0, 1, 0, 1).Render
 	// cellStyle := lipgloss.NewStyle().Padding(0, 1, 0, 1).Render
 
-	// t := table.New().Width(80)
-	// t.Row(cellStyle("Name"))
-	// t.Row(cellStyle("Body"), cellStyle("Essence"))
+	t := table.New().Width(80)
+	t.Row(n("Name"))
+	t.Row(n("Body"), n("Essence"))
 	// // t.Row("Bubble Tea", s("Milky"))
 	// // t.Row("Milk Tea", s("Also milky"))
 	// // t.Row("Actual milk", s("Milky as well"))
-	// output.WriteString(t.Render())
+	output.WriteString(t.Render())
 
-	output.WriteString("\n")
+	output.WriteString("\n\n")
+	output.WriteString(RenderANSI16Colors())
+
 	// fmt.Println(t.Render())
 	// Attributes                   Conditon monitor
 
@@ -251,3 +275,47 @@ func main() {
 // 		return cfmt.Sprintf("{{%-20s}}::white|bold {{%d}}::cyan", label, base)
 // 	}
 // }
+
+func RenderANSI16Colors() string {
+	// ANSI-16 colors with their respective codes and names
+	colors := []struct {
+		code int
+		name string
+	}{
+		{0, "Black"}, {1, "Red"}, {2, "Green"}, {3, "Yellow"},
+		{4, "Blue"}, {5, "Magenta"}, {6, "Cyan"}, {7, "White"},
+		{8, "Bright Black"}, {9, "Bright Red"}, {10, "Bright Green"},
+		{11, "Bright Yellow"}, {12, "Bright Blue"}, {13, "Bright Magenta"},
+		{14, "Bright Cyan"}, {15, "Bright White"},
+	}
+
+	// Render styles for each color
+	var output string
+	for _, c := range colors {
+		// Foreground style
+		fgStyle := lipgloss.NewStyle().
+			Foreground(lipgloss.Color(fmt.Sprintf("%d", c.code))).
+			Padding(0, 2)
+
+		fgStyleBold := lipgloss.NewStyle().
+			Bold(true).
+			Foreground(lipgloss.Color(fmt.Sprintf("%d", c.code))).
+			Padding(0, 2)
+
+		// Background style
+		bgStyle := lipgloss.NewStyle().
+			Background(lipgloss.Color(fmt.Sprintf("%d", c.code))).
+			Padding(0, 2)
+
+		// Combine styles
+		output += fmt.Sprintf(
+			"%s  %s  %s %s\n",
+			fgStyle.Render(fmt.Sprintf("[%d]", c.code)),
+			fgStyle.Render(c.name),
+			fgStyleBold.Render(c.name),
+			bgStyle.Render("   "),
+		)
+	}
+
+	return output
+}
