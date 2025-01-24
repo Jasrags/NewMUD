@@ -338,10 +338,12 @@ var (
 	dualColumnStyle   = borderStyle.Width(39)
 
 	// Text styles
-	attrNameStyle   = lipgloss.NewStyle().Bold(true).Foreground(white)
-	attrValueStyle  = lipgloss.NewStyle().Bold(false).Foreground(cyan)
-	attrPosModStyle = lipgloss.NewStyle().Bold(true).Foreground(green)
-	attrNegModStyle = lipgloss.NewStyle().Bold(true).Foreground(red)
+	headerStyle        = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("63"))
+	attrNameStyle      = lipgloss.NewStyle().Bold(true).Foreground(white)
+	attrTextValueStyle = lipgloss.NewStyle().Bold(false).Foreground(white)
+	attrValueStyle     = lipgloss.NewStyle().Bold(false).Foreground(cyan)
+	attrPosModStyle    = lipgloss.NewStyle().Bold(true).Foreground(green)
+	attrNegModStyle    = lipgloss.NewStyle().Bold(true).Foreground(red)
 
 	// Colors
 	black   = lipgloss.Color("0")
@@ -415,6 +417,9 @@ func renderValue[T int | float64](value T) string {
 		return fmt.Sprintf("%v", v)
 	}
 }
+func RenderKeyValue(key, value string) string {
+	return fmt.Sprintf("%s: %s", attrNameStyle.Render(key), attrTextValueStyle.Render(value))
+}
 
 // RenderCharacterTable renders the entire character table.
 func RenderCharacterTable() string {
@@ -437,10 +442,38 @@ func RenderCharacterTable() string {
 	strs := RenderAttributes(attrs)
 	table := lipgloss.JoinVertical(lipgloss.Left,
 		// Personal Data
-		singleColumnStyle.Render("Name: Shadow Walker"),
+		headerStyle.Render("Personal Data"),
+		singleColumnStyle.Render(
+			lipgloss.JoinVertical(lipgloss.Left,
+				lipgloss.JoinHorizontal(lipgloss.Top,
+					RenderKeyValue("Name", "Shadow Walkessr"), "\t",
+					RenderKeyValue("Title", "The Dude"),
+				),
+				lipgloss.JoinHorizontal(lipgloss.Top,
+					RenderKeyValue("Metatype", "Human"), "\t",
+					RenderKeyValue("Ethnicity", "White"),
+				),
+				lipgloss.JoinHorizontal(lipgloss.Top,
+					RenderKeyValue("Age", "0"), "\t",
+					RenderKeyValue("Sex", "Male"), "\t",
+					RenderKeyValue("Height", "0"), "\t",
+					RenderKeyValue("Weight", "0"),
+				),
+				lipgloss.JoinHorizontal(lipgloss.Top,
+					RenderKeyValue("Street Cred", "0"), "\t",
+					RenderKeyValue("Notoriety", "Human"), "\t",
+					RenderKeyValue("Public Awareness", "0"),
+				),
+				lipgloss.JoinHorizontal(lipgloss.Top,
+					RenderKeyValue("Karma", "0"), "\t",
+					RenderKeyValue("Total Karma", "0"),
+				),
+			),
+		),
 		// Metatype, Ethnicity, Age, Sex, Height, Weight, Street Cred, Notoriety, Public Awareness, Karma, Total Karma
 		lipgloss.JoinHorizontal(lipgloss.Top,
 			lipgloss.JoinVertical(lipgloss.Left,
+				headerStyle.Render("Attributes"),
 				// Attributes left
 				// All true attributes
 				dualColumnStyle.Render(
@@ -452,16 +485,17 @@ func RenderCharacterTable() string {
 			// Attributes right
 			// Derivied attributes - Iniitiative, Matrix Initiative, Astral Initiative, Composure, Judge Intentions, Memory, Lift/Carry, Movement
 			lipgloss.JoinVertical(lipgloss.Left,
+				headerStyle.Render("Derivied Attributes"),
 				dualColumnStyle.Render(
 					lipgloss.JoinVertical(lipgloss.Left,
-						attrNameStyle.Render("Initiative"),
-						attrNameStyle.Render("Matrix Initiative"),
-						attrNameStyle.Render("Astral Initiative"),
-						attrNameStyle.Render("Composure"),
-						attrNameStyle.Render("Judge Intentions"),
-						attrNameStyle.Render("Memory"),
-						attrNameStyle.Render("Lift/Carry"),
-						attrNameStyle.Render("Movement"),
+						attrNameStyle.Render("Initiative", "0"),
+						attrNameStyle.Render("Matrix Initiative", "0"),
+						attrNameStyle.Render("Astral Initiative", "0"),
+						attrNameStyle.Render("Composure", "0"),
+						attrNameStyle.Render("Judge Intentions", "0"),
+						attrNameStyle.Render("Memory", "0"),
+						attrNameStyle.Render("Lift/Carry", "0"),
+						attrNameStyle.Render("Movement", "0"),
 					),
 				),
 			),
