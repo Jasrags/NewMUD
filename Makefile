@@ -1,8 +1,6 @@
 # Change these variables as necessary.
 MAIN_PACKAGE_PATH := .
 BINARY_NAME := main
-IMAGE_NAME = your-docker-username/game
-TAG = latest
 
 # ==================================================================================== #
 # HELPERS
@@ -41,15 +39,6 @@ audit:
 	go run golang.org/x/vuln/cmd/govulncheck@latest ./...
 	go test -race -buildvcs -vet=off ./...
 
-## run: run the  application
-.PHONY: validate
-validate:
-	go run cmd/validate/main.go
-
-# ==================================================================================== #
-# DEVELOPMENT
-# ==================================================================================== #
-
 ## test: run all tests
 .PHONY: test
 test:
@@ -61,54 +50,36 @@ test/cover:
 	go test -v -race -buildvcs -coverprofile=/tmp/coverage.out ./...
 	go tool cover -html=/tmp/coverage.out
 
-## build: build the application
-.PHONY: build
-build:
-	go build -o=/tmp/bin/${BINARY_NAME} ${MAIN_PACKAGE_PATH}
-
-## run: run the  application
-.PHONY: run
-run: build
-	/tmp/bin/${BINARY_NAME}
-
 ## run/live: run the application with reloading on file changes
-.PHONY: run/live
-run/live:
+.PHONY: run/live/iotest
+run/live/iotest:
 	go mod tidy;go run github.com/cosmtrek/air@v1.43.0 \
-		--build.cmd "make build" --build.bin "/tmp/bin/${BINARY_NAME}" --build.delay "100" \
+		--build.cmd "make build/iotest" --build.bin "/tmp/bin/iotest" --build.delay "100" \
 		--build.exclude_dir "" \
 		--build.include_ext "go, tpl, tmpl, html, css, scss, js, ts, sql, jpeg, jpg, gif, png, bmp, svg, webp, ico" \
 		--misc.clean_on_exit "true"
 
+## build/ssh: build the ssh command
+.PHONY: build/iotest
+build/iotest:
+	go build -o=/tmp/bin/iotest cmd/iotest/main.go
 
-# Deploy
+## build/ssh: build the ssh command
+.PHONY: build/ssh
+build/ssh:
+	go build -o=/tmp/bin/ssh cmd/ssh/main.go
 
-# Build the Docker image
-.PHONY: docker-build
-docker-build:
-	docker build -t $(IMAGE_NAME):$(TAG) .
+## run/ssh: run the ssh command
+.PHONY: run/ssh
+run/ssh: build/ssh
+	/tmp/bin/ssh
 
-# Push the Docker image to a registry
-.PHONY: docker-push
-docker-push:
-	docker push $(IMAGE_NAME):$(TAG)
+## run/live/ssh: run the ssh command with reloading on file changes
+.PHONY: run/live/ssh
+run/live/ssh:
+	go mod tidy;go run github.com/cosmtrek/air@v1.43.0 \
+		--build.cmd "make build/ssh" --build.bin "/tmp/bin/ssh" --build.delay "100" \
+		--build.exclude_dir "" \
+		--build.include_ext "go, tpl, tmpl, html, css, scss, js, ts, sql, jpeg, jpg, gif, png, bmp, svg, webp, ico" \
+		--misc.clean_on_exit "true"
 
-# Full pipeline: build, tag, and push
-.PHONY: release
-release: build docker-build docker-push
-
-# ==================================================================================== #
-# OPERATIONS
-# ==================================================================================== #
-
-## push: push changes to the remote Git repository
-.PHONY: push
-push: tidy audit no-dirty
-	git push
-
-## production/deploy: deploy the application to production
-.PHONY: production/deploy
-production/deploy: confirm tidy audit no-dirty
-	GOOS=linux GOARCH=amd64 go build -ldflags='-s' -o=/tmp/bin/linux_amd64/${BINARY_NAME} ${MAIN_PACKAGE_PATH}
-	upx -5 /tmp/bin/linux_amd64/${BINARY_NAME}
-	# Include additional deployment steps here...
