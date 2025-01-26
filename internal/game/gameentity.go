@@ -61,6 +61,31 @@ func (e *GameEntity) SetRoom(room *Room) {
 	e.RoomID = room.ReferenceID
 }
 
+// Recalculate triggers the recalculation of all attributes and derivied values.
+func (e *GameEntity) Recalculate() {
+	// Start with attributes
+	e.Attributes.Recalculate()
+
+	// Then, recalculate derived values
+	// Composure
+	e.Attributes.Composure.Base = (e.Attributes.Charisma.TotalValue + e.Attributes.Willpower.TotalValue)
+	// Judge Intentions
+	e.Attributes.JudgeIntentions.Base = (e.Attributes.Intuition.TotalValue + e.Attributes.Charisma.TotalValue)
+	// Lift
+	e.Attributes.Lift.Base = (e.Attributes.Body.TotalValue + e.Attributes.Strength.TotalValue) * 15
+	// Carry
+	e.Attributes.Carry.Base = (e.Attributes.Body.TotalValue + e.Attributes.Strength.TotalValue) * 10
+	// Memory
+	e.Attributes.Memory.Base = (e.Attributes.Logic.TotalValue + e.Attributes.Willpower.TotalValue)
+	// Initiative
+	e.Attributes.Initiative.Base = (e.Attributes.Reaction.TotalValue + e.Attributes.Intuition.TotalValue)
+	// Walk Rate=Base Walk Rate (by metatype)+Agility
+	// Run Rate=Base Run Rate (by metatype)+(Agility×2)
+	// Swim
+	e.Attributes.Swim.Base = e.Attributes.Agility.TotalValue
+	e.Attributes.Recalculate()
+}
+
 // UseEdge - Decreases the available Edge by 1.
 func (e *GameEntity) UseEdge() bool {
 	if e.Edge.Available <= 0 || e.Edge.Max <= 0 {

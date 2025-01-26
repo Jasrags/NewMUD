@@ -17,6 +17,7 @@ const (
 )
 
 type Attributes struct {
+	// Base attributes
 	Body      Attribute[int]     `yaml:"body"`
 	Agility   Attribute[int]     `yaml:"agility"`
 	Reaction  Attribute[int]     `yaml:"reaction"`
@@ -28,10 +29,22 @@ type Attributes struct {
 	Essence   Attribute[float64] `yaml:"essence"`
 	Magic     Attribute[int]     `yaml:"magic"`
 	Resonance Attribute[int]     `yaml:"resonance"`
+	// Derived attributes
+	Initiative      Attribute[int] `yaml:"initiative"`
+	InitiativeDice  Attribute[int] `yaml:"initiative_dice"`
+	Composure       Attribute[int] `yaml:"composure"`
+	JudgeIntentions Attribute[int] `yaml:"judge_intentions"`
+	Memory          Attribute[int] `yaml:"memory"`
+	Lift            Attribute[int] `yaml:"lift"`
+	Carry           Attribute[int] `yaml:"carry"`
+	Walk            Attribute[int] `yaml:"walk"`
+	Run             Attribute[int] `yaml:"run"`
+	Swim            Attribute[int] `yaml:"swim"`
 }
 
 func NewAttributes() Attributes {
 	return Attributes{
+		// Base attributes
 		Body:      Attribute[int]{Name: "Body"},
 		Agility:   Attribute[int]{Name: "Agility"},
 		Reaction:  Attribute[int]{Name: "Reaction"},
@@ -43,10 +56,22 @@ func NewAttributes() Attributes {
 		Essence:   Attribute[float64]{Name: "Essence"},
 		Magic:     Attribute[int]{Name: "Magic"},
 		Resonance: Attribute[int]{Name: "Resonance"},
+		// Derived attributes
+		Initiative:      Attribute[int]{Name: "Initiative"},
+		InitiativeDice:  Attribute[int]{Name: "Initiative Dice"},
+		Composure:       Attribute[int]{Name: "Composure"},
+		JudgeIntentions: Attribute[int]{Name: "Judge Intentions"},
+		Memory:          Attribute[int]{Name: "Memory"},
+		Lift:            Attribute[int]{Name: "Lift"},
+		Carry:           Attribute[int]{Name: "Carry"},
+		Walk:            Attribute[int]{Name: "Walk"},
+		Run:             Attribute[int]{Name: "Run"},
+		Swim:            Attribute[int]{Name: "Swim"},
 	}
 }
 
 func (a *Attributes) Recalculate() {
+	// Base attributes
 	a.Body.Recalculate()
 	a.Agility.Recalculate()
 	a.Reaction.Recalculate()
@@ -58,21 +83,32 @@ func (a *Attributes) Recalculate() {
 	a.Essence.Recalculate()
 	a.Magic.Recalculate()
 	a.Resonance.Recalculate()
+	// Derived attributes
+	a.Initiative.Recalculate()
+	a.InitiativeDice.Recalculate()
+	a.Composure.Recalculate()
+	a.JudgeIntentions.Recalculate()
+	a.Memory.Recalculate()
+	a.Lift.Recalculate()
+	a.Carry.Recalculate()
+	a.Walk.Recalculate()
+	a.Run.Recalculate()
+	a.Swim.Recalculate()
 }
 
-func (a *Attributes) Reset() {
-	a.Body.Reset()
-	a.Agility.Reset()
-	a.Reaction.Reset()
-	a.Strength.Reset()
-	a.Willpower.Reset()
-	a.Logic.Reset()
-	a.Intuition.Reset()
-	a.Charisma.Reset()
-	a.Essence.Reset()
-	a.Magic.Reset()
-	a.Resonance.Reset()
-}
+// func (a *Attributes) Reset() {
+// 	a.Body.Reset()
+// 	a.Agility.Reset()
+// 	a.Reaction.Reset()
+// 	a.Strength.Reset()
+// 	a.Willpower.Reset()
+// 	a.Logic.Reset()
+// 	a.Intuition.Reset()
+// 	a.Charisma.Reset()
+// 	a.Essence.Reset()
+// 	a.Magic.Reset()
+// 	a.Resonance.Reset()
+// }
 
 type AttributeT[T int | float64] interface{}
 

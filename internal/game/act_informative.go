@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
+	"strconv"
 	"strings"
 
 	"github.com/Jasrags/NewMUD/pluralizer"
+	"github.com/charmbracelet/lipgloss"
 	"github.com/gliderlabs/ssh"
 	"github.com/i582/cfmt/cmd/cfmt"
 )
@@ -221,69 +223,193 @@ Usage:
 // 		FormatColumn(label3, value3, 20))
 // }
 
-func DoStats(s ssh.Session, cmd string, args []string, acct *Account, char *Character, room *Room) {
+func RenderCharacterTable(char *Character) string {
+	char.Recalculate()
+	// strs := RenderAttributes(char.Attributes)
+	table := lipgloss.JoinVertical(lipgloss.Left,
+		// Personal Data
+		headerStyle.Render("Personal Data"),
+		singleColumnStyle.Render(
+			lipgloss.JoinVertical(lipgloss.Left,
+				lipgloss.JoinHorizontal(lipgloss.Top,
+					RenderKeyValue("Name", char.Name), "\t",
+					RenderKeyValue("Title", char.Title),
+				),
+				lipgloss.JoinHorizontal(lipgloss.Top,
+					RenderKeyValue("Metatype", char.Metatype), "\t",
+					RenderKeyValue("Ethnicity", char.Ethnicity),
+				),
+				lipgloss.JoinHorizontal(lipgloss.Top,
+					RenderKeyValue("Age", "0"), "\t",
+					RenderKeyValue("Sex", char.Sex), "\t",
+					RenderKeyValue("Height", "0"), "\t",
+					RenderKeyValue("Weight", "0"),
+				),
+				lipgloss.JoinHorizontal(lipgloss.Top,
+					RenderKeyValue("Street Cred", "0"), "\t",
+					RenderKeyValue("Notoriety", "0"), "\t",
+					RenderKeyValue("Public Awareness", "0"),
+				),
+				lipgloss.JoinHorizontal(lipgloss.Top,
+					RenderKeyValue("Karma", "0"), "\t",
+					RenderKeyValue("Total Karma", "0"),
+				),
+			),
+		),
+		// Attributes doble column
+		lipgloss.JoinHorizontal(lipgloss.Top,
+			lipgloss.JoinVertical(lipgloss.Left,
+				headerStyle.Render("Attributes"),
+				// Attributes - LEFT - Base attributes
+				// Formats:
+				// Reaction   5  (7)
+				// Essence    6.00
+				dualColumnStyle.Render(
+					lipgloss.JoinVertical(lipgloss.Left,
+						RenderAttribute(char.Attributes.Body),      // 5  (7)
+						RenderAttribute(char.Attributes.Agility),   // 5  (7)
+						RenderAttribute(char.Attributes.Reaction),  // 5  (7)
+						RenderAttribute(char.Attributes.Strength),  // 5  (7)
+						RenderAttribute(char.Attributes.Willpower), // 5  (7)
+						RenderAttribute(char.Attributes.Logic),     // 5  (7)
+						RenderAttribute(char.Attributes.Intuition), // 5  (7)
+						RenderAttribute(char.Attributes.Charisma),  // 5  (7)
+						RenderAttribute(char.Attributes.Essence),   // 5  (7)
+						RenderAttribute(char.Attributes.Magic),     // 5  (7)
+						RenderAttribute(char.Attributes.Resonance), // Essence    6.00
+						// strs...,
+					),
+				),
+			),
+			// Attributes RIGHT - Derivied attributes
+			lipgloss.JoinVertical(lipgloss.Left,
+				headerStyle.Render(""),
+				dualColumnStyle.Render(
+					lipgloss.JoinVertical(lipgloss.Left,
+						RenderAttribute(char.Attributes.Initiative), // Initiative 10 (12) + 1d6 (2d6)
+						RenderAttribute(char.Attributes.InitiativeDice),
+						RenderAttribute(char.Attributes.Composure),       // 5  (7)
+						RenderAttribute(char.Attributes.JudgeIntentions), // 5  (7)
+						RenderAttribute(char.Attributes.Memory),          // 5  (7)
+						RenderAttribute(char.Attributes.Lift),            // 5  (7)
+						RenderAttribute(char.Attributes.Carry),           // 5  (7)
+						RenderAttribute(char.Attributes.Walk),            // 5  (7)
+						RenderAttribute(char.Attributes.Run),             // 5  (7)
+						RenderAttribute(char.Attributes.Swim),            // 5  (7)
+						"",
+					),
+				),
+			),
+		),
+	)
 
+	return table
+}
+
+// RenderAttribute renders a single attribute for display.
+func RenderAttribute[T int | float64](attr Attribute[T]) string {
+	var output strings.Builder
+
+	if attr.Base == 0 {
+		return ""
+	}
+
+	output.WriteString(attrNameStyle.Render(fmt.Sprintf("%-10s", attr.Name)))
+	output.WriteString(attrValueStyle.Render(fmt.Sprintf(" %-2v", renderValue(attr.Base))))
+	if attr.TotalValue != attr.Base {
+		style := attrPosModStyle
+		if attr.TotalValue < attr.Base {
+			style = attrNegModStyle
+		}
+		output.WriteString(style.Render(fmt.Sprintf(" (%v)", renderValue(attr.TotalValue))))
+	}
+
+	return output.String()
+}
+
+// renderValue formats the value of an attribute for display.
+func renderValue[T int | float64](value T) string {
+	switch v := any(value).(type) {
+	case int:
+		return strconv.Itoa(v)
+	case float64:
+		return fmt.Sprintf("%.2f", v)
+	default:
+		return fmt.Sprintf("%v", v)
+	}
+}
+func RenderKeyValue(key, value string) string {
+	return fmt.Sprintf("%s: %s", attrNameStyle.Render(key), attrTextValueStyle.Render(value))
+}
+
+func DoStats(s ssh.Session, cmd string, args []string, acct *Account, char *Character, room *Room) {
 	if char == nil {
 		io.WriteString(s, cfmt.Sprintf("{{Error: No character is associated with this session.}}::red\n"))
 		return
 	}
 
-	// // Single Column
-	// fmt.Printf("%-20s %d\n", "Movement", 5)
-
-	// // Double Column
-	// fmt.Printf("%-20s %-8d %-20s %.2f\n", "Body", 5, "Essence", 5.60)
-
-	// // Triple Column
-	// fmt.Printf("%-20s %-8s %-20s %-8s %-15s %d\n",
-	// 	"Physical Damage", "0/11",
-	// 	"Stun Damage", "0/10",
-	// 	"Overflow", 0)
-
-	var output strings.Builder
-
-	// Character Info Block
-	// output.WriteString(FormatDoubleColumn("Name:", char.Name, "Title:", char.Title))
-	output.WriteString(cfmt.Sprintf(
-		"{{%-20s}}::white|bold {{%-8s}}::cyan {{%-20s}}::white|bold {{%-8s}}::cyan\n",
-		"Name:", char.Name, "Title:", char.Title))
-	output.WriteString(cfmt.Sprintf(
-		"Metatype: {{%-12s}}::cyan Ethnicity: {{%s}}::cyan\n",
-		char.Metatype, char.Ethnicity))
-	output.WriteString(cfmt.Sprintf(
-		"Age: {{%-4d}}::cyan Sex: {{%-6s}}::cyan Height: {{%-6d}}::cyan Weight: {{%d}}::cyan\n",
-		char.Age, char.Sex, char.Height, char.Weight))
-	output.WriteString(cfmt.Sprintf("Street Cred: {{%-3d}}::cyan Notoriety: {{%-3d}}::cyan Public Awareness: {{%d}}::cyan\n",
-		char.StreetCred, char.Notoriety, char.PublicAwareness))
-	output.WriteString(cfmt.Sprintf("Karma: {{%-10d}}::cyan Total Karma: {{%d}}::cyan\n\n", char.Karma, char.TotalKarma))
-
-	// Damage and Condition Tracking
-	output.WriteString(cfmt.Sprintf("{{%-15s}}::white|bold {{%6d}}::cyan/{{%-6d}}::cyan {{%-15s}}::white|bold {{%6d}}::cyan/{{%-6d}}::cyan {{%-15s}}::white|bold {{%d}}::cyan\n\n",
-		"Physical Damage", char.PhysicalDamage.Current, char.GetPhysicalConditionMax(), "Stun Damage", char.StunDamage.Current, char.GetStunConditionMax(), "Overflow", char.PhysicalDamage.Overflow))
-
-	// Two-column Main Stats Block
-	output.WriteString(cfmt.Sprintf("{{%-20s}}::white|bold {{%-8d}}::cyan {{%-20s}}::white|bold {{%s}}::cyan\n", "Body", char.Attributes.Body.TotalValue, "Essence", fmt.Sprintf("%.2f", char.Attributes.Essence.TotalValue)))
-	output.WriteString(cfmt.Sprintf("{{%-20s}}::white|bold {{%-8d}}::cyan {{%-20s}}::white|bold {{%d (%d)}}::cyan\n", "Agility", char.Attributes.Agility.TotalValue, "Magic/Resonance", char.Attributes.Magic.TotalValue, char.Attributes.Resonance.TotalValue))
-	// output.WriteString( cfmt.Sprintf("{{%-20s}}::white|bold {{%-8d}}::cyan {{%-20s}}::white|bold {{%d + 1d6}}::cyan\n", "Reaction", char.Attributes.Reaction.TotalValue, "Initiative", char.Initiative.Base))
-	// output.WriteString( cfmt.Sprintf("{{%-20s}}::white|bold {{%-8d}}::cyan {{%-20s}}::white|bold {{%d + 1d6}}::cyan\n", "Strength", char.Attributes.Strength.TotalValue, "Matrix Initiative", char.MatrixInitiative.Base))
-	// output.WriteString( cfmt.Sprintf("{{%-20s}}::white|bold {{%-8d}}::cyan {{%-20s}}::white|bold {{%d + 1d6}}::cyan\n", "Willpower", char.Attributes.Willpower.TotalValue, "Astral Initiative", char.AstralInitiative.Base))
-	output.WriteString(cfmt.Sprintf("{{%-20s}}::white|bold {{%-8d}}::cyan {{%-20s}}::white|bold {{%d}}::cyan\n", "Logic", char.Attributes.Logic.TotalValue, "Composure", char.GetComposure()))
-	output.WriteString(cfmt.Sprintf("{{%-20s}}::white|bold {{%-8d}}::cyan {{%-20s}}::white|bold {{%d}}::cyan\n", "Intuition", char.Attributes.Intuition.TotalValue, "Judge Intentions", char.GetJudgeIntentions()))
-	output.WriteString(cfmt.Sprintf("{{%-20s}}::white|bold {{%-8d}}::cyan {{%-20s}}::white|bold {{%d}}::cyan\n", "Charisma", char.Attributes.Charisma.TotalValue, "Memory", char.GetMemory()))
-	output.WriteString(cfmt.Sprintf("{{%-15s}}::white|bold {{%6d}}::cyan/{{%-6d}}::cyan {{%-20s}}::white|bold {{%.2fkg/%.2fkg}}::cyan\n", "Edge", char.Edge.Available, char.Edge.Max, "Lift/Carry", char.GetCurrentCarryWeight(), char.GetLiftCarry()))
-	output.WriteString(cfmt.Sprintf("{{%-20s}}::white|bold {{%d}}::cyan\n\n", "Movement", char.GetMovement()))
-
-	// Limits at the Bottom
-	physicalLimit := char.GetPhysicalLimit()
-	adjustedPhysicalLimit := char.GetAdjustedPhysicalLimit()
-	mentalLimit := char.GetMentalLimit()
-	socialLimit := char.GetSocialLimit()
-
-	output.WriteString(cfmt.Sprintf("Physical Limit: {{%d (%d)}}::cyan  Mental Limit: {{%d (%d)}}::cyan  Social Limit: {{%d (%d)}}::cyan\n",
-		physicalLimit, adjustedPhysicalLimit, mentalLimit, char.GetMentalLimit(), socialLimit, char.GetSocialLimit()))
-
-	io.WriteString(s, output.String())
+	io.WriteString(s, RenderCharacterTable(char))
 }
+
+// return RenderCharacterTable(char)
+
+// )
+// // Single Column
+// fmt.Printf("%-20s %d\n", "Movement", 5)
+
+// // Double Column
+// fmt.Printf("%-20s %-8d %-20s %.2f\n", "Body", 5, "Essence", 5.60)
+
+// // Triple Column
+// fmt.Printf("%-20s %-8s %-20s %-8s %-15s %d\n",
+// 	"Physical Damage", "0/11",
+// 	"Stun Damage", "0/10",
+// 	"Overflow", 0)
+
+// var output strings.Builder
+
+// Character Info Block
+// output.WriteString(FormatDoubleColumn("Name:", char.Name, "Title:", char.Title))
+// output.WriteString(cfmt.Sprintf(
+// 	"{{%-20s}}::white|bold {{%-8s}}::cyan {{%-20s}}::white|bold {{%-8s}}::cyan\n",
+// 	"Name:", char.Name, "Title:", char.Title))
+// output.WriteString(cfmt.Sprintf(
+// 	"Metatype: {{%-12s}}::cyan Ethnicity: {{%s}}::cyan\n",
+// 	char.Metatype, char.Ethnicity))
+// output.WriteString(cfmt.Sprintf(
+// 	"Age: {{%-4d}}::cyan Sex: {{%-6s}}::cyan Height: {{%-6d}}::cyan Weight: {{%d}}::cyan\n",
+// 	char.Age, char.Sex, char.Height, char.Weight))
+// output.WriteString(cfmt.Sprintf("Street Cred: {{%-3d}}::cyan Notoriety: {{%-3d}}::cyan Public Awareness: {{%d}}::cyan\n",
+// 	char.StreetCred, char.Notoriety, char.PublicAwareness))
+// output.WriteString(cfmt.Sprintf("Karma: {{%-10d}}::cyan Total Karma: {{%d}}::cyan\n\n", char.Karma, char.TotalKarma))
+
+// // Damage and Condition Tracking
+// output.WriteString(cfmt.Sprintf("{{%-15s}}::white|bold {{%6d}}::cyan/{{%-6d}}::cyan {{%-15s}}::white|bold {{%6d}}::cyan/{{%-6d}}::cyan {{%-15s}}::white|bold {{%d}}::cyan\n\n",
+// 	"Physical Damage", char.PhysicalDamage.Current, char.GetPhysicalConditionMax(), "Stun Damage", char.StunDamage.Current, char.GetStunConditionMax(), "Overflow", char.PhysicalDamage.Overflow))
+
+// // Two-column Main Stats Block
+// output.WriteString(cfmt.Sprintf("{{%-20s}}::white|bold {{%-8d}}::cyan {{%-20s}}::white|bold {{%s}}::cyan\n", "Body", char.Attributes.Body.TotalValue, "Essence", fmt.Sprintf("%.2f", char.Attributes.Essence.TotalValue)))
+// output.WriteString(cfmt.Sprintf("{{%-20s}}::white|bold {{%-8d}}::cyan {{%-20s}}::white|bold {{%d (%d)}}::cyan\n", "Agility", char.Attributes.Agility.TotalValue, "Magic/Resonance", char.Attributes.Magic.TotalValue, char.Attributes.Resonance.TotalValue))
+// // output.WriteString( cfmt.Sprintf("{{%-20s}}::white|bold {{%-8d}}::cyan {{%-20s}}::white|bold {{%d + 1d6}}::cyan\n", "Reaction", char.Attributes.Reaction.TotalValue, "Initiative", char.Initiative.Base))
+// // output.WriteString( cfmt.Sprintf("{{%-20s}}::white|bold {{%-8d}}::cyan {{%-20s}}::white|bold {{%d + 1d6}}::cyan\n", "Strength", char.Attributes.Strength.TotalValue, "Matrix Initiative", char.MatrixInitiative.Base))
+// // output.WriteString( cfmt.Sprintf("{{%-20s}}::white|bold {{%-8d}}::cyan {{%-20s}}::white|bold {{%d + 1d6}}::cyan\n", "Willpower", char.Attributes.Willpower.TotalValue, "Astral Initiative", char.AstralInitiative.Base))
+// output.WriteString(cfmt.Sprintf("{{%-20s}}::white|bold {{%-8d}}::cyan {{%-20s}}::white|bold {{%d}}::cyan\n", "Logic", char.Attributes.Logic.TotalValue, "Composure", char.GetComposure()))
+// output.WriteString(cfmt.Sprintf("{{%-20s}}::white|bold {{%-8d}}::cyan {{%-20s}}::white|bold {{%d}}::cyan\n", "Intuition", char.Attributes.Intuition.TotalValue, "Judge Intentions", char.GetJudgeIntentions()))
+// output.WriteString(cfmt.Sprintf("{{%-20s}}::white|bold {{%-8d}}::cyan {{%-20s}}::white|bold {{%d}}::cyan\n", "Charisma", char.Attributes.Charisma.TotalValue, "Memory", char.GetMemory()))
+// output.WriteString(cfmt.Sprintf("{{%-15s}}::white|bold {{%6d}}::cyan/{{%-6d}}::cyan {{%-20s}}::white|bold {{%.2fkg/%.2fkg}}::cyan\n", "Edge", char.Edge.Available, char.Edge.Max, "Lift/Carry", char.GetCurrentCarryWeight(), char.GetLiftCarry()))
+// output.WriteString(cfmt.Sprintf("{{%-20s}}::white|bold {{%d}}::cyan\n\n", "Movement", char.GetMovement()))
+
+// // Limits at the Bottom
+// physicalLimit := char.GetPhysicalLimit()
+// adjustedPhysicalLimit := char.GetAdjustedPhysicalLimit()
+// mentalLimit := char.GetMentalLimit()
+// socialLimit := char.GetSocialLimit()
+
+// output.WriteString(cfmt.Sprintf("Physical Limit: {{%d (%d)}}::cyan  Mental Limit: {{%d (%d)}}::cyan  Social Limit: {{%d (%d)}}::cyan\n",
+// 	physicalLimit, adjustedPhysicalLimit, mentalLimit, char.GetMentalLimit(), socialLimit, char.GetSocialLimit()))
+
+// 	io.WriteString(s, output.String())
+// }
 
 /*
 Usage:
