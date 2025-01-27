@@ -1,7 +1,8 @@
 ---
 - id: "small_rock"
   name: "Small Rock"
-  description: "A small, smooth rock. It's perfect for skipping across water."
+  description: >-
+    A small, smooth rock. It's perfect for skipping across water.
   tags: ["rock", "small"]
   value: 1
   weight: 10
@@ -11,7 +12,8 @@
   subtype: "none"
 - id: "jagged_rock"
   name: "Jagged Rock"
-  description: "A jagged rock. It's perfect for throwing at things."
+  description: >-
+    A jagged rock. It's perfect for throwing at things.
   tags: ["rock", "jagged"]
   value: 1
   weight: 110
@@ -21,7 +23,8 @@
   subtype: "none"
 - id: "test_key"
   name: "Test Key"
-  description: "A key that looks like it might fit in a lock."
+  description: >-
+    A key that looks like it might fit in a lock.
   tags: ["key"]
   value: 1
   weight: 0.1

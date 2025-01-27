@@ -1,13 +1,15 @@
 package game
 
 import (
+	"fmt"
 	"log/slog"
 	"strings"
 	"sync"
 
 	"github.com/Jasrags/NewMUD/pluralizer"
+	"github.com/charmbracelet/lipgloss"
 	"github.com/google/uuid"
-	"github.com/i582/cfmt/cmd/cfmt"
+	"github.com/muesli/reflow/wordwrap"
 	ee "github.com/vansante/go-event-emitter"
 )
 
@@ -282,64 +284,104 @@ func (r *Room) Broadcast(msg string, excludeIDs []string) {
 
 // RenderRoom renders the room to a string for the player.
 func RenderRoom(user *Account, char *Character, room *Room) string {
+	// var builder strings.Builder
+
+	// Create the room title text
+	roomTitle := fmt.Sprintf("%-10s", boldCyanText.Render(room.Title))
+	if char.Role == CharacterRoleAdmin {
+		roomTitle = fmt.Sprintf("%s [%s]", roomTitle, whiteText.Render(room.ID))
+	}
+
+	roomText := []string{
+		roomTitle,
+		whiteText.Render(wordwrap.String(room.Description, 80)),
+		"",
+		RenderEntitiesInRoom(char),
+		"",
+	}
+	if len(char.Room.Inventory.Items) > 0 {
+		roomText = append(roomText, RenderItemsInRoom(char))
+		roomText = append(roomText, "")
+	}
+
+	// if len(char.Room.Characters) > 0 {
+	// roomText = append(roomText, RenderCharactersInRoom(char))
+	// }
+	// if len(char.Room.Mobs) > 0 {
+	// roomText = append(roomText, RenderMobsInRoom(char))
+	// }
+	roomText = append(roomText, RenderRoomExits(char))
+	// if len(char.Room.Inventory.Items) > 0 {
+	// roomText = append(roomText, RenderItemsInRoom(char))
+	// }
+	roomText = append(roomText, "")
+
+	return lipgloss.JoinVertical(lipgloss.Left,
+		roomText...,
+	)
+}
+
+func RenderEntitiesInRoom(char *Character) string {
 	var builder strings.Builder
 
-	// Optionally display the room ID for admins
-	if char.Role == CharacterRoleAdmin {
-		builder.WriteString(cfmt.Sprintf("{{[%s] }}::green", char.Room.ID))
-	}
-
-	// Display the room title
-	builder.WriteString(cfmt.Sprintf("{{%s}}::#4287f5\n", char.Room.Title))
-
-	// Display the room description
-	builder.WriteString(cfmt.Sprintf("{{%s}}::white\n", WrapText(char.Room.Description, 80)))
-
-	// Display players in the room
+	// Render Characters in the Room
 	charCount := len(char.Room.Characters)
-	if charCount > 0 {
-		var charNames []string
-		for _, c := range char.Room.Characters {
-			if c.Name != char.Name {
-				color := "cyan"
-				if c.Role == CharacterRoleAdmin {
-					color = "yellow"
-				}
-
-				charNames = append(charNames, cfmt.Sprintf("{{%s}}::%s", c.Name, color))
-			}
+	charDescriptions := []string{}
+	for _, c := range char.Room.Characters {
+		if c.Name != char.Name {
+			charDescriptions = append(charDescriptions, fmt.Sprintf(
+				"%s, a %s",
+				boldCyanText.Render(c.Name), c.Metatype))
 		}
-		if charCount == 1 {
-			builder.WriteString(cfmt.Sprint("{{You are the only player in the room.}}::cyan|bold"))
-		} else if charCount >= 2 {
-			builder.WriteString(cfmt.Sprintf("{{There is %d other person in the room: }}::cyan|bold", charCount-1))
-		} else {
-			builder.WriteString(cfmt.Sprintf("{{There are %d other people in the room: }}::cyan|bold", charCount-1))
-		}
-		if len(charNames) > 0 {
-			builder.WriteString(cfmt.Sprintf("{{%s}}::cyan", WrapText(strings.Join(charNames, ", "), 80)))
-		}
-		builder.WriteString("\n")
 	}
 
-	// Display mobs in the room
+	if charCount > 1 && len(charDescriptions) > 0 {
+		if len(charDescriptions) == 1 {
+			builder.WriteString(whiteText.Render("You notice one figure: "))
+			builder.WriteString(charDescriptions[0])
+			builder.WriteString(". ")
+		} else {
+			builder.WriteString(whiteText.Render(fmt.Sprintf("You notice %d figures: ", len(charDescriptions))))
+			builder.WriteString(strings.Join(charDescriptions[:len(charDescriptions)-1], ", "))
+			builder.WriteString(whiteText.Render(", and "))
+			builder.WriteString(charDescriptions[len(charDescriptions)-1])
+			builder.WriteString(". ")
+		}
+	}
+
+	// Render Mobs in the Room
 	mobCount := len(char.Room.Mobs)
 	mobNameCounts := make(map[string]int)
 	for _, m := range char.Room.Mobs {
 		mobNameCounts[m.Name]++
 	}
 
-	// Display the mobs in the room
 	if mobCount > 0 {
-		builder.WriteString(cfmt.Sprintf("{{There are %d creatures in the room: }}::magenta|bold", mobCount))
-		mobNames := []string{}
+		mobDescriptions := []string{}
 		for name, count := range mobNameCounts {
-			mobNames = append(mobNames, pluralizer.PluralizeNounPhrase(name, count))
+			mobDescriptions = append(mobDescriptions, pluralizer.PluralizeNounPhrase(name, count))
 		}
-		builder.WriteString(cfmt.Sprintf("{{%s}}::magenta\n", WrapText(strings.Join(mobNames, ", "), 80)))
+
+		if len(mobDescriptions) == 1 {
+			builder.WriteString(whiteText.Render("Nearby, "))
+			builder.WriteString(fmt.Sprintf("%s stands, their features twisted with a mix of curiosity and malice.",
+				boldMagentaText.Render(mobDescriptions[0])))
+		} else {
+			builder.WriteString(whiteText.Render("Nearby, "))
+			builder.WriteString(strings.Join(mobDescriptions[:len(mobDescriptions)-1], ", "))
+			builder.WriteString(whiteText.Render(", and "))
+			builder.WriteString(boldMagentaText.Render(mobDescriptions[len(mobDescriptions)-1]))
+			builder.WriteString(" stand, their features twisted with a mix of curiosity and malice.")
+		}
 	}
 
-	// Display mobs in the room
+	return wordwrap.String(builder.String(), 80)
+}
+
+func RenderItemsInRoom(char *Character) string {
+	var builder strings.Builder
+
+	// Count and map item names
 	itemCount := len(char.Room.Inventory.Items)
 	itemNameCounts := make(map[string]int)
 	for _, i := range char.Room.Inventory.Items {
@@ -347,39 +389,55 @@ func RenderRoom(user *Account, char *Character, room *Room) string {
 		itemNameCounts[bp.Name]++
 	}
 
-	// Display the mobs in the room
+	// Build the item description
 	if itemCount > 0 {
-		builder.WriteString(cfmt.Sprintf("{{There are %d items in the room: }}::green|bold", itemCount))
+		// Introductory text (white)
+		builder.WriteString(whiteText.Render("Scattered throughout the room, you spot "))
+
+		// Collect item names with counts
 		itemNames := []string{}
 		for name, count := range itemNameCounts {
-			itemNames = append(itemNames, pluralizer.PluralizeNounPhrase(name, count))
+			itemNames = append(itemNames, boldWhiteText.Render(pluralizer.PluralizeNounPhrase(name, count)))
 		}
-		builder.WriteString(cfmt.Sprintf("{{%s}}::green\n", WrapText(strings.Join(itemNames, ", "), 80)))
+
+		// Join item names with commas (white) and append to the builder
+		builder.WriteString(strings.Join(itemNames, whiteText.Render(", ")))
 	}
 
-	// Display exits
+	return builder.String()
+}
+
+func RenderRoomExits(char *Character) string {
+	// Handle no exits case early
 	if len(char.Room.Exits) == 0 {
-		builder.WriteString(cfmt.Sprint("{{There are no exits.}}::red\n"))
-	} else {
-		builder.WriteString(cfmt.Sprint("{{Exits:}}::#2359b0\n"))
-		for dir, exit := range char.Room.Exits {
-			var doorDescription string
-			if exit.Door != nil {
-				if exit.Door.IsClosed {
-					doorDescription = "a closed door"
-				} else {
-					doorDescription = "an open doorway"
-				}
-			} else {
-				doorDescription = "a passage"
-			}
-
-			builder.WriteString(cfmt.Sprintf(
-				"{{To the %s, you see %s leading to %s.}}::#2359b0\n",
-				dir, doorDescription, exit.Room.Title,
-			))
-		}
+		return redText.Render("There are no exits")
 	}
 
-	return cfmt.Sprint(builder.String())
+	// Build exits descriptions
+	exitStrings := make([]string, 0, len(char.Room.Exits)) // Preallocate capacity
+	for dir, exit := range char.Room.Exits {
+		// Determine the door description
+		doorDescription := "a passage"
+		if exit.Door != nil {
+			if exit.Door.IsClosed {
+				doorDescription = "a closed door"
+			} else {
+				doorDescription = "an open doorway"
+			}
+		}
+
+		// Format the exit description
+		exitStrings = append(exitStrings, fmt.Sprintf(
+			"%s %s, %s %s %s %s.",
+			whiteText.Render("To the"),
+			boldWhiteText.Underline(true).Render(dir),
+			whiteText.Render("you see"),
+			whiteText.Render(doorDescription),
+			whiteText.Render("leading to"),
+			boldWhiteText.Italic(true).Render(exit.Room.Title),
+		))
+	}
+
+	// Join and word-wrap exit descriptions
+	return wordwrap.String(strings.Join(exitStrings, " "), 80)
 }

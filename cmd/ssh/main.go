@@ -1,104 +1,98 @@
 package main
 
 import (
-	"fmt"
 	"log/slog"
-	"os"
 	"time"
 
 	"github.com/Jasrags/NewMUD/internal/game"
-	"github.com/fsnotify/fsnotify"
-	"github.com/spf13/viper"
 )
 
 // Add this near the top of your main.go file
 var tickDuration time.Duration
 
 func main() {
-	setupConfig()
-	loadAllDataFiles()
-	go game.StartTicker(tickDuration)
-	game.SetupServer()
-
+	gs := game.NewGameServer()
+	gs.Init()
+	gs.Start()
 	slog.Info("Shutting down")
 }
 
-func setupConfig() {
-	viper.SetConfigName("config")
-	viper.AddConfigPath(".")
-	if err := viper.ReadInConfig(); err != nil {
-		panic(err)
-	}
+// func setupConfig() {
+// 	viper.SetConfigName("config")
+// 	viper.AddConfigPath(".")
+// 	if err := viper.ReadInConfig(); err != nil {
+// 		panic(err)
+// 	}
 
-	setupLogger()
+// 	setupLogger()
 
-	// Parse tick duration
-	var err error
-	tickDuration, err = time.ParseDuration(viper.GetString("server.tick_duration"))
-	if err != nil {
-		panic(fmt.Sprintf("Invalid tick_duration format: %s", viper.GetString("server.tick_duration")))
-	}
+// 	// Parse tick duration
+// 	var err error
+// 	tickDuration, err = time.ParseDuration(viper.GetString("server.tick_duration"))
+// 	if err != nil {
+// 		panic(fmt.Sprintf("Invalid tick_duration format: %s", viper.GetString("server.tick_duration")))
+// 	}
 
-	// Update configuration on change
-	viper.OnConfigChange(func(e fsnotify.Event) {
-		slog.Info("Config updated",
-			slog.String("file", e.Name))
-		outputConfig()
-	})
-	viper.WatchConfig()
+// 	// Update configuration on change
+// 	viper.OnConfigChange(func(e fsnotify.Event) {
+// 		slog.Info("Config updated",
+// 			slog.String("file", e.Name))
+// 		outputConfig()
+// 	})
+// 	viper.WatchConfig()
 
-	outputConfig()
-}
+// 	outputConfig()
+// }
 
-func outputConfig() {
-	slog.Info("Current configuration")
+// func outputConfig() {
+// 	slog.Info("Current configuration")
 
-	for _, key := range viper.AllKeys() {
-		slog.Debug("config",
-			slog.String("key", key),
-			slog.String("value", viper.GetString(key)))
-	}
-}
+// 	for _, key := range viper.AllKeys() {
+// 		slog.Debug("config",
+// 			slog.String("key", key),
+// 			slog.String("value", viper.GetString(key)))
+// 	}
+// }
 
-func setupLogger() {
-	logLevel := viper.GetString("server.log_level")
-	logHandler := viper.GetString("server.log_handler")
+// func setupLogger() {
+// 	logLevel := viper.GetString("server.log_level")
+// 	logHandler := viper.GetString("server.log_handler")
 
-	slog.Info("Setting up logger",
-		slog.String("log_level", logLevel),
-		slog.String("log_handler", logHandler))
+// 	slog.Info("Setting up logger",
+// 		slog.String("log_level", logLevel),
+// 		slog.String("log_handler", logHandler))
 
-	// Parse and set log level
-	var programLevel slog.Level
-	switch logLevel {
-	case "debug":
-		programLevel = slog.LevelDebug
-	case "info":
-		programLevel = slog.LevelInfo
-	case "warn":
-		programLevel = slog.LevelWarn
-	case "error":
-		programLevel = slog.LevelError
-	default:
-		panic("Invalid log level")
-	}
+// 	// Parse and set log level
+// 	var programLevel slog.Level
+// 	switch logLevel {
+// 	case "debug":
+// 		programLevel = slog.LevelDebug
+// 	case "info":
+// 		programLevel = slog.LevelInfo
+// 	case "warn":
+// 		programLevel = slog.LevelWarn
+// 	case "error":
+// 		programLevel = slog.LevelError
+// 	default:
+// 		panic("Invalid log level")
+// 	}
 
-	// Setup log handler
-	var logger *slog.Logger
-	handlerOptions := &slog.HandlerOptions{Level: programLevel}
+// 	// Setup log handler
+// 	var logger *slog.Logger
+// 	handlerOptions := &slog.HandlerOptions{Level: programLevel}
 
-	switch logHandler {
-	case "text":
-		logger = slog.New(slog.NewTextHandler(os.Stdout, handlerOptions))
-	case "json":
-		logger = slog.New(slog.NewJSONHandler(os.Stdout, handlerOptions))
-	default:
-		panic("Invalid log handler")
-	}
+// 	switch logHandler {
+// 	case "text":
+// 		logger = slog.New(slog.NewTextHandler(os.Stdout, handlerOptions))
+// 	case "json":
+// 		logger = slog.New(slog.NewJSONHandler(os.Stdout, handlerOptions))
+// 	default:
+// 		panic("Invalid log handler")
+// 	}
 
-	// Set default logger
-	slog.SetDefault(logger)
-}
+// 	// Set default logger
+// 	slog.SetDefault(logger)
+// }
 
 // func setWinsize(f *os.File, w, h int) {
 // 	syscall.Syscall(syscall.SYS_IOCTL, f.Fd(), uintptr(syscall.TIOCSWINSZ),

@@ -1,0 +1,59 @@
+id: human
+name: Human
+category: Metahuman
+description: Humans are the most common metatype in the world. They are known for their adaptability and versatility.
+body:
+    min: 1
+    max: 6
+    aug_max: 10
+agility:
+    min: 1
+    max: 6
+    aug_max: 10
+reaction:
+    min: 1
+    max: 6
+    aug_max: 10
+strength:
+    min: 1
+    max: 6
+    aug_max: 10
+willpower:
+    min: 1
+    max: 6
+    aug_max: 10
+logic:
+    min: 1
+    max: 6
+    aug_max: 10
+intuition:
+    min: 1
+    max: 6
+    aug_max: 10
+charisma:
+    min: 1
+    max: 6
+    aug_max: 10
+edge:
+    min: 2
+    max: 7
+    aug_max: 7
+initiative:
+    min: 2
+    max: 12
+    aug_max: 20
+essence:
+    min: 0
+    max: 6
+    aug_max: 6
+magic:
+    min: 1
+    max: 6
+    aug_max: 10
+resonance:
+    min: 0
+    max: 6
+    aug_max: 10
+quality_restrictions: []
+qualities: []
+rule_source: SR5:Core

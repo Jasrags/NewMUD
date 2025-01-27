@@ -1,7 +1,9 @@
 ---
 - id: "goblin"
   name: "Goblin"
-  description: "A small, green creature with sharp teeth and a mischievous   grin."
+  description: >-
+    A small, green creature with sharp teeth and a mischievous   grin.
 - id: "orc"
   name: "Orc"
-  description: "A large, brutish creature with a menacing presence."
+  description: >-
+    A large, brutish creature with a menacing presence.

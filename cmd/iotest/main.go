@@ -7,69 +7,63 @@ import (
 	"github.com/Jasrags/NewMUD/internal/game"
 )
 
-var (
-	char = &game.Character{
-		UserID: "test_user",
-		Role:   game.CharacterRolePlayer,
-		GameEntity: game.GameEntity{
-			Name:            "Street Samurai",
-			Title:           "Street Samurai",
-			ID:              "ID",
-			Metatype:        "Ork",
-			Age:             25,
-			Sex:             "Male",
-			Height:          180,
-			Weight:          80,
-			Ethnicity:       "White",
-			StreetCred:      2,
-			Notoriety:       2,
-			PublicAwareness: 2,
-			Karma:           2,
-			TotalKarma:      5,
-			Description:     "A street samurai character",
-			Attributes: game.Attributes{
-				Body:            game.Attribute[int]{Name: "Body", Base: 7},
-				Agility:         game.Attribute[int]{Name: "Agility", Base: 6},
-				Reaction:        game.Attribute[int]{Name: "Reaction", Base: 5, Delta: 2},
-				Strength:        game.Attribute[int]{Name: "Strength", Base: 5},
-				Willpower:       game.Attribute[int]{Name: "Willpower", Base: 3},
-				Logic:           game.Attribute[int]{Name: "Logic", Base: 2},
-				Intuition:       game.Attribute[int]{Name: "Intuition", Base: 3},
-				Charisma:        game.Attribute[int]{Name: "Charisma", Base: 2},
-				Essence:         game.Attribute[float64]{Name: "Essence", Base: 6.0, Delta: -5.12},
-				Magic:           game.Attribute[int]{Name: "Magic"},
-				Resonance:       game.Attribute[int]{Name: "Resonance"},
-				Initiative:      game.Attribute[int]{Name: "Initiative"},
-				InitiativeDice:  game.Attribute[int]{Name: "Initiative Dice", Base: 1},
-				Composure:       game.Attribute[int]{Name: "Composure"},
-				JudgeIntentions: game.Attribute[int]{Name: "Judge Intentions"},
-				Memory:          game.Attribute[int]{Name: "Memory"},
-				Lift:            game.Attribute[int]{Name: "Lift"},
-				Carry:           game.Attribute[int]{Name: "Carry"},
-				Walk:            game.Attribute[int]{Name: "Walk"},
-				Run:             game.Attribute[int]{Name: "Run"},
-				Swim:            game.Attribute[int]{Name: "Swim"},
-			},
-			PhysicalDamage: game.PhysicalDamage{
-				Current:  0,
-				Max:      10,
-				Overflow: 0,
-			},
-			StunDamage: game.StunDamage{
-				Current: 0,
-				Max:     10,
-			},
-			Edge: game.Edge{
-				Max:       5,
-				Available: 5,
-			},
-			Equipment: map[string]*game.Item{},
-		},
-	}
-)
+var ()
 
 func main() {
+	gs := game.NewGameServer()
+	gs.SetupConfig()
+	gs.SetupLogger()
+
+	// game.EntityMgr = game.NewEntityManager()
+	game.EntityMgr.LoadDataFiles()
+	// game.AccountMgr = game.NewAccountManager()
+	game.AccountMgr.LoadDataFiles()
+	// game.CharacterMgr = game.NewCharacterManager()
+	game.CharacterMgr.LoadDataFiles()
+
+	acct := game.AccountMgr.GetByUsername("Jasrags")
+	char := game.CharacterMgr.GetCharacterByName("Jasrags")
+	room := game.EntityMgr.GetRoom("limbo")
+
+	char.MoveToRoom(room)
+
+	player1 := game.NewCharacter()
+	player1.Name = "Player1"
+	player1.Room = room
+	player1.Metatype = "Human"
+
+	player2 := game.NewCharacter()
+	player2.Name = "Player2"
+	player2.Room = room
+	player2.Metatype = "Ork"
+
+	char.Room.AddCharacter(player1)
+	char.Room.AddCharacter(player2)
+
+	// mob1 := game.EntityMgr.GetMob("orc")
+	// if mob1 == nil {
+	// 	panic("Mob not found")
+	// }
+	// mob1.ID = "ork1"
+	// mob2 := game.EntityMgr.GetMob("goblin")
+	// mob2.ID = "goblin1"
+	// mob1 := game.NewMob()
+	// mob1.Name = "Mob1"
+	// mob2 := game.NewMob()
+	// mob2.Name = "Mob2"
+
+	char.Room.AddMob(game.EntityMgr.GetMob("orc"))
+	char.Room.AddMob(game.EntityMgr.GetMob("goblin"))
+
+	// item1 := game.EntityMgr.CreateItemInstanceFromBlueprintID("small_rock")
+	// item2 := game.EntityMgr.CreateItemInstanceFromBlueprintID("jagged_rock")
+	// item3 := game.EntityMgr.CreateItemInstanceFromBlueprintID("test_key")
+
+	char.Room.Inventory.AddItem(game.EntityMgr.CreateItemInstanceFromBlueprintID("small_rock"))
+	char.Room.Inventory.AddItem(game.EntityMgr.CreateItemInstanceFromBlueprintID("jagged_rock"))
+	char.Room.Inventory.AddItem(game.EntityMgr.CreateItemInstanceFromBlueprintID("test_key"))
+
 	var output strings.Builder
-	output.WriteString(game.RenderCharacterTable(char))
+	output.WriteString(game.RenderRoom(acct, char, room))
 	fmt.Print(output.String())
 }

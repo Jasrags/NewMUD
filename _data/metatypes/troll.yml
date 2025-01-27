@@ -1,0 +1,60 @@
+id: troll
+name: Troll
+category: Metahuman
+description: Trolls are known for their size, strength, and toughness.
+body:
+    min: 5
+    max: 10
+    aug_max: 14
+agility:
+    min: 1
+    max: 5
+    aug_max: 9
+reaction:
+    min: 1
+    max: 6
+    aug_max: 10
+strength:
+    min: 5
+    max: 10
+    aug_max: 14
+willpower:
+    min: 1
+    max: 6
+    aug_max: 10
+logic:
+    min: 1
+    max: 5
+    aug_max: 9
+intuition:
+    min: 1
+    max: 5
+    aug_max: 9
+charisma:
+    min: 1
+    max: 4
+    aug_max: 8
+edge:
+    min: 1
+    max: 6
+    aug_max: 6
+initiative:
+    min: 2
+    max: 11
+    aug_max: 19
+essence:
+    min: 0
+    max: 6
+    aug_max: 6
+magic:
+    min: 1
+    max: 6
+    aug_max: 6
+resonance:
+    min: 1
+    max: 6
+    aug_max: 6
+quality_restrictions: []
+qualities:
+    - thermographic_vision
+rule_source: SR5:Core
