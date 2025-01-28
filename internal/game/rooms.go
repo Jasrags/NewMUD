@@ -287,14 +287,14 @@ func RenderRoom(user *Account, char *Character, room *Room) string {
 	// var builder strings.Builder
 
 	// Create the room title text
-	roomTitle := fmt.Sprintf("%-10s", boldCyanText.Render(room.Title))
+	roomTitle := fmt.Sprintf("%-10s", boldCyanText.Render(char.Room.Title))
 	if char.Role == CharacterRoleAdmin {
-		roomTitle = fmt.Sprintf("%s [%s]", roomTitle, whiteText.Render(room.ID))
+		roomTitle = fmt.Sprintf("%s [%s]", roomTitle, whiteText.Render(char.Room.ID))
 	}
 
 	roomText := []string{
 		roomTitle,
-		whiteText.Render(wordwrap.String(room.Description, 80)),
+		whiteText.Render(wordwrap.String(char.Room.Description, 80)),
 		"",
 		RenderEntitiesInRoom(char),
 		"",
