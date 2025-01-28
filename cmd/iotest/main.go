@@ -14,14 +14,11 @@ func main() {
 	gs.SetupConfig()
 	gs.SetupLogger()
 
-	// game.EntityMgr = game.NewEntityManager()
 	game.EntityMgr.LoadDataFiles()
-	// game.AccountMgr = game.NewAccountManager()
 	game.AccountMgr.LoadDataFiles()
-	// game.CharacterMgr = game.NewCharacterManager()
 	game.CharacterMgr.LoadDataFiles()
 
-	acct := game.AccountMgr.GetByUsername("Jasrags")
+	// acct := game.AccountMgr.GetByUsername("Jasrags")
 	char := game.CharacterMgr.GetCharacterByName("Jasrags")
 	room := game.EntityMgr.GetRoom("limbo")
 
@@ -64,6 +61,7 @@ func main() {
 	char.Room.Inventory.AddItem(game.EntityMgr.CreateItemInstanceFromBlueprintID("test_key"))
 
 	var output strings.Builder
-	output.WriteString(game.RenderRoom(acct, char, room))
+	// output.WriteString(game.RenderRoom(acct, char, room))
+	output.WriteString(game.RenderCharacterTable(char))
 	fmt.Print(output.String())
 }
