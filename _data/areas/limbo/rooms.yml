@@ -1,47 +1,47 @@
 ---
-- id: the_void
-  title: The Void
+- id: "the_void"
+  title: "The Void"
   exits:
     north:
-      room_id: limbo
+      room_id: "limbo"
       door:
         is_locked: False
         is_open: False
         key_ids: ["test_key"]
         pick_difficulty: 10
   default_mobs:
-   - id: goblin
-   - id: orc
-   - id: orc
+   - id: "goblin"
+   - id: "orc"
+   - id: "orc"
   default_items:
-   - id: small_rock
-   - id: small_rock
-   - id: jagged_rock
-   - id: test_key
+   - id: "small_rock"
+   - id: "small_rock"
+   - id: 'jagged_rock'
+   - id: "test_key"
   description: >-
     You don't think that you are not floating in nothing.
-- id: limbo
-  title: Limbo
+- id: "limbo"
+  title: "Limbo"
   exits:
     south:
-      room_id: the_void
+      room_id: "the_void"
     east:
-      room_id: black
+      room_id: "black"
     west:
-      room_id: white
+      room_id: "white"
   description: >-
-    You are floating in a formless void, detached from all sensation of physical matter, surrounded by swirling glowing light, which fades into the relative darkness around you without any trace of edges or shadow.
-- id: white
+    You are floating in a {{formless}}::yellow void, detached from all sensation of physical matter, surrounded by swirling glowing light, which fades into the relative darkness around you without any trace of edges or shadow.
+- id: "white"
   title: "White Room"
   exits:
     east:
-      room_id: limbo
+      room_id: "limbo"
   description: "A featureless white room. A pitch black void in the shape of archway can be seen on the east side of the room."
-- id: black
+- id: "black"
   title: "Black Room"
   exits:
     west:
-      room_id: limbo
+      room_id: "limbo"
   description: >-
     A completely black room. Somehow all of the light that should be coming from the room to the west does not pass
     through the archway. A single lightbulb hangs from the ceiling illuminating a small area.

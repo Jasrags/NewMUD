@@ -8,7 +8,7 @@ var (
 			BorderForeground(lipgloss.Color("63")).
 			Padding(0, 1, 0, 1)
 
-		// Table formatting
+	// Table formatting
 	singleColumnStyle = borderStyle.Width(80)
 	dualColumnStyle   = borderStyle.Width(39)
 
@@ -19,6 +19,22 @@ var (
 	attrValueStyle     = lipgloss.NewStyle().Bold(false).Foreground(cyan)
 	attrPosModStyle    = lipgloss.NewStyle().Bold(true).Foreground(green)
 	attrNegModStyle    = lipgloss.NewStyle().Bold(true).Foreground(red)
+	blackText          = lipgloss.NewStyle().Foreground(black)
+	boldBlackText      = lipgloss.NewStyle().Foreground(black).Bold(true)
+	boldRedText        = lipgloss.NewStyle().Foreground(red).Bold(true)
+	boldGreenText      = lipgloss.NewStyle().Foreground(green).Bold(true)
+	boldYellowText     = lipgloss.NewStyle().Foreground(yellow).Bold(true)
+	boldBlueText       = lipgloss.NewStyle().Foreground(blue).Bold(true)
+	boldMagentaText    = lipgloss.NewStyle().Foreground(magenta).Bold(true)
+	boldCyanText       = lipgloss.NewStyle().Foreground(cyan).Bold(true)
+	boldWhiteText      = lipgloss.NewStyle().Foreground(white).Bold(true)
+	redText            = lipgloss.NewStyle().Foreground(red)
+	greenText          = lipgloss.NewStyle().Foreground(green)
+	yellowText         = lipgloss.NewStyle().Foreground(yellow)
+	blueText           = lipgloss.NewStyle().Foreground(blue)
+	magentaText        = lipgloss.NewStyle().Foreground(magenta)
+	cyanText           = lipgloss.NewStyle().Foreground(cyan)
+	whiteText          = lipgloss.NewStyle().Foreground(white)
 
 	// Colors
 	black   = lipgloss.Color("0")

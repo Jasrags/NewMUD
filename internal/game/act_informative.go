@@ -344,11 +344,12 @@ func RenderKeyValue(key, value string) string {
 
 func DoStats(s ssh.Session, cmd string, args []string, acct *Account, char *Character, room *Room) {
 	if char == nil {
-		io.WriteString(s, cfmt.Sprintf("{{Error: No character is associated with this session.}}::red\n"))
+		io.WriteString(s, cfmt.Sprint("{{Error: No character is associated with this session.}}::red\n"))
 		return
 	}
 
 	io.WriteString(s, RenderCharacterTable(char))
+	io.WriteString(s, "\n")
 }
 
 // return RenderCharacterTable(char)

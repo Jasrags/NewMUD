@@ -56,11 +56,6 @@ func StartTicker(tickDuration time.Duration) {
 	}
 }
 
-// func adjustTickDuration(ticker *time.Ticker, newDuration time.Duration) {
-// 	ticker.Reset(newDuration)
-// 	slog.Info("Game tick duration adjusted", slog.Duration("new_duration", newDuration))
-// }
-
 var gameTime = &GameTime{Minutes: 0}
 
 func handleGameTick() {

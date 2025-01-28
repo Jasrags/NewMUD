@@ -169,6 +169,11 @@ func (mgr *EntityManager) GetMob(id string) *Mob {
 	mgr.RLock()
 	defer mgr.RUnlock()
 
+	for _, mob := range mgr.mobs {
+		slog.Debug("Checking mob",
+			slog.String("mob_id", mob.ID))
+	}
+
 	return mgr.mobs[strings.ToLower(id)]
 }
 
@@ -264,6 +269,8 @@ func (mgr *EntityManager) LoadDataFiles() {
 				}
 
 				for i := range rooms {
+					slog.Debug("Adding room",
+						slog.String("room_id", rooms[i].ID))
 					mgr.AddRoom(&rooms[i])
 				}
 			}

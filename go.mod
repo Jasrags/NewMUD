@@ -9,6 +9,7 @@ require (
 	github.com/gliderlabs/ssh v0.3.8
 	github.com/google/uuid v1.6.0
 	github.com/i582/cfmt v1.4.0
+	github.com/muesli/reflow v0.3.0
 	github.com/spf13/viper v1.19.0
 	github.com/stretchr/testify v1.10.0
 	github.com/vansante/go-event-emitter v1.0.2

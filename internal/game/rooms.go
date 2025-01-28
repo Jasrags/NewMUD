@@ -6,8 +6,10 @@ import (
 	"sync"
 
 	"github.com/Jasrags/NewMUD/pluralizer"
+	"github.com/charmbracelet/lipgloss"
 	"github.com/google/uuid"
 	"github.com/i582/cfmt/cmd/cfmt"
+	"github.com/muesli/reflow/wordwrap"
 	ee "github.com/vansante/go-event-emitter"
 )
 
@@ -282,64 +284,89 @@ func (r *Room) Broadcast(msg string, excludeIDs []string) {
 
 // RenderRoom renders the room to a string for the player.
 func RenderRoom(user *Account, char *Character, room *Room) string {
+	// Create the room title text
+	roomTitle := cfmt.Sprintf("{{%-10s}}::cyan|bold", char.Room.Title)
+	if char.Role == CharacterRoleAdmin {
+		roomTitle = cfmt.Sprintf("%s {{[%s]}}::white", roomTitle, char.Room.ID)
+	}
+
+	roomText := []string{
+		roomTitle,
+		cfmt.Sprintf("%s", wordwrap.String(char.Room.Description, 80)),
+		"",
+		RenderEntitiesInRoom(char),
+		"",
+	}
+	if len(char.Room.Inventory.Items) > 0 {
+		roomText = append(roomText, RenderItemsInRoom(char))
+		roomText = append(roomText, "")
+	}
+
+	roomText = append(roomText, RenderRoomExits(char))
+	roomText = append(roomText, "")
+
+	return lipgloss.JoinVertical(lipgloss.Left,
+		roomText...,
+	)
+}
+
+func RenderEntitiesInRoom(char *Character) string {
 	var builder strings.Builder
 
-	// Optionally display the room ID for admins
-	if char.Role == CharacterRoleAdmin {
-		builder.WriteString(cfmt.Sprintf("{{[%s] }}::green", char.Room.ID))
-	}
-
-	// Display the room title
-	builder.WriteString(cfmt.Sprintf("{{%s}}::#4287f5\n", char.Room.Title))
-
-	// Display the room description
-	builder.WriteString(cfmt.Sprintf("{{%s}}::white\n", WrapText(char.Room.Description, 80)))
-
-	// Display players in the room
+	// Render Characters in the Room
 	charCount := len(char.Room.Characters)
-	if charCount > 0 {
-		var charNames []string
-		for _, c := range char.Room.Characters {
-			if c.Name != char.Name {
-				color := "cyan"
-				if c.Role == CharacterRoleAdmin {
-					color = "yellow"
-				}
-
-				charNames = append(charNames, cfmt.Sprintf("{{%s}}::%s", c.Name, color))
-			}
+	charDescriptions := []string{}
+	for _, c := range char.Room.Characters {
+		if c.Name != char.Name {
+			charDescriptions = append(charDescriptions, cfmt.Sprintf(
+				"{{%s}}::cyan|bold, a %s",
+				c.Name, c.Metatype))
 		}
-		if charCount == 1 {
-			builder.WriteString(cfmt.Sprint("{{You are the only player in the room.}}::cyan|bold"))
-		} else if charCount >= 2 {
-			builder.WriteString(cfmt.Sprintf("{{There is %d other person in the room: }}::cyan|bold", charCount-1))
-		} else {
-			builder.WriteString(cfmt.Sprintf("{{There are %d other people in the room: }}::cyan|bold", charCount-1))
-		}
-		if len(charNames) > 0 {
-			builder.WriteString(cfmt.Sprintf("{{%s}}::cyan", WrapText(strings.Join(charNames, ", "), 80)))
-		}
-		builder.WriteString("\n")
 	}
 
-	// Display mobs in the room
+	if charCount > 1 && len(charDescriptions) > 0 {
+		if len(charDescriptions) == 1 {
+			builder.WriteString(cfmt.Sprintf("You notice one figure: %s. ", charDescriptions[0]))
+		} else {
+			builder.WriteString(cfmt.Sprintf("You notice %d figures: %s. ",
+				len(charDescriptions),
+				strings.Join(charDescriptions[:len(charDescriptions)-1], ", and "),
+			))
+		}
+	}
+
+	// Render Mobs in the Room
 	mobCount := len(char.Room.Mobs)
 	mobNameCounts := make(map[string]int)
 	for _, m := range char.Room.Mobs {
 		mobNameCounts[m.Name]++
 	}
 
-	// Display the mobs in the room
 	if mobCount > 0 {
-		builder.WriteString(cfmt.Sprintf("{{There are %d creatures in the room: }}::magenta|bold", mobCount))
-		mobNames := []string{}
+		mobDescriptions := []string{}
 		for name, count := range mobNameCounts {
-			mobNames = append(mobNames, pluralizer.PluralizeNounPhrase(name, count))
+			mobDescriptions = append(mobDescriptions, cfmt.Sprintf("{{%s}}::green", pluralizer.PluralizeNounPhrase(name, count)))
 		}
-		builder.WriteString(cfmt.Sprintf("{{%s}}::magenta\n", WrapText(strings.Join(mobNames, ", "), 80)))
+
+		if len(mobDescriptions) == 1 {
+			builder.WriteString(cfmt.Sprintf("Nearby, {{%s}}::green stands, their features twisted with a mix of curiosity and malice.",
+				mobDescriptions[0]))
+		} else {
+			builder.WriteString(cfmt.Sprintf("Nearby, "))
+			builder.WriteString(strings.Join(mobDescriptions[:len(mobDescriptions)-1], ", "))
+			builder.WriteString(cfmt.Sprint(", and "))
+			builder.WriteString(cfmt.Sprint(mobDescriptions[len(mobDescriptions)-1]))
+			builder.WriteString(cfmt.Sprint(" stand, their features twisted with a mix of curiosity and malice."))
+		}
 	}
 
-	// Display mobs in the room
+	return wordwrap.String(builder.String(), 80)
+}
+
+func RenderItemsInRoom(char *Character) string {
+	var builder strings.Builder
+
+	// Count and map item names
 	itemCount := len(char.Room.Inventory.Items)
 	itemNameCounts := make(map[string]int)
 	for _, i := range char.Room.Inventory.Items {
@@ -347,39 +374,51 @@ func RenderRoom(user *Account, char *Character, room *Room) string {
 		itemNameCounts[bp.Name]++
 	}
 
-	// Display the mobs in the room
+	// Build the item description
 	if itemCount > 0 {
-		builder.WriteString(cfmt.Sprintf("{{There are %d items in the room: }}::green|bold", itemCount))
+		// Introductory text (white)
+		builder.WriteString(cfmt.Sprint("Scattered throughout the room, you spot "))
+
+		// Collect item names with counts
 		itemNames := []string{}
 		for name, count := range itemNameCounts {
-			itemNames = append(itemNames, pluralizer.PluralizeNounPhrase(name, count))
+			itemNames = append(itemNames, cfmt.Sprintf("{{%s}}::magenta", pluralizer.PluralizeNounPhrase(name, count)))
 		}
-		builder.WriteString(cfmt.Sprintf("{{%s}}::green\n", WrapText(strings.Join(itemNames, ", "), 80)))
+
+		// Join item names with commas (white) and append to the builder
+		builder.WriteString(strings.Join(itemNames, cfmt.Sprint(", ")))
 	}
 
-	// Display exits
+	return wordwrap.String(builder.String(), 80)
+}
+
+func RenderRoomExits(char *Character) string {
+	var builder strings.Builder
+	// Handle no exits case early
 	if len(char.Room.Exits) == 0 {
-		builder.WriteString(cfmt.Sprint("{{There are no exits.}}::red\n"))
-	} else {
-		builder.WriteString(cfmt.Sprint("{{Exits:}}::#2359b0\n"))
-		for dir, exit := range char.Room.Exits {
-			var doorDescription string
-			if exit.Door != nil {
-				if exit.Door.IsClosed {
-					doorDescription = "a closed door"
-				} else {
-					doorDescription = "an open doorway"
-				}
-			} else {
-				doorDescription = "a passage"
-			}
-
-			builder.WriteString(cfmt.Sprintf(
-				"{{To the %s, you see %s leading to %s.}}::#2359b0\n",
-				dir, doorDescription, exit.Room.Title,
-			))
-		}
+		return cfmt.Sprint("{{There are no exits}}::red")
 	}
 
-	return cfmt.Sprint(builder.String())
+	// Build exits descriptions
+	exitStrings := make([]string, 0, len(char.Room.Exits)) // Preallocate capacity
+	for dir, exit := range char.Room.Exits {
+		// Determine the door description
+		doorDescription := "a passage"
+		if exit.Door != nil {
+			if exit.Door.IsClosed {
+				doorDescription = "a closed door"
+			} else {
+				doorDescription = "an open doorway"
+			}
+		}
+
+		// Format the exit description
+		exitStrings = append(exitStrings,
+			cfmt.Sprintf("To the {{%s}}::yellow|underline you see %s leading to {{%s}}::yellow|italic.", dir, doorDescription, exit.Room.Title),
+		)
+
+	}
+	builder.WriteString(strings.Join(exitStrings, " "))
+
+	return wordwrap.String(builder.String(), 80)
 }
