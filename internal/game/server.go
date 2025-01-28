@@ -38,6 +38,12 @@ func (s *GameServer) Init() {
 	// Set game server properties
 	s.TickDuration = viper.GetDuration("server.tick_duration")
 	go StartTicker(s.TickDuration)
+
+	EntityMgr.LoadDataFiles()
+	AccountMgr.LoadDataFiles()
+	CharacterMgr.LoadDataFiles()
+
+	RegisterCommands()
 }
 
 // Start starts the game server
