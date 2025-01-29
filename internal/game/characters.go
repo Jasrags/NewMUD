@@ -30,6 +30,7 @@ type Character struct {
 	User           *Account      `yaml:"-"`
 	UserID         string        `yaml:"user_id"`
 	Role           CharacterRole `yaml:"role"`
+	Prompt         string        `yaml:"prompt"`
 	Conn           ssh.Session   `yaml:"-"`
 	CreatedAt      time.Time     `yaml:"created_at"`
 	UpdatedAt      *time.Time    `yaml:"updated_at"`

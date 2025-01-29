@@ -225,7 +225,6 @@ Usage:
 
 func RenderCharacterTable(char *Character) string {
 	char.Recalculate()
-	// strs := RenderAttributes(char.Attributes)
 	table := lipgloss.JoinVertical(lipgloss.Left,
 		// Personal Data
 		headerStyle.Render("Personal Data"),

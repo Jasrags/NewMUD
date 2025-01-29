@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log/slog"
 	"strings"
 
 	"github.com/Jasrags/NewMUD/internal/game"
@@ -18,7 +17,7 @@ func main() {
 	game.AccountMgr.LoadDataFiles()
 	game.CharacterMgr.LoadDataFiles()
 
-	acct := game.AccountMgr.GetByUsername("Jasrags")
+	// acct := game.AccountMgr.GetByUsername("Jasrags")
 	char := game.CharacterMgr.GetCharacterByName("Jasrags")
 	room := game.EntityMgr.GetRoom("limbo")
 
@@ -60,17 +59,8 @@ func main() {
 	char.Room.Inventory.AddItem(game.EntityMgr.CreateItemInstanceFromBlueprintID("jagged_rock"))
 	char.Room.Inventory.AddItem(game.EntityMgr.CreateItemInstanceFromBlueprintID("test_key"))
 
-	for _, c := range char.Room.Characters {
-		slog.Debug("Character in room",
-			slog.String("character_name", c.Name))
-	}
-	for _, m := range char.Room.Mobs {
-		slog.Debug("Mob in room",
-			slog.String("mob_name", m.Name))
-	}
-
 	var output strings.Builder
-	output.WriteString(game.RenderRoom(acct, char, room))
-	// output.WriteString(game.RenderCharacterTable(char))
+	// output.WriteString(game.RenderRoom(acct, char, room))
+	output.WriteString(game.RenderCharacterTable(char))
 	cfmt.Print(output.String())
 }
