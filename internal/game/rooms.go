@@ -6,7 +6,6 @@ import (
 	"sync"
 
 	"github.com/Jasrags/NewMUD/pluralizer"
-	"github.com/charmbracelet/lipgloss"
 	"github.com/google/uuid"
 	"github.com/i582/cfmt/cmd/cfmt"
 	"github.com/muesli/reflow/wordwrap"
@@ -284,81 +283,60 @@ func (r *Room) Broadcast(msg string, excludeIDs []string) {
 
 // RenderRoom renders the room to a string for the player.
 func RenderRoom(user *Account, char *Character, room *Room) string {
-	// Create the room title text
+	var builder strings.Builder
 	roomTitle := cfmt.Sprintf("{{%-10s}}::cyan|bold", char.Room.Title)
+
 	if char.Role == CharacterRoleAdmin {
 		roomTitle = cfmt.Sprintf("%s {{[%s]}}::white", roomTitle, char.Room.ID)
 	}
 
-	roomText := []string{
-		roomTitle,
-		cfmt.Sprintf("%s", wordwrap.String(char.Room.Description, 80)),
-		"",
-		RenderEntitiesInRoom(char),
-		"",
-	}
+	builder.WriteString(roomTitle + "\n")
+	builder.WriteString(wordwrap.String(cfmt.Sprint(char.Room.Description), 80) + "\n")
+	builder.WriteString("\n")
+	builder.WriteString(RenderEntitiesInRoom(char) + "\n")
+	builder.WriteString("\n")
+
 	if len(char.Room.Inventory.Items) > 0 {
-		roomText = append(roomText, RenderItemsInRoom(char))
-		roomText = append(roomText, "")
+		builder.WriteString(RenderItemsInRoom(char) + "\n")
+		builder.WriteString("\n")
 	}
 
-	roomText = append(roomText, RenderRoomExits(char))
-	roomText = append(roomText, "")
+	builder.WriteString(RenderRoomExits(char) + "\n")
+	builder.WriteString("\n")
 
-	return lipgloss.JoinVertical(lipgloss.Left,
-		roomText...,
-	)
+	return builder.String()
 }
 
 func RenderEntitiesInRoom(char *Character) string {
 	var builder strings.Builder
 
-	// Render Characters in the Room
-	charCount := len(char.Room.Characters)
-	charDescriptions := []string{}
+	// Total entity count minus the character itself
+	entityCount := len(char.Room.Characters) - 1 + len(char.Room.Mobs)
+	entityDescriptions := []string{}
 	for _, c := range char.Room.Characters {
 		if c.Name != char.Name {
-			charDescriptions = append(charDescriptions, cfmt.Sprintf(
-				"{{%s}}::cyan|bold, a %s",
-				c.Name, c.Metatype))
+			entityDescriptions = append(entityDescriptions, cfmt.Sprintf(
+				"{{%s (%s)}}::cyan|bold", c.Name, c.Metatype))
 		}
 	}
-
-	if charCount > 1 && len(charDescriptions) > 0 {
-		if len(charDescriptions) == 1 {
-			builder.WriteString(cfmt.Sprintf("You notice one figure: %s. ", charDescriptions[0]))
-		} else {
-			builder.WriteString(cfmt.Sprintf("You notice %d figures: %s. ",
-				len(charDescriptions),
-				strings.Join(charDescriptions[:len(charDescriptions)-1], ", and "),
-			))
-		}
-	}
-
-	// Render Mobs in the Room
-	mobCount := len(char.Room.Mobs)
+	// Count and map mob names for pluralization
 	mobNameCounts := make(map[string]int)
 	for _, m := range char.Room.Mobs {
 		mobNameCounts[m.Name]++
 	}
 
-	if mobCount > 0 {
-		mobDescriptions := []string{}
-		for name, count := range mobNameCounts {
-			mobDescriptions = append(mobDescriptions, cfmt.Sprintf("{{%s}}::green", pluralizer.PluralizeNounPhrase(name, count)))
-		}
-
-		if len(mobDescriptions) == 1 {
-			builder.WriteString(cfmt.Sprintf("Nearby, {{%s}}::green stands, their features twisted with a mix of curiosity and malice.",
-				mobDescriptions[0]))
-		} else {
-			builder.WriteString(cfmt.Sprintf("Nearby, "))
-			builder.WriteString(strings.Join(mobDescriptions[:len(mobDescriptions)-1], ", "))
-			builder.WriteString(cfmt.Sprint(", and "))
-			builder.WriteString(cfmt.Sprint(mobDescriptions[len(mobDescriptions)-1]))
-			builder.WriteString(cfmt.Sprint(" stand, their features twisted with a mix of curiosity and malice."))
-		}
+	figureText := pluralizer.PluralizeNounPhrase("figure", entityCount)
+	switch entityCount {
+	case 0:
+		builder.WriteString(cfmt.Sprintf("You are the only one here."))
+	default:
+		builder.WriteString(cfmt.Sprintf("You notice {{%s}}::bold: ", figureText))
 	}
+
+	for name, count := range mobNameCounts {
+		entityDescriptions = append(entityDescriptions, cfmt.Sprintf("{{%s}}::green", pluralizer.PluralizeNounPhrase(name, count)))
+	}
+	builder.WriteString(strings.Join(entityDescriptions, ", "))
 
 	return wordwrap.String(builder.String(), 80)
 }
@@ -396,7 +374,7 @@ func RenderRoomExits(char *Character) string {
 	var builder strings.Builder
 	// Handle no exits case early
 	if len(char.Room.Exits) == 0 {
-		return cfmt.Sprint("{{There are no exits}}::red")
+		return cfmt.Sprintf("{{There are no exits}}::red")
 	}
 
 	// Build exits descriptions

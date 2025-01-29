@@ -1,18 +1,17 @@
 package main
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/Jasrags/NewMUD/internal/game"
+	"github.com/i582/cfmt/cmd/cfmt"
 )
-
-var ()
 
 func main() {
 	gs := game.NewGameServer()
 	gs.SetupConfig()
 	gs.SetupLogger()
+	gs.OutputConfig()
 
 	game.EntityMgr.LoadDataFiles()
 	game.AccountMgr.LoadDataFiles()
@@ -63,5 +62,5 @@ func main() {
 	var output strings.Builder
 	// output.WriteString(game.RenderRoom(acct, char, room))
 	output.WriteString(game.RenderCharacterTable(char))
-	fmt.Print(output.String())
+	cfmt.Print(output.String())
 }

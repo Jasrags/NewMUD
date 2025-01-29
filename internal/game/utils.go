@@ -2,6 +2,7 @@ package game
 
 import (
 	"encoding/json"
+	"io"
 	"log/slog"
 	"os"
 	"strings"
@@ -230,4 +231,14 @@ func RollWithEdge(pool int) (hits int, glitches int, results []int) {
 	}
 
 	return hits, glitches, results
+}
+
+func WriteString(w io.Writer, s string) (int, error) {
+	s = strings.ReplaceAll(s, "\n", "\r\n")
+	return io.WriteString(w, cfmt.Sprint(s))
+}
+
+func WriteStringF(w io.Writer, s string, a ...interface{}) (int, error) {
+	s = strings.ReplaceAll(s, "\n", "\r\n")
+	return io.WriteString(w, cfmt.Sprintf(s, a...))
 }
