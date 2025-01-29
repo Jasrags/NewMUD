@@ -13,8 +13,6 @@ import (
 
 type GameServer struct {
 	TickDuration time.Duration
-	LogLevel     slog.Level
-	LogHandler   string
 }
 
 func NewGameServer() *GameServer {
@@ -109,6 +107,8 @@ func (s *GameServer) SetupLogger() {
 	handlerOptions := &slog.HandlerOptions{Level: programLevel}
 
 	switch logHandler {
+	case "color":
+		logger = slog.New(GetColorLogHandler(os.Stderr, programLevel))
 	case "text":
 		logger = slog.New(slog.NewTextHandler(os.Stdout, handlerOptions))
 	case "json":
