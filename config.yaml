@@ -2,7 +2,7 @@ server:
   host: localhost
   port: 4000
   log_level: debug
-  log_handler: text
+  log_handler: color
   environment: dev
   async_events: True
   input_queue_capacity: 100
@@ -31,8 +31,8 @@ data:
   items_file: items.yml
   mobs_file: mobs.yml
 banned_names:
-  - admin
-  - administrator
-  - god
-  - immortal
-  - wizard
+  admin
+  administrator
+  god
+  immortal
+  wizard
