@@ -36,23 +36,21 @@ func PromptWelcome(s ssh.Session) string {
 		slog.String("remote_address", s.RemoteAddr().String()),
 		slog.String("session_id", s.Context().SessionID()))
 
-	var builder strings.Builder
-	builder.WriteString("{{     ::::::::  :::    :::     :::     :::::::::   ::::::::  :::       ::: ::::    ::::  :::    ::: :::::::::  }}::#ff8700\n")
-	builder.WriteString("{{    :+:    :+: :+:    :+:   :+: :+:   :+:    :+: :+:    :+: :+:       :+: +:+:+: :+:+:+ :+:    :+: :+:    :+: }}::#ff5f00\n")
-	builder.WriteString("{{    +:+        +:+    +:+  +:+   +:+  +:+    +:+ +:+    +:+ +:+       +:+ +:+ +:+:+ +:+ +:+    +:+ +:+    +:+ }}::#ff0000\n")
-	builder.WriteString("{{    +#++:++#++ +#++:++#++ +#++:++#++: +#+    +:+ +#+    +:+ +#+  +:+  +#+ +#+  +:+  +#+ +#+    +:+ +#+    +:+ }}::#d70000\n")
-	builder.WriteString("{{           +#+ +#+    +#+ +#+     +#+ +#+    +#+ +#+    +#+ +#+ +#+#+ +#+ +#+       +#+ +#+    +#+ +#+    +#+ }}::#af0000\n")
-	builder.WriteString("{{    #+#    #+# #+#    #+# #+#     #+# #+#    #+# #+#    #+#  #+#+# #+#+#  #+#       #+# #+#    #+# #+#    #+# }}::#870000\n")
-	builder.WriteString("{{     ########  ###    ### ###     ### #########   ########    ###   ###   ###       ###  ########  #########  }}::#5f0000\n")
+	WriteString(s, "{{     ::::::::  :::    :::     :::     :::::::::   ::::::::  :::       ::: ::::    ::::  :::    ::: :::::::::  }}::#ff8700\n")
+	WriteString(s, "{{    :+:    :+: :+:    :+:   :+: :+:   :+:    :+: :+:    :+: :+:       :+: +:+:+: :+:+:+ :+:    :+: :+:    :+: }}::#ff5f00\n")
+	WriteString(s, "{{    +:+        +:+    +:+  +:+   +:+  +:+    +:+ +:+    +:+ +:+       +:+ +:+ +:+:+ +:+ +:+    +:+ +:+    +:+ }}::#ff0000\n")
+	WriteString(s, "{{    +#++:++#++ +#++:++#++ +#++:++#++: +#+    +:+ +#+    +:+ +#+  +:+  +#+ +#+  +:+  +#+ +#+    +:+ +#+    +:+ }}::#d70000\n")
+	WriteString(s, "{{           +#+ +#+    +#+ +#+     +#+ +#+    +#+ +#+    +#+ +#+ +#+#+ +#+ +#+       +#+ +#+    +#+ +#+    +#+ }}::#af0000\n")
+	WriteString(s, "{{    #+#    #+# #+#    #+# #+#     #+# #+#    #+# #+#    #+#  #+#+# #+#+#  #+#       #+# #+#    #+# #+#    #+# }}::#870000\n")
+	WriteString(s, "{{     ########  ###    ### ###     ### #########   ########    ###   ###   ###       ###  ########  #########  }}::#5f0000\n")
 
 	// Check if login is enabled
 	if !viper.GetBool("server.login_enabled") {
-		builder.WriteString(cfmt.Sprint("\n{{Login is disabled.}}::red\n"))
+		WriteString(s, cfmt.Sprint("{{Login is disabled.}}::red"))
 	}
 
-	io.WriteString(s, cfmt.Sprint(builder.String()))
-
-	if _, err := PromptForInput(s, cfmt.Sprint("{{Press enter to continue...}}::white|bold\n")); err != nil {
+	WriteString(s, "{{Press enter to continue...}}::white|bold\n")
+	if _, err := PromptForInput(s, ""); err != nil {
 		return StateError
 	}
 
@@ -66,9 +64,10 @@ func PromptLogin(s ssh.Session) (string, *Account) {
 
 promptUsername:
 	// Prompt for username
-	io.WriteString(s, cfmt.Sprint("{{Enter your username to continue or type}}::white {{new}}::green|bold {{to register:}}::white\n"))
+	WriteString(s, "{{Enter your username to continue or type}}::white {{new}}::green|bold {{to register:}}::white\n")
 
-	username, err := PromptForInput(s, cfmt.Sprintf("{{Username:}}::white|bold "))
+	WriteString(s, "{{Username:}}::white|bold ")
+	username, err := PromptForInput(s, "")
 	if err != nil {
 		return StateError, nil
 	}
@@ -79,7 +78,8 @@ promptUsername:
 	}
 
 	// Prompt for password
-	password, err := PromptForPassword(s, cfmt.Sprint("{{Password:}}::white|bold "))
+	WriteString(s, "{{Password:}}::white|bold ")
+	password, err := PromptForPassword(s, "")
 	if err != nil {
 		return StateError, nil
 	}
@@ -90,7 +90,8 @@ promptUsername:
 		// Log and display error
 		slog.Warn("Invalid login attempt",
 			slog.String("username", username))
-		io.WriteString(s, cfmt.Sprint("{{Invalid username or password.}}::red\n"))
+
+		WriteString(s, "{{Invalid username or password.}}::red\n")
 		goto promptUsername
 	}
 
@@ -98,7 +99,7 @@ promptUsername:
 	// TODO: Check if user is banned
 
 	// Login successful
-	io.WriteString(s, cfmt.Sprintf("{{Welcome back, %s!}}::green|bold\n\n", username))
+	WriteStringF(s, "{{Welcome back, %s!}}::green|bold\n", username)
 
 	return StateMainMenu, u
 }
@@ -201,7 +202,8 @@ func PromptMainMenu(s ssh.Session, a *Account) string {
 	options := []string{"Enter Game", "Create Character", "Change Password", "Quit"}
 
 	// Prompt user for menu selection
-	option, err := PromptForMenu(s, "Main Menu", options)
+	WriteString(s, "{{Main Menu}}::green|bold\n")
+	option, err := PromptForMenu(s, "", options)
 	if err != nil {
 		return StateError
 	}
@@ -349,7 +351,7 @@ func PromptEnterGame(s ssh.Session, a *Account) (string, *Character) {
 
 	// Check if user has characters
 	if len(a.Characters) == 0 {
-		io.WriteString(s, redText.Render("You have no characters. Create one to start playing.\n"))
+		WriteString(s, "{{You have no characters. Create one to start playing.}}::red\n")
 		return StateEnterGame, nil
 	}
 
@@ -364,16 +366,16 @@ func PromptEnterGame(s ssh.Session, a *Account) (string, *Character) {
 	}
 
 	// Use PromptForMenu to render the character selection menu
-	option, err := PromptForMenu(s, "\nSelect a character:", characters)
+	option, err := PromptForMenu(s, "Select a character:", characters)
 	if err != nil {
-		io.WriteString(s, redText.Render("An error occurred while selecting a character.\n"))
+		WriteString(s, "{{An error occurred while selecting a character.}}::red\n")
 		return StateError, nil
 	}
 
 	// Load the selected character
 	c := CharacterMgr.GetCharacterByName(option)
 	if c == nil {
-		io.WriteString(s, redText.Render("Character not found. Please try again.\n"))
+		WriteString(s, "{{Character not found. Please try again.}}::red\n")
 		return StateEnterGame, nil
 	}
 
@@ -387,6 +389,7 @@ func PromptEnterGame(s ssh.Session, a *Account) (string, *Character) {
 	if c.Room == nil {
 		slog.Error("Room not found",
 			slog.String("room_id", c.RoomID))
+
 		c.SetRoom(EntityMgr.GetRoom(viper.GetString("server.starting_room")))
 	}
 
@@ -398,8 +401,8 @@ func PromptEnterGame(s ssh.Session, a *Account) (string, *Character) {
 	CharacterMgr.SetCharacterOnline(c)
 
 	// Notify the player and enter the game loop
-	io.WriteString(s, lipgloss.JoinVertical(lipgloss.Left,
-		boldGreenText.Render(fmt.Sprintf("Entering the game as %s...\n\n", c.Name)),
+	WriteString(s, lipgloss.JoinVertical(lipgloss.Left,
+		fmt.Sprintf("{{Entering the game as %s...}}::green|bold\n\n", c.Name),
 	))
 	return StateGameLoop, c
 }
@@ -414,11 +417,12 @@ func PromptGameLoop(s ssh.Session, a *Account, c *Character) string {
 	// Add our character to the room
 	c.Room.AddCharacter(c)
 	// Render the room on initial entry to the game loop
-	io.WriteString(s, RenderRoom(a, c, c.Room))
-	io.WriteString(s, "\n")
+	WriteString(s, RenderRoom(a, c, c.Room))
+	WriteString(s, "\n")
 
 	for {
-		input, err := PromptForInput(s, boldWhiteText.Render("> "))
+		WriteString(s, "{{>}}::white|bold ")
+		input, err := PromptForInput(s, "")
 		if err != nil {
 			slog.Error("Error reading input", slog.Any("error", err))
 			return StateExitGame

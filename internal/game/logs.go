@@ -93,9 +93,10 @@ func (h *ColorHandler) Handle(ctx context.Context, r slog.Record) error {
 
 	timeStr := "\033[90m" + r.Time.Format("[15:04:05]") + "\033[0m" // bright black
 
-	if msgLen > 24 {
-		r.Message = r.Message[:24]
-		msgLen = 24
+	maxMsgLen := 50
+	if msgLen > maxMsgLen {
+		r.Message = r.Message[:maxMsgLen]
+		msgLen = maxMsgLen
 	}
 	if msgLen > h.minimumMessageLength {
 		h.minimumMessageLength = len(r.Message)

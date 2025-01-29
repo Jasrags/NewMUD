@@ -169,7 +169,7 @@ func PromptForMenu(s ssh.Session, title string, options []string) (string, error
 		// Validate choice
 		choice, err := strconv.Atoi(strings.TrimSpace(input))
 		if err != nil || choice < 1 || choice > len(options) {
-			io.WriteString(s, cfmt.Sprint("{{Invalid choice, please try again.}}::red\n"))
+			WriteString(s, cfmt.Sprint("{{Invalid choice, please try again.}}::red\n"))
 			continue
 		}
 
