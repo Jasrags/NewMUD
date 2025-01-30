@@ -262,6 +262,42 @@ func PromptChangePassword(s ssh.Session, a *Account) string {
 	return StateMainMenu
 }
 
+// Code prequisites: for character creation
+// Hook up PromptCharacterCreate
+// 1. Metatypes defined and loaded
+// 2. Archetypes defined and loaded
+// 3. Item packs defined and loaded (use fake items for now)
+//
+// --- Character creation steps ---
+// Step 1: Prompt for character name
+// Validate name (not empty, not already taken, length within limits, alphanumeric)
+//
+// Step 2: Prompt for metatype
+// Display metatype options
+// Allow showing details for the metatype including suggested archtypes
+//
+// Step 3: Prompt for archtype
+// Display archtype options
+// Allow showing details for the archtype (Highlight good/neutral/bad metatype choices for the selected archtype)
+//
+// Step 4: Prompt for item pack purchase (Optional)
+// Set a base nuyen level for the character
+// Display item pack options
+// Allow showing details for the item pack
+// Select item pack and adjust nuyen
+
+// Step 5: Build the character
+// Apply base metatype attributes (min/max)
+// Apply base archtype attributes adjust within min/max if needed
+// Apply any metatype qualties
+// Add any item pack items to the inventory
+//
+// --- Future functions ---
+// Item type support for shadowrun item types (weapons, armor, etc)
+// PromptCharacterDelete
+// Finish DoStats now that we have a better character definition
+//
+
 func PromptCharacterCreate(s ssh.Session, a *Account) string {
 	slog.Debug("Character create state",
 		slog.String("username", a.Username),
