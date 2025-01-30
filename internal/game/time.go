@@ -7,6 +7,7 @@ import (
 )
 
 // TODO: Support short versions of game time
+// TODO: Support saving/loading game time
 
 // Game Constants
 const (
