@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -619,6 +620,75 @@ func DoWho(s ssh.Session, cmd string, args []string, user *Account, char *Charac
 		// Display character title and name
 		io.WriteString(s, cfmt.Sprintf("{{%s - %s}}::%s\n", activeChar.Name, activeChar.Title, color))
 	}
+}
+
+// func DoPrompt(s ssh.Session, cmd string, args []string, user *Account, char *Character, room *Room) {
+// 	if char == nil {
+// 		WriteString(s, cfmt.Sprint("{{Error: No character is associated with this session.}}::red\n"))
+// 		return
+// 	}
+
+// 	// If no arguments, display current prompt
+// 	if len(args) == 0 {
+// 		WriteString(s, cfmt.Sprintf("{{Your current prompt:}}::cyan \"%s\"\n", char.Prompt))
+// 		WriteString(s, cfmt.Sprint("{{Use 'prompt <new format>' to set a custom prompt.}}::yellow\n"))
+// 		return
+// 	}
+
+// 	// Set a new custom prompt
+// 	newPrompt := strings.Join(args, " ")
+// 	char.Prompt = newPrompt
+// 	char.Save()
+
+// 	WriteString(s, cfmt.Sprintf("{{Prompt updated successfully!\nNew prompt:}}::green \"%s\"\n", newPrompt))
+// }
+
+func DoPrompt(s ssh.Session, cmd string, args []string, user *Account, char *Character, room *Room) {
+	if char == nil {
+		WriteString(s, cfmt.Sprint("{{Error: No character is associated with this session.}}::red\n"))
+		return
+	}
+
+	// If no arguments, display current prompt
+	if len(args) == 0 {
+		WriteString(s, cfmt.Sprintf("{{Your current prompt:}}::cyan %s\n", char.Prompt))
+		WriteString(s, cfmt.Sprint("{{Use 'prompt <new format>' to set a custom prompt.}}::yellow\n"))
+		WriteString(s, cfmt.Sprint("{{Available Macros:}}::green {{time}}, {{hp}}, {{gold}}, {{stamina}} \n"))
+		return
+	}
+
+	// Collect user input
+	newPrompt := strings.Join(args, " ")
+
+	// Validate prompt
+	if !ValidatePrompt(newPrompt) {
+		placeholders := []string{}
+		for n := range promptPlaceholders {
+			placeholders = append(placeholders, n)
+		}
+		WriteString(s, "{{Invalid prompt format! Please use only supported macros.}}::red\n")
+		WriteStringF(s, "{{Available Macros:}}::green %s\n", strings.Join(placeholders, ", "))
+		return
+	}
+
+	// Save new prompt
+	char.Prompt = newPrompt
+	char.Save()
+
+	WriteStringF(s, "{{Prompt updated successfully! New prompt:}}::green %s\n", newPrompt)
+}
+
+// ValidatePrompt ensures that only allowed macros (from promptPlaceholders) are used
+func ValidatePrompt(prompt string) bool {
+	re := regexp.MustCompile(`{{[^{}]+}}`)
+	matches := re.FindAllString(prompt, -1)
+
+	for _, match := range matches {
+		if _, exists := promptPlaceholders[match]; !exists {
+			return false
+		}
+	}
+	return true
 }
 
 /*

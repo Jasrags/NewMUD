@@ -22,6 +22,12 @@ type CommandFunc func(s ssh.Session, cmd string, args []string, user *Account, c
 
 func RegisterCommands() {
 	CommandMgr.RegisterCommand(Command{
+		Name:        "prompt",
+		Description: "Get and set your prompt",
+		Usage:       []string{"prompt [prompt]"},
+		Func:        DoPrompt,
+	})
+	CommandMgr.RegisterCommand(Command{
 		Name:        "history",
 		Description: "Show the list of commands executed in this session.",
 		Usage:       []string{"history"},

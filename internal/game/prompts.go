@@ -7,8 +7,9 @@ import (
 )
 
 // TODO: support short versions of the prompt placeholders
+// TODO: need a DoPrompt function that will handle the actual printing of the prompt
 var (
-	replacements = map[string]func(*Character) string{
+	promptPlaceholders = map[string]func(*Character) string{
 		"{{time}}": GetFormattedGameTime,
 		"{{date}}": GetFormattedGameDate,
 	}
@@ -18,7 +19,7 @@ var (
 func RenderPrompt(char *Character) string {
 	prompt := char.Prompt
 
-	for pattern, function := range replacements {
+	for pattern, function := range promptPlaceholders {
 		prompt = strings.ReplaceAll(prompt, pattern, function(char))
 	}
 
