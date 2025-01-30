@@ -6,43 +6,136 @@ import (
 	"time"
 )
 
+// TODO: Support short versions of game time
+// TODO: Support saving/loading game time
+
+// Game Constants
 const (
 	GameDayLength      = 1440 // Minutes in a game day (24 hours * 60 minutes)
 	GameTicksPerMinute = 10   // Number of ticks for one in-game minute
+	DaysInWeek         = 7
 )
 
+// Gregorian calendar month lengths
+var (
+	GameTimeMgr  = NewGameTime()
+	MonthLengths = []int{
+		31, // January
+		28, // February (default, leap year handled separately)
+		31, // March
+		30, // April
+		31, // May
+		30, // June
+		31, // July
+		31, // August
+		30, // September
+		31, // October
+		30, // November
+		31, // December
+	}
+)
+
+// GameTime struct with date tracking
 type GameTime struct {
 	Minutes         int // Total minutes since the start of the game day
 	TickAccumulator int // Tracks the number of ticks since the last minute increment
+	Day             int // Current day in the month
+	Month           int // Current month (1-12)
+	Year            int // Current year
 }
 
+// Initializes the game time
+func NewGameTime() *GameTime {
+	return &GameTime{
+		Minutes:         0,
+		Day:             1,    // Start at January 1st
+		Month:           1,    // January
+		Year:            1000, // Default game start year
+		TickAccumulator: 0,
+	}
+}
+
+// Returns the current hour in 24-hour format
 func (t *GameTime) CurrentHour() int {
 	return (t.Minutes / 60) % 24
 }
 
+// Returns the current minute
 func (t *GameTime) CurrentMinute() int {
 	return t.Minutes % 60
 }
 
-// Advance processes ticks and increments minutes when enough ticks accumulate
+// Returns whether the current year is a leap year
+func (t *GameTime) IsLeapYear() bool {
+	year := t.Year
+	return (year%4 == 0 && year%100 != 0) || (year%400 == 0)
+}
+
+// Gets the number of days in the current month
+func (t *GameTime) DaysInMonth() int {
+	if t.Month == 2 && t.IsLeapYear() {
+		return 29
+	}
+	return MonthLengths[t.Month-1]
+}
+
+// Advances game time based on ticks and increments the date accordingly
 func (t *GameTime) Advance(ticks int) {
 	t.TickAccumulator += ticks
 
-	// Convert ticks to minutes when accumulator exceeds GameTicksPerMinute
+	// Convert ticks to minutes
 	if t.TickAccumulator >= GameTicksPerMinute {
 		minutesToAdd := t.TickAccumulator / GameTicksPerMinute
-		t.Minutes = (t.Minutes + minutesToAdd) % GameDayLength
+		t.Minutes += minutesToAdd
 		t.TickAccumulator %= GameTicksPerMinute
+	}
+
+	// Handle day rollover
+	for t.Minutes >= GameDayLength {
+		t.Minutes -= GameDayLength
+		t.Day++
+
+		if t.Day > t.DaysInMonth() { // If we exceed month length
+			t.Day = 1
+			t.Month++
+			if t.Month > 12 { // If we exceed December, go to next year
+				t.Month = 1
+				t.Year++
+			}
+		}
 	}
 }
 
-func (t *GameTime) String() string {
-	hour := t.CurrentHour()
-	minute := t.CurrentMinute()
-	return fmt.Sprintf("%02d:%02d", hour, minute)
+// Returns a formatted string of the current in-game time (HH:MM AM/PM)
+func (t *GameTime) GetFormattedTime() string {
+	return fmt.Sprintf("{{%02d}}::yellow:{{%02d}}::yellow %s",
+		t.CurrentHour()%12,
+		t.CurrentMinute(),
+		t.GetAmPm(),
+	)
 }
 
-func StartTicker(tickDuration time.Duration) {
+// Returns the in-game date formatted as "Month Day, Year"
+func (t *GameTime) GetFormattedDate(short bool) string {
+	months := []string{"January", "February", "March", "April", "May", "June", "July",
+		"August", "September", "October", "November", "December"}
+	if short {
+		months = []string{"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul",
+			"Aug", "Sep", "Oct", "Nov", "Dec"}
+	}
+
+	return fmt.Sprintf("{{%s %d, %d}}::cyan", months[t.Month-1], t.Day, t.Year)
+}
+
+// Returns whether the current time is AM or PM
+func (t *GameTime) GetAmPm() string {
+	if t.CurrentHour() >= 12 {
+		return "PM"
+	}
+	return "AM"
+}
+
+func (t *GameTime) StartTicker(tickDuration time.Duration) {
 	slog.Debug("Starting game ticker",
 		slog.Duration("tick_duration", tickDuration))
 
@@ -56,20 +149,20 @@ func StartTicker(tickDuration time.Duration) {
 	}
 }
 
-var gameTime = &GameTime{Minutes: 0}
-
 func handleGameTick() {
-	gameTime.Advance(1) // Advance by one tick
+	GameTimeMgr.Advance(1) // Advance by one tick
 
-	if gameTime.TickAccumulator == 0 {
-		slog.Debug("Game time updated", slog.String("time", gameTime.String()))
+	if GameTimeMgr.TickAccumulator == 0 {
+		slog.Debug("Game time updated",
+			slog.String("time", GameTimeMgr.GetFormattedTime()),
+			slog.String("date", GameTimeMgr.GetFormattedDate(false)))
 	}
 
 	triggerTimeBasedEvents()
 }
 
 func triggerTimeBasedEvents() {
-	hour := gameTime.CurrentHour()
+	hour := GameTimeMgr.CurrentHour()
 
 	switch hour {
 	case 6: // Sunrise
@@ -85,8 +178,8 @@ func triggerTimeBasedEvents() {
 
 // Calculate the number of in-game minutes until the next occurrence of a given hour
 func calculateTimeUntil(targetHour int) int {
-	currentHour := gameTime.CurrentHour()
-	currentMinute := gameTime.CurrentMinute()
+	currentHour := GameTimeMgr.CurrentHour()
+	currentMinute := GameTimeMgr.CurrentMinute()
 
 	if currentHour < targetHour {
 		return (targetHour-currentHour)*60 - currentMinute
@@ -108,11 +201,4 @@ func formatMinutesAsTime(minutes int) string {
 	} else {
 		return fmt.Sprintf("%d minute%s", minutes, pluralize(minutes))
 	}
-}
-
-func pluralize(value int) string {
-	if value == 1 {
-		return ""
-	}
-	return "s"
 }

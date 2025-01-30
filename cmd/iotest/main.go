@@ -16,6 +16,7 @@ func main() {
 	game.EntityMgr.LoadDataFiles()
 	game.AccountMgr.LoadDataFiles()
 	game.CharacterMgr.LoadDataFiles()
+	game.GameTimeMgr = game.NewGameTime()
 
 	// acct := game.AccountMgr.GetByUsername("Jasrags")
 	char := game.CharacterMgr.GetCharacterByName("Jasrags")
@@ -59,8 +60,12 @@ func main() {
 	char.Room.Inventory.AddItem(game.EntityMgr.CreateItemInstanceFromBlueprintID("jagged_rock"))
 	char.Room.Inventory.AddItem(game.EntityMgr.CreateItemInstanceFromBlueprintID("test_key"))
 
+	game.GameTimeMgr.Minutes = 90
+	char.Prompt = "{{time}} {{date}} {{>}}::white"
+
 	var output strings.Builder
 	// output.WriteString(game.RenderRoom(acct, char, room))
-	output.WriteString(game.RenderCharacterTable(char))
+	// output.WriteString(game.RenderCharacterTable(char))
+	output.WriteString(game.RenderPrompt(char))
 	cfmt.Print(output.String())
 }

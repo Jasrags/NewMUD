@@ -35,7 +35,8 @@ func (s *GameServer) Init() {
 
 	// Set game server properties
 	s.TickDuration = viper.GetDuration("server.tick_duration")
-	go StartTicker(s.TickDuration)
+
+	go GameTimeMgr.StartTicker(s.TickDuration)
 
 	EntityMgr.LoadDataFiles()
 	AccountMgr.LoadDataFiles()
