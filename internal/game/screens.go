@@ -421,7 +421,7 @@ func PromptGameLoop(s ssh.Session, a *Account, c *Character) string {
 	WriteString(s, "\n")
 
 	for {
-		WriteString(s, "{{>}}::white|bold ")
+		WriteStringF(s, "{{%s}}::white|bold ", RenderPrompt(c))
 		input, err := PromptForInput(s, "")
 		if err != nil {
 			slog.Error("Error reading input", slog.Any("error", err))

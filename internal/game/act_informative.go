@@ -630,12 +630,12 @@ func DoTime(s ssh.Session, cmd string, args []string, user *Account, char *Chara
 	switch len(args) {
 	case 0:
 		// Basic time display
-		io.WriteString(s, cfmt.Sprintf("{{The current in-game time is %s.}}::cyan\n", gameTime.String()))
+		io.WriteString(s, cfmt.Sprintf("{{The current in-game time is %s.}}::cyan\n", GameTimeMgr.GetFormattedTime()))
 	case 1:
 		if strings.EqualFold(args[0], "details") {
 			// Detailed time information
-			hour := gameTime.CurrentHour()
-			minute := gameTime.CurrentMinute()
+			hour := GameTimeMgr.CurrentHour()
+			minute := GameTimeMgr.CurrentMinute()
 			timeUntilSunrise := calculateTimeUntil(6) // Example sunrise time
 			timeUntilSunset := calculateTimeUntil(18) // Example sunset time
 
