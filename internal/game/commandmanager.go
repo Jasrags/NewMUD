@@ -1,13 +1,11 @@
 package game
 
 import (
-	"io"
 	"log/slog"
 	"strconv"
 	"strings"
 
 	"github.com/gliderlabs/ssh"
-	"github.com/i582/cfmt/cmd/cfmt"
 	"github.com/spf13/viper"
 )
 
@@ -46,9 +44,9 @@ func (mgr *CommandManager) ParseAndExecute(s ssh.Session, input string, user *Ac
 			historyIndex, err := strconv.Atoi(input[1:])
 			if err == nil && historyIndex > 0 && historyIndex <= len(char.CommandHistory) {
 				input = char.CommandHistory[historyIndex-1]
-				io.WriteString(s, cfmt.Sprintf("{{Re-executing: %s}}::green\n", input))
+				WriteStringF(s, "{{Re-executing: %s}}::green"+CRLF, input)
 			} else {
-				io.WriteString(s, "{{Invalid history index.}}::red\n")
+				WriteString(s, "{{Invalid history index.}}::red"+CRLF)
 				return
 			}
 		}
@@ -67,19 +65,19 @@ func (mgr *CommandManager) ParseAndExecute(s ssh.Session, input string, user *Ac
 
 	command, ok := mgr.commands[cmd]
 	if !ok {
-		io.WriteString(s, cfmt.Sprintf("{{Unknown command '%s'. Type 'help' for a list of commands.}}::red\n", cmd))
+		WriteStringF(s, "{{Unknown command '%s'. Type 'help' for a list of commands.}}::red"+CRLF, cmd)
 		return
 	}
 
 	if !mgr.CanRunCommand(char, command) {
-		io.WriteString(s, cfmt.Sprintf("{{Unknown command '%s'. Type 'help' for a list of commands.}}::red\n", cmd))
+		WriteStringF(s, "{{Unknown command '%s'. Type 'help' for a list of commands.}}::red"+CRLF, cmd)
 		return
 	}
 
 	if command.SuggestFunc != nil {
 		suggestions := command.SuggestFunc(input, args, char, room)
 		if len(suggestions) > 0 {
-			io.WriteString(s, cfmt.Sprintf("{{Suggestions:}}::green %s\n", strings.Join(suggestions, ", ")))
+			WriteStringF(s, "{{Suggestions:}}::green %s"+CRLF, strings.Join(suggestions, ", "))
 		}
 	}
 

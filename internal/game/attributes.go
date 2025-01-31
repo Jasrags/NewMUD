@@ -3,17 +3,27 @@ package game
 type AttributeType string
 
 const (
-	AttributeBody      AttributeType = "Body"
-	AttributeAgility   AttributeType = "Agility"
-	AttributeReaction  AttributeType = "Reaction"
-	AttributeStrength  AttributeType = "Strength"
-	AttributeWillpower AttributeType = "Willpower"
-	AttributeLogic     AttributeType = "Logic"
-	AttributeIntuition AttributeType = "Intuition"
-	AttributeCharisma  AttributeType = "Charisma"
-	AttributeEssence   AttributeType = "Essence"
-	AttributeMagic     AttributeType = "Magic"
-	AttributeResonance AttributeType = "Resonance"
+	AttributeBody            AttributeType = "Body"
+	AttributeAgility         AttributeType = "Agility"
+	AttributeReaction        AttributeType = "Reaction"
+	AttributeStrength        AttributeType = "Strength"
+	AttributeWillpower       AttributeType = "Willpower"
+	AttributeLogic           AttributeType = "Logic"
+	AttributeIntuition       AttributeType = "Intuition"
+	AttributeCharisma        AttributeType = "Charisma"
+	AttributeEssence         AttributeType = "Essence"
+	AttributeMagic           AttributeType = "Magic"
+	AttributeResonance       AttributeType = "Resonance"
+	AttributeInitiative      AttributeType = "Initiative"
+	AttributeInitiativeDice  AttributeType = "Initiative Dice"
+	AttributeComposure       AttributeType = "Composure"
+	AttributeJudgeIntentions AttributeType = "Judge Intentions"
+	AttributeMemory          AttributeType = "Memory"
+	AttributeLift            AttributeType = "Lift"
+	AttributeCarry           AttributeType = "Carry"
+	AttributeWalk            AttributeType = "Walk"
+	AttributeRun             AttributeType = "Run"
+	AttributeSwim            AttributeType = "Swim"
 )
 
 type Attributes struct {
@@ -117,6 +127,9 @@ type Attribute[T int | float64] struct {
 	Base       T      `yaml:"base"`
 	Delta      T      `yaml:"delta"`
 	TotalValue T      `yaml:"total_value"`
+	Min        T      `yaml:"min"`
+	Max        T      `yaml:"max"`
+	AugMax     T      `yaml:"aug_max"`
 }
 
 func NewAttribute[T int | float64](name AttributeType, base T) *Attribute[T] {
@@ -138,6 +151,18 @@ func (a *Attribute[T]) AddDelta(value T) {
 func (a *Attribute[T]) SubDelta(value T) {
 	a.Delta -= value
 	a.Recalculate()
+}
+
+func (a *Attribute[T]) SetMin(value T) {
+	a.Min = value
+}
+
+func (a *Attribute[T]) SetMax(value T) {
+	a.Max = value
+}
+
+func (a *Attribute[T]) SetAugMax(value T) {
+	a.AugMax = value
 }
 
 func (a *Attribute[T]) Recalculate() {

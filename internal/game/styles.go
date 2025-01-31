@@ -2,6 +2,19 @@ package game
 
 import "github.com/charmbracelet/lipgloss"
 
+const (
+	CRLF = CR + LF
+	BEL  = "\a" // Terminal bell
+	BS   = "\b" // Backspace
+	HT   = "\t" // Horizontal TAB
+	LF   = "\n" // Linefeed (newline)
+	VT   = "\v" // Vertical TAB
+	FF   = "\f" // Formfeed (also: New page NP)
+	CR   = "\r" // Carriage return
+	// ESC = "\e*" // Escape character
+	DEL = "\x7F" // Delete character
+)
+
 var (
 	borderStyle = lipgloss.NewStyle().
 			BorderStyle(lipgloss.NormalBorder()).
@@ -11,6 +24,8 @@ var (
 	// Table formatting
 	singleColumnStyle = borderStyle.Width(80)
 	dualColumnStyle   = borderStyle.Width(39)
+
+	menuStyle = borderStyle.Width(25)
 
 	// Text styles
 	headerStyle        = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("63"))

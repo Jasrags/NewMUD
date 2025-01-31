@@ -290,19 +290,19 @@ func RenderRoom(user *Account, char *Character, room *Room) string {
 		roomTitle = cfmt.Sprintf("%s {{[%s]}}::white", roomTitle, char.Room.ID)
 	}
 
-	builder.WriteString(roomTitle + "\n")
-	builder.WriteString(wordwrap.String(cfmt.Sprint(char.Room.Description), 80) + "\n")
-	builder.WriteString("\n")
-	builder.WriteString(RenderEntitiesInRoom(char) + "\n")
-	builder.WriteString("\n")
+	builder.WriteString(roomTitle + "" + CRLF)
+	builder.WriteString(wordwrap.String(cfmt.Sprint(char.Room.Description), 80) + "" + CRLF)
+	builder.WriteString("" + CRLF)
+	builder.WriteString(RenderEntitiesInRoom(char) + "" + CRLF)
+	builder.WriteString("" + CRLF)
 
 	if len(char.Room.Inventory.Items) > 0 {
-		builder.WriteString(RenderItemsInRoom(char) + "\n")
-		builder.WriteString("\n")
+		builder.WriteString(RenderItemsInRoom(char) + "" + CRLF)
+		builder.WriteString("" + CRLF)
 	}
 
-	builder.WriteString(RenderRoomExits(char) + "\n")
-	builder.WriteString("\n")
+	builder.WriteString(RenderRoomExits(char) + "" + CRLF)
+	builder.WriteString("" + CRLF)
 
 	return builder.String()
 }

@@ -1,7 +1,6 @@
 package game
 
 import (
-	"io"
 	"log/slog"
 	"path/filepath"
 	"strings"
@@ -52,7 +51,7 @@ func (c *Character) Init() {
 }
 
 func (c *Character) Send(msg string) {
-	io.WriteString(c.Conn, msg)
+	WriteString(c.Conn, msg)
 }
 
 func (c *Character) GetName() string {
@@ -66,7 +65,7 @@ func (c *Character) GetID() string {
 func (c *Character) ReactToMessage(sender *Character, message string) {
 	// For Characters, send the message via their session.
 	if c.Conn != nil {
-		io.WriteString(c.Conn, cfmt.Sprintf("{{%s says to you: '%s'}}::green\n", sender.Name, message))
+		WriteString(c.Conn, cfmt.Sprintf("{{%s says to you: '%s'}}::green"+CRLF, sender.Name, message))
 	}
 }
 
@@ -117,13 +116,13 @@ func (c *Character) MoveToRoom(nextRoom *Room) {
 
 	if c.Room != nil && c.Room.ID != nextRoom.ID {
 		// EventMgr.Publish(EventRoomCharacterLeave, &RoomCharacterLeave{Character: c, Room: c.Room, NextRoom: nextRoom})
-		c.Room.Broadcast(cfmt.Sprintf("\n{{%s leaves the room.}}::green\n", c.Name), []string{c.ID})
+		c.Room.Broadcast(cfmt.Sprintf("\n{{%s leaves the room.}}::green"+CRLF, c.Name), []string{c.ID})
 		c.Room.RemoveCharacter(c)
 	}
 
 	c.SetRoom(nextRoom)
 	nextRoom.AddCharacter(c)
-	c.Room.Broadcast(cfmt.Sprintf("\n{{%s enters the room.}::green}\n", c.Name), []string{c.ID})
+	c.Room.Broadcast(cfmt.Sprintf("\n{{%s enters the room.}::green}"+CRLF, c.Name), []string{c.ID})
 
 	// EventMgr.Publish(EventRoomCharacterEnter, &RoomCharacterEnter{Character: c, Room: c.Room, PrevRoom: prevRoom})
 	// EventMgr.Publish(EventPlayerEnterRoom, &PlayerEnterRoom{Character: c, Room: c.Room})

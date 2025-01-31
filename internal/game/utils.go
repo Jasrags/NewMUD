@@ -30,7 +30,7 @@ func WrapText(text string, width int) string {
 		if len(line)+len(word)+1 > width {
 			// Append the current line to the result and reset the line
 			if line != "" {
-				result.WriteString(line + "\n")
+				result.WriteString(line + CRLF)
 			}
 			line = word
 		} else {
@@ -154,19 +154,19 @@ func ReverseDirection(dir string) string {
 
 func RenderItemDescription(item *Item) string {
 	bp := EntityMgr.GetItemBlueprintByInstance(item)
-	return cfmt.Sprintf("{{%s}}::green\n{{Description: %s}}::white\n", bp.Name, bp.Description)
+	return cfmt.Sprintf("{{%s}}::green\n{{Description: %s}}::white"+CRLF, bp.Name, bp.Description)
 }
 
 func RenderMobDescription(mob *Mob) string {
-	return cfmt.Sprintf("{{%s}}::red\n{{Description: %s}}::white\n", mob.Name, mob.Description)
+	return cfmt.Sprintf("{{%s}}::red\n{{Description: %s}}::white"+CRLF, mob.Name, mob.Description)
 }
 
 func RenderCharacterDescription(char *Character) string {
-	return cfmt.Sprintf("{{%s}}::blue\n{{Description: %s}}::white\n", char.Name, char.Description)
+	return cfmt.Sprintf("{{%s}}::blue\n{{Description: %s}}::white"+CRLF, char.Name, char.Description)
 }
 
 func RenderExitDescription(direction string) string {
-	return cfmt.Sprintf("{{To the %s, you see an exit.}}::cyan\n", direction)
+	return cfmt.Sprintf("{{To the %s, you see an exit.}}::cyan"+CRLF, direction)
 }
 
 // RollDice simulates rolling a pool of d6s. It returns the number of hits, glitches, and the results of each die.
@@ -234,11 +234,11 @@ func RollWithEdge(pool int) (hits int, glitches int, results []int) {
 }
 
 func WriteString(w io.Writer, s string) (int, error) {
-	s = strings.ReplaceAll(s, "\n", "\r\n")
+	s = strings.ReplaceAll(s, ""+CRLF, CRLF)
 	return io.WriteString(w, cfmt.Sprint(s))
 }
 
 func WriteStringF(w io.Writer, s string, a ...interface{}) (int, error) {
-	s = strings.ReplaceAll(s, "\n", "\r\n")
+	s = strings.ReplaceAll(s, ""+CRLF, CRLF)
 	return io.WriteString(w, cfmt.Sprintf(s, a...))
 }

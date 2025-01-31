@@ -1,8 +1,6 @@
 package game
 
 import (
-	"fmt"
-	"io"
 	"log/slog"
 	"strings"
 	"time"
@@ -32,24 +30,24 @@ const (
 )
 
 func PromptWelcome(s ssh.Session) string {
-	slog.Debug("Welcome state",
-		slog.String("remote_address", s.RemoteAddr().String()),
-		slog.String("session_id", s.Context().SessionID()))
+	var output strings.Builder
 
-	WriteString(s, "{{     ::::::::  :::    :::     :::     :::::::::   ::::::::  :::       ::: ::::    ::::  :::    ::: :::::::::  }}::#ff8700\n")
-	WriteString(s, "{{    :+:    :+: :+:    :+:   :+: :+:   :+:    :+: :+:    :+: :+:       :+: +:+:+: :+:+:+ :+:    :+: :+:    :+: }}::#ff5f00\n")
-	WriteString(s, "{{    +:+        +:+    +:+  +:+   +:+  +:+    +:+ +:+    +:+ +:+       +:+ +:+ +:+:+ +:+ +:+    +:+ +:+    +:+ }}::#ff0000\n")
-	WriteString(s, "{{    +#++:++#++ +#++:++#++ +#++:++#++: +#+    +:+ +#+    +:+ +#+  +:+  +#+ +#+  +:+  +#+ +#+    +:+ +#+    +:+ }}::#d70000\n")
-	WriteString(s, "{{           +#+ +#+    +#+ +#+     +#+ +#+    +#+ +#+    +#+ +#+ +#+#+ +#+ +#+       +#+ +#+    +#+ +#+    +#+ }}::#af0000\n")
-	WriteString(s, "{{    #+#    #+# #+#    #+# #+#     #+# #+#    #+# #+#    #+#  #+#+# #+#+#  #+#       #+# #+#    #+# #+#    #+# }}::#870000\n")
-	WriteString(s, "{{     ########  ###    ### ###     ### #########   ########    ###   ###   ###       ###  ########  #########  }}::#5f0000\n")
+	output.WriteString("{{     ::::::::  :::    :::     :::     :::::::::   ::::::::  :::       ::: ::::    ::::  :::    ::: :::::::::  }}::#ff8700" + CRLF)
+	output.WriteString("{{    :+:    :+: :+:    :+:   :+: :+:   :+:    :+: :+:    :+: :+:       :+: +:+:+: :+:+:+ :+:    :+: :+:    :+: }}::#ff5f00" + CRLF)
+	output.WriteString("{{    +:+        +:+    +:+  +:+   +:+  +:+    +:+ +:+    +:+ +:+       +:+ +:+ +:+:+ +:+ +:+    +:+ +:+    +:+ }}::#ff0000" + CRLF)
+	output.WriteString("{{    +#++:++#++ +#++:++#++ +#++:++#++: +#+    +:+ +#+    +:+ +#+  +:+  +#+ +#+  +:+  +#+ +#+    +:+ +#+    +:+ }}::#d70000" + CRLF)
+	output.WriteString("{{           +#+ +#+    +#+ +#+     +#+ +#+    +#+ +#+    +#+ +#+ +#+#+ +#+ +#+       +#+ +#+    +#+ +#+    +#+ }}::#af0000" + CRLF)
+	output.WriteString("{{    #+#    #+# #+#    #+# #+#     #+# #+#    #+# #+#    #+#  #+#+# #+#+#  #+#       #+# #+#    #+# #+#    #+# }}::#870000" + CRLF)
+	output.WriteString("{{     ########  ###    ### ###     ### #########   ########    ###   ###   ###       ###  ########  #########  }}::#5f0000" + CRLF)
 
-	// Check if login is enabled
 	if !viper.GetBool("server.login_enabled") {
-		WriteString(s, cfmt.Sprint("{{Login is disabled.}}::red"))
+		output.WriteString(cfmt.Sprint("{{Login is disabled.}}::red" + CRLF))
 	}
 
-	WriteString(s, "{{Press enter to continue...}}::white|bold\n")
+	output.WriteString("{{Press enter to continue...}}::white|bold" + CRLF)
+
+	WriteString(s, output.String())
+
 	if _, err := PromptForInput(s, ""); err != nil {
 		return StateError
 	}
@@ -58,13 +56,9 @@ func PromptWelcome(s ssh.Session) string {
 }
 
 func PromptLogin(s ssh.Session) (string, *Account) {
-	slog.Debug("Login state",
-		slog.String("remote_address", s.RemoteAddr().String()),
-		slog.String("session_id", s.Context().SessionID()))
-
 promptUsername:
 	// Prompt for username
-	WriteString(s, "{{Enter your username to continue or type}}::white {{new}}::green|bold {{to register:}}::white\n")
+	WriteString(s, "{{Enter your username to continue or type}}::white {{new}}::green|bold {{to register:}}::white"+CRLF)
 
 	WriteString(s, "{{Username:}}::white|bold ")
 	username, err := PromptForInput(s, "")
@@ -91,7 +85,7 @@ promptUsername:
 		slog.Warn("Invalid login attempt",
 			slog.String("username", username))
 
-		WriteString(s, "{{Invalid username or password.}}::red\n")
+		WriteString(s, "{{Invalid username or password.}}::red"+CRLF)
 		goto promptUsername
 	}
 
@@ -99,7 +93,7 @@ promptUsername:
 	// TODO: Check if user is banned
 
 	// Login successful
-	WriteStringF(s, "{{Welcome back, %s!}}::green|bold\n", username)
+	WriteStringF(s, "{{Welcome back, %s!}}::green|bold"+CRLF, username)
 
 	return StateMainMenu, u
 }
@@ -110,13 +104,13 @@ func PromptRegistration(s ssh.Session) (string, *Account) {
 		slog.String("session_id", s.Context().SessionID()))
 
 	if !viper.GetBool("server.registration_enabled") {
-		io.WriteString(s, cfmt.Sprint("\n{{Registration is disabled.}}::red\n"))
+		WriteString(s, "\n{{Registration is disabled.}}::red"+CRLF)
 
 		return StateLogin, nil
 	}
 
 promptUsername:
-	io.WriteString(s, cfmt.Sprint("{{User registration}}::green\n"))
+	WriteString(s, "{{User registration}}::green"+CRLF)
 	username, err := PromptForInput(s, cfmt.Sprint("{{Enter your username: }}::white|bold"))
 	if err != nil {
 		return StateError, nil
@@ -124,25 +118,25 @@ promptUsername:
 
 	// Check if username is empty
 	if username == "" {
-		io.WriteString(s, cfmt.Sprint("{{Username cannot be empty.}}::red\n"))
+		WriteString(s, "{{Username cannot be empty.}}::red"+CRLF)
 		goto promptUsername
 	}
 
 	// Check if username is within the allowed length
 	if len(username) < viper.GetInt("server.username_min_length") || len(username) > viper.GetInt("server.username_max_length") {
-		io.WriteString(s, cfmt.Sprintf("{{Username must be between %d and %d characters.}}::red\n", viper.GetInt("server.username_min_length"), viper.GetInt("server.username_max_length")))
+		WriteStringF(s, "{{Username must be between %d and %d characters.}}::red"+CRLF, viper.GetInt("server.username_min_length"), viper.GetInt("server.username_max_length"))
 		goto promptUsername
 	}
 
 	// Check if username already exists
 	if AccountMgr.Exists(username) {
-		io.WriteString(s, cfmt.Sprint("{{Username already exists.}}::red\n"))
+		WriteString(s, "{{Username already exists.}}::red"+CRLF)
 		goto promptUsername
 	}
 
 	// Check if username is banned
 	if AccountMgr.IsBannedName(username) {
-		io.WriteString(s, cfmt.Sprint("{{Username is not allowed.}}::red\n"))
+		WriteString(s, "{{Username is not allowed.}}::red"+CRLF)
 		goto promptUsername
 	}
 
@@ -154,13 +148,13 @@ promptPassword:
 
 	// Check if password is empty
 	if password == "" {
-		io.WriteString(s, cfmt.Sprint("{{Password cannot be empty.}}::red\n"))
+		WriteString(s, "{{Password cannot be empty.}}::red"+CRLF)
 		goto promptPassword
 	}
 
 	// Check if password is within the allowed length
 	if len(password) < viper.GetInt("server.password_min_length") || len(password) > viper.GetInt("server.password_max_length") {
-		io.WriteString(s, cfmt.Sprintf("{{Password must be between %d and %d characters.}}::red\n", viper.GetInt("server.password_min_length"), viper.GetInt("server.password_max_length")))
+		WriteStringF(s, "{{Password must be between %d and %d characters.}}::red"+CRLF, viper.GetInt("server.password_min_length"), viper.GetInt("server.password_max_length"))
 		goto promptPassword
 	}
 
@@ -171,13 +165,13 @@ promptPassword:
 
 	// Check if confirm password is empty
 	if confirmPassword == "" {
-		io.WriteString(s, cfmt.Sprint("{{Password cannot be empty.}}::red\n"))
+		WriteString(s, "{{Password cannot be empty.}}::red"+CRLF)
 		goto promptPassword
 	}
 
 	// Check if passwords match
 	if password != confirmPassword {
-		io.WriteString(s, cfmt.Sprint("{{Passwords do not match.}}::red\n"))
+		WriteString(s, "{{Passwords do not match.}}::red"+CRLF)
 		goto promptPassword
 	}
 
@@ -192,18 +186,9 @@ promptPassword:
 }
 
 func PromptMainMenu(s ssh.Session, a *Account) string {
-	// Debugging entry into the main menu
-	slog.Debug("Main menu state",
-		slog.String("username", a.Username),
-		slog.String("remote_address", s.RemoteAddr().String()),
-		slog.String("session_id", s.Context().SessionID()))
-
-	// Define menu options
 	options := []string{"Enter Game", "Create Character", "Change Password", "Quit"}
 
-	// Prompt user for menu selection
-	WriteString(s, "{{Main Menu}}::green|bold\n")
-	option, err := PromptForMenu(s, "", options)
+	option, err := PromptForMenu(s, "Main Menu", options)
 	if err != nil {
 		return StateError
 	}
@@ -224,18 +209,13 @@ func PromptMainMenu(s ssh.Session, a *Account) string {
 }
 
 func PromptChangePassword(s ssh.Session, a *Account) string {
-	slog.Debug("Change password state",
-		slog.String("username", a.Username),
-		slog.String("remote_address", s.RemoteAddr().String()),
-		slog.String("session_id", s.Context().SessionID()))
-
 	password, err := PromptForPassword(s, cfmt.Sprint("{{Enter your current password:}}::white|bold "))
 	if err != nil {
 		return StateError
 	}
 
 	if !a.CheckPassword(password) {
-		io.WriteString(s, cfmt.Sprint("{{Invalid password.}}::red\n"))
+		WriteString(s, "{{Invalid password.}}::red"+CRLF)
 		return StateChangePassword
 	}
 
@@ -250,14 +230,14 @@ func PromptChangePassword(s ssh.Session, a *Account) string {
 	}
 
 	if newPassword != confirmNewPassword {
-		io.WriteString(s, cfmt.Sprint("{{Passwords do not match.}}::red\n"))
+		WriteString(s, "{{Passwords do not match.}}::red"+CRLF)
 		return StateChangePassword
 	}
 
 	a.SetPassword(newPassword)
 	a.Save()
 
-	io.WriteString(s, cfmt.Sprint("{{Password changed successfully.}}::green\n"))
+	WriteString(s, "{{Password changed successfully.}}::green"+CRLF)
 
 	return StateMainMenu
 }
@@ -267,19 +247,19 @@ func PromptChangePassword(s ssh.Session, a *Account) string {
 // 1. Metatypes defined and loaded
 // 2. Archetypes defined and loaded
 // 3. Item packs defined and loaded (use fake items for now)
-//
+
 // --- Character creation steps ---
 // Step 1: Prompt for character name
 // Validate name (not empty, not already taken, length within limits, alphanumeric)
-//
+
 // Step 2: Prompt for metatype
 // Display metatype options
 // Allow showing details for the metatype including suggested archtypes
-//
+
 // Step 3: Prompt for archtype
 // Display archtype options
 // Allow showing details for the archtype (Highlight good/neutral/bad metatype choices for the selected archtype)
-//
+
 // Step 4: Prompt for item pack purchase (Optional)
 // Set a base nuyen level for the character
 // Display item pack options
@@ -291,7 +271,7 @@ func PromptChangePassword(s ssh.Session, a *Account) string {
 // Apply base archtype attributes adjust within min/max if needed
 // Apply any metatype qualties
 // Add any item pack items to the inventory
-//
+
 // --- Future functions ---
 // Item type support for shadowrun item types (weapons, armor, etc)
 // PromptCharacterDelete
@@ -299,38 +279,36 @@ func PromptChangePassword(s ssh.Session, a *Account) string {
 //
 
 func PromptCharacterCreate(s ssh.Session, a *Account) string {
-	slog.Debug("Character create state",
-		slog.String("username", a.Username),
-		slog.String("remote_address", s.RemoteAddr().String()),
-		slog.String("session_id", s.Context().SessionID()))
-
 	// Step 1: Prompt for character name
-	io.WriteString(s, cfmt.Sprintf("{{Enter your character's name:}}::cyan\n"))
+	WriteString(s, "{{Enter your character's name:}}::cyan"+CRLF)
 	name, err := PromptForInput(s, "\r> ")
 	if err != nil {
 		slog.Error("Error reading character name", slog.Any("error", err))
-		io.WriteString(s, cfmt.Sprintf("{{Error reading input. Returning to main menu.}}::red\n"))
+		WriteString(s, "{{Error reading input. Returning to main menu.}}::red"+CRLF)
+
 		return StateMainMenu
 	}
 	name = strings.TrimSpace(name)
 
 	if len(name) == 0 {
-		io.WriteString(s, cfmt.Sprintf("{{Name cannot be empty. Returning to main menu.}}::red\n"))
+		WriteString(s, "{{Name cannot be empty. Returning to main menu.}}::red"+CRLF)
+
 		return StateMainMenu
 	}
 
 	// Step 2: Prompt for character description
-	io.WriteString(s, cfmt.Sprintf("{{Enter a short description for your character:}}::cyan\n"))
+	WriteString(s, "{{Enter a short description for your character:}}::cyan"+CRLF)
 	description, err := PromptForInput(s, "> ")
 	if err != nil {
 		slog.Error("Error reading character description", slog.Any("error", err))
-		io.WriteString(s, cfmt.Sprintf("{{Error reading input. Returning to main menu.}}::red\n"))
+		WriteString(s, "{{Error reading input. Returning to main menu.}}::red"+CRLF)
+
 		return StateMainMenu
 	}
 	description = strings.TrimSpace(description)
 
 	// Step 3: Set base attributes
-	io.WriteString(s, cfmt.Sprintf("{{Setting base attributes...}}::green\n"))
+	WriteString(s, "{{Setting base attributes...}}::green"+CRLF)
 	baseAttributes := Attributes{
 		Body:      Attribute[int]{Name: "Body", Base: 5},
 		Agility:   Attribute[int]{Name: "Agility", Base: 6},
@@ -369,25 +347,21 @@ func PromptCharacterCreate(s ssh.Session, a *Account) string {
 	// err = UserMgr.SaveUser(u)
 	// if err != nil {
 	// 	slog.Error("Error saving user after character creation", slog.Any("error", err))
-	// 	io.WriteString(s, cfmt.Sprintf("{{Error saving character. Returning to main menu.}}::red\n"))
+	// 	WriteString(s, "{{Error saving character. Returning to main menu.}}::red"+CRLF)
 	// 	return StateMainMenu
 	// }
 
 	// Step 7: Confirmation and return to main menu
-	io.WriteString(s, cfmt.Sprintf("{{Character '%s' created successfully! Returning to main menu.}}::green\n", name))
+	WriteStringF(s, "{{Character '%s' created successfully! Returning to main menu.}}::green"+CRLF, name)
+
 	return StateMainMenu
 }
 
 func PromptEnterGame(s ssh.Session, a *Account) (string, *Character) {
-	// Debugging entry into the game
-	slog.Debug("Enter game state",
-		slog.String("username", a.Username),
-		slog.String("remote_address", s.RemoteAddr().String()),
-		slog.String("session_id", s.Context().SessionID()))
-
 	// Check if user has characters
 	if len(a.Characters) == 0 {
-		WriteString(s, "{{You have no characters. Create one to start playing.}}::red\n")
+		WriteString(s, "{{You have no characters. Create one to start playing.}}::red"+CRLF)
+
 		return StateEnterGame, nil
 	}
 
@@ -404,14 +378,16 @@ func PromptEnterGame(s ssh.Session, a *Account) (string, *Character) {
 	// Use PromptForMenu to render the character selection menu
 	option, err := PromptForMenu(s, "Select a character:", characters)
 	if err != nil {
-		WriteString(s, "{{An error occurred while selecting a character.}}::red\n")
+		WriteString(s, "{{An error occurred while selecting a character.}}::red"+CRLF)
+
 		return StateError, nil
 	}
 
 	// Load the selected character
 	c := CharacterMgr.GetCharacterByName(option)
 	if c == nil {
-		WriteString(s, "{{Character not found. Please try again.}}::red\n")
+		WriteString(s, "{{Character not found. Please try again.}}::red"+CRLF)
+
 		return StateEnterGame, nil
 	}
 
@@ -438,23 +414,18 @@ func PromptEnterGame(s ssh.Session, a *Account) (string, *Character) {
 
 	// Notify the player and enter the game loop
 	WriteString(s, lipgloss.JoinVertical(lipgloss.Left,
-		fmt.Sprintf("{{Entering the game as %s...}}::green|bold\n\n", c.Name),
+		cfmt.Sprintf("{{Entering the game as %s...}}::green|bold"+CRLF, c.Name),
 	))
+
 	return StateGameLoop, c
 }
 
 func PromptGameLoop(s ssh.Session, a *Account, c *Character) string {
-	slog.Debug("Game loop state",
-		slog.String("username", a.Username),
-		slog.String("character_name", c.Name),
-		slog.String("remote_address", s.RemoteAddr().String()),
-		slog.String("session_id", s.Context().SessionID()))
-
 	// Add our character to the room
 	c.Room.AddCharacter(c)
 	// Render the room on initial entry to the game loop
 	WriteString(s, RenderRoom(a, c, c.Room))
-	WriteString(s, "\n")
+	WriteString(s, ""+CRLF)
 
 	for {
 		WriteStringF(s, "{{%s}}::white|bold ", RenderPrompt(c))
@@ -477,14 +448,8 @@ func PromptGameLoop(s ssh.Session, a *Account, c *Character) string {
 }
 
 func PromptExitGame(s ssh.Session, a *Account, c *Character) string {
-	slog.Debug("Exit game state",
-		slog.String("username", a.Username),
-		slog.String("character_name", c.Name),
-		slog.String("remote_address", s.RemoteAddr().String()),
-		slog.String("session_id", s.Context().SessionID()))
-
-	c.Room.Broadcast(cfmt.Sprintf("\n%s leaves the game.\n", c.Name), []string{c.ID})
-	io.WriteString(s, cfmt.Sprintf("{{Goodbye, %s!}}::green\n", a.Username))
+	c.Room.Broadcast(cfmt.Sprintf("%s leaves the game."+CRLF, c.Name), []string{c.ID})
+	WriteStringF(s, "{{Goodbye, %s!}}::green"+CRLF, a.Username)
 
 	CharacterMgr.SetCharacterOffline(c)
 

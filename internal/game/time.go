@@ -154,8 +154,12 @@ func handleGameTick() {
 
 	if GameTimeMgr.TickAccumulator == 0 {
 		slog.Debug("Game time updated",
-			slog.String("time", GameTimeMgr.GetFormattedTime()),
-			slog.String("date", GameTimeMgr.GetFormattedDate(false)))
+			slog.Int("day", GameTimeMgr.Day),
+			slog.Int("month", GameTimeMgr.Month),
+			slog.Int("year", GameTimeMgr.Year),
+			slog.Int("hour", GameTimeMgr.CurrentHour()),
+			slog.Int("minute", GameTimeMgr.CurrentMinute()),
+		)
 	}
 
 	triggerTimeBasedEvents()

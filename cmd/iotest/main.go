@@ -66,6 +66,7 @@ func main() {
 	var output strings.Builder
 	// output.WriteString(game.RenderRoom(acct, char, room))
 	// output.WriteString(game.RenderCharacterTable(char))
-	output.WriteString(game.RenderPrompt(char))
+	output.WriteString(game.RenderPromptMenu("Main Menu", []string{"Enter Game", "Create Character", "Change Password", "Quit"}))
+	// output.WriteString(game.RenderPrompt(char))
 	cfmt.Print(output.String())
 }

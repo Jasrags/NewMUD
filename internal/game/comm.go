@@ -2,14 +2,11 @@ package game
 
 import (
 	"fmt"
-	"io"
 	"log/slog"
 	"net"
 	"strconv"
 	"strings"
 
-	"github.com/charmbracelet/lipgloss"
-	"github.com/charmbracelet/lipgloss/list"
 	"github.com/gliderlabs/ssh"
 	"github.com/i582/cfmt/cmd/cfmt"
 	"github.com/spf13/viper"
@@ -94,86 +91,75 @@ func SetupServer() {
 	}
 }
 
-func RenderMenu(s ssh.Session, title string, options []string) {
-	// Create and render the menu list
-	l := list.New(options).
-		Enumerator(list.Arabic).
-		EnumeratorStyle(boldWhiteText).
-		ItemStyle(boldGreenText)
+// func RenderMenu(s ssh.Session, title string, options []string) {
+// 	// Create and render the menu list
+// 	l := list.New(options).
+// 		Enumerator(list.Arabic).
+// 		EnumeratorStyle(boldWhiteText).
+// 		ItemStyle(boldGreenText)
 
-	// Render the menu
-	io.WriteString(s, lipgloss.JoinVertical(lipgloss.Left,
-		greenText.Render(title),
-		l.String()+"\n",
-		"",
-	))
-}
-
-func ReadChoice(s ssh.Session, options []string) (int, error) {
-	// Create terminal for input
-	t := term.NewTerminal(s, "")
-
-	for {
-		// Write the prompt
-		io.WriteString(s, "\r"+boldWhiteText.Render("Enter choice: "))
-
-		// Read user input
-		input, err := t.ReadLine()
-		if err != nil {
-			return 0, fmt.Errorf("error reading input: %w", err)
-		}
-
-		// Parse and validate choice
-		choice, err := strconv.Atoi(strings.TrimSpace(input))
-		if err != nil || choice < 1 || choice > len(options) {
-			io.WriteString(s, redText.Render("Invalid choice, please try again.\n"))
-			continue
-		}
-
-		return choice, nil
-	}
-}
-
-// func WriteToTerminal(writer termenv.Output, content string) {
-// 	// Styled content
-// 	style := termenv.String(content).Bold().Foreground(termenv.Color("34")) // Blue bold text
-// 	writer.WriteString(style.String())
+// 	// Render the menu
+// 	io.WriteString(s, lipgloss.JoinVertical(lipgloss.Left,
+// 		greenText.Render(title),
+// 		l.String(),
+// 		"",
+// 	))
 // }
 
+// func ReadChoice(s ssh.Session, options []string) (int, error) {
+// 	// Create terminal for input
+// 	t := term.NewTerminal(s, "")
+
+// 	for {
+// 		// Write the prompt
+// 		io.WriteString(s, "\r"+boldWhiteText.Render("Enter choice: "))
+
+// 		// Read user input
+// 		input, err := t.ReadLine()
+// 		if err != nil {
+// 			return 0, fmt.Errorf("error reading input: %w", err)
+// 		}
+
+// 		// Parse and validate choice
+// 		choice, err := strconv.Atoi(strings.TrimSpace(input))
+// 		if err != nil || choice < 1 || choice > len(options) {
+// 			io.WriteString(s, redText.Render("Invalid choice, please try again."+CRLF))
+// 			continue
+// 		}
+
+// 		return choice, nil
+// 	}
+// }
+
+func RenderPromptMenu(title string, options []string) string {
+	var output strings.Builder
+	output.WriteString(cfmt.Sprintf("{{%s}}::white|bold"+CRLF, title))
+	output.WriteString(CRLF)
+	for i, option := range options {
+		output.WriteString(cfmt.Sprintf("{{%2d.}}::white|bold {{%-20s}}::green|bold"+CRLF, i+1, option))
+	}
+	output.WriteString(CRLF)
+	output.WriteString(cfmt.Sprintf("{{Enter choice:}}::white|bold "))
+
+	return output.String()
+}
+
 func PromptForMenu(s ssh.Session, title string, options []string) (string, error) {
-	// Render the menu using lipgloss
-	menu := lipgloss.JoinVertical(
-		lipgloss.Left,
-		cfmt.Sprintf("{{%s}}::green|bold\n", title),
-		list.New(options).
-			Enumerator(list.Arabic).
-			EnumeratorStyle(boldWhiteText).
-			ItemStyle(boldGreenText).
-			String(),
-		"",
-	)
-
-	// Display the menu
-	io.WriteString(s, menu+"\n")
-
-	// Create a terminal for input
 	t := term.NewTerminal(s, "")
 	for {
-		// Prompt for user input
-		io.WriteString(s, cfmt.Sprint("{{Enter choice:}}::white|bold\n"))
+		WriteString(s, RenderPromptMenu(title, options))
+
 		input, err := t.ReadLine()
 		if err != nil {
 			return "", fmt.Errorf("error reading input: %w", err)
 		}
 
-		// Validate choice
 		choice, err := strconv.Atoi(strings.TrimSpace(input))
 		if err != nil || choice < 1 || choice > len(options) {
-			WriteString(s, cfmt.Sprint("{{Invalid choice, please try again.}}::red\n"))
+			WriteString(s, "{{Invalid choice, please try again.}}::red"+CRLF)
 			continue
 		}
 
-		// Return the selected option
 		return options[choice-1], nil
 	}
 }
@@ -205,7 +191,7 @@ func PromptForPassword(s ssh.Session, prompt string) (string, error) {
 }
 
 func SendToChar(s ssh.Session, message string) {
-	io.WriteString(s, whiteText.Render("%s\n", message))
+	WriteStringF(s, "%s", message)
 }
 
 // void send_to_all(char *messg)
@@ -214,6 +200,6 @@ func SendToChar(s ssh.Session, message string) {
 func SendToRoom(s ssh.Session, message string,
 	room *Room) {
 	// for _, c := range room.Characters {
-	// io.WriteString(s, cfmt.Sprintf("{{%s}}::white\n", message))
+	// 	io.WriteString(s, cfmt.Sprintf("{{%s}}::white"+CRLF, message))
 	// }
 }

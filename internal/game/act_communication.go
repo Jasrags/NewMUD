@@ -1,7 +1,6 @@
 package game
 
 import (
-	"io"
 	"strings"
 
 	"github.com/gliderlabs/ssh"
@@ -16,32 +15,32 @@ Usage:
 // TODO: need to implement a block/unblock function for preventing messages from certain users
 func DoSay(s ssh.Session, cmd string, args []string, user *Account, char *Character, room *Room) {
 	if room == nil {
-		io.WriteString(s, cfmt.Sprintf("{{You are not in a room.}}::red\n"))
+		WriteString(s, "{{You are not in a room.}}::red"+CRLF)
 		return
 	}
 
 	if len(args) == 0 {
-		io.WriteString(s, cfmt.Sprintf("{{What do you want to say?}}::red\n"))
+		WriteString(s, "{{What do you want to say?}}::red"+CRLF)
 		return
 	}
 
 	message := strings.Join(args, " ")
 
 	// Broadcast message to the room
-	room.Broadcast(cfmt.Sprintf("{{%s says: \"%s\"}}::green\n", char.Name, message), []string{char.ID})
+	room.Broadcast(cfmt.Sprintf("{{%s says: \"%s\"}}::green"+CRLF, char.Name, message), []string{char.ID})
 
 	// Message the player
-	io.WriteString(s, cfmt.Sprintf("{{You say: \"%s\"}}::green\n", message))
+	WriteStringF(s, "{{You say: \"%s\"}}::green"+CRLF, message)
 }
 
 func DoTell(s ssh.Session, cmd string, args []string, user *Account, char *Character, room *Room) {
 	if room == nil {
-		io.WriteString(s, cfmt.Sprintf("{{You are not in a room.}}::red\n"))
+		WriteString(s, "{{You are not in a room.}}::red"+CRLF)
 		return
 	}
 
 	if len(args) < 2 {
-		io.WriteString(s, cfmt.Sprintf("{{Usage: tell <username> <message>.}}::red\n"))
+		WriteString(s, "{{Usage: tell <username> <message>.}}::red"+CRLF)
 		return
 	}
 
@@ -57,18 +56,18 @@ func DoTell(s ssh.Session, cmd string, args []string, user *Account, char *Chara
 	}
 
 	if recipient == nil {
-		io.WriteString(s, cfmt.Sprintf("{{There is no one named '%s' here.}}::yellow\n", recipientName))
+		WriteStringF(s, "{{There is no one named '%s' here.}}::yellow"+CRLF, recipientName)
 		return
 	}
 
 	// Message the recipient
-	io.WriteString(recipient.Conn, cfmt.Sprintf("{{%s tells you: \"%s\"}}::cyan\n", char.Name, message))
+	WriteStringF(recipient.Conn, "{{%s tells you: \"%s\"}}::cyan"+CRLF, char.Name, message)
 
 	// Message the sender
-	io.WriteString(s, cfmt.Sprintf("{{You tell %s: \"%s\"}}::green\n", recipient.Name, message))
+	WriteStringF(s, "{{You tell %s: \"%s\"}}::green"+CRLF, recipient.Name, message)
 
 	// Message the room (excluding sender and recipient)
-	room.Broadcast(cfmt.Sprintf("{{%s tells %s something privately.}}::green\n", char.Name, recipient.Name), []string{char.ID, recipient.ID})
+	room.Broadcast(cfmt.Sprintf("{{%s tells %s something privately.}}::green"+CRLF, char.Name, recipient.Name), []string{char.ID, recipient.ID})
 }
 
 func SuggestTell(line string, args []string, char *Character, room *Room) []string {

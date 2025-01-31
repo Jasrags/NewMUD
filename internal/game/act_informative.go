@@ -2,7 +2,6 @@ package game
 
 import (
 	"fmt"
-	"io"
 	"log/slog"
 	"regexp"
 	"strconv"
@@ -21,11 +20,11 @@ Usage:
 // TODO: Change the color of the currenty carry wight when we get closer to max
 // func DoStats(s ssh.Session, cmd string, args []string, acct *Account, char *Character, room *Room) {
 // 	if char == nil {
-// 		io.WriteString(s, cfmt.Sprintf("{{Error: No character is associated with this session.}}::red\n"))
+// 		WriteString(s, cfmt.Sprintf("{{Error: No character is associated with this session.}}::red"+CRLF))
 // 		return
 // 	}
 
-// 	io.WriteString(s, cfmt.Sprintf("{{Your current stats:}}::cyan\n"))
+// 	WriteString(s, cfmt.Sprintf("{{Your current stats:}}::cyan"+CRLF))
 
 // 	attributes := char.Attributes
 // 	attributes.Recalculate()
@@ -33,39 +32,39 @@ Usage:
 // 	// Helper function to format attributes
 // 	formatAttribute := func(name string, attr Attribute[int]) string {
 // 		if attr.TotalValue > attr.Base {
-// 			return cfmt.Sprintf("{{%-20s}}::white|bold {{%3d}}::cyan{{(}}::white {{%d}}::red{{)}}::white\n", name, attr.Base, attr.TotalValue)
+// 			return cfmt.Sprintf("{{%-20s}}::white|bold {{%3d}}::cyan{{(}}::white {{%d}}::red{{)}}::white"+CRLF, name, attr.Base, attr.TotalValue)
 // 		}
-// 		return cfmt.Sprintf("{{%-20s}}::white|bold {{%3d}}::cyan\n", name, attr.Base)
+// 		return cfmt.Sprintf("{{%-20s}}::white|bold {{%3d}}::cyan"+CRLF, name, attr.Base)
 // 	}
 // 	// Handle float attributes like Essence separately
 // 	formatFloatAttribute := func(name string, attr Attribute[float64]) string {
 // 		if attr.TotalValue > attr.Base {
-// 			return cfmt.Sprintf("{{%-20s}}::white|bold {{%.1f}}::cyan {{(}}::white{{%.1f}}::red{{)}}::white\n", name, attr.Base, attr.TotalValue)
+// 			return cfmt.Sprintf("{{%-20s}}::white|bold {{%.1f}}::cyan {{(}}::white{{%.1f}}::red{{)}}::white"+CRLF, name, attr.Base, attr.TotalValue)
 // 		}
-// 		return cfmt.Sprintf("{{%-20s}}::white|bold {{%.1f}}::cyan\n", name, attr.Base)
+// 		return cfmt.Sprintf("{{%-20s}}::white|bold {{%.1f}}::cyan"+CRLF, name, attr.Base)
 // 	}
 
-// 	io.WriteString(s, formatAttribute("Body", attributes.Body))
-// 	io.WriteString(s, formatAttribute("Agility", attributes.Agility))
-// 	io.WriteString(s, formatAttribute("Reaction", attributes.Reaction))
-// 	io.WriteString(s, formatAttribute("Strength", attributes.Strength))
-// 	io.WriteString(s, formatAttribute("Willpower", attributes.Willpower))
-// 	io.WriteString(s, formatAttribute("Logic", attributes.Logic))
-// 	io.WriteString(s, formatAttribute("Intuition", attributes.Intuition))
-// 	io.WriteString(s, formatAttribute("Charisma", attributes.Charisma))
-// 	io.WriteString(s, formatAttribute("Edge", attributes.Edge))
-// 	io.WriteString(s, formatFloatAttribute("Essence", attributes.Essence))
+// 	WriteString(s, formatAttribute("Body", attributes.Body))
+// 	WriteString(s, formatAttribute("Agility", attributes.Agility))
+// 	WriteString(s, formatAttribute("Reaction", attributes.Reaction))
+// 	WriteString(s, formatAttribute("Strength", attributes.Strength))
+// 	WriteString(s, formatAttribute("Willpower", attributes.Willpower))
+// 	WriteString(s, formatAttribute("Logic", attributes.Logic))
+// 	WriteString(s, formatAttribute("Intuition", attributes.Intuition))
+// 	WriteString(s, formatAttribute("Charisma", attributes.Charisma))
+// 	WriteString(s, formatAttribute("Edge", attributes.Edge))
+// 	WriteString(s, formatFloatAttribute("Essence", attributes.Essence))
 // 	if attributes.Magic.Base > 0 {
-// 		io.WriteString(s, formatAttribute("Magic", attributes.Magic))
+// 		WriteString(s, formatAttribute("Magic", attributes.Magic))
 // 	}
 // 	if attributes.Resonance.Base > 0 {
-// 		io.WriteString(s, formatAttribute("Resonance", attributes.Resonance))
+// 		WriteString(s, formatAttribute("Resonance", attributes.Resonance))
 // 	}
 
 // 	// Carry weight stats
 // 	maxCarryWeight := char.GetLiftCarry()
 // 	currentCarryWeight := char.GetCurrentCarryWeight()
-// 	io.WriteString(s, cfmt.Sprintf("{{%-20s}}::white|bold {{%.2f}}::cyan{{/}}::white{{%d}}::cyan{{kg}}::white\n", "Carry Weight", currentCarryWeight, maxCarryWeight))
+// 	WriteString(s, cfmt.Sprintf("{{%-20s}}::white|bold {{%.2f}}::cyan{{/}}::white{{%d}}::cyan{{kg}}::white"+CRLF, "Carry Weight", currentCarryWeight, maxCarryWeight))
 
 // 	// New limits
 // 	physicalLimit := char.GetPhysicalLimit()
@@ -74,34 +73,34 @@ Usage:
 // 	socialLimit := char.GetSocialLimit()
 
 // 	if adjustedPhysicalLimit < physicalLimit {
-// 		io.WriteString(s, cfmt.Sprintf("{{%-20s}}::white|bold {{%d}}::cyan {{(Adjusted: %d)}}::yellow\n", "Physical Limit", physicalLimit, adjustedPhysicalLimit))
+// 		WriteString(s, cfmt.Sprintf("{{%-20s}}::white|bold {{%d}}::cyan {{(Adjusted: %d)}}::yellow"+CRLF, "Physical Limit", physicalLimit, adjustedPhysicalLimit))
 // 	} else {
-// 		io.WriteString(s, cfmt.Sprintf("{{%-20s}}::white|bold {{%d}}::cyan\n", "Physical Limit", physicalLimit))
+// 		WriteString(s, cfmt.Sprintf("{{%-20s}}::white|bold {{%d}}::cyan"+CRLF, "Physical Limit", physicalLimit))
 // 	}
 
-// 	io.WriteString(s, cfmt.Sprintf("{{%-20s}}::white|bold {{%d}}::cyan\n", "Mental Limit", mentalLimit))
-// 	io.WriteString(s, cfmt.Sprintf("{{%-20s}}::white|bold {{%d}}::cyan\n", "Social Limit", socialLimit))
+// 	WriteString(s, cfmt.Sprintf("{{%-20s}}::white|bold {{%d}}::cyan"+CRLF, "Mental Limit", mentalLimit))
+// 	WriteString(s, cfmt.Sprintf("{{%-20s}}::white|bold {{%d}}::cyan"+CRLF, "Social Limit", socialLimit))
 // }
 
 // func DoStats(s ssh.Session, cmd string, args []string, acct *Account, char *Character, room *Room) {
 // 	if char == nil {
-// 		io.WriteString(s, cfmt.Sprintf("{{Error: No character is associated with this session.}}::red\n"))
+// 		WriteString(s, cfmt.Sprintf("{{Error: No character is associated with this session.}}::red"+CRLF))
 // 		return
 // 	}
 
 // 	var output strings.Builder
 
 // 	// Character Info Block
-// 	output.WriteString(cfmt.Sprintf("Name: {{%-15s}}::cyan Title: {{%s}}::cyan\n", char.Name, char.Title))
-// 	output.WriteString(cfmt.Sprintf("Metatype: {{%-12s}}::cyan Ethnicity: {{%s}}::cyan\n", char.Metatype, char.Ethnicity))
-// 	output.WriteString(cfmt.Sprintf("Age: {{%-4d}}::cyan Sex: {{%-6s}}::cyan Height: {{%-6s}}::cyan Weight: {{%s}}::cyan\n",
+// 	output.WriteString(cfmt.Sprintf("Name: {{%-15s}}::cyan Title: {{%s}}::cyan"+CRLF, char.Name, char.Title))
+// 	output.WriteString(cfmt.Sprintf("Metatype: {{%-12s}}::cyan Ethnicity: {{%s}}::cyan"+CRLF, char.Metatype, char.Ethnicity))
+// 	output.WriteString(cfmt.Sprintf("Age: {{%-4d}}::cyan Sex: {{%-6s}}::cyan Height: {{%-6s}}::cyan Weight: {{%s}}::cyan"+CRLF,
 // 		char.Age, char.Sex, char.Height, char.Weight))
-// 	output.WriteString(cfmt.Sprintf("Street Cred: {{%-3d}}::cyan Notoriety: {{%-3d}}::cyan Public Awareness: {{%d}}::cyan\n",
+// 	output.WriteString(cfmt.Sprintf("Street Cred: {{%-3d}}::cyan Notoriety: {{%-3d}}::cyan Public Awareness: {{%d}}::cyan"+CRLF,
 // 		char.StreetCred, char.Notoriety, char.PublicAwareness))
-// 	output.WriteString(cfmt.Sprintf("Karma: {{%-10d}}::cyan Total Karma: {{%d}}::cyan\n\n", char.Karma, char.TotalKarma))
+// 	output.WriteString(cfmt.Sprintf("Karma: {{%-10d}}::cyan Total Karma: {{%d}}::cyan"+CRLF, char.Karma, char.TotalKarma))
 
 // 	// Damage and Condition Tracking
-// 	output.WriteString(cfmt.Sprintf("Physical Damage:    {{%2d}}::cyan/{{%2d}}::cyan     Stun Damage:    {{%2d}}::cyan/{{%2d}}::cyan     Overflow: {{%d}}::cyan\n\n",
+// 	output.WriteString(cfmt.Sprintf("Physical Damage:    {{%2d}}::cyan/{{%2d}}::cyan     Stun Damage:    {{%2d}}::cyan/{{%2d}}::cyan     Overflow: {{%d}}::cyan"+CRLF,
 // 		char.PhysicalDamage.Current, char.PhysicalDamage.Max,
 // 		char.StunDamage.Current, char.StunDamage.Max,
 // 		char.PhysicalDamage.Overflow))
@@ -126,7 +125,7 @@ Usage:
 // 	}
 
 // 	for _, stat := range stats {
-// 		output.WriteString(cfmt.Sprintf("{{%-20s}}::white|bold {{%-8s}}::cyan {{%-20s}}::white|bold {{%s}}::cyan\n",
+// 		output.WriteString(cfmt.Sprintf("{{%-20s}}::white|bold {{%-8s}}::cyan {{%-20s}}::white|bold {{%s}}::cyan"+CRLF,
 // 			stat.LeftName, stat.LeftValue, stat.RightName, stat.RightValue))
 // 	}
 
@@ -136,61 +135,61 @@ Usage:
 // 	mentalLimit := char.GetMentalLimit()
 // 	socialLimit := char.GetSocialLimit()
 
-// 	output.WriteString(cfmt.Sprintf("\nPhysical Limit: {{%d (%d)}}::cyan  Mental Limit: {{%d}}::cyan  Social Limit: {{%d}}::cyan\n",
+// 	output.WriteString(cfmt.Sprintf("\nPhysical Limit: {{%d (%d)}}::cyan  Mental Limit: {{%d}}::cyan  Social Limit: {{%d}}::cyan"+CRLF,
 // 		physicalLimit, adjustedPhysicalLimit, mentalLimit, socialLimit))
 
 // 	// Send output to session
-// 	io.WriteString(s, output.String())
+// 	WriteString(s, output.String())
 // }
 
 // func DoStats(s ssh.Session, cmd string, args []string, acct *Account, char *Character, room *Room) {
 // 	if char == nil {
-// 		io.WriteString(s, cfmt.Sprintf("{{Error: No character is associated with this session.}}::red\n"))
+// 		WriteString(s, cfmt.Sprintf("{{Error: No character is associated with this session.}}::red"+CRLF))
 // 		return
 // 	}
 
 // 	var builder strings.Builder
 
 // 	// Character Info Block
-// 	builder.WriteString(cfmt.Sprintf("Name: {{%-15s}}::cyan Title: {{%-15s}}::cyan\n", char.Name, char.Title))
-// 	builder.WriteString(cfmt.Sprintf("Metatype: {{%-12s}}::cyan Ethnicity: {{%s}}::cyan\n", char.Metatype, char.Ethnicity))
-// 	builder.WriteString(cfmt.Sprintf("Age: {{%-4d}}::cyan Sex: {{%-6s}}::cyan Height: {{%-6s}}::cyan Weight: {{%s}}::cyan\n",
+// 	builder.WriteString(cfmt.Sprintf("Name: {{%-15s}}::cyan Title: {{%-15s}}::cyan"+CRLF, char.Name, char.Title))
+// 	builder.WriteString(cfmt.Sprintf("Metatype: {{%-12s}}::cyan Ethnicity: {{%s}}::cyan"+CRLF, char.Metatype, char.Ethnicity))
+// 	builder.WriteString(cfmt.Sprintf("Age: {{%-4d}}::cyan Sex: {{%-6s}}::cyan Height: {{%-6s}}::cyan Weight: {{%s}}::cyan"+CRLF,
 // 		char.Age, char.Sex, char.Height, char.Weight))
-// 	builder.WriteString(cfmt.Sprintf("Street Cred: {{%-3d}}::cyan Notoriety: {{%-3d}}::cyan Public Awareness: {{%d}}::cyan\n",
+// 	builder.WriteString(cfmt.Sprintf("Street Cred: {{%-3d}}::cyan Notoriety: {{%-3d}}::cyan Public Awareness: {{%d}}::cyan"+CRLF,
 // 		char.StreetCred, char.Notoriety, char.PublicAwareness))
-// 	builder.WriteString(cfmt.Sprintf("Karma: {{%-10d}}::cyan Total Karma: {{%d}}::cyan\n\n", char.Karma, char.TotalKarma))
+// 	builder.WriteString(cfmt.Sprintf("Karma: {{%-10d}}::cyan Total Karma: {{%d}}::cyan"+CRLF, char.Karma, char.TotalKarma))
 
 // 	// Damage and Condition Tracking
-// 	builder.WriteString(cfmt.Sprintf("Physical Damage:    {{%2d}}::cyan/{{%2d}}::cyan     Stun Damage:    {{%2d}}::cyan/{{%2d}}::cyan     Overflow: {{%d}}::cyan\n\n",
+// 	builder.WriteString(cfmt.Sprintf("Physical Damage:    {{%2d}}::cyan/{{%2d}}::cyan     Stun Damage:    {{%2d}}::cyan/{{%2d}}::cyan     Overflow: {{%d}}::cyan"+CRLF,
 // 		char.PhysicalDamage.Current, char.PhysicalDamage.Max, char.StunDamage.Current, char.StunDamage.Max, char.PhysicalDamage.Overflow))
 
 // 	// Two-column Main Stats Block
-// 	builder.WriteString(cfmt.Sprintf("{{%-20s}}::white|bold {{%-8d}}::cyan {{%-20s}}::white|bold {{%.2f}}::cyan\n",
+// 	builder.WriteString(cfmt.Sprintf("{{%-20s}}::white|bold {{%-8d}}::cyan {{%-20s}}::white|bold {{%.2f}}::cyan"+CRLF,
 // 		"Body", char.Attributes.Body.TotalValue, "Essence", char.Attributes.Essence.TotalValue))
-// 	builder.WriteString(cfmt.Sprintf("{{%-20s}}::white|bold {{%-8d}}::cyan {{%-20s}}::white|bold {{%d (%d)}}::cyan\n",
+// 	builder.WriteString(cfmt.Sprintf("{{%-20s}}::white|bold {{%-8d}}::cyan {{%-20s}}::white|bold {{%d (%d)}}::cyan"+CRLF,
 // 		"Agility", char.Attributes.Agility.TotalValue, "Magic/Resonance", char.Attributes.Magic.TotalValue, char.Attributes.Resonance.TotalValue))
-// 	builder.WriteString(cfmt.Sprintf("{{%-20s}}::white|bold {{%-8d}}::cyan {{%-20s}}::white|bold {{%d + 1d6}}::cyan\n",
+// 	builder.WriteString(cfmt.Sprintf("{{%-20s}}::white|bold {{%-8d}}::cyan {{%-20s}}::white|bold {{%d + 1d6}}::cyan"+CRLF,
 // 		"Reaction", char.Attributes.Reaction.TotalValue, "Initiative", char.Initiative.Base))
-// 	builder.WriteString(cfmt.Sprintf("{{%-20s}}::white|bold {{%-8d}}::cyan {{%-20s}}::white|bold {{%d + 1d6}}::cyan\n",
+// 	builder.WriteString(cfmt.Sprintf("{{%-20s}}::white|bold {{%-8d}}::cyan {{%-20s}}::white|bold {{%d + 1d6}}::cyan"+CRLF,
 // 		"Strength", char.Attributes.Strength.TotalValue, "Matrix Initiative", char.MatrixInitiative.Base))
-// 	builder.WriteString(cfmt.Sprintf("{{%-20s}}::white|bold {{%-8d}}::cyan {{%-20s}}::white|bold {{%d}}::cyan\n",
+// 	builder.WriteString(cfmt.Sprintf("{{%-20s}}::white|bold {{%-8d}}::cyan {{%-20s}}::white|bold {{%d}}::cyan"+CRLF,
 // 		"Willpower", char.Attributes.Willpower.TotalValue, "Composure", char.GetComposure()))
-// 	builder.WriteString(cfmt.Sprintf("{{%-20s}}::white|bold {{%-8d}}::cyan {{%-20s}}::white|bold {{%d}}::cyan\n",
+// 	builder.WriteString(cfmt.Sprintf("{{%-20s}}::white|bold {{%-8d}}::cyan {{%-20s}}::white|bold {{%d}}::cyan"+CRLF,
 // 		"Logic", char.Attributes.Logic.TotalValue, "Judge Intentions", char.GetJudgeIntentions()))
-// 	builder.WriteString(cfmt.Sprintf("{{%-20s}}::white|bold {{%-8d}}::cyan {{%-20s}}::white|bold {{%d}}::cyan\n",
+// 	builder.WriteString(cfmt.Sprintf("{{%-20s}}::white|bold {{%-8d}}::cyan {{%-20s}}::white|bold {{%d}}::cyan"+CRLF,
 // 		"Intuition", char.Attributes.Intuition.TotalValue, "Memory", char.GetMemory()))
-// 	builder.WriteString(cfmt.Sprintf("{{%-20s}}::white|bold {{%-8d}}::cyan {{%-20s}}::white|bold {{%.2fkg/%.2fkg}}::cyan\n",
+// 	builder.WriteString(cfmt.Sprintf("{{%-20s}}::white|bold {{%-8d}}::cyan {{%-20s}}::white|bold {{%.2fkg/%.2fkg}}::cyan"+CRLF,
 // 		"Edge", char.EdgePoints, "Lift/Carry", char.GetCurrentCarryWeight(), char.GetLiftCarry()))
 
 // 	// Limits at the Bottom
-// 	builder.WriteString("\n")
-// 	builder.WriteString(cfmt.Sprintf("Physical Limit: {{%d (%d)}}::cyan  Mental Limit: {{%d (%d)}}::cyan  Social Limit: {{%d (%d)}}::cyan\n",
+// 	builder.WriteString(""+CRLF)
+// 	builder.WriteString(cfmt.Sprintf("Physical Limit: {{%d (%d)}}::cyan  Mental Limit: {{%d (%d)}}::cyan  Social Limit: {{%d (%d)}}::cyan"+CRLF,
 // 		char.GetPhysicalLimit(), char.GetAdjustedPhysicalLimit(),
 // 		char.GetMentalLimit(), char.GetMentalLimitAdjusted(),
 // 		char.GetSocialLimit(), char.GetSocialLimitAdjusted()))
 
 // 	// Write everything to the session
-// 	io.WriteString(s, builder.String())
+// 	WriteString(s, builder.String())
 // }
 
 // // FormatColumn formats a single column with dynamic width and data type.
@@ -344,25 +343,25 @@ func RenderKeyValue(key, value string) string {
 
 func DoStats(s ssh.Session, cmd string, args []string, acct *Account, char *Character, room *Room) {
 	if char == nil {
-		io.WriteString(s, cfmt.Sprint("{{Error: No character is associated with this session.}}::red\n"))
+		WriteString(s, "{{Error: No character is associated with this session.}}::red"+CRLF)
 		return
 	}
 
-	io.WriteString(s, RenderCharacterTable(char))
-	io.WriteString(s, "\n")
+	WriteString(s, RenderCharacterTable(char))
+	WriteString(s, ""+CRLF)
 }
 
 // return RenderCharacterTable(char)
 
 // )
 // // Single Column
-// fmt.Printf("%-20s %d\n", "Movement", 5)
+// fmt.Printf("%-20s %d"+CRLF, "Movement", 5)
 
 // // Double Column
-// fmt.Printf("%-20s %-8d %-20s %.2f\n", "Body", 5, "Essence", 5.60)
+// fmt.Printf("%-20s %-8d %-20s %.2f"+CRLF, "Body", 5, "Essence", 5.60)
 
 // // Triple Column
-// fmt.Printf("%-20s %-8s %-20s %-8s %-15s %d\n",
+// fmt.Printf("%-20s %-8s %-20s %-8s %-15s %d"+CRLF,
 // 	"Physical Damage", "0/11",
 // 	"Stun Damage", "0/10",
 // 	"Overflow", 0)
@@ -372,33 +371,33 @@ func DoStats(s ssh.Session, cmd string, args []string, acct *Account, char *Char
 // Character Info Block
 // output.WriteString(FormatDoubleColumn("Name:", char.Name, "Title:", char.Title))
 // output.WriteString(cfmt.Sprintf(
-// 	"{{%-20s}}::white|bold {{%-8s}}::cyan {{%-20s}}::white|bold {{%-8s}}::cyan\n",
+// 	"{{%-20s}}::white|bold {{%-8s}}::cyan {{%-20s}}::white|bold {{%-8s}}::cyan"+CRLF,
 // 	"Name:", char.Name, "Title:", char.Title))
 // output.WriteString(cfmt.Sprintf(
-// 	"Metatype: {{%-12s}}::cyan Ethnicity: {{%s}}::cyan\n",
+// 	"Metatype: {{%-12s}}::cyan Ethnicity: {{%s}}::cyan"+CRLF,
 // 	char.Metatype, char.Ethnicity))
 // output.WriteString(cfmt.Sprintf(
-// 	"Age: {{%-4d}}::cyan Sex: {{%-6s}}::cyan Height: {{%-6d}}::cyan Weight: {{%d}}::cyan\n",
+// 	"Age: {{%-4d}}::cyan Sex: {{%-6s}}::cyan Height: {{%-6d}}::cyan Weight: {{%d}}::cyan"+CRLF,
 // 	char.Age, char.Sex, char.Height, char.Weight))
-// output.WriteString(cfmt.Sprintf("Street Cred: {{%-3d}}::cyan Notoriety: {{%-3d}}::cyan Public Awareness: {{%d}}::cyan\n",
+// output.WriteString(cfmt.Sprintf("Street Cred: {{%-3d}}::cyan Notoriety: {{%-3d}}::cyan Public Awareness: {{%d}}::cyan"+CRLF,
 // 	char.StreetCred, char.Notoriety, char.PublicAwareness))
-// output.WriteString(cfmt.Sprintf("Karma: {{%-10d}}::cyan Total Karma: {{%d}}::cyan\n\n", char.Karma, char.TotalKarma))
+// output.WriteString(cfmt.Sprintf("Karma: {{%-10d}}::cyan Total Karma: {{%d}}::cyan"+CRLF, char.Karma, char.TotalKarma))
 
 // // Damage and Condition Tracking
-// output.WriteString(cfmt.Sprintf("{{%-15s}}::white|bold {{%6d}}::cyan/{{%-6d}}::cyan {{%-15s}}::white|bold {{%6d}}::cyan/{{%-6d}}::cyan {{%-15s}}::white|bold {{%d}}::cyan\n\n",
+// output.WriteString(cfmt.Sprintf("{{%-15s}}::white|bold {{%6d}}::cyan/{{%-6d}}::cyan {{%-15s}}::white|bold {{%6d}}::cyan/{{%-6d}}::cyan {{%-15s}}::white|bold {{%d}}::cyan"+CRLF,
 // 	"Physical Damage", char.PhysicalDamage.Current, char.GetPhysicalConditionMax(), "Stun Damage", char.StunDamage.Current, char.GetStunConditionMax(), "Overflow", char.PhysicalDamage.Overflow))
 
 // // Two-column Main Stats Block
-// output.WriteString(cfmt.Sprintf("{{%-20s}}::white|bold {{%-8d}}::cyan {{%-20s}}::white|bold {{%s}}::cyan\n", "Body", char.Attributes.Body.TotalValue, "Essence", fmt.Sprintf("%.2f", char.Attributes.Essence.TotalValue)))
-// output.WriteString(cfmt.Sprintf("{{%-20s}}::white|bold {{%-8d}}::cyan {{%-20s}}::white|bold {{%d (%d)}}::cyan\n", "Agility", char.Attributes.Agility.TotalValue, "Magic/Resonance", char.Attributes.Magic.TotalValue, char.Attributes.Resonance.TotalValue))
-// // output.WriteString( cfmt.Sprintf("{{%-20s}}::white|bold {{%-8d}}::cyan {{%-20s}}::white|bold {{%d + 1d6}}::cyan\n", "Reaction", char.Attributes.Reaction.TotalValue, "Initiative", char.Initiative.Base))
-// // output.WriteString( cfmt.Sprintf("{{%-20s}}::white|bold {{%-8d}}::cyan {{%-20s}}::white|bold {{%d + 1d6}}::cyan\n", "Strength", char.Attributes.Strength.TotalValue, "Matrix Initiative", char.MatrixInitiative.Base))
-// // output.WriteString( cfmt.Sprintf("{{%-20s}}::white|bold {{%-8d}}::cyan {{%-20s}}::white|bold {{%d + 1d6}}::cyan\n", "Willpower", char.Attributes.Willpower.TotalValue, "Astral Initiative", char.AstralInitiative.Base))
-// output.WriteString(cfmt.Sprintf("{{%-20s}}::white|bold {{%-8d}}::cyan {{%-20s}}::white|bold {{%d}}::cyan\n", "Logic", char.Attributes.Logic.TotalValue, "Composure", char.GetComposure()))
-// output.WriteString(cfmt.Sprintf("{{%-20s}}::white|bold {{%-8d}}::cyan {{%-20s}}::white|bold {{%d}}::cyan\n", "Intuition", char.Attributes.Intuition.TotalValue, "Judge Intentions", char.GetJudgeIntentions()))
-// output.WriteString(cfmt.Sprintf("{{%-20s}}::white|bold {{%-8d}}::cyan {{%-20s}}::white|bold {{%d}}::cyan\n", "Charisma", char.Attributes.Charisma.TotalValue, "Memory", char.GetMemory()))
-// output.WriteString(cfmt.Sprintf("{{%-15s}}::white|bold {{%6d}}::cyan/{{%-6d}}::cyan {{%-20s}}::white|bold {{%.2fkg/%.2fkg}}::cyan\n", "Edge", char.Edge.Available, char.Edge.Max, "Lift/Carry", char.GetCurrentCarryWeight(), char.GetLiftCarry()))
-// output.WriteString(cfmt.Sprintf("{{%-20s}}::white|bold {{%d}}::cyan\n\n", "Movement", char.GetMovement()))
+// output.WriteString(cfmt.Sprintf("{{%-20s}}::white|bold {{%-8d}}::cyan {{%-20s}}::white|bold {{%s}}::cyan"+CRLF, "Body", char.Attributes.Body.TotalValue, "Essence", fmt.Sprintf("%.2f", char.Attributes.Essence.TotalValue)))
+// output.WriteString(cfmt.Sprintf("{{%-20s}}::white|bold {{%-8d}}::cyan {{%-20s}}::white|bold {{%d (%d)}}::cyan"+CRLF, "Agility", char.Attributes.Agility.TotalValue, "Magic/Resonance", char.Attributes.Magic.TotalValue, char.Attributes.Resonance.TotalValue))
+// // output.WriteString( cfmt.Sprintf("{{%-20s}}::white|bold {{%-8d}}::cyan {{%-20s}}::white|bold {{%d + 1d6}}::cyan"+CRLF, "Reaction", char.Attributes.Reaction.TotalValue, "Initiative", char.Initiative.Base))
+// // output.WriteString( cfmt.Sprintf("{{%-20s}}::white|bold {{%-8d}}::cyan {{%-20s}}::white|bold {{%d + 1d6}}::cyan"+CRLF, "Strength", char.Attributes.Strength.TotalValue, "Matrix Initiative", char.MatrixInitiative.Base))
+// // output.WriteString( cfmt.Sprintf("{{%-20s}}::white|bold {{%-8d}}::cyan {{%-20s}}::white|bold {{%d + 1d6}}::cyan"+CRLF, "Willpower", char.Attributes.Willpower.TotalValue, "Astral Initiative", char.AstralInitiative.Base))
+// output.WriteString(cfmt.Sprintf("{{%-20s}}::white|bold {{%-8d}}::cyan {{%-20s}}::white|bold {{%d}}::cyan"+CRLF, "Logic", char.Attributes.Logic.TotalValue, "Composure", char.GetComposure()))
+// output.WriteString(cfmt.Sprintf("{{%-20s}}::white|bold {{%-8d}}::cyan {{%-20s}}::white|bold {{%d}}::cyan"+CRLF, "Intuition", char.Attributes.Intuition.TotalValue, "Judge Intentions", char.GetJudgeIntentions()))
+// output.WriteString(cfmt.Sprintf("{{%-20s}}::white|bold {{%-8d}}::cyan {{%-20s}}::white|bold {{%d}}::cyan"+CRLF, "Charisma", char.Attributes.Charisma.TotalValue, "Memory", char.GetMemory()))
+// output.WriteString(cfmt.Sprintf("{{%-15s}}::white|bold {{%6d}}::cyan/{{%-6d}}::cyan {{%-20s}}::white|bold {{%.2fkg/%.2fkg}}::cyan"+CRLF, "Edge", char.Edge.Available, char.Edge.Max, "Lift/Carry", char.GetCurrentCarryWeight(), char.GetLiftCarry()))
+// output.WriteString(cfmt.Sprintf("{{%-20s}}::white|bold {{%d}}::cyan"+CRLF, "Movement", char.GetMovement()))
 
 // // Limits at the Bottom
 // physicalLimit := char.GetPhysicalLimit()
@@ -406,10 +405,10 @@ func DoStats(s ssh.Session, cmd string, args []string, acct *Account, char *Char
 // mentalLimit := char.GetMentalLimit()
 // socialLimit := char.GetSocialLimit()
 
-// output.WriteString(cfmt.Sprintf("Physical Limit: {{%d (%d)}}::cyan  Mental Limit: {{%d (%d)}}::cyan  Social Limit: {{%d (%d)}}::cyan\n",
+// output.WriteString(cfmt.Sprintf("Physical Limit: {{%d (%d)}}::cyan  Mental Limit: {{%d (%d)}}::cyan  Social Limit: {{%d (%d)}}::cyan"+CRLF,
 // 	physicalLimit, adjustedPhysicalLimit, mentalLimit, char.GetMentalLimit(), socialLimit, char.GetSocialLimit()))
 
-// 	io.WriteString(s, output.String())
+// 	WriteString(s, output.String())
 // }
 
 /*
@@ -423,13 +422,13 @@ func DoLook(s ssh.Session, cmd string, args []string, user *Account, char *Chara
 		slog.Error("Character is not in a room",
 			slog.String("character_id", char.ID))
 
-		io.WriteString(s, cfmt.Sprintf("{{You are not in a room.}}::red\n"))
+		WriteString(s, "{{You are not in a room.}}::red"+CRLF)
 		return
 	}
 
 	if len(args) == 0 {
 		// No arguments: Look at the room
-		io.WriteString(s, RenderRoom(user, char, nil))
+		WriteString(s, RenderRoom(user, char, nil))
 		return
 	}
 
@@ -437,30 +436,30 @@ func DoLook(s ssh.Session, cmd string, args []string, user *Account, char *Chara
 
 	// Check if the target is an item in the room
 	if item := room.Inventory.FindItemByName(target); item != nil {
-		io.WriteString(s, RenderItemDescription(item))
+		WriteString(s, RenderItemDescription(item))
 		return
 	}
 
 	// Check if the target is a mob in the room
 	if mob := room.FindMobByName(target); mob != nil {
-		io.WriteString(s, RenderMobDescription(mob))
+		WriteString(s, RenderMobDescription(mob))
 		return
 	}
 
 	// Check if the target is another character in the room
 	if targetChar := room.FindCharacterByName(target); targetChar != nil {
-		io.WriteString(s, RenderCharacterDescription(targetChar))
+		WriteString(s, RenderCharacterDescription(targetChar))
 		return
 	}
 
 	// Check if the target is a direction
 	if room.HasExit(target) {
-		io.WriteString(s, RenderExitDescription(target))
+		WriteString(s, RenderExitDescription(target))
 		return
 	}
 
 	// Target not found
-	io.WriteString(s, cfmt.Sprintf("{{You see nothing special about '%s'.}}::yellow\n", target))
+	WriteString(s, cfmt.Sprintf("{{You see nothing special about '%s'.}}::yellow"+CRLF, target))
 }
 
 func SuggestLook(line string, args []string, char *Character, room *Room) []string {
@@ -537,41 +536,41 @@ func DoHelp(s ssh.Session, cmd string, args []string, user *Account, char *Chara
 	var builder strings.Builder
 	switch len(args) {
 	case 0:
-		builder.WriteString(cfmt.Sprintf("{{Available commands:}}::white|bold\n"))
+		builder.WriteString(cfmt.Sprintf("{{Available commands:}}::white|bold" + CRLF))
 		for _, cmd := range uniqueCommands {
-			builder.WriteString(cfmt.Sprintf("{{%s}}::cyan - %s (aliases: %s)\n", cmd.Name, cmd.Description, strings.Join(cmd.Aliases, ", ")))
+			builder.WriteString(cfmt.Sprintf("{{%s}}::cyan - %s (aliases: %s)"+CRLF, cmd.Name, cmd.Description, strings.Join(cmd.Aliases, ", ")))
 		}
 	case 1:
 		if command, ok := uniqueCommands[args[0]]; ok {
-			builder.WriteString(cfmt.Sprintf("{{%s}}::cyan\n", strings.ToUpper(command.Name)))
-			builder.WriteString(cfmt.Sprintf("{{Description:}}::white|bold %s\n", command.Description))
+			builder.WriteString(cfmt.Sprintf("{{%s}}::cyan"+CRLF, strings.ToUpper(command.Name)))
+			builder.WriteString(cfmt.Sprintf("{{Description:}}::white|bold %s"+CRLF, command.Description))
 			if len(command.Aliases) > 0 {
-				builder.WriteString(cfmt.Sprintf("{{Aliases:}}::white|bold %s\n", strings.Join(command.Aliases, ", ")))
+				builder.WriteString(cfmt.Sprintf("{{Aliases:}}::white|bold %s"+CRLF, strings.Join(command.Aliases, ", ")))
 			}
-			builder.WriteString(cfmt.Sprintf("{{Usage:}}::white|bold\n"))
+			builder.WriteString(cfmt.Sprintf("{{Usage:}}::white|bold" + CRLF))
 			for _, usage := range command.Usage {
-				builder.WriteString(cfmt.Sprintf("{{  - %s}}::green\n", usage))
+				builder.WriteString(cfmt.Sprintf("{{  - %s}}::green"+CRLF, usage))
 			}
 		} else {
-			builder.WriteString(cfmt.Sprintf("{{Unknown command.}}::red\n"))
+			builder.WriteString(cfmt.Sprintf("{{Unknown command.}}::red" + CRLF))
 		}
 	}
 
-	io.WriteString(s, builder.String())
+	WriteString(s, builder.String())
 }
 
 func DoInventory(s ssh.Session, cmd string, args []string, user *Account, char *Character, room *Room) {
 	if char == nil {
-		io.WriteString(s, cfmt.Sprintf("{{Error: No character is associated with this session.}}::red\n"))
+		WriteString(s, cfmt.Sprintf("{{Error: No character is associated with this session.}}::red"+CRLF))
 		return
 	}
 
 	if len(char.Inventory.Items) == 0 {
-		io.WriteString(s, cfmt.Sprintf("{{You are not carrying anything.}}::yellow\n"))
+		WriteString(s, cfmt.Sprintf("{{You are not carrying anything.}}::yellow"+CRLF))
 		return
 	}
 
-	io.WriteString(s, cfmt.Sprintf("{{You are carrying:}}::cyan\n"))
+	WriteString(s, cfmt.Sprintf("{{You are carrying:}}::cyan"+CRLF))
 	itemCounts := make(map[string]int)
 
 	// Count items based on their blueprint name
@@ -585,7 +584,7 @@ func DoInventory(s ssh.Session, cmd string, args []string, user *Account, char *
 
 	// Display the inventory
 	for name, count := range itemCounts {
-		io.WriteString(s, cfmt.Sprintf("- %s\n",
+		WriteString(s, cfmt.Sprintf("- %s"+CRLF,
 			pluralizer.PluralizeNounPhrase(name, count)))
 	}
 }
@@ -601,11 +600,11 @@ func DoWho(s ssh.Session, cmd string, args []string, user *Account, char *Charac
 	activeCharacters := CharacterMgr.GetOnlineCharacters()
 
 	if len(activeCharacters) == 0 {
-		io.WriteString(s, cfmt.Sprintf("{{No one else is in the game right now.}}::yellow\n"))
+		WriteString(s, cfmt.Sprintf("{{No one else is in the game right now.}}::yellow"+CRLF))
 		return
 	}
 
-	io.WriteString(s, cfmt.Sprintf("{{Players currently in the game:}}::green\n"))
+	WriteString(s, cfmt.Sprintf("{{Players currently in the game:}}::green"+CRLF))
 
 	for _, activeChar := range activeCharacters {
 		color := "cyan"
@@ -618,20 +617,20 @@ func DoWho(s ssh.Session, cmd string, args []string, user *Account, char *Charac
 		}
 
 		// Display character title and name
-		io.WriteString(s, cfmt.Sprintf("{{%s - %s}}::%s\n", activeChar.Name, activeChar.Title, color))
+		WriteString(s, cfmt.Sprintf("{{%s - %s}}::%s"+CRLF, activeChar.Name, activeChar.Title, color))
 	}
 }
 
 // func DoPrompt(s ssh.Session, cmd string, args []string, user *Account, char *Character, room *Room) {
 // 	if char == nil {
-// 		WriteString(s, cfmt.Sprint("{{Error: No character is associated with this session.}}::red\n"))
+// 		WriteString(s, cfmt.Sprint("{{Error: No character is associated with this session.}}::red"+CRLF))
 // 		return
 // 	}
 
 // 	// If no arguments, display current prompt
 // 	if len(args) == 0 {
-// 		WriteString(s, cfmt.Sprintf("{{Your current prompt:}}::cyan \"%s\"\n", char.Prompt))
-// 		WriteString(s, cfmt.Sprint("{{Use 'prompt <new format>' to set a custom prompt.}}::yellow\n"))
+// 		WriteString(s, cfmt.Sprintf("{{Your current prompt:}}::cyan \"%s\""+CRLF, char.Prompt))
+// 		WriteString(s, cfmt.Sprint("{{Use 'prompt <new format>' to set a custom prompt.}}::yellow"+CRLF))
 // 		return
 // 	}
 
@@ -640,20 +639,20 @@ func DoWho(s ssh.Session, cmd string, args []string, user *Account, char *Charac
 // 	char.Prompt = newPrompt
 // 	char.Save()
 
-// 	WriteString(s, cfmt.Sprintf("{{Prompt updated successfully!\nNew prompt:}}::green \"%s\"\n", newPrompt))
+// 	WriteString(s, cfmt.Sprintf("{{Prompt updated successfully!\nNew prompt:}}::green \"%s\""+CRLF, newPrompt))
 // }
 
 func DoPrompt(s ssh.Session, cmd string, args []string, user *Account, char *Character, room *Room) {
 	if char == nil {
-		WriteString(s, cfmt.Sprint("{{Error: No character is associated with this session.}}::red\n"))
+		WriteString(s, "{{Error: No character is associated with this session.}}::red"+CRLF)
 		return
 	}
 
 	// If no arguments, display current prompt
 	if len(args) == 0 {
-		WriteString(s, cfmt.Sprintf("{{Your current prompt:}}::cyan %s\n", char.Prompt))
-		WriteString(s, cfmt.Sprint("{{Use 'prompt <new format>' to set a custom prompt.}}::yellow\n"))
-		WriteString(s, cfmt.Sprint("{{Available Macros:}}::green {{time}}, {{hp}}, {{gold}}, {{stamina}} \n"))
+		WriteStringF(s, "{{Your current prompt:}}::cyan %s"+CRLF, char.Prompt)
+		WriteString(s, "{{Use 'prompt <new format>' to set a custom prompt.}}::yellow"+CRLF)
+		WriteString(s, "{{Available Macros:}}::green {{time}}, {{hp}}, {{gold}}, {{stamina}} "+CRLF)
 		return
 	}
 
@@ -666,8 +665,8 @@ func DoPrompt(s ssh.Session, cmd string, args []string, user *Account, char *Cha
 		for n := range promptPlaceholders {
 			placeholders = append(placeholders, n)
 		}
-		WriteString(s, "{{Invalid prompt format! Please use only supported macros.}}::red\n")
-		WriteStringF(s, "{{Available Macros:}}::green %s\n", strings.Join(placeholders, ", "))
+		WriteString(s, "{{Invalid prompt format! Please use only supported macros.}}::red"+CRLF)
+		WriteStringF(s, "{{Available Macros:}}::green %s"+CRLF, strings.Join(placeholders, ", "))
 		return
 	}
 
@@ -675,7 +674,7 @@ func DoPrompt(s ssh.Session, cmd string, args []string, user *Account, char *Cha
 	char.Prompt = newPrompt
 	char.Save()
 
-	WriteStringF(s, "{{Prompt updated successfully! New prompt:}}::green %s\n", newPrompt)
+	WriteStringF(s, "{{Prompt updated successfully! New prompt:}}::green %s"+CRLF, newPrompt)
 }
 
 // ValidatePrompt ensures that only allowed macros (from promptPlaceholders) are used
@@ -700,7 +699,7 @@ func DoTime(s ssh.Session, cmd string, args []string, user *Account, char *Chara
 	switch len(args) {
 	case 0:
 		// Basic time display
-		io.WriteString(s, cfmt.Sprintf("{{The current in-game time is %s.}}::cyan\n", GameTimeMgr.GetFormattedTime()))
+		WriteStringF(s, cfmt.Sprintf("{{The current in-game time is %s.}}::cyan"+CRLF, GameTimeMgr.GetFormattedTime()))
 	case 1:
 		if strings.EqualFold(args[0], "details") {
 			// Detailed time information
@@ -709,41 +708,41 @@ func DoTime(s ssh.Session, cmd string, args []string, user *Account, char *Chara
 			timeUntilSunrise := calculateTimeUntil(6) // Example sunrise time
 			timeUntilSunset := calculateTimeUntil(18) // Example sunset time
 
-			io.WriteString(s, cfmt.Sprintf("{{Current in-game time: %02d:%02d}}::cyan\n", hour, minute))
-			io.WriteString(s, cfmt.Sprintf("{{Time until sunrise:}}::green %s\n", formatMinutesAsTime(timeUntilSunrise)))
-			io.WriteString(s, cfmt.Sprintf("{{Time until sunset:}}::yellow %s\n", formatMinutesAsTime(timeUntilSunset)))
+			WriteStringF(s, "{{Current in-game time: %02d:%02d}}::cyan"+CRLF, hour, minute)
+			WriteStringF(s, "{{Time until sunrise:}}::green %s"+CRLF, formatMinutesAsTime(timeUntilSunrise))
+			WriteStringF(s, "{{Time until sunset:}}::yellow %s"+CRLF, formatMinutesAsTime(timeUntilSunset))
 		} else {
-			io.WriteString(s, cfmt.Sprintf("{{Unknown argument '%s'. Usage: time [details]}}::red\n", args[0]))
+			WriteStringF(s, "{{Unknown argument '%s'. Usage: time [details]}}::red"+CRLF, args[0])
 		}
 	default:
-		io.WriteString(s, cfmt.Sprintf("{{Invalid usage. Usage: time [details]}}::red\n"))
+		WriteString(s, "{{Invalid usage. Usage: time [details]}}::red"+CRLF)
 	}
 }
 
 func DoHistory(s ssh.Session, cmd string, args []string, user *Account, char *Character, room *Room) {
 	if char == nil || len(char.CommandHistory) == 0 {
-		io.WriteString(s, "{{No command history available.}}::yellow\n")
+		WriteString(s, "{{No command history available.}}::yellow"+CRLF)
 		return
 	}
 
 	if len(args) > 0 {
 		search := strings.ToLower(args[0])
-		io.WriteString(s, cfmt.Sprintf("{{Search results for '%s':}}::green\n", search))
+		WriteStringF(s, "{{Search results for '%s':}}::green"+CRLF, search)
 		found := false
 		for i, entry := range char.CommandHistory {
 			if strings.Contains(strings.ToLower(entry), search) {
-				io.WriteString(s, cfmt.Sprintf("{{%d: %s}}::cyan\n", i+1, entry))
+				WriteStringF(s, "{{%d: %s}}::cyan"+CRLF, i+1, entry)
 				found = true
 			}
 		}
 		if !found {
-			io.WriteString(s, cfmt.Sprintf("{{No history entries found for '%s'.}}::red\n", search))
+			WriteStringF(s, "{{No history entries found for '%s'.}}::red"+CRLF, search)
 		}
 		return
 	}
 
-	io.WriteString(s, "{{Command history:}}::green\n")
+	WriteString(s, "{{Command history:}}::green"+CRLF)
 	for i, entry := range char.CommandHistory {
-		io.WriteString(s, cfmt.Sprintf("{{%d: %s}}::cyan\n", i+1, entry))
+		WriteStringF(s, "{{%d: %s}}::cyan"+CRLF, i+1, entry)
 	}
 }
