@@ -1,0 +1,7 @@
+id: conjuring
+name: Conjuring
+skills:
+    - banishing
+    - binding
+    - summoning
+rule_source: SR5:Core

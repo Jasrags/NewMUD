@@ -1,0 +1,8 @@
+id: intrests_knowledge
+name: Interests Knowledge
+description: Strange as it might sound, you might have some hobbies outside of slinging mana and bullets. Interests are the kind of Knowledge skill that describes what you know because of what you do for fun. There are no guidelines (and no limit) to the sort of interest skills you can have. Interest Knowledge skills are linked to Intuition
+is_defaultable: false
+linked_attribute: Intuition
+specializations:
+    - By interest (Ancient Weapons, Classic Literature, Trid Shows, etc.)
+rule_source: SR5:Core

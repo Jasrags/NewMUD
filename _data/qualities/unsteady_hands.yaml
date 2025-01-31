@@ -1,0 +1,7 @@
+id: unsteady_hands
+type: Negative
+name: Unsteady Hands
+description: The character has unsteady hands. The character receives a –2 dice pool modifier on all tests involving fine motor skills.
+modifiers: []
+cost: 7
+rule_source: SR5:Core

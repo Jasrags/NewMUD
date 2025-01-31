@@ -1,0 +1,7 @@
+id: code_of_honor
+type: Negative
+name: Code Of Honor
+description: The character has a personal code of conduct that he follows. The character receives a +2 dice pool modifier on all tests to resist breaking his code of honor.
+modifiers: []
+cost: 15
+rule_source: SR5:Core

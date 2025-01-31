@@ -1,0 +1,8 @@
+id: instruction
+name: Instruction
+description: Instruction governs the ability to teach people. The skill level helps determine how comfortable the instructor is delivering new material as well as how complex of a skill may be taught.
+is_defaultable: true
+linked_attribute: Charisma
+specializations:
+    - By Active or Knowledge skill category (Combat, Language, Magical, Academic Knowledge, Street Knowledge, etc.)
+rule_source: SR5:Core

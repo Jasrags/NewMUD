@@ -1,0 +1,7 @@
+id: influence
+name: Influence
+skills:
+    - etiquette
+    - leadership
+    - negotiation
+rule_source: SR5:Core

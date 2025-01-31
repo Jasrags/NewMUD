@@ -1,0 +1,7 @@
+id: close_combat
+name: Close Combat
+skills:
+    - blades
+    - clubs
+    - unarmed_combat
+rule_source: SR5:Core

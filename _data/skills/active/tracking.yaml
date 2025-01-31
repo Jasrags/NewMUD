@@ -1,0 +1,13 @@
+id: tracking
+name: Tracking
+description: This skill confers the ability to detect the passage of metahumans and other game through terrain and use those clues to follow that individual. This skill also allows you to identify unmarked trails and common game paths is various environments.
+is_defaultable: true
+linked_attribute: Intuition
+specializations:
+    - Urban
+    - Desert
+    - Forest
+    - Mountain
+    - Polar
+    - Jungle
+rule_source: SR5:Core

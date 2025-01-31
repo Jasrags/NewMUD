@@ -1,0 +1,12 @@
+id: forgery
+name: Forgery
+description: Forgery is used to produce counterfeit items or alter existing items to a specific purpose. Depending on the type of forgery, the forger may need specific tools or schematics to complete the task.
+is_defaultable: false
+linked_attribute: Logic
+specializations:
+    - Documents
+    - Electronics
+    - Money
+    - Signatures
+    - SINs
+rule_source: SR5:Core

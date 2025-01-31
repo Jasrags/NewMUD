@@ -1,0 +1,7 @@
+id: first_impression
+type: Positive
+name: First Impression
+description: The character knows how to make a good first impression. The character receives a +2 dice pool modifier on all Social Tests when meeting someone for the first time.
+modifiers: []
+cost: 11
+rule_source: SR5:Core

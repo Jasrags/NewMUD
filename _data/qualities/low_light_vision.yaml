@@ -1,0 +1,8 @@
+id: low_light_vision
+type: Positive
+name: Low-Light Vision
+description: The character can see in dim light as if it were normal light. The character can see twice as far as a normal human in starlight, moonlight, and similar conditions of poor illumination. This quality is common among elves and some other metatypes.
+modifiers: []
+cost: 0
+rule_source: SR5:Core
+hidden: true

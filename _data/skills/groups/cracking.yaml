@@ -1,0 +1,7 @@
+id: cracking
+name: Cracking
+skills:
+    - cybercombat
+    - electronic
+    - hacking
+rule_source: SR5:Core

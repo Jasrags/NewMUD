@@ -1,0 +1,88 @@
+id: street_samurai
+title: Street Samurai
+description: A street samurai is a combat-oriented character that specializes in physical combat and is often augmented with cyberware or bioware.
+character:
+    id: ""
+    name: ""
+    user_id: ""
+    metatype_id: ork
+    attributes:
+        body:
+            value: 7
+            aug_modifier: 0
+            total_value: 0
+        agility:
+            value: 6
+            aug_modifier: 0
+            total_value: 0
+        reaction:
+            value: 5
+            aug_modifier: 0
+            total_value: 0
+        strength:
+            value: 5
+            aug_modifier: 0
+            total_value: 0
+        willpower:
+            value: 3
+            aug_modifier: 0
+            total_value: 0
+        logic:
+            value: 2
+            aug_modifier: 0
+            total_value: 0
+        intuition:
+            value: 3
+            aug_modifier: 0
+            total_value: 0
+        charisma:
+            value: 2
+            aug_modifier: 0
+            total_value: 0
+        edge:
+            value: 1
+            aug_modifier: 0
+            total_value: 0
+        essence:
+            value: 6
+            aug_modifier: 0
+            total_value: 0
+        magic:
+            value: 0
+            aug_modifier: 0
+            total_value: 0
+        resonance:
+            value: 0
+            aug_modifier: 0
+            total_value: 0
+    active_skills:
+        automatics:
+            id: automatics
+            rating: 5
+            modifiers: {}
+        blades:
+            id: blades
+            rating: 5
+            modifiers: {}
+        longarms:
+            id: longarms
+            rating: 3
+            modifiers: {}
+        pilot_ground_craft:
+            id: pilot_ground_craft
+            rating: 1
+            modifiers: {}
+        pistols:
+            id: pistols
+            rating: 4
+            modifiers: {}
+        sneaking:
+            id: sneaking
+            rating: 2
+            modifiers: {}
+        unarmed_combat:
+            id: unarmed_combat
+            rating: 2
+            modifiers: {}
+    qualities: {}
+    created_at: 2024-08-05T01:10:27.514769-05:00

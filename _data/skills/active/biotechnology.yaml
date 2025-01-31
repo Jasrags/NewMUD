@@ -1,0 +1,12 @@
+id: biotechnology
+name: Biotechnology
+description: Biotechnology is a wide-ranging skill primarily used by doctors and scientists to grow organic body parts. This skill is the basis for cloning as well as all forms of bioware. Provided the right equipment is available, biotechnology can be used to repair damaged bioware, clone new tissue, or detect any bioware in a subject’s body. This skill does not allow characters to install or remove bioware.
+is_defaultable: false
+linked_attribute: Logic
+specializations:
+    - Bioinformatics
+    - Bioware
+    - Cloning
+    - Gene Therapy
+    - Vat Maintenance
+rule_source: SR5:Core

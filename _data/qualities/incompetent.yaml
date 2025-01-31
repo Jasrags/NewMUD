@@ -1,0 +1,7 @@
+id: incompetent
+type: Negative
+name: Incompetent
+description: The character is incompetent at a particular skill. The character receives a –1 dice pool modifier on all tests involving that skill.
+modifiers: []
+cost: 5
+rule_source: SR5:Core

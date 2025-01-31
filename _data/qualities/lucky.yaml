@@ -1,0 +1,7 @@
+id: lucky
+type: Positive
+name: Lucky
+description: The character is just plain lucky. The character can reroll any one glitched die roll (not a critical glitch).
+modifiers: []
+cost: 12
+rule_source: SR5:Core

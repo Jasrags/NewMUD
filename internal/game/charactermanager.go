@@ -106,6 +106,18 @@ func (mgr *CharacterManager) IsBannedName(name string) bool {
 	return mgr.bannedNames[strings.ToLower(name)]
 }
 
+func (mgr *CharacterManager) GetCharacterNames() []string {
+	mgr.RLock()
+	defer mgr.RUnlock()
+
+	names := make([]string, 0, len(mgr.characters))
+	for _, c := range mgr.characters {
+		names = append(names, c.Name)
+	}
+
+	return names
+}
+
 func (mgr *CharacterManager) LoadDataFiles() {
 	dataFilePath := viper.GetString("data.characters_path")
 	bannedNames := viper.GetStringSlice("banned_names")

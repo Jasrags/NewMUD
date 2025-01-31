@@ -1,0 +1,12 @@
+id: nautical_mechanics
+name: Nautical Mechanics
+description: Nautical Mechanic is concerned with the maintenance and repair of watercraft. This skill is only effective if the necessary equipment and time are available.
+is_defaultable: false
+linked_attribute: Logic
+specializations:
+    - Boats
+    - Submarines
+    - Hovercraft
+    - Sailboats
+    - Motorboats
+rule_source: SR5:Core

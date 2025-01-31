@@ -1,0 +1,8 @@
+id: alchemy
+name: Alchemy
+description: Alchemy is used to create substances that store spells. Alchemy is most commonly used to brew potions, distill magical reagents, and even create orichalcum.
+is_defaultable: true
+linked_attribute: Magic
+specializations:
+    - ' By trigger (Command, Contact, Time), by spell type (Combat Spells, Detection Spells, etc.)'
+rule_source: SR5:Core

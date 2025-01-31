@@ -1,0 +1,8 @@
+id: astronomy
+name: Astronomy
+description: The study of celestial bodies and their movements.
+is_common: true
+specializations:
+    - astrophysics
+    - astrology
+rule_source: SR5:Core

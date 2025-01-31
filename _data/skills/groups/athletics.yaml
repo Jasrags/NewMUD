@@ -1,0 +1,7 @@
+id: athletics
+name: Athletics
+skills:
+    - gymnastics
+    - running
+    - swimming
+rule_source: SR5:Core

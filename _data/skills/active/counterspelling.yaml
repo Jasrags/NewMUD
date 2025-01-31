@@ -1,0 +1,12 @@
+id: counterspelling
+name: Counterspelling
+description: Counterspelling is a defensive skill used to defend against magical attacks and dispel sustained magical spells.
+is_defaultable: false
+linked_attribute: Magic
+specializations:
+    - Combat Spells
+    - Detection Spells
+    - Health Spells
+    - Illusion Spells
+    - Manipulation Spells
+rule_source: SR5:Core

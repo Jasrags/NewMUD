@@ -1,0 +1,5 @@
+id: english
+name: English
+is_common: true
+rule_source: SR5:Core
+file_version: 0.0.1

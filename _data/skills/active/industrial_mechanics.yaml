@@ -1,0 +1,13 @@
+id: industrial_mechanics
+name: Industrial Mechanics
+description: An industrial mechanic is tasked with repairing or modifying large-scale machines, such as assembly line equipment, power generators, HVAC units, industrial robots, etc. See Building and Repairing, at right.
+is_defaultable: false
+linked_attribute: Logic
+specializations:
+    - Assembly Line
+    - HVAC
+    - Industrial Robots
+    - Power Generators
+    - Pumps
+    - Water Treatment
+rule_source: SR5:Core

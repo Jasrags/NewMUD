@@ -1,0 +1,9 @@
+id: ritual_spellcasting
+name: Ritual Spellcasting
+description: Ritual spellcasting is a spellcasting skill used to cast ritual spells.
+is_defaultable: false
+linked_attribute: Magic
+specializations:
+    - Anchored
+    - Spell
+rule_source: SR5:Core

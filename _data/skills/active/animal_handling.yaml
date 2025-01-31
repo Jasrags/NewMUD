@@ -1,0 +1,11 @@
+id: animal_handling
+name: Animal Handling
+description: This skill governs the training, care, riding (if they’re big enough), and control of non-sentient animals. Competent trainers have the ability to handle multiple animals. It is even possible to approach an untrained animal and get it to trust you, or at least not eat you.
+is_defaultable: true
+linked_attribute: Charisma
+specializations:
+    - By animal (Cat, Bird, Hell Hound, Horse, Dolphin, etc.)
+    - Herding
+    - Riding
+    - Training
+rule_source: SR5:Core

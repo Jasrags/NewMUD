@@ -1,0 +1,7 @@
+id: will_to_live
+type: Positive
+name: Will To Live
+description: The character has a strong will to survive. The character can take this quality multiple times, each time applying it to a different condition. The character receives a +1 dice pool modifier on all tests to resist the effects of that condition. This quality can be taken up to three times for a single condition.
+modifiers: []
+cost: 3
+rule_source: SR5:Core

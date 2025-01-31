@@ -1,0 +1,12 @@
+id: locksmith
+name: Locksmith
+description: This skill covers building, repairing, and opening mechanical and electronic locks. While largely banished to antiquity, traditional mechanical locking mechanisms are still in use around the globe, often as throwbacks or backups. Electronic locks are far more common and quite susceptible to your ministrations.
+is_defaultable: true
+linked_attribute: Agility
+specializations:
+    - Combination
+    - Keypad
+    - Maglock
+    - Tumbler
+    - Voice Recognition
+rule_source: SR5:Core

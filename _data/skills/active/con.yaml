@@ -1,0 +1,9 @@
+id: con
+name: Con
+description: Con governs the ability to manipulate or fool an NPC during a social encounter. This skill covers a range of confidence games as well as the principles behind those cons.
+is_defaultable: true
+linked_attribute: Charisma
+specializations:
+    - Fast Talking
+    - Seduction
+rule_source: SR5:Core

@@ -1,0 +1,7 @@
+id: sorcery
+name: Sorcery
+skills:
+    - counterspelling
+    - ritual_spellcasting
+    - spellcasting
+rule_source: SR5:Core

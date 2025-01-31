@@ -1,0 +1,7 @@
+id: distinctive_style
+type: Negative
+name: Distinctive Style
+description: The character has a distinctive style that makes him stand out in a crowd. The character receives a –2 dice pool modifier on all tests to avoid notice in a crowd.
+modifiers: []
+cost: 5
+rule_source: SR5:Core

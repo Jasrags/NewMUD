@@ -1,7 +1,6 @@
 package game
 
 import (
-	"io"
 	"strconv"
 	"strings"
 
@@ -18,12 +17,12 @@ Usage:
 */
 func DoDrop(s ssh.Session, cmd string, args []string, user *Account, char *Character, room *Room) {
 	if room == nil {
-		io.WriteString(s, cfmt.Sprintf("{{You are not in a room.}}::red\n"))
+		WriteString(s, "{{You are not in a room.}}::red"+CRLF)
 		return
 	}
 
 	if len(args) == 0 {
-		io.WriteString(s, cfmt.Sprintf("{{Drop what?}}::red\n"))
+		WriteString(s, "{{Drop what?}}::red"+CRLF)
 		return
 	}
 
@@ -45,7 +44,7 @@ func DoDrop(s ssh.Session, cmd string, args []string, user *Account, char *Chara
 	if strings.EqualFold(itemQuery, "all") {
 		// Drop all items
 		if len(char.Inventory.Items) == 0 {
-			io.WriteString(s, cfmt.Sprintf("{{You do not seem to have anything.}}::yellow\n"))
+			WriteString(s, "{{You do not seem to have anything.}}::yellow"+CRLF)
 			return
 		}
 
@@ -60,8 +59,8 @@ func DoDrop(s ssh.Session, cmd string, args []string, user *Account, char *Chara
 		}
 
 		for itemName, count := range droppedItems {
-			io.WriteString(s, cfmt.Sprintf("{{You drop %d %s.}}::green\n", count, pluralizer.PluralizeNoun(itemName, count)))
-			room.Broadcast(cfmt.Sprintf("{{%s drops %d %s.}}::green\n", char.Name, count, pluralizer.PluralizeNoun(itemName, count)), []string{char.ID})
+			WriteStringF(s, "{{You drop %d %s.}}::green"+CRLF, count, pluralizer.PluralizeNoun(itemName, count))
+			room.Broadcast(cfmt.Sprintf("{{%s drops %d %s.}}::green"+CRLF, char.Name, count, pluralizer.PluralizeNoun(itemName, count)), []string{char.ID})
 		}
 		return
 	}
@@ -87,12 +86,12 @@ func DoDrop(s ssh.Session, cmd string, args []string, user *Account, char *Chara
 		}
 
 		for itemName, count := range droppedItems {
-			io.WriteString(s, cfmt.Sprintf("{{You drop %d %s.}}::green\n", count, pluralizer.PluralizeNoun(itemName, count)))
-			room.Broadcast(cfmt.Sprintf("{{%s drops %d %s.}}::green\n", char.Name, count, pluralizer.PluralizeNoun(itemName, count)), []string{char.ID})
+			WriteStringF(s, "{{You drop %d %s.}}::green"+CRLF, count, pluralizer.PluralizeNoun(itemName, count))
+			room.Broadcast(cfmt.Sprintf("{{%s drops %d %s.}}::green"+CRLF, char.Name, count, pluralizer.PluralizeNoun(itemName, count)), []string{char.ID})
 		}
 
 		if !found {
-			io.WriteString(s, cfmt.Sprintf("{{You do not have any items matching '%s'.}}::yellow\n", prefix))
+			WriteStringF(s, "{{You do not have any items matching '%s'.}}::yellow"+CRLF, prefix)
 		}
 		return
 	}
@@ -100,13 +99,13 @@ func DoDrop(s ssh.Session, cmd string, args []string, user *Account, char *Chara
 	// Drop a specific item or quantity of an item
 	items := char.Inventory.Search(itemQuery)
 	if len(items) == 0 {
-		io.WriteString(s, cfmt.Sprintf("{{You do not have that item.}}::yellow\n"))
+		WriteString(s, "{{You do not have that item.}}::yellow"+CRLF)
 		return
 	}
 
 	if quantity > len(items) {
 		blueprint := EntityMgr.GetItemBlueprintByInstance(items[0])
-		io.WriteString(s, cfmt.Sprintf("{{You do not have %d %s.}}::yellow\n", quantity, pluralizer.PluralizeNoun(blueprint.Name, quantity)))
+		WriteStringF(s, "{{You do not have %d %s.}}::yellow"+CRLF, quantity, pluralizer.PluralizeNoun(blueprint.Name, quantity))
 		return
 	}
 
@@ -119,8 +118,8 @@ func DoDrop(s ssh.Session, cmd string, args []string, user *Account, char *Chara
 	}
 
 	for itemName, count := range droppedItems {
-		io.WriteString(s, cfmt.Sprintf("{{You drop %d %s.}}::green\n", count, pluralizer.PluralizeNoun(itemName, count)))
-		room.Broadcast(cfmt.Sprintf("{{%s drops %d %s.}}::green\n", char.Name, count, pluralizer.PluralizeNoun(itemName, count)), []string{char.ID})
+		WriteStringF(s, "{{You drop %d %s.}}::green"+CRLF, count, pluralizer.PluralizeNoun(itemName, count))
+		room.Broadcast(cfmt.Sprintf("{{%s drops %d %s.}}::green"+CRLF, char.Name, count, pluralizer.PluralizeNoun(itemName, count)), []string{char.ID})
 	}
 }
 
@@ -153,12 +152,12 @@ Usage:
 */
 func DoGive(s ssh.Session, cmd string, args []string, user *Account, char *Character, room *Room) {
 	if room == nil {
-		io.WriteString(s, cfmt.Sprintf("{{You are not in a room.}}::red\n"))
+		WriteString(s, "{{You are not in a room.}}::red"+CRLF)
 		return
 	}
 
 	if len(args) < 2 {
-		io.WriteString(s, cfmt.Sprintf("{{Usage: give <character> [<quantity>] <item>.}}::red\n"))
+		WriteString(s, "{{Usage: give <character> [<quantity>] <item>.}}::red"+CRLF)
 		return
 	}
 
@@ -172,7 +171,7 @@ func DoGive(s ssh.Session, cmd string, args []string, user *Account, char *Chara
 		}
 	}
 	if recipient == nil {
-		io.WriteString(s, cfmt.Sprintf("{{There is no one named '%s' here.}}::red\n", recipientName))
+		WriteStringF(s, "{{There is no one named '%s' here.}}::red"+CRLF, recipientName)
 		return
 	}
 
@@ -192,12 +191,12 @@ func DoGive(s ssh.Session, cmd string, args []string, user *Account, char *Chara
 	// Search inventory
 	matchingItems := char.Inventory.Search(singularQuery)
 	if len(matchingItems) == 0 {
-		io.WriteString(s, cfmt.Sprintf("{{You have no %s to give.}}::yellow\n", itemQuery))
+		WriteStringF(s, "{{You have no %s to give.}}::yellow"+CRLF, itemQuery)
 		return
 	}
 
 	if quantity > len(matchingItems) {
-		io.WriteString(s, cfmt.Sprintf("{{You do not have %d %s.}}::yellow\n", quantity, itemQuery))
+		WriteStringF(s, "{{You do not have %d %s.}}::yellow"+CRLF, quantity, itemQuery)
 		return
 	}
 
@@ -228,16 +227,16 @@ func DoGive(s ssh.Session, cmd string, args []string, user *Account, char *Chara
 	recipient.Save()
 
 	if len(givenItems) == 0 {
-		io.WriteString(s, cfmt.Sprintf("{{%s cannot carry any more weight.}}::yellow\n", recipient.Name))
+		WriteStringF(s, "{{%s cannot carry any more weight.}}::yellow"+CRLF, recipient.Name)
 		return
 	}
 
 	itemName := pluralizer.PluralizeNoun(EntityMgr.GetItemBlueprintByInstance(givenItems[0]).Name, len(givenItems))
-	io.WriteString(s, cfmt.Sprintf("{{You give %s %d %s.}}::green\n", recipient.Name, len(givenItems), itemName))
-	room.Broadcast(cfmt.Sprintf("{{%s gives %s %d %s.}}::green\n", char.Name, recipient.Name, len(givenItems), itemName), []string{char.ID, recipient.ID})
+	WriteStringF(s, "{{You give %s %d %s.}}::green"+CRLF, recipient.Name, len(givenItems), itemName)
+	room.Broadcast(cfmt.Sprintf("{{%s gives %s %d %s.}}::green"+CRLF, char.Name, recipient.Name, len(givenItems), itemName), []string{char.ID, recipient.ID})
 
 	if len(givenItems) < quantity {
-		io.WriteString(s, cfmt.Sprintf("{{%s could not take all items due to weight limits.}}::yellow\n", recipient.Name))
+		WriteStringF(s, "{{%s could not take all items due to weight limits.}}::yellow"+CRLF, recipient.Name)
 	}
 }
 
@@ -286,12 +285,12 @@ Usage:
 */
 func DoGet(s ssh.Session, cmd string, args []string, user *Account, char *Character, room *Room) {
 	if room == nil {
-		io.WriteString(s, cfmt.Sprintf("{{You are not in a room.}}::red\n"))
+		WriteString(s, "{{You are not in a room.}}::red"+CRLF)
 		return
 	}
 
 	if len(args) == 0 {
-		io.WriteString(s, cfmt.Sprintf("{{Get what?}}::red\n"))
+		WriteString(s, "{{Get what?}}::red"+CRLF)
 		return
 	}
 
@@ -324,9 +323,9 @@ func DoGet(s ssh.Session, cmd string, args []string, user *Account, char *Charac
 	// If no items match the query, inform the user
 	if len(matchingItems) == 0 {
 		if itemQuery == "all" {
-			io.WriteString(s, cfmt.Sprintf("{{There are no items left here to get.}}::yellow\n"))
+			WriteString(s, "{{There are no items left here to get.}}::yellow"+CRLF)
 		} else {
-			io.WriteString(s, cfmt.Sprintf("{{There are no %s here.}}::yellow\n", itemQuery))
+			WriteStringF(s, "{{There are no %s here.}}::yellow"+CRLF, itemQuery)
 		}
 		return
 	}
@@ -336,7 +335,7 @@ func DoGet(s ssh.Session, cmd string, args []string, user *Account, char *Charac
 	}
 
 	if quantity > len(matchingItems) {
-		io.WriteString(s, cfmt.Sprintf("{{There are not %d %s here.}}::yellow\n", quantity, itemQuery))
+		WriteStringF(s, "{{There are not %d %s here.}}::yellow"+CRLF, quantity, itemQuery)
 		return
 	}
 
@@ -359,9 +358,9 @@ func DoGet(s ssh.Session, cmd string, args []string, user *Account, char *Charac
 	// If no items could be picked up, send an appropriate message
 	if len(pickedItems) == 0 {
 		if itemQuery == "all" {
-			io.WriteString(s, cfmt.Sprintf("{{You cannot carry any more items here due to weight or capacity limits.}}::yellow\n"))
+			WriteString(s, "{{You cannot carry any more items here due to weight or capacity limits.}}::yellow"+CRLF)
 		} else {
-			io.WriteString(s, cfmt.Sprintf("{{You cannot carry any %s due to weight or capacity limits.}}::yellow\n", itemQuery))
+			WriteStringF(s, "{{You cannot carry any %s due to weight or capacity limits.}}::yellow"+CRLF, itemQuery)
 		}
 		return
 	}
@@ -379,14 +378,14 @@ func DoGet(s ssh.Session, cmd string, args []string, user *Account, char *Charac
 
 	// Inform the user about the items they successfully picked up
 	itemName := pluralizer.PluralizeNoun(EntityMgr.GetItemBlueprintByInstance(pickedItems[0]).Name, len(pickedItems))
-	io.WriteString(s, cfmt.Sprintf("{{You get %d %s.}}::green\n", len(pickedItems), itemName))
-	room.Broadcast(cfmt.Sprintf("{{%s picks up %d %s.}}::green\n", char.Name, len(pickedItems), itemName), []string{char.ID})
+	WriteStringF(s, "{{You get %d %s.}}::green"+CRLF, len(pickedItems), itemName)
+	room.Broadcast(cfmt.Sprintf("{{%s picks up %d %s.}}::green"+CRLF, char.Name, len(pickedItems), itemName), []string{char.ID})
 
 	// Additional feedback for partial pickups
 	if itemQuery == "all" && len(matchingItems) > 0 {
-		io.WriteString(s, cfmt.Sprintf("{{You left some items behind due to weight limits.}}::yellow\n"))
+		WriteString(s, "{{You left some items behind due to weight limits.}}::yellow"+CRLF)
 	} else if len(pickedItems) < quantity {
-		io.WriteString(s, cfmt.Sprintf("{{You left some %s behind due to weight limits.}}::yellow\n", itemQuery))
+		WriteStringF(s, "{{You left some %s behind due to weight limits.}}::yellow"+CRLF, itemQuery)
 	}
 }
 func SuggestGet(line string, args []string, char *Character, room *Room) []string {

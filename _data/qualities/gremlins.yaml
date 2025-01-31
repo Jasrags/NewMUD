@@ -1,0 +1,7 @@
+id: gremlins
+type: Negative
+name: Gremlins
+description: The character’s gear is prone to malfunction. The character’s gear is unreliable and prone to malfunction. The gamemaster may call for a Gremlins Test whenever the character uses a piece of gear. The character must roll a number of dice equal to the Gremlins rating of the gear. If any of the dice come up 1, the gear malfunctions. The gamemaster determines the nature of the malfunction.
+modifiers: []
+cost: 4
+rule_source: SR5:Core

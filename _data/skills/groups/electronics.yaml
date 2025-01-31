@@ -1,0 +1,7 @@
+id: electronics
+name: Electronics
+skills:
+    - computer
+    - hardware
+    - software
+rule_source: SR5:Core
