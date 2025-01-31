@@ -28,6 +28,9 @@ type (
 
 // Gregorian calendar month lengths
 var (
+	monthsNames     = []string{"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"}
+	shortMonthNames = []string{"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"}
+
 	GameTimeMgr  = NewGameTime()
 	MonthLengths = []int{
 		31, // January
@@ -54,6 +57,14 @@ func NewGameTime() *GameTime {
 		Year:            1000, // Default game start year
 		TickAccumulator: 0,
 	}
+}
+
+func (t *GameTime) GetMonth() string {
+	return monthsNames[t.Month-1]
+}
+
+func (t *GameTime) GetShortMonth() string {
+	return shortMonthNames[t.Month-1]
 }
 
 // Returns the current hour in 24-hour format
@@ -109,7 +120,7 @@ func (t *GameTime) Advance(ticks int) {
 
 // Returns a formatted string of the current in-game time (HH:MM AM/PM)
 func (t *GameTime) GetFormattedTime() string {
-	return fmt.Sprintf("{{%02d}}::yellow:{{%02d}}::yellow %s",
+	return fmt.Sprintf("{{%02d}}::yellow{{:}}::white{{%02d}}::yellow %s",
 		t.CurrentHour()%12,
 		t.CurrentMinute(),
 		t.GetAmPm(),
@@ -118,14 +129,12 @@ func (t *GameTime) GetFormattedTime() string {
 
 // Returns the in-game date formatted as "Month Day, Year"
 func (t *GameTime) GetFormattedDate(short bool) string {
-	months := []string{"January", "February", "March", "April", "May", "June", "July",
-		"August", "September", "October", "November", "December"}
+	m := monthsNames[t.Month-1]
 	if short {
-		months = []string{"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul",
-			"Aug", "Sep", "Oct", "Nov", "Dec"}
+		m = shortMonthNames[t.Month-1]
 	}
 
-	return fmt.Sprintf("{{%s %d, %d}}::cyan", months[t.Month-1], t.Day, t.Year)
+	return fmt.Sprintf("{{%s %d, %d}}::cyan", m, t.Day, t.Year)
 }
 
 // Returns whether the current time is AM or PM
@@ -153,14 +162,15 @@ func (t *GameTime) StartTicker(tickDuration time.Duration) {
 func handleGameTick() {
 	GameTimeMgr.Advance(1) // Advance by one tick
 
+	GameTimeMgr.CurrentHour()
 	if GameTimeMgr.TickAccumulator == 0 {
 		slog.Debug("Game time updated",
-			slog.Int("day", GameTimeMgr.Day),
-			slog.Int("month", GameTimeMgr.Month),
-			slog.Int("year", GameTimeMgr.Year),
-			slog.Int("hour", GameTimeMgr.CurrentHour()),
-			slog.Int("minute", GameTimeMgr.CurrentMinute()),
-		)
+			slog.String("time", fmt.Sprintf("%02d:%02d %s, %d %d",
+				GameTimeMgr.CurrentHour(),
+				GameTimeMgr.CurrentMinute(),
+				GameTimeMgr.GetShortMonth(),
+				GameTimeMgr.Day,
+				GameTimeMgr.Year)))
 	}
 
 	triggerTimeBasedEvents()
