@@ -17,8 +17,14 @@ server:
   password_max_length: 64
   username_min_length: 3
   username_max_length: 32
-  charactername_min_length: 3
-  charactername_max_length: 32
+  name_regex: "^[a-zA-Z]+$"
+  special_character_regex: "[!@#$%^&*()_+={}[]:;<>,.?~]"
+  short_description_min_length: 10
+  short_description_max_length: 50
+  description_min_length: 10
+  description_max_length: 1024
+  name_min_length: 3
+  name_max_length: 32
   tick_duration: 1000ms
   max_history_size: 100
   default_prompt: "{{time}} {{>}}::white"
