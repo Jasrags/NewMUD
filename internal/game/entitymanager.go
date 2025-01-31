@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/spf13/viper"
@@ -18,26 +19,28 @@ var (
 type EntityManager struct {
 	sync.RWMutex
 
-	areas      map[string]*Area
-	items      map[string]*ItemBlueprint
-	metatypes  map[string]*Metatype
-	mobs       map[string]*Mob
-	pregens    map[string]*PreGen
-	qualtities map[string]*QualityBlueprint
-	rooms      map[string]*Room
-	skills     map[string]*SkillBlueprint
+	areas       map[string]*Area
+	items       map[string]*ItemBlueprint
+	metatypes   map[string]*Metatype
+	mobs        map[string]*Mob
+	pregens     map[string]*PreGen
+	qualtities  map[string]*QualityBlueprint
+	rooms       map[string]*Room
+	skills      map[string]*SkillBlueprint
+	skillGroups map[string]*SkillGroup
 }
 
 func NewEntityManager() *EntityManager {
 	return &EntityManager{
-		areas:      make(map[string]*Area),
-		items:      make(map[string]*ItemBlueprint),
-		metatypes:  make(map[string]*Metatype),
-		mobs:       make(map[string]*Mob),
-		pregens:    make(map[string]*PreGen),
-		qualtities: make(map[string]*QualityBlueprint),
-		rooms:      make(map[string]*Room),
-		skills:     make(map[string]*SkillBlueprint),
+		areas:       make(map[string]*Area),
+		items:       make(map[string]*ItemBlueprint),
+		metatypes:   make(map[string]*Metatype),
+		mobs:        make(map[string]*Mob),
+		pregens:     make(map[string]*PreGen),
+		qualtities:  make(map[string]*QualityBlueprint),
+		rooms:       make(map[string]*Room),
+		skills:      make(map[string]*SkillBlueprint),
+		skillGroups: make(map[string]*SkillGroup),
 	}
 }
 
@@ -185,21 +188,22 @@ func (mgr *EntityManager) RemoveMetatype(m *Metatype) {
 }
 
 func (mgr *EntityManager) loadMetatypes() {
-	metatypesPath := viper.GetString("data.metatypes_path")
+	slog.Info("Loading metatypes")
 
-	files, err := os.ReadDir(metatypesPath)
+	st := time.Now()
+	files, err := os.ReadDir(MetatypesFilepath)
 	if err != nil {
 		slog.Error("failed reading directory",
-			slog.String("datafile_path", metatypesPath),
+			slog.String("datafile_path", MetatypesFilepath),
 			slog.Any("error", err))
 	}
 
 	for _, file := range files {
 		var metatype Metatype
-		if err := LoadYAML(filepath.Join(metatypesPath, file.Name()), &metatype); err != nil {
+		if err := LoadYAML(filepath.Join(MetatypesFilepath, file.Name()), &metatype); err != nil {
 			slog.Error("failed to unmarshal metatype data",
 				slog.Any("error", err),
-				slog.String("metatype_path", filepath.Join(metatypesPath, file.Name())))
+				slog.String("metatype_path", filepath.Join(MetatypesFilepath, file.Name())))
 			continue
 		}
 		mgr.AddMetatype(&metatype)
@@ -207,7 +211,10 @@ func (mgr *EntityManager) loadMetatypes() {
 		slog.Debug("Loaded metatype",
 			slog.String("metatype_id", metatype.ID))
 	}
+
+	took := time.Since(st)
 	slog.Debug("Loaded metatypes",
+		slog.Duration("took", took),
 		slog.Int("count", len(mgr.metatypes)))
 }
 
@@ -267,21 +274,23 @@ func (mgr *EntityManager) RemovePreGen(p *PreGen) {
 }
 
 func (mgr *EntityManager) loadPregens() {
-	pregensPath := viper.GetString("data.pregens_path")
+	slog.Info("Loading pregens")
 
-	files, err := os.ReadDir(pregensPath)
+	st := time.Now()
+
+	files, err := os.ReadDir(PreGensFilepath)
 	if err != nil {
 		slog.Error("failed reading directory",
-			slog.String("datafile_path", pregensPath),
+			slog.String("datafile_path", PreGensFilepath),
 			slog.Any("error", err))
 	}
 
 	for _, file := range files {
 		var pregen PreGen
-		if err := LoadYAML(filepath.Join(pregensPath, file.Name()), &pregen); err != nil {
+		if err := LoadYAML(filepath.Join(PreGensFilepath, file.Name()), &pregen); err != nil {
 			slog.Error("failed to unmarshal pregen data",
 				slog.Any("error", err),
-				slog.String("pregens_path", filepath.Join(pregensPath, file.Name())))
+				slog.String("pregens_path", filepath.Join(PreGensFilepath, file.Name())))
 			continue
 		}
 		mgr.pregens[pregen.ID] = &pregen
@@ -289,7 +298,10 @@ func (mgr *EntityManager) loadPregens() {
 		slog.Debug("Loaded pregen",
 			slog.String("pregen_id", pregen.ID))
 	}
-	slog.Debug("Loaded pregens",
+
+	took := time.Since(st)
+	slog.Info("Loaded pregens",
+		slog.Duration("took", took),
 		slog.Int("count", len(mgr.pregens)))
 }
 
@@ -314,21 +326,23 @@ func (mgr *EntityManager) RemoveQualityBlueprint(q *QualityBlueprint) {
 }
 
 func (mgr *EntityManager) loadQualities() {
-	qualitiesPath := viper.GetString("data.qualities_path")
+	slog.Info("Loading qualities")
 
-	files, err := os.ReadDir(qualitiesPath)
+	st := time.Now()
+
+	files, err := os.ReadDir(QualitiesFilepath)
 	if err != nil {
 		slog.Error("failed reading directory",
-			slog.String("datafile_path", qualitiesPath),
+			slog.String("datafile_path", QualitiesFilepath),
 			slog.Any("error", err))
 	}
 
 	for _, file := range files {
 		var quality QualityBlueprint
-		if err := LoadYAML(filepath.Join(qualitiesPath, file.Name()), &quality); err != nil {
+		if err := LoadYAML(filepath.Join(QualitiesFilepath, file.Name()), &quality); err != nil {
 			slog.Error("failed to unmarshal quality data",
 				slog.Any("error", err),
-				slog.String("quality_path", filepath.Join(qualitiesPath, file.Name())))
+				slog.String("quality_path", filepath.Join(QualitiesFilepath, file.Name())))
 			continue
 		}
 		mgr.qualtities[quality.ID] = &quality
@@ -336,7 +350,10 @@ func (mgr *EntityManager) loadQualities() {
 		slog.Debug("Loaded quality",
 			slog.String("quality_id", quality.ID))
 	}
-	slog.Debug("Loaded qualities",
+
+	took := time.Since(st)
+	slog.Info("Loaded qualities",
+		slog.Duration("took", took),
 		slog.Int("count", len(mgr.qualtities)))
 }
 
@@ -391,35 +408,77 @@ func (mgr *EntityManager) RemoveSkillBlueprint(s *SkillBlueprint) {
 	delete(mgr.skills, s.ID)
 }
 
-func (mgr *EntityManager) loadSkills() {
-	skillsPath := viper.GetString("data.skills_path")
+func (mgr *EntityManager) loadSkills(t SkillType, path string) {
+	st := time.Now()
+	slog.Info("Loading skills",
+		slog.Any("skill_type", t))
 
-	files, err := os.ReadDir(skillsPath)
+	files, err := os.ReadDir(path)
 	if err != nil {
 		slog.Error("failed reading directory",
-			slog.String("datafile_path", skillsPath),
+			slog.String("datafile_path", path),
 			slog.Any("error", err))
 	}
 
 	for _, file := range files {
 		var skill SkillBlueprint
-		if err := LoadYAML(filepath.Join(skillsPath, file.Name()), &skill); err != nil {
+		if err := LoadYAML(filepath.Join(path, file.Name()), &skill); err != nil {
 			slog.Error("failed to unmarshal skill data",
 				slog.Any("error", err),
-				slog.String("skill_path", filepath.Join(skillsPath, file.Name())))
+				slog.String("skill_path", filepath.Join(path, file.Name())))
 			continue
 		}
+		skill.Type = t
 		mgr.skills[skill.ID] = &skill
 
 		slog.Debug("Loaded skill",
+			slog.Any("skill_type", skill.Type),
 			slog.String("skill_id", skill.ID))
 	}
-	slog.Debug("Loaded skills",
+
+	stook := time.Since(st)
+	slog.Info("Loaded skills",
+		slog.Duration("took", stook),
+		slog.Any("skill_type", t),
 		slog.Int("count", len(mgr.skills)))
+}
+
+func (mgr *EntityManager) loadSkillGroups() {
+	st := time.Now()
+	slog.Info("Loading skill groups")
+
+	files, err := os.ReadDir(SkillGroupsFilepath)
+	if err != nil {
+		slog.Error("failed reading directory",
+			slog.String("datafile_path", SkillGroupsFilepath),
+			slog.Any("error", err))
+	}
+
+	for _, file := range files {
+		var group SkillGroup
+		if err := LoadYAML(filepath.Join(SkillGroupsFilepath, file.Name()), &group); err != nil {
+			slog.Error("failed to unmarshal skill group data",
+				slog.Any("error", err),
+				slog.String("skill_group_path", filepath.Join(SkillGroupsFilepath, file.Name())))
+			continue
+		}
+		mgr.skillGroups[group.ID] = &group
+
+		slog.Debug("Loaded skill group",
+			slog.String("skill_group_id", group.ID))
+	}
+
+	took := time.Since(st)
+	slog.Info("Loaded skill groups",
+		slog.Duration("took", took),
+		slog.Int("count", len(mgr.skillGroups)))
 }
 
 // Generic load function
 func (mgr *EntityManager) LoadDataFiles() {
+	st := time.Now()
+
+	slog.Info("Loading entity data files")
 	dataFilePath := viper.GetString("data.areas_path")
 	manifestFileName := viper.GetString("data.manifest_file")
 	roomsFileName := viper.GetString("data.rooms_file")
@@ -436,7 +495,10 @@ func (mgr *EntityManager) LoadDataFiles() {
 	mgr.loadMetatypes()
 	mgr.loadPregens()
 	mgr.loadQualities()
-	mgr.loadSkills()
+	mgr.loadSkills(SkillTypeActive, SkillActiveFilepath)
+	mgr.loadSkills(SkillTypeKnowledge, SkillKnowledgeFilepath)
+	mgr.loadSkills(SkillTypeLanguage, SkillLanguagesFilepath)
+	mgr.loadSkillGroups()
 
 	files, err := os.ReadDir(dataFilePath)
 	if err != nil {
@@ -531,10 +593,7 @@ func (mgr *EntityManager) LoadDataFiles() {
 	mgr.BuildRooms()
 
 	slog.Info("Loaded entities",
-		slog.Int("areas_count", len(mgr.areas)),
-		slog.Int("rooms_count", len(mgr.rooms)),
-		slog.Int("items_count", len(mgr.items)),
-		slog.Int("mobs_count", len(mgr.mobs)))
+		slog.Duration("took", time.Since(st)))
 }
 
 func (mgr *EntityManager) BuildRooms() {

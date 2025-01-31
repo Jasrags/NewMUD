@@ -2,6 +2,7 @@ package game
 
 type AttributeType string
 
+// TODO: Revisit this, the Derivied attributes are not really attributes, they are calculated from the base attributes and should be stored in the character, not in the attributes.
 const (
 	AttributeBody            AttributeType = "Body"
 	AttributeAgility         AttributeType = "Agility"
