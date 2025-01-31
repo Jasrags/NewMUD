@@ -12,65 +12,64 @@ import (
 	ee "github.com/vansante/go-event-emitter"
 )
 
+const ()
+
 // TODO: do we want to persist the room state between resets (mobs, items, etc)?
 
-type Exit struct {
-	Room      *Room  `yaml:"-"`
-	RoomID    string `yaml:"room_id"`
-	Direction string `yaml:"direction"`
-	Door      *Door  `yaml:"door"`
-}
+type (
+	Exit struct {
+		Room      *Room  `yaml:"-"`
+		RoomID    string `yaml:"room_id"`
+		Direction string `yaml:"direction"`
+		Door      *Door  `yaml:"door"`
+	}
+	Door struct {
+		IsClosed       bool     `yaml:"is_closed"`
+		IsLocked       bool     `yaml:"is_locked"`
+		KeyIDs         []string `yaml:"key_ids"`
+		PickDifficulty int      `yaml:"pick_difficulty"`
+	}
+	Corrdinates struct {
+		X int `yaml:"x"`
+		Y int `yaml:"y"`
+		Z int `yaml:"z"`
+	}
+	DefaultItem struct {
+		ID string `yaml:"id"`
+		// RespawnChance    int    `yaml:"respawn_chance"`
+		MaxLoad int `yaml:"max_load"`
+		// ReplaceOnRespawn bool   `yaml:"replace_on_respawn"`
+		Quantity int `yaml:"quantity"`
+	}
+	DefaultMob struct {
+		ID string `yaml:"id"`
+		// RespawnChance    int    `yaml:"respawn_chance"`
+	}
+	// TODO: Add Doors and Locks
+	// TODO: Keep track of items in the room between resets
+	// TODO: Keep track of mobs in the room between resets
+	// TODO: Check respawn chance of items and mobs on update
+	Room struct {
+		sync.RWMutex `yaml:"-"`
+		Listeners    []ee.Listener `yaml:"-"`
 
-type Door struct {
-	IsClosed       bool     `yaml:"is_closed"`
-	IsLocked       bool     `yaml:"is_locked"`
-	KeyIDs         []string `yaml:"key_ids"`
-	PickDifficulty int      `yaml:"pick_difficulty"`
-}
-
-type Corrdinates struct {
-	X int `yaml:"x"`
-	Y int `yaml:"y"`
-	Z int `yaml:"z"`
-}
-
-type DefaultItem struct {
-	ID string `yaml:"id"`
-	// RespawnChance    int    `yaml:"respawn_chance"`
-	MaxLoad int `yaml:"max_load"`
-	// ReplaceOnRespawn bool   `yaml:"replace_on_respawn"`
-	Quantity int `yaml:"quantity"`
-}
-
-type DefaultMob struct {
-	ID string `yaml:"id"`
-	// RespawnChance    int    `yaml:"respawn_chance"`
-}
-
-// TODO: Add Doors and Locks
-// TODO: Keep track of items in the room between resets
-// TODO: Keep track of mobs in the room between resets
-// TODO: Check respawn chance of items and mobs on update
-type Room struct {
-	sync.RWMutex `yaml:"-"`
-	Listeners    []ee.Listener `yaml:"-"`
-
-	ID           string           `yaml:"id"`
-	ReferenceID  string           `yaml:"reference_id"`
-	UUID         string           `yaml:"uuid"`
-	AreaID       string           `yaml:"area_id"`
-	Area         *Area            `yaml:"-"`
-	Title        string           `yaml:"title"`
-	Description  string           `yaml:"description"`
-	Exits        map[string]*Exit `yaml:"exits"`
-	Corrdinates  *Corrdinates     `yaml:"corrdinates"`
-	Inventory    Inventory        `yaml:"inventory"`
-	Characters   []*Character     `yaml:"-"`
-	Mobs         []*Mob           `yaml:"-"`
-	DefaultItems []DefaultItem    `yaml:"default_items"` // IDs of items to load into the room
-	DefaultMobs  []DefaultMob     `yaml:"default_mobs"`  // IDs of mobs to load into the room
-	SpawnedMobs  []*Mob           `yaml:"-"`             // Mobs that have been spawned into the room
-}
+		ID           string           `yaml:"id"`
+		ReferenceID  string           `yaml:"reference_id"`
+		UUID         string           `yaml:"uuid"`
+		AreaID       string           `yaml:"area_id"`
+		Area         *Area            `yaml:"-"`
+		Title        string           `yaml:"title"`
+		Description  string           `yaml:"description"`
+		Exits        map[string]*Exit `yaml:"exits"`
+		Corrdinates  *Corrdinates     `yaml:"corrdinates"`
+		Inventory    Inventory        `yaml:"inventory"`
+		Characters   []*Character     `yaml:"-"`
+		Mobs         []*Mob           `yaml:"-"`
+		DefaultItems []DefaultItem    `yaml:"default_items"` // IDs of items to load into the room
+		DefaultMobs  []DefaultMob     `yaml:"default_mobs"`  // IDs of mobs to load into the room
+		SpawnedMobs  []*Mob           `yaml:"-"`             // Mobs that have been spawned into the room
+	}
+)
 
 func NewRoom() *Room {
 	return &Room{

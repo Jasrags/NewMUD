@@ -16,6 +16,16 @@ const (
 	DaysInWeek         = 7
 )
 
+type (
+	GameTime struct {
+		Minutes         int // Total minutes since the start of the game day
+		TickAccumulator int // Tracks the number of ticks since the last minute increment
+		Day             int // Current day in the month
+		Month           int // Current month (1-12)
+		Year            int // Current year
+	}
+)
+
 // Gregorian calendar month lengths
 var (
 	GameTimeMgr  = NewGameTime()
@@ -34,15 +44,6 @@ var (
 		31, // December
 	}
 )
-
-// GameTime struct with date tracking
-type GameTime struct {
-	Minutes         int // Total minutes since the start of the game day
-	TickAccumulator int // Tracks the number of ticks since the last minute increment
-	Day             int // Current day in the month
-	Month           int // Current month (1-12)
-	Year            int // Current year
-}
 
 // Initializes the game time
 func NewGameTime() *GameTime {

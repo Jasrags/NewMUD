@@ -11,31 +11,35 @@ import (
 	"github.com/spf13/viper"
 )
 
-type Interactable interface {
-	GetName() string
-	GetID() string
-	ReactToMessage(sender *Character, message string)
-}
-
-type CharacterRole string
-
 const (
+	CharactersFilepath = "_data/characters"
+
 	CharacterRoleAdmin  CharacterRole = "admin"
 	CharacterRolePlayer CharacterRole = "player"
 )
 
-type Character struct {
-	GameEntity     `yaml:",inline"`
-	User           *Account      `yaml:"-"`
-	UserID         string        `yaml:"user_id"`
-	Role           CharacterRole `yaml:"role"`
-	Prompt         string        `yaml:"prompt"`
-	Conn           ssh.Session   `yaml:"-"`
-	CreatedAt      time.Time     `yaml:"created_at"`
-	UpdatedAt      *time.Time    `yaml:"updated_at"`
-	DeletedAt      *time.Time    `yaml:"deleted_at"`
-	CommandHistory []string      `yaml:"-"`
-}
+type (
+	CharacterRole string
+
+	Interactable interface {
+		GetName() string
+		GetID() string
+		ReactToMessage(sender *Character, message string)
+	}
+
+	Character struct {
+		GameEntity     `yaml:",inline"`
+		User           *Account      `yaml:"-"`
+		UserID         string        `yaml:"user_id"`
+		Role           CharacterRole `yaml:"role"`
+		Prompt         string        `yaml:"prompt"`
+		Conn           ssh.Session   `yaml:"-"`
+		CreatedAt      time.Time     `yaml:"created_at"`
+		UpdatedAt      *time.Time    `yaml:"updated_at"`
+		DeletedAt      *time.Time    `yaml:"deleted_at"`
+		CommandHistory []string      `yaml:"-"`
+	}
+)
 
 func NewCharacter() *Character {
 	return &Character{

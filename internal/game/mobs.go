@@ -8,27 +8,31 @@ import (
 	"github.com/i582/cfmt/cmd/cfmt"
 )
 
-type Disposition string
-
 const (
-	DispositionFriendly   Disposition = "Friendly"
-	DispositionNeutral    Disposition = "Neutral"
-	DispositionAggressive Disposition = "Aggressive"
+	MobsFilename = "mobs.yml"
+
+	DispositionFriendly   MobDisposition = "Friendly"
+	DispositionNeutral    MobDisposition = "Neutral"
+	DispositionAggressive MobDisposition = "Aggressive"
 )
 
-// TODO: Implement mob AI behaviors.
-// TODO: Do we want mobs to be an "instance" that will persist after spawning?
-type Mob struct {
-	GameEntity            `yaml:",inline"`
-	GeneralDisposition    Disposition            `yaml:"general_disposition"`
-	CharacterDispositions map[string]Disposition `yaml:"character_dispositions"`
-}
+type (
+	MobDisposition string
+
+	// TODO: Implement mob AI behaviors.
+	// TODO: Do we want mobs to be an "instance" that will persist after spawning?
+	Mob struct {
+		GameEntity            `yaml:",inline"`
+		GeneralDisposition    MobDisposition            `yaml:"general_disposition"`
+		CharacterDispositions map[string]MobDisposition `yaml:"character_dispositions"`
+	}
+)
 
 func NewMob() *Mob {
 	return &Mob{
 		GameEntity:            NewGameEntity(),
 		GeneralDisposition:    DispositionNeutral,
-		CharacterDispositions: make(map[string]Disposition),
+		CharacterDispositions: make(map[string]MobDisposition),
 	}
 }
 
@@ -45,7 +49,7 @@ func (m *Mob) GetID() string {
 	return m.ID
 }
 
-func (m *Mob) SetGeneralDisposition(disposition Disposition) {
+func (m *Mob) SetGeneralDisposition(disposition MobDisposition) {
 	m.GeneralDisposition = disposition
 }
 
@@ -54,11 +58,11 @@ func (m *Mob) ReactToMessage(sender *Character, message string) {
 	m.ReactToInteraction(sender, message)
 }
 
-func (m *Mob) SetDispositionForCharacter(char *Character, disposition Disposition) {
+func (m *Mob) SetDispositionForCharacter(char *Character, disposition MobDisposition) {
 	m.CharacterDispositions[char.ID] = disposition
 }
 
-func (m *Mob) GetDispositionForCharacter(char *Character) Disposition {
+func (m *Mob) GetDispositionForCharacter(char *Character) MobDisposition {
 	if disposition, exists := m.CharacterDispositions[char.ID]; exists {
 		return disposition
 	}

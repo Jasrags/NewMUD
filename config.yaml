@@ -27,6 +27,10 @@ data:
   areas_path: _data/areas
   players_path: _data/players
   characters_path: _data/characters
+  metatypes_path: _data/metatypes
+  skills_path: _data/skills
+  qualities_path: _data/qualities
+  pregens_path: _data/pregens
   manifest_file: manifest.yml
   rooms_file: rooms.yml
   items_file: items.yml

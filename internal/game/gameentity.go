@@ -9,17 +9,6 @@ import (
 	ee "github.com/vansante/go-event-emitter"
 )
 
-type Quality struct {
-	ID     string `yaml:"id"`
-	Rating int    `yaml:"rating"`
-}
-
-type Skill struct {
-	ID             string `yaml:"id"`
-	Specialization string `yaml:"specialization"`
-	Rating         int    `yaml:"rating"`
-}
-
 type GameEntity struct {
 	sync.RWMutex `yaml:"-"`
 	Listeners    []ee.Listener `yaml:"-"`

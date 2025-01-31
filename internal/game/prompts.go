@@ -6,6 +6,12 @@ import (
 	"github.com/i582/cfmt/cmd/cfmt"
 )
 
+const (
+	DefaultPrompt = "{{time}} {{date}} {{>}}::white|bold "
+)
+
+type ()
+
 // TODO: support short versions of the prompt placeholders
 // TODO: need a DoPrompt function that will handle the actual printing of the prompt
 var (
