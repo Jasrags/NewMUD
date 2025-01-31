@@ -1,0 +1,11 @@
+id: automatics
+name: Automatics
+description: The Automatics skill covers a specific subset of firearms larger than handheld pistols but smaller than rifles. This category includes submachine guns and other fully automatic carbines.
+is_defaultable: true
+linked_attribute: Agility
+specializations:
+    - Assault Rifles
+    - Cyber-Implant
+    - Machine Pistols
+    - Submachine Guns
+rule_source: SR5:Core

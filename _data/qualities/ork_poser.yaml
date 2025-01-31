@@ -1,0 +1,7 @@
+id: ork_poser
+type: Negative
+name: Ork Poser
+description: The character pretends to be an ork. The character receives a –2 dice pool modifier on all tests to avoid notice as a poser.
+modifiers: []
+cost: 6
+rule_source: SR5:Core

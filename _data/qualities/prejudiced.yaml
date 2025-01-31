@@ -1,0 +1,7 @@
+id: prejudiced
+type: Negative
+name: Prejudiced
+description: The character is prejudiced against a particular group. The character receives a –1 dice pool modifier on all tests involving that group.
+modifiers: []
+cost: 3
+rule_source: SR5:Core

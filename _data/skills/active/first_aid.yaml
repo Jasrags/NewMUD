@@ -1,0 +1,11 @@
+id: first_aid
+name: First Aid
+description: First Aid is the ability to provide emergency medical assistance similar to that of a paramedic. This skill may be used to stabilize wounds and prevent characters from dying. First Aid cannot be used to perform surgery or repair damaged implants.
+is_defaultable: false
+linked_attribute: Logic
+specializations:
+    - Combat Wounds
+    - Gunshot Wounds
+    - Stabilization
+    - Trauma Care
+rule_source: SR5:Core

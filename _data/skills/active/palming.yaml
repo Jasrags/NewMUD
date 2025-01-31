@@ -1,0 +1,10 @@
+id: palming
+name: Palming
+description: Palming is sleight-of-hand skill that gives a character the ability to snag, hide, and pass off small objects.
+is_defaultable: true
+linked_attribute: Agility
+specializations:
+    - Legerdemain
+    - Pickpocket
+    - Pilfering
+rule_source: SR5:Core

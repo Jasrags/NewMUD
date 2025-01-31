@@ -1,0 +1,7 @@
+id: double_jointed
+type: Positive
+name: Double-jointed
+description: The character is unusually flexible. The character receives a +2 dice pool modifier on all tests involving Escape Artist.
+modifiers: []
+cost: 6
+rule_source: SR5:Core

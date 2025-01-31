@@ -1,0 +1,9 @@
+id: swimming
+name: Swimming
+description: This skill determines the character’s ability to swim in various bodies of water. The skill level affects the distance and speed at which a character can swim.
+is_defaultable: true
+linked_attribute: Strength
+specializations:
+    - Dash
+    - Long Distance
+rule_source: SR5:Core

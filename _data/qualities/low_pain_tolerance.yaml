@@ -1,0 +1,7 @@
+id: low_pain_tolerance
+type: Negative
+name: Low Pain Tolerance
+description: The character has a low pain tolerance. The character receives a –3 dice pool modifier on all tests to resist the effects of wound modifiers.
+modifiers: []
+cost: 9
+rule_source: SR5:Core

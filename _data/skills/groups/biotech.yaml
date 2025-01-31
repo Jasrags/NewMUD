@@ -1,0 +1,8 @@
+id: biotech
+name: Biotech
+skills:
+    - biotechnology
+    - cybertechnology
+    - first_aid
+    - medicine
+rule_source: SR5:Core

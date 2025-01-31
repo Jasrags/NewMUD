@@ -1,0 +1,8 @@
+id: automotive_mechanic
+name: Automotive Mechanic
+description: Automotive mechanics are tasked with fixing all types of ground-based vehicles ranging from commercial automobiles to wheeled drones to tanks. Repairs require the proper tools and time.
+is_defaultable: false
+linked_attribute: Logic
+specializations:
+    - Walker, Hover, Tracked, Wheeled
+rule_source: SR5:Core

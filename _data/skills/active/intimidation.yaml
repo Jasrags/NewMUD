@@ -1,0 +1,10 @@
+id: intimidation
+name: Intimidation
+description: 'Intimidation is about creating the impression that you are more menacing than another person in order to get them to do what you want. The skill may be applied multiple ways, from negotiation to interrogation. Intimidation is an Opposed Intimidation + Charisma [Social] Test against the target’s Charisma + Willpower, modified by the appropriate entries on the Social Modifiers Table. '
+is_defaultable: true
+linked_attribute: Charisma
+specializations:
+    - Interrogation
+    - Mental
+    - Physical
+rule_source: SR5:Core

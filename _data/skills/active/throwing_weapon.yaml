@@ -1,0 +1,10 @@
+id: throwing_weapon
+name: Throwing Weapon
+description: Throwing Weapons is a broad-based attack skill that can be used for any handheld item that is thrown by the user as a weapon.
+is_defaultable: true
+linked_attribute: Agility
+specializations:
+    - Aerodynamic
+    - Blades
+    - NonAerodynamic
+rule_source: SR5:Core

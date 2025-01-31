@@ -1,0 +1,12 @@
+id: perception
+name: Perception
+description: Perception refers to the ability to spot anomalies in everyday situations, making it one of the key skills a shadowrunner needs.
+is_defaultable: true
+linked_attribute: Intuition
+specializations:
+    - Hearing
+    - Sight
+    - Smell
+    - Taste
+    - Touch
+rule_source: SR5:Core

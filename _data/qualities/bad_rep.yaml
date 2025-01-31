@@ -1,0 +1,7 @@
+id: bad_rep
+type: Negative
+name: Bad Rep
+description: The character has a bad reputation. The character receives a –2 dice pool modifier on all Social Tests when dealing with someone who has heard of his bad reputation.
+modifiers: []
+cost: 7
+rule_source: SR5:Core

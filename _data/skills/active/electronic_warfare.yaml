@@ -1,0 +1,12 @@
+id: electronic_warfare
+name: Electronic Warfare
+description: Electronic Warfare is the basis of military signals intelligence. It governs the encoding, disruption, spoofing, and decoding of communication systems. Providing the user has the proper equipment, the skill can be used to manipulate or even take over the signal of any item’s communication system.
+is_defaultable: false
+linked_attribute: Logic
+specializations:
+    - Communications
+    - Encryption
+    - Jamming
+    - Remote Operation
+    - Sensors
+rule_source: SR5:Core

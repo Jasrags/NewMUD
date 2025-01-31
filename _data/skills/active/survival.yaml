@@ -1,0 +1,14 @@
+id: survival
+name: Survival
+description: In the desert with nothing more than a tin cup, a poncho, and an iron rod? You’ll need this skill to help you get out alive. Survival is the ability to stay alive in extreme environmental conditions for extended periods of time. The skill governs a character’s ability to perform vital outdoor tasks such as start a fire, build a shelter, scrounge for food, etc. in hostile environments.
+is_defaultable: true
+linked_attribute: Willpower
+specializations:
+    - Desert
+    - Forest
+    - Jungle
+    - Mountain
+    - Polar
+    - Urban
+    - Other terrain
+rule_source: SR5:Core

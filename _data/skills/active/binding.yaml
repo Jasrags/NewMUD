@@ -1,0 +1,9 @@
+id: binding
+name: Binding
+description: Binding is used to compel a summoned spirit to perform a number of additional services.
+is_defaultable: false
+linked_attribute: Magic
+specializations:
+    - Spirits of Air
+    - Spirits of Man
+rule_source: SR5:Core

@@ -1,0 +1,7 @@
+id: loss_of_confidence
+type: Negative
+name: Loss Of Confidence
+description: The character has lost confidence in himself. The character receives a –2 dice pool modifier on all tests to resist fear and intimidation.
+modifiers: []
+cost: 10
+rule_source: SR5:Core

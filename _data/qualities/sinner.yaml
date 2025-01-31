@@ -1,0 +1,7 @@
+id: sinner
+type: Negative
+name: Sinner (layered)
+description: The character has a criminal SIN. The character receives a –5 dice pool modifier on all Social Tests when dealing with someone who knows about his criminal SIN.
+modifiers: []
+cost: 5
+rule_source: SR5:Core
