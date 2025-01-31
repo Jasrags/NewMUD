@@ -187,6 +187,13 @@ func (mgr *EntityManager) RemoveMetatype(m *Metatype) {
 	delete(mgr.metatypes, m.ID)
 }
 
+func (mgr *EntityManager) GetMetatypes() map[string]*Metatype {
+	mgr.RLock()
+	defer mgr.RUnlock()
+
+	return mgr.metatypes
+}
+
 func (mgr *EntityManager) loadMetatypes() {
 	slog.Info("Loading metatypes")
 

@@ -27,31 +27,45 @@ const (
 	AttributeSwim            AttributeType = "Swim"
 )
 
-type Attributes struct {
-	// Base attributes
-	Body      Attribute[int]     `yaml:"body"`
-	Agility   Attribute[int]     `yaml:"agility"`
-	Reaction  Attribute[int]     `yaml:"reaction"`
-	Strength  Attribute[int]     `yaml:"strength"`
-	Willpower Attribute[int]     `yaml:"willpower"`
-	Logic     Attribute[int]     `yaml:"logic"`
-	Intuition Attribute[int]     `yaml:"intuition"`
-	Charisma  Attribute[int]     `yaml:"charisma"`
-	Essence   Attribute[float64] `yaml:"essence"`
-	Magic     Attribute[int]     `yaml:"magic"`
-	Resonance Attribute[int]     `yaml:"resonance"`
-	// Derived attributes
-	Initiative      Attribute[int] `yaml:"initiative"`
-	InitiativeDice  Attribute[int] `yaml:"initiative_dice"`
-	Composure       Attribute[int] `yaml:"composure"`
-	JudgeIntentions Attribute[int] `yaml:"judge_intentions"`
-	Memory          Attribute[int] `yaml:"memory"`
-	Lift            Attribute[int] `yaml:"lift"`
-	Carry           Attribute[int] `yaml:"carry"`
-	Walk            Attribute[int] `yaml:"walk"`
-	Run             Attribute[int] `yaml:"run"`
-	Swim            Attribute[int] `yaml:"swim"`
-}
+type (
+	AttributeT[T int | float64] interface{}
+
+	Attribute[T int | float64] struct {
+		Name       string `yaml:"name"`
+		Base       T      `yaml:"base"`
+		Delta      T      `yaml:"delta"`
+		TotalValue T      `yaml:"total_value"`
+		Min        T      `yaml:"min"`
+		Max        T      `yaml:"max"`
+		AugMax     T      `yaml:"aug_max"`
+	}
+
+	Attributes struct {
+		// Base attributes
+		Body      Attribute[int]     `yaml:"body"`
+		Agility   Attribute[int]     `yaml:"agility"`
+		Reaction  Attribute[int]     `yaml:"reaction"`
+		Strength  Attribute[int]     `yaml:"strength"`
+		Willpower Attribute[int]     `yaml:"willpower"`
+		Logic     Attribute[int]     `yaml:"logic"`
+		Intuition Attribute[int]     `yaml:"intuition"`
+		Charisma  Attribute[int]     `yaml:"charisma"`
+		Essence   Attribute[float64] `yaml:"essence"`
+		Magic     Attribute[int]     `yaml:"magic"`
+		Resonance Attribute[int]     `yaml:"resonance"`
+		// Derived attributes
+		Initiative      Attribute[int] `yaml:"initiative"`
+		InitiativeDice  Attribute[int] `yaml:"initiative_dice"`
+		Composure       Attribute[int] `yaml:"composure"`
+		JudgeIntentions Attribute[int] `yaml:"judge_intentions"`
+		Memory          Attribute[int] `yaml:"memory"`
+		Lift            Attribute[int] `yaml:"lift"`
+		Carry           Attribute[int] `yaml:"carry"`
+		Walk            Attribute[int] `yaml:"walk"`
+		Run             Attribute[int] `yaml:"run"`
+		Swim            Attribute[int] `yaml:"swim"`
+	}
+)
 
 func NewAttributes() Attributes {
 	return Attributes{
@@ -121,18 +135,6 @@ func (a *Attributes) Recalculate() {
 // 	a.Resonance.Reset()
 // }
 
-type AttributeT[T int | float64] interface{}
-
-type Attribute[T int | float64] struct {
-	Name       string `yaml:"name"`
-	Base       T      `yaml:"base"`
-	Delta      T      `yaml:"delta"`
-	TotalValue T      `yaml:"total_value"`
-	Min        T      `yaml:"min"`
-	Max        T      `yaml:"max"`
-	AugMax     T      `yaml:"aug_max"`
-}
-
 func NewAttribute[T int | float64](name AttributeType, base T) *Attribute[T] {
 	return &Attribute[T]{
 		Base: base,
@@ -141,6 +143,21 @@ func NewAttribute[T int | float64](name AttributeType, base T) *Attribute[T] {
 
 func (a *Attribute[T]) SetBase(value T) {
 	a.Base = value
+	a.Recalculate()
+}
+
+func (a *Attribute[T]) AddBase(value T) {
+	a.Base += value
+	a.Recalculate()
+}
+
+func (a *Attribute[T]) SubBase(value T) {
+	a.Base -= value
+	a.Recalculate()
+}
+
+func (a *Attribute[T]) SetDelta(value T) {
+	a.Delta = value
 	a.Recalculate()
 }
 
@@ -174,4 +191,7 @@ func (a *Attribute[T]) Reset() {
 	a.Base = 0
 	a.Delta = 0
 	a.TotalValue = 0
+	a.Min = 0
+	a.Max = 0
+	a.AugMax = 0
 }

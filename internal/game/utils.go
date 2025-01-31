@@ -2,14 +2,18 @@ package game
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"log/slog"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
+	"github.com/gliderlabs/ssh"
 	"github.com/i582/cfmt/cmd/cfmt"
 	"golang.org/x/exp/rand"
+	"golang.org/x/term"
 	"gopkg.in/yaml.v3"
 )
 
@@ -241,4 +245,118 @@ func WriteString(w io.Writer, s string) (int, error) {
 func WriteStringF(w io.Writer, s string, a ...interface{}) (int, error) {
 	s = strings.ReplaceAll(s, ""+CRLF, CRLF)
 	return io.WriteString(w, cfmt.Sprintf(s, a...))
+}
+
+func RenderPromptMenu(title string, options []string) string {
+	var output strings.Builder
+	output.WriteString(cfmt.Sprintf("{{%s}}::white|bold"+CRLF, title))
+	output.WriteString(CRLF)
+	for i, option := range options {
+		output.WriteString(cfmt.Sprintf("{{%2d.}}::white|bold {{%-20s}}::green|bold"+CRLF, i+1, option))
+	}
+	output.WriteString(CRLF)
+	output.WriteString(cfmt.Sprintf("{{Enter choice:}}::white|bold "))
+
+	return output.String()
+}
+
+func PromptForMenu(s ssh.Session, title string, options []string) (string, error) {
+	t := term.NewTerminal(s, "")
+	for {
+		WriteString(s, RenderPromptMenu(title, options))
+
+		input, err := t.ReadLine()
+		if err != nil {
+			return "", fmt.Errorf("error reading input: %w", err)
+		}
+
+		choice, err := strconv.Atoi(strings.TrimSpace(input))
+		if err != nil || choice < 1 || choice > len(options) {
+			WriteString(s, "{{Invalid choice, please try again.}}::red"+CRLF)
+			continue
+		}
+
+		return options[choice-1], nil
+	}
+}
+
+func PressEnterPrompt(s ssh.Session, label string) {
+	WriteString(s, label)
+	term := term.NewTerminal(s, "")
+	if _, err := term.ReadLine(); err != nil {
+		slog.Error("Error reading input", slog.Any("error", err))
+		s.Close()
+	}
+}
+
+func YesNoPrompt(s ssh.Session, def bool) bool {
+	choices := "{{Y}}::green|bold{{/}}::white|bold{{n}}::red"
+	if !def {
+		choices = "{{y}}::green{{/}}::white|bold{{N}}::red|bold"
+	}
+
+	term := term.NewTerminal(s, "")
+	for {
+		WriteStringF(s, "{{Do you want to continue?}}::white|bold {{(}}::white|bold%s{{):}}::white|bold ", choices)
+		input, err := term.ReadLine()
+		if err != nil {
+			slog.Error("Error reading input", slog.Any("error", err))
+			s.Close()
+		}
+
+		input = strings.ToLower(strings.TrimSpace(input))
+
+		if input == "" {
+			return def
+		}
+
+		switch input {
+		case "y", "yes":
+			return true
+		case "n", "no":
+			return false
+		default:
+			WriteStringF(s, "{{Invalid choice, %q please try again.}}::red"+CRLF, input)
+		}
+	}
+}
+
+func InputPrompt(s ssh.Session, prompt string) (string, error) {
+	t := term.NewTerminal(s, prompt)
+	input, err := t.ReadLine()
+	if err != nil {
+		slog.Error("Error reading input", slog.Any("error", err))
+		s.Close()
+
+		return "", err
+	}
+
+	return strings.TrimSpace(input), nil
+}
+
+func PasswordPrompt(s ssh.Session, prompt string) (string, error) {
+	t := term.NewTerminal(s, prompt)
+	input, err := t.ReadPassword(prompt)
+	if err != nil {
+		slog.Error("Error reading password", slog.Any("error", err))
+		s.Close()
+
+		return "", err
+	}
+
+	return strings.TrimSpace(input), nil
+}
+
+func SendToChar(s ssh.Session, message string) {
+	WriteStringF(s, "%s", message)
+}
+
+// void send_to_all(char *messg)
+
+// void send_to_room(char *messg, int room)
+func SendToRoom(s ssh.Session, message string,
+	room *Room) {
+	// for _, c := range room.Characters {
+	// 	io.WriteString(s, cfmt.Sprintf("{{%s}}::white"+CRLF, message))
+	// }
 }

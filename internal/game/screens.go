@@ -3,11 +3,9 @@ package game
 import (
 	"log/slog"
 	"strings"
-	"time"
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/gliderlabs/ssh"
-	"github.com/google/uuid"
 	"github.com/i582/cfmt/cmd/cfmt"
 	"github.com/spf13/viper"
 )
@@ -44,13 +42,9 @@ func PromptWelcome(s ssh.Session) string {
 		output.WriteString(cfmt.Sprint("{{Login is disabled.}}::red" + CRLF))
 	}
 
-	output.WriteString("{{Press enter to continue...}}::white|bold" + CRLF)
-
 	WriteString(s, output.String())
 
-	if _, err := PromptForInput(s, ""); err != nil {
-		return StateError
-	}
+	PressEnterPrompt(s, "{{Press enter to continue...}}::white|bold")
 
 	return StateLogin
 }
@@ -61,7 +55,7 @@ promptUsername:
 	WriteString(s, "{{Enter your username to continue or type}}::white {{new}}::green|bold {{to register:}}::white"+CRLF)
 
 	WriteString(s, "{{Username:}}::white|bold ")
-	username, err := PromptForInput(s, "")
+	username, err := InputPrompt(s, "")
 	if err != nil {
 		return StateError, nil
 	}
@@ -73,7 +67,7 @@ promptUsername:
 
 	// Prompt for password
 	WriteString(s, "{{Password:}}::white|bold ")
-	password, err := PromptForPassword(s, "")
+	password, err := PasswordPrompt(s, "")
 	if err != nil {
 		return StateError, nil
 	}
@@ -112,7 +106,7 @@ func PromptRegistration(s ssh.Session) (string, *Account) {
 	WriteString(s, "{{User registration}}::green"+CRLF)
 
 promptUsername:
-	username, err := PromptForInput(s, cfmt.Sprint("{{Enter your username: }}::white|bold"))
+	username, err := InputPrompt(s, cfmt.Sprint("{{Enter your username: }}::white|bold"))
 	if err != nil {
 		return StateError, nil
 	}
@@ -126,7 +120,7 @@ promptUsername:
 	}
 
 promptPassword:
-	password, err := PromptForPassword(s, cfmt.Sprint("{{Enter your password:}}::white|bold "))
+	password, err := PasswordPrompt(s, cfmt.Sprint("{{Enter your password:}}::white|bold "))
 	if err != nil {
 		return StateError, nil
 	}
@@ -138,7 +132,7 @@ promptPassword:
 		goto promptPassword
 	}
 
-	confirmPassword, err := PromptForPassword(s, cfmt.Sprint("{{Confirm your password:}}::white|bold "))
+	confirmPassword, err := PasswordPrompt(s, cfmt.Sprint("{{Confirm your password:}}::white|bold "))
 	if err != nil {
 
 		return StateError, nil
@@ -191,7 +185,7 @@ func PromptMainMenu(s ssh.Session, a *Account) string {
 }
 
 func PromptChangePassword(s ssh.Session, a *Account) string {
-	password, err := PromptForPassword(s, cfmt.Sprint("{{Enter your current password:}}::white|bold "))
+	password, err := PasswordPrompt(s, cfmt.Sprint("{{Enter your current password:}}::white|bold "))
 	if err != nil {
 		return StateError
 	}
@@ -201,12 +195,12 @@ func PromptChangePassword(s ssh.Session, a *Account) string {
 		return StateChangePassword
 	}
 
-	newPassword, err := PromptForPassword(s, cfmt.Sprint("{{Enter your new password:}}::white|bold "))
+	newPassword, err := PasswordPrompt(s, cfmt.Sprint("{{Enter your new password:}}::white|bold "))
 	if err != nil {
 		return StateError
 	}
 
-	confirmNewPassword, err := PromptForPassword(s, cfmt.Sprint("{{Confirm your new password:}}::white|bold "))
+	confirmNewPassword, err := PasswordPrompt(s, cfmt.Sprint("{{Confirm your new password:}}::white|bold "))
 	if err != nil {
 		return StateError
 	}
@@ -264,7 +258,7 @@ func PromptCharacterCreate(s ssh.Session, a *Account) string {
 promptEnterCharacterName:
 	// Step 1: Prompt for character name
 	WriteString(s, "{{Enter your character's name:}}::cyan ")
-	name, err := PromptForInput(s, "")
+	name, err := InputPrompt(s, "")
 	if err != nil {
 		slog.Error("Error reading character name", slog.Any("error", err))
 		WriteString(s, "{{Error reading input. Returning to main menu.}}::red"+CRLF)
@@ -280,60 +274,99 @@ promptEnterCharacterName:
 		goto promptEnterCharacterName
 	}
 
-promptEnterCharacterDescription:
+	// promptEnterCharacterDescription:
 	// Step 2: Prompt for character description
-	WriteString(s, "{{Enter a short description for your character:}}::cyan ")
-	description, err := PromptForInput(s, "")
-	if err != nil {
-		slog.Error("Error reading character description", slog.Any("error", err))
-		WriteString(s, "{{Error reading input. Returning to main menu.}}::red"+CRLF)
+	// TODO: maybe move this after metatype and archtype selection
+	// TODO: Once we have a archtype, metatype and other personal information we can generate a "default" short and long description that can be changed later.
 
-		return StateMainMenu
-	}
-	description = strings.TrimSpace(description)
+	// Step 2: Prompt for metatype
+	// Display metatype options
+	// Allow showing details for the metatype including suggested archtypes
+	// promptSelectMetatype:
 
-	if err := ValidateDescription(description); err != nil {
-		slog.Error("Invalid character description", slog.Any("error", err))
-		WriteString(s, cfmt.Sprintf("{{Invalid description: %s}}::red"+CRLF, err.Error()))
+	// promptSelectArchetype:
+	// Step 3: Prompt for archtype
+	// Display archtype options
+	// Allow showing details for the archtype (Highlight good/neutral/bad metatype choices for the selected archtype)
 
-		goto promptEnterCharacterDescription
-	}
+	// promptSelectItemPack:
+	// Step 4: Prompt for item pack purchase (Optional)
+	// Set a base nuyen level for the character
+	// Display item pack options
+	// Allow showing details for the item pack
+	// Select item pack and adjust nuyen
 
-	// Step 3: Set base attributes
-	WriteString(s, "{{Setting base attributes...}}::green"+CRLF)
-	baseAttributes := Attributes{
-		Body:      Attribute[int]{Name: "Body", Base: 5},
-		Agility:   Attribute[int]{Name: "Agility", Base: 6},
-		Reaction:  Attribute[int]{Name: "Reaction", Base: 4},
-		Strength:  Attribute[int]{Name: "Strength", Base: 5},
-		Willpower: Attribute[int]{Name: "Willpower", Base: 4},
-		Logic:     Attribute[int]{Name: "Logic", Base: 4},
-		Intuition: Attribute[int]{Name: "Intuition", Base: 5},
-		Charisma:  Attribute[int]{Name: "Charisma", Base: 4},
-		Essence:   Attribute[float64]{Name: "Essence", Base: 5.6},
-		Magic:     Attribute[int]{Name: "Magic", Base: 0},
-		Resonance: Attribute[int]{Name: "Resonance", Base: 0},
-	}
+	// Step 5: Build the character
+	// Apply base metatype attributes (min/max)
+	// Apply base archtype attributes adjust within min/max if needed
+	// Apply any metatype qualties
+	// Add any item pack items to the inventory
+	// WriteString(s, "{{Setting base attributes...}}::green"+CRLF)
+	// baseAttributes := Attributes{
+	// 	Body:      Attribute[int]{Name: "Body", Base: 5},
+	// 	Agility:   Attribute[int]{Name: "Agility", Base: 6},
+	// 	Reaction:  Attribute[int]{Name: "Reaction", Base: 4},
+	// 	Strength:  Attribute[int]{Name: "Strength", Base: 5},
+	// 	Willpower: Attribute[int]{Name: "Willpower", Base: 4},
+	// 	Logic:     Attribute[int]{Name: "Logic", Base: 4},
+	// 	Intuition: Attribute[int]{Name: "Intuition", Base: 5},
+	// 	Charisma:  Attribute[int]{Name: "Charisma", Base: 4},
+	// 	Essence:   Attribute[float64]{Name: "Essence", Base: 5.6},
+	// 	Magic:     Attribute[int]{Name: "Magic", Base: 0},
+	// 	Resonance: Attribute[int]{Name: "Resonance", Base: 0},
+	// }
 
 	// Step 4: Create the character
-	char := &Character{
-		GameEntity: GameEntity{
-			ID:          uuid.New().String(),
-			Name:        name,
-			Description: description,
-			Attributes:  baseAttributes,
-			Equipment:   make(map[string]*Item),
-			Edge:        Edge{Max: 5, Available: 5},
-		},
-		UserID:    a.ID,
-		Role:      CharacterRolePlayer,
-		CreatedAt: time.Now(),
-	}
-	char.Save()
+	char := NewCharacter()
+	char.Prompt = DefaultPrompt
+	char.Role = CharacterRolePlayer
+	char.AccountID = a.ID
+	char.Name = name
+	char.Title = "The Brave"         // TODO: Set this from our character creation
+	char.Description = "Description" // TODO: Generate this from descriptive character data
+	char.Metatype = "Human"          // TODO: Set this from our character creation
+	char.Age = 25                    // TODO: Set this from our character creation
+	char.Sex = "Male"                // TODO: Set this from our character creation
+	char.Height = 180                // TODO: Set this from our character creation
+	char.Weight = 75                 // TODO: Set this from our character creation
+	char.Ethnicity = "Caucasian"     // TODO: Set this from our character creation
+	// StreetCred      int              `yaml:"street_cred"`
+	// Notoriety       int              `yaml:"notoriety"`
+	// PublicAwareness int              `yaml:"public_awareness"`
+	// Karma           int              `yaml:"karma"`
+	// TotalKarma      int              `yaml:"total_karma"`
+	// Attributes      Attributes       `yaml:"attributes"`
+	char.Attributes = NewAttributes()
+	// PhysicalDamage  PhysicalDamage   `yaml:"physical_damage"`
+	// StunDamage      StunDamage       `yaml:"stun_damage"`
+	// Edge            Edge             `yaml:"edge"`
+	// Room            *Room            `yaml:"-"`
+	// RoomID          string           `yaml:"room_id"`
+	// Area            *Area            `yaml:"-"`
+	// AreaID          string           `yaml:"area_id"`
+	// Inventory       Inventory        `yaml:"inventory"`
+	// Equipment       map[string]*Item `yaml:"equipment"`
+	// Qualtities      []Quality        `yaml:"qualities"`
+	// Skills          []Skill          `yaml:"skills"`
+
+	// char := &Character{
+	// 	GameEntity: GameEntity{
+	// 		ID:          uuid.New().String(),
+	// 		Name:        name,
+	// 		Description: description,
+	// 		Attributes:  baseAttributes,
+	// 		Equipment:   make(map[string]*Item),
+	// 		Edge:        Edge{Max: 5, Available: 5},
+	// 	},
+	// 	UserID:    a.ID,
+	// 	Role:      CharacterRolePlayer,
+	// 	CreatedAt: time.Now(),
+	// }
+	// char.Save()
 
 	// Step 5: Add character to user
 	a.Characters = append(a.Characters, char.Name)
-	a.Save()
+	// a.Save()
 
 	// Step 6: Save user
 	// err = UserMgr.SaveUser(u)
@@ -421,7 +454,7 @@ func PromptGameLoop(s ssh.Session, a *Account, c *Character) string {
 
 	for {
 		WriteStringF(s, "{{%s}}::white|bold ", RenderPrompt(c))
-		input, err := PromptForInput(s, "")
+		input, err := InputPrompt(s, "")
 		if err != nil {
 			slog.Error("Error reading input", slog.Any("error", err))
 			return StateExitGame

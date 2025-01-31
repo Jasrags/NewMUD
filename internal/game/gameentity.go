@@ -16,6 +16,7 @@ type GameEntity struct {
 	ID              string           `yaml:"id"`
 	Name            string           `yaml:"name"`
 	Title           string           `yaml:"title"`
+	Description     string           `yaml:"description"`
 	Metatype        string           `yaml:"metatype"`
 	Age             int              `yaml:"age"`
 	Sex             string           `yaml:"sex"`
@@ -27,7 +28,6 @@ type GameEntity struct {
 	PublicAwareness int              `yaml:"public_awareness"`
 	Karma           int              `yaml:"karma"`
 	TotalKarma      int              `yaml:"total_karma"`
-	Description     string           `yaml:"description"`
 	Attributes      Attributes       `yaml:"attributes"`
 	PhysicalDamage  PhysicalDamage   `yaml:"physical_damage"`
 	StunDamage      StunDamage       `yaml:"stun_damage"`
