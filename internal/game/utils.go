@@ -6,10 +6,12 @@ import (
 	"io"
 	"log/slog"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/charmbracelet/lipgloss"
 	"github.com/gliderlabs/ssh"
 	"github.com/i582/cfmt/cmd/cfmt"
 	"golang.org/x/exp/rand"
@@ -272,7 +274,7 @@ func PromptForMenu(s ssh.Session, title string, options []string) (string, error
 
 		choice, err := strconv.Atoi(strings.TrimSpace(input))
 		if err != nil || choice < 1 || choice > len(options) {
-			WriteString(s, "{{Invalid choice, please try again.}}::red"+CRLF)
+			WriteStringF(s, "{{Invalid choice %q, please try again.}}::red"+CRLF, choice)
 			continue
 		}
 
@@ -359,4 +361,78 @@ func SendToRoom(s ssh.Session, message string,
 	// for _, c := range room.Characters {
 	// 	io.WriteString(s, cfmt.Sprintf("{{%s}}::white"+CRLF, message))
 	// }
+}
+
+func MenuPrompt(s ssh.Session, title string, options map[string]string) (string, error) {
+	var keys []string
+	for k := range options {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+
+	for {
+		WriteStringF(s, "{{%s}}::white|bold"+CRLF, title)
+		for i, key := range keys {
+			WriteStringF(s, "{{%2d.}}::white|bold {{%-20s}}::green|bold"+CRLF, i+1, key)
+		}
+
+		WriteString(s, CRLF+"{{Enter a number to select, or type 'info <number>' for details.}}::white|bold"+CRLF)
+		WriteString(s, "{{> }}::white|bold")
+
+		input, err := InputPrompt(s, "")
+		if err != nil {
+			slog.Error("Error reading input", slog.Any("error", err))
+			return "", err
+		}
+
+		input = strings.TrimSpace(strings.ToLower(input))
+
+		// Handle info requests
+		if strings.HasPrefix(input, "info") {
+			parts := strings.Split(input, " ")
+			if len(parts) != 2 {
+				WriteString(s, "{{Invalid command. Use 'info <number>' to see details.}}::red"+CRLF)
+
+				continue
+			}
+
+			index, err := strconv.Atoi(parts[1])
+			if err != nil || index < 1 || index > len(keys) {
+				WriteString(s, "{{Invalid choice. Please enter a valid number.}}::red"+CRLF)
+
+				continue
+			}
+
+			// Show information about the choice
+			selectedKey := keys[index-1]
+
+			WriteString(s, cfmt.Sprintf("%s"+CRLF, options[selectedKey]))
+
+			continue
+		}
+
+		// Handle normal selection
+		choice, err := strconv.Atoi(input)
+		if err != nil || choice < 1 || choice > len(keys) {
+			WriteString(s, "{{Invalid choice, please try again.}}::red"+CRLF)
+
+			continue
+		}
+
+		// Return selected option
+		selectedKey := keys[choice-1]
+		WriteString(s, cfmt.Sprintf("{{You selected: %s}}::green"+CRLF, selectedKey))
+
+		return selectedKey, nil
+	}
+}
+
+// TODO: Figure out why this wrap is messing up the CLRF
+func WrapBorder(text string, width int) string {
+	return lipgloss.NewStyle().
+		Width(width).
+		BorderStyle(lipgloss.RoundedBorder()).
+		BorderForeground(lipgloss.Color("63")).
+		Padding(0, 1, 0, 1).
+		Render(text)
 }

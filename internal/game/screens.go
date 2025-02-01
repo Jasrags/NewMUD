@@ -41,7 +41,6 @@ func PromptWelcome(s ssh.Session) string {
 	if !viper.GetBool("server.login_enabled") {
 		output.WriteString(cfmt.Sprint("{{Login is disabled.}}::red" + CRLF))
 	}
-
 	WriteString(s, output.String())
 
 	PressEnterPrompt(s, "{{Press enter to continue...}}::white|bold")
@@ -51,7 +50,6 @@ func PromptWelcome(s ssh.Session) string {
 
 func PromptLogin(s ssh.Session) (string, *Account) {
 promptUsername:
-	// Prompt for username
 	WriteString(s, "{{Enter your username to continue or type}}::white {{new}}::green|bold {{to register:}}::white"+CRLF)
 
 	WriteString(s, "{{Username:}}::white|bold ")
@@ -65,14 +63,12 @@ promptUsername:
 		return StateRegistration, nil
 	}
 
-	// Prompt for password
 	WriteString(s, "{{Password:}}::white|bold ")
 	password, err := PasswordPrompt(s, "")
 	if err != nil {
 		return StateError, nil
 	}
 
-	// Validate username and password
 	u := AccountMgr.GetByUsername(username)
 	if u == nil || !u.CheckPassword(password) {
 		// Log and display error
@@ -282,7 +278,15 @@ promptEnterCharacterName:
 	// Step 2: Prompt for metatype
 	// Display metatype options
 	// Allow showing details for the metatype including suggested archtypes
-	// promptSelectMetatype:
+promptSelectMetatype:
+	choice, err := MenuPrompt(s, "Select a Metatype:", EntityMgr.GetMetatypeMenuOptions())
+	if err != nil {
+		slog.Error("Error selecting metatype", slog.Any("error", err))
+
+		goto promptSelectMetatype
+	}
+	slog.Info("Metatype selected",
+		slog.String("metatype", choice))
 
 	// promptSelectArchetype:
 	// Step 3: Prompt for archtype

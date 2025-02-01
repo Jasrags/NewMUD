@@ -1,5 +1,11 @@
 package game
 
+import (
+	"strings"
+
+	"github.com/i582/cfmt/cmd/cfmt"
+)
+
 const (
 	MetatypesFilepath = "_data/metatypes"
 
@@ -41,3 +47,26 @@ type (
 		RuleSource          string     `yaml:"rule_source"`
 	}
 )
+
+func (m *Metatype) GetSelectionInfo() string {
+	var output strings.Builder
+	output.WriteString(cfmt.Sprintf("{{Name:}}::white|bold %s (%s)"+CRLF, m.Name, m.Category))
+	output.WriteString(cfmt.Sprintf("{{Description:}}::white|bold %s"+CRLF, m.Description))
+
+	if len(m.Qualities) > 0 {
+		output.WriteString("{{Qualities:}}::white|bold " + CRLF)
+		for _, qualityID := range m.Qualities {
+			quality := EntityMgr.GetQualityBlueprint(qualityID)
+			output.WriteString(cfmt.Sprintf("  {{-}}::white|bold {{%s}}::cyan"+CRLF, quality.Name))
+		}
+	}
+
+	if len(m.QualityRestrictions) > 0 {
+		output.WriteString("{{Qualities Restrictions:}}::white|bold " + CRLF)
+		for _, qualityID := range m.QualityRestrictions {
+			quality := EntityMgr.GetQualityBlueprint(qualityID)
+			output.WriteString(cfmt.Sprintf("  {{-}}::white|bold {{%s}}::red"+CRLF, quality.Name))
+		}
+	}
+	return output.String()
+}

@@ -194,6 +194,21 @@ func (mgr *EntityManager) GetMetatypes() map[string]*Metatype {
 	return mgr.metatypes
 }
 
+func (mgr *EntityManager) GetMetatypeMenuOptions() map[string]string {
+	mgr.RLock()
+	defer mgr.RUnlock()
+
+	options := make(map[string]string)
+	for _, m := range mgr.metatypes {
+		if m.Hidden {
+			continue
+		}
+		options[m.Name] = m.GetSelectionInfo()
+	}
+
+	return options
+}
+
 func (mgr *EntityManager) loadMetatypes() {
 	slog.Info("Loading metatypes")
 
