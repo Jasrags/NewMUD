@@ -134,11 +134,12 @@ promptPassword:
 		return StateError, nil
 	}
 
-	// // Check if confirm password is empty
-	// if confirmPassword == "" {
-	// 	WriteString(s, "{{Password cannot be empty.}}::red"+CRLF)
-	// 	goto promptPassword
-	// }
+	// Check if confirm password is empty
+	if confirmPassword == "" {
+		WriteString(s, "{{Password cannot be empty.}}::red"+CRLF)
+
+		goto promptPassword
+	}
 
 	// Check if passwords match
 	if password != confirmPassword {
@@ -279,19 +280,27 @@ promptEnterCharacterName:
 	// Display metatype options
 	// Allow showing details for the metatype including suggested archtypes
 promptSelectMetatype:
-	choice, err := MenuPrompt(s, "Select a Metatype:", EntityMgr.GetMetatypeMenuOptions())
+	metatypeChoice, err := MenuPrompt(s, "Select a Metatype:", EntityMgr.GetMetatypeMenuOptions())
 	if err != nil {
 		slog.Error("Error selecting metatype", slog.Any("error", err))
 
 		goto promptSelectMetatype
 	}
 	slog.Info("Metatype selected",
-		slog.String("metatype", choice))
+		slog.String("metatype", metatypeChoice))
 
-	// promptSelectArchetype:
 	// Step 3: Prompt for archtype
 	// Display archtype options
 	// Allow showing details for the archtype (Highlight good/neutral/bad metatype choices for the selected archtype)
+promptSelectArchetype:
+	archtypeChoice, err := MenuPrompt(s, "Select a archtype:", EntityMgr.GetPregenMenuOptions())
+	if err != nil {
+		slog.Error("Error selecting metatype", slog.Any("error", err))
+
+		goto promptSelectArchetype
+	}
+	slog.Info("Archtype selected",
+		slog.String("archtype", archtypeChoice))
 
 	// promptSelectItemPack:
 	// Step 4: Prompt for item pack purchase (Optional)

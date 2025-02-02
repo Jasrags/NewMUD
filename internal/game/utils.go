@@ -11,7 +11,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/charmbracelet/lipgloss"
 	"github.com/gliderlabs/ssh"
 	"github.com/i582/cfmt/cmd/cfmt"
 	"golang.org/x/exp/rand"
@@ -425,14 +424,4 @@ func MenuPrompt(s ssh.Session, title string, options map[string]string) (string,
 
 		return selectedKey, nil
 	}
-}
-
-// TODO: Figure out why this wrap is messing up the CLRF
-func WrapBorder(text string, width int) string {
-	return lipgloss.NewStyle().
-		Width(width).
-		BorderStyle(lipgloss.RoundedBorder()).
-		BorderForeground(lipgloss.Color("63")).
-		Padding(0, 1, 0, 1).
-		Render(text)
 }

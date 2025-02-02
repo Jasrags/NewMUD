@@ -9,44 +9,67 @@ import (
 	ee "github.com/vansante/go-event-emitter"
 )
 
+type (
+	PositionState string
+	Sex           string
+)
+
+const (
+	PositionStanding    PositionState = "Standing"
+	PositionSitting     PositionState = "Sitting"
+	PositionKneeling    PositionState = "Kneeling"
+	PositionLying       PositionState = "Lying"
+	PositionProne       PositionState = "Prone"
+	PositionCrouching   PositionState = "Crouching"
+	PositionResting     PositionState = "Resting"
+	PositionSleeping    PositionState = "Sleeping"
+	PositionUnconscious PositionState = "Unconscious"
+
+	SexMale      Sex = "Male"
+	SexFemale    Sex = "Female"
+	SexNonBinary Sex = "Non-Binary"
+)
+
 type GameEntity struct {
 	sync.RWMutex `yaml:"-"`
 	Listeners    []ee.Listener `yaml:"-"`
 
-	ID              string           `yaml:"id"`
-	Name            string           `yaml:"name"`
-	Title           string           `yaml:"title"`
-	Description     string           `yaml:"description"`
-	Metatype        string           `yaml:"metatype"`
-	Age             int              `yaml:"age"`
-	Sex             string           `yaml:"sex"`
-	Height          int              `yaml:"height"`
-	Weight          int              `yaml:"weight"`
-	Ethnicity       string           `yaml:"ethnicity"`
-	StreetCred      int              `yaml:"street_cred"`
-	Notoriety       int              `yaml:"notoriety"`
-	PublicAwareness int              `yaml:"public_awareness"`
-	Karma           int              `yaml:"karma"`
-	TotalKarma      int              `yaml:"total_karma"`
-	Attributes      Attributes       `yaml:"attributes"`
-	PhysicalDamage  PhysicalDamage   `yaml:"physical_damage"`
-	StunDamage      StunDamage       `yaml:"stun_damage"`
-	Edge            Edge             `yaml:"edge"`
-	Room            *Room            `yaml:"-"`
-	RoomID          string           `yaml:"room_id"`
-	Area            *Area            `yaml:"-"`
-	AreaID          string           `yaml:"area_id"`
-	Inventory       Inventory        `yaml:"inventory"`
-	Equipment       map[string]*Item `yaml:"equipment"`
-	Qualtities      []Quality        `yaml:"qualities"`
-	Skills          []Skill          `yaml:"skills"`
+	ID              string         `yaml:"id"`
+	Name            string         `yaml:"name"`
+	Title           string         `yaml:"title"`
+	Description     string         `yaml:"description"`
+	Metatype        string         `yaml:"metatype"`
+	Age             int            `yaml:"age"`
+	Sex             string         `yaml:"sex"`
+	Height          int            `yaml:"height"`
+	Weight          int            `yaml:"weight"`
+	PositionState   PositionState  `yaml:"position_state"`
+	Ethnicity       string         `yaml:"ethnicity"`
+	StreetCred      int            `yaml:"street_cred"`
+	Notoriety       int            `yaml:"notoriety"`
+	PublicAwareness int            `yaml:"public_awareness"`
+	Karma           int            `yaml:"karma"`
+	TotalKarma      int            `yaml:"total_karma"`
+	Attributes      Attributes     `yaml:"attributes"`
+	PhysicalDamage  PhysicalDamage `yaml:"physical_damage"`
+	StunDamage      StunDamage     `yaml:"stun_damage"`
+	Edge            Edge           `yaml:"edge"`
+	Room            *Room          `yaml:"-"`
+	RoomID          string         `yaml:"room_id"`
+	// Area            *Area            `yaml:"-"`
+	// AreaID     string           `yaml:"area_id"`
+	Inventory  Inventory        `yaml:"inventory"`
+	Equipment  map[string]*Item `yaml:"equipment"`
+	Qualtities []Quality        `yaml:"qualities"`
+	Skills     []Skill          `yaml:"skills"`
 }
 
 func NewGameEntity() GameEntity {
 	return GameEntity{
-		ID:        uuid.New().String(),
-		Equipment: make(map[string]*Item),
-		Listeners: make([]ee.Listener, 0),
+		ID:            uuid.New().String(),
+		Equipment:     make(map[string]*Item),
+		Listeners:     make([]ee.Listener, 0),
+		PositionState: PositionStanding,
 	}
 }
 

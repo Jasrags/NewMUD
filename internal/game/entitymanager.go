@@ -23,7 +23,7 @@ type EntityManager struct {
 	items       map[string]*ItemBlueprint
 	metatypes   map[string]*Metatype
 	mobs        map[string]*Mob
-	pregens     map[string]*PreGen
+	pregens     map[string]*Pregen
 	qualtities  map[string]*QualityBlueprint
 	rooms       map[string]*Room
 	skills      map[string]*SkillBlueprint
@@ -36,7 +36,7 @@ func NewEntityManager() *EntityManager {
 		items:       make(map[string]*ItemBlueprint),
 		metatypes:   make(map[string]*Metatype),
 		mobs:        make(map[string]*Mob),
-		pregens:     make(map[string]*PreGen),
+		pregens:     make(map[string]*Pregen),
 		qualtities:  make(map[string]*QualityBlueprint),
 		rooms:       make(map[string]*Room),
 		skills:      make(map[string]*SkillBlueprint),
@@ -274,25 +274,44 @@ func (mgr *EntityManager) RemoveMob(m *Mob) {
 }
 
 // Pregen functions
-func (mgr *EntityManager) AddPreGen(p *PreGen) {
+func (mgr *EntityManager) AddPregen(p *Pregen) {
 	mgr.Lock()
 	defer mgr.Unlock()
 
 	mgr.pregens[p.ID] = p
 }
 
-func (mgr *EntityManager) GetPreGen(id string) *PreGen {
+func (mgr *EntityManager) GetPregen(id string) *Pregen {
 	mgr.RLock()
 	defer mgr.RUnlock()
 
 	return mgr.pregens[id]
 }
 
-func (mgr *EntityManager) RemovePreGen(p *PreGen) {
+func (mgr *EntityManager) RemovePregen(p *Pregen) {
 	mgr.Lock()
 	defer mgr.Unlock()
 
 	delete(mgr.pregens, p.ID)
+}
+
+func (mgr *EntityManager) GetPregens() map[string]*Pregen {
+	mgr.RLock()
+	defer mgr.RUnlock()
+
+	return mgr.pregens
+}
+
+func (mgr *EntityManager) GetPregenMenuOptions() map[string]string {
+	mgr.RLock()
+	defer mgr.RUnlock()
+
+	options := make(map[string]string)
+	for _, p := range mgr.pregens {
+		options[p.ID] = p.GetSelectionInfo()
+	}
+
+	return options
 }
 
 func (mgr *EntityManager) loadPregens() {
@@ -308,7 +327,7 @@ func (mgr *EntityManager) loadPregens() {
 	}
 
 	for _, file := range files {
-		var pregen PreGen
+		var pregen Pregen
 		if err := LoadYAML(filepath.Join(PreGensFilepath, file.Name()), &pregen); err != nil {
 			slog.Error("failed to unmarshal pregen data",
 				slog.Any("error", err),

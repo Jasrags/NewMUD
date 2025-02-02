@@ -5,7 +5,7 @@ const (
 )
 
 type (
-	PreGen struct {
+	Pregen struct {
 		ID          string     `yaml:"id"`
 		Title       string     `yaml:"title"`
 		Description string     `yaml:"description"`
@@ -15,3 +15,7 @@ type (
 		Qualities   []string   `yaml:"qualities"`
 	}
 )
+
+func (p *Pregen) GetSelectionInfo() string {
+	return p.Title
+}

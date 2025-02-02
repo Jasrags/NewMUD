@@ -18,7 +18,7 @@ server:
   username_min_length: 3
   username_max_length: 32
   name_regex: "^[a-zA-Z]+$"
-  special_character_regex: "[!@#$%^&*()_+={}[]:;<>,.?~]"
+  special_character_regex: "[!@#$%^&*()_+={}[]:;<>,.?]"
   short_description_min_length: 10
   short_description_max_length: 50
   description_min_length: 10
