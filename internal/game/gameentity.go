@@ -58,10 +58,10 @@ type GameEntity struct {
 	RoomID          string         `yaml:"room_id"`
 	// Area            *Area            `yaml:"-"`
 	// AreaID     string           `yaml:"area_id"`
-	Inventory  Inventory        `yaml:"inventory"`
-	Equipment  map[string]*Item `yaml:"equipment"`
-	Qualtities []Quality        `yaml:"qualities"`
-	Skills     []Skill          `yaml:"skills"`
+	Inventory  Inventory          `yaml:"inventory"`
+	Equipment  map[string]*Item   `yaml:"equipment"`
+	Qualtities map[string]Quality `yaml:"qualities"`
+	Skills     map[string]Skill   `yaml:"skills"`
 }
 
 func NewGameEntity() GameEntity {
@@ -71,6 +71,8 @@ func NewGameEntity() GameEntity {
 		Equipment:     make(map[string]*Item),
 		Listeners:     make([]ee.Listener, 0),
 		PositionState: PositionStanding,
+		Qualtities:    make(map[string]Quality),
+		Skills:        make(map[string]Skill),
 	}
 }
 

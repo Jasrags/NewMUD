@@ -5,80 +5,54 @@ metatype_id: ork
 attributes:
   body:
       base: 7
-      aug_modifier: 0
       total_value: 0
   agility:
       base: 6
-      aug_modifier: 0
       total_value: 0
   reaction:
       base: 5
-      aug_modifier: 0
       total_value: 0
   strength:
       base: 5
-      aug_modifier: 0
       total_value: 0
   willpower:
       base: 3
-      aug_modifier: 0
       total_value: 0
   logic:
       base: 2
-      aug_modifier: 0
       total_value: 0
   intuition:
       base: 3
-      aug_modifier: 0
       total_value: 0
   charisma:
       base: 2
-      aug_modifier: 0
       total_value: 0
   edge:
       base: 1
-      aug_modifier: 0
       total_value: 0
   essence:
       valbaseue: 6
-      aug_modifier: 0
       total_value: 0
   magic:
       base: 0
-      aug_modifier: 0
       total_value: 0
   resonance:
       base: 0
-      aug_modifier: 0
       total_value: 0
-active_skills:
-    automatics:
-        id: automatics
-        rating: 5
-        modifiers: {}
-    blades:
-        id: blades
-        rating: 5
-        modifiers: {}
-    longarms:
-        id: longarms
-        rating: 3
-        modifiers: {}
-    pilot_ground_craft:
-        id: pilot_ground_craft
-        rating: 1
-        modifiers: {}
-    pistols:
-        id: pistols
-        rating: 4
-        modifiers: {}
-    sneaking:
-        id: sneaking
-        rating: 2
-        modifiers: {}
-    unarmed_combat:
-        id: unarmed_combat
-        rating: 2
-        modifiers: {}
+skills:
+  - id: automatics
+    rating: 5
+  - id: blades
+    rating: 5
+  - id: longarms
+    rating: 3
+  - id: pilot_ground_craft
+    rating: 1
+  - id: pistols
+    rating: 4
+  - id: sneaking
+    rating: 2
+  - id: unarmed_combat
+    rating: 2
 qualities: {}
 created_at: 2024-08-05T01:10:27.514769-05:00
