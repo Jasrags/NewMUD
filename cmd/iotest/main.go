@@ -69,19 +69,21 @@ func main() {
 
 	// Example 2: Use custom options.
 	customOptions := &game.WrapOptions{
-		Border:        game.RoundedBorder, // You can define your own border here.
+		BorderType:    "rounded", // You can define your own border here.
 		TextWidth:     50,
 		PaddingTop:    1,
 		PaddingBottom: 1,
 		PaddingLeft:   1,
 		PaddingRight:  1,
 		BorderColor:   "red|bold",
+		Alignment:     "center",
 	}
 
 	var output strings.Builder
 	output.WriteString(game.WrapTextInBorder(text, nil))
 	output.WriteString(game.CRLF)
 	output.WriteString(game.WrapTextInBorder(text, customOptions))
+	output.WriteString(game.CRLF)
 	// output.WriteString(game.RenderRoom(acct, char, room))
 	// output.WriteString(game.RenderCharacterTable(char))
 	// output.WriteString(game.RenderPromptMenu("Main Menu", []string{"Enter Game", "Create Character", "Change Password", "Quit"}))
