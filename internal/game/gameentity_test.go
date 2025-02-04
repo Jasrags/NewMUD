@@ -26,7 +26,7 @@ var (
 			Karma:           2,
 			TotalKarma:      5,
 			Description:     "A street samurai character",
-			Attributes: Attributes{
+			Attributes: &Attributes{
 				Body:      Attribute[int]{Base: 7},
 				Agility:   Attribute[int]{Base: 6},
 				Reaction:  Attribute[int]{Base: 5}, // (7)
@@ -74,7 +74,7 @@ var (
 			Karma:           0,
 			TotalKarma:      0,
 			Description:     "A covert ops specialist character",
-			Attributes: Attributes{
+			Attributes: &Attributes{
 				Body:      Attribute[int]{Base: 5},
 				Agility:   Attribute[int]{Base: 6},
 				Reaction:  Attribute[int]{Base: 4},
@@ -109,12 +109,12 @@ var (
 func TestGetSocialLimit(t *testing.T) {
 	tests := []struct {
 		name       string
-		attributes Attributes
+		attributes *Attributes
 		expected   int
 	}{
 		{
 			name: "Elf Adept",
-			attributes: Attributes{
+			attributes: &Attributes{
 				Charisma:  Attribute[int]{Base: 3},
 				Willpower: Attribute[int]{Base: 2},
 				Essence:   Attribute[float64]{Base: 6.0},
@@ -123,7 +123,7 @@ func TestGetSocialLimit(t *testing.T) {
 		},
 		{
 			name: "Troll Tank",
-			attributes: Attributes{
+			attributes: &Attributes{
 				Charisma:  Attribute[int]{Base: 2},
 				Willpower: Attribute[int]{Base: 3},
 				Essence:   Attribute[float64]{Base: 1.56},
@@ -132,7 +132,7 @@ func TestGetSocialLimit(t *testing.T) {
 		},
 		{
 			name: "Elf Face",
-			attributes: Attributes{
+			attributes: &Attributes{
 				Charisma:  Attribute[int]{Base: 7},
 				Willpower: Attribute[int]{Base: 4},
 				Essence:   Attribute[float64]{Base: 6},
@@ -154,12 +154,12 @@ func TestGetSocialLimit(t *testing.T) {
 func TestGetPhysicalLimit(t *testing.T) {
 	tests := []struct {
 		name       string
-		attributes Attributes
+		attributes *Attributes
 		expected   int
 	}{
 		{
 			name: "Elf Adept",
-			attributes: Attributes{
+			attributes: &Attributes{
 				Strength: Attribute[int]{Base: 2},
 				Body:     Attribute[int]{Base: 3},
 				Reaction: Attribute[int]{Base: 3},
@@ -168,7 +168,7 @@ func TestGetPhysicalLimit(t *testing.T) {
 		},
 		{
 			name: "Troll Tank",
-			attributes: Attributes{
+			attributes: &Attributes{
 				Strength: Attribute[int]{Base: 7},
 				Body:     Attribute[int]{Base: 10},
 				Reaction: Attribute[int]{Base: 3},
@@ -177,7 +177,7 @@ func TestGetPhysicalLimit(t *testing.T) {
 		},
 		{
 			name: "Elf Face",
-			attributes: Attributes{
+			attributes: &Attributes{
 				Strength: Attribute[int]{Base: 2},
 				Body:     Attribute[int]{Base: 3},
 				Reaction: Attribute[int]{Base: 3},
@@ -199,12 +199,12 @@ func TestGetPhysicalLimit(t *testing.T) {
 func TestGetMentalLimit(t *testing.T) {
 	tests := []struct {
 		name       string
-		attributes Attributes
+		attributes *Attributes
 		expected   int
 	}{
 		{
 			name: "Elf Adept",
-			attributes: Attributes{
+			attributes: &Attributes{
 				Logic:     Attribute[int]{Base: 5},
 				Intuition: Attribute[int]{Base: 6},
 				Willpower: Attribute[int]{Base: 5},
@@ -213,7 +213,7 @@ func TestGetMentalLimit(t *testing.T) {
 		},
 		{
 			name: "Troll Tank",
-			attributes: Attributes{
+			attributes: &Attributes{
 				Logic:     Attribute[int]{Base: 2},
 				Intuition: Attribute[int]{Base: 3},
 				Willpower: Attribute[int]{Base: 3},
@@ -222,7 +222,7 @@ func TestGetMentalLimit(t *testing.T) {
 		},
 		{
 			name: "Elf Face",
-			attributes: Attributes{
+			attributes: &Attributes{
 				Logic:     Attribute[int]{Base: 4},
 				Intuition: Attribute[int]{Base: 4},
 				Willpower: Attribute[int]{Base: 4},
@@ -244,12 +244,12 @@ func TestGetMentalLimit(t *testing.T) {
 func TestGetComposure(t *testing.T) {
 	tests := []struct {
 		name       string
-		attributes Attributes
+		attributes *Attributes
 		expected   int
 	}{
 		{
 			name: "Elf Adept",
-			attributes: Attributes{
+			attributes: &Attributes{
 				Charisma:  Attribute[int]{Base: 3},
 				Willpower: Attribute[int]{Base: 2},
 			},
@@ -257,7 +257,7 @@ func TestGetComposure(t *testing.T) {
 		},
 		{
 			name: "Troll Tank",
-			attributes: Attributes{
+			attributes: &Attributes{
 				Charisma:  Attribute[int]{Base: 2},
 				Willpower: Attribute[int]{Base: 3},
 			},
@@ -265,7 +265,7 @@ func TestGetComposure(t *testing.T) {
 		},
 		{
 			name: "Elf Face",
-			attributes: Attributes{
+			attributes: &Attributes{
 				Charisma:  Attribute[int]{Base: 7},
 				Willpower: Attribute[int]{Base: 4},
 			},
@@ -286,12 +286,12 @@ func TestGetComposure(t *testing.T) {
 func TestGetJudgeIntentions(t *testing.T) {
 	tests := []struct {
 		name       string
-		attributes Attributes
+		attributes *Attributes
 		expected   int
 	}{
 		{
 			name: "Elf Adept",
-			attributes: Attributes{
+			attributes: &Attributes{
 				Intuition: Attribute[int]{Base: 6},
 				Charisma:  Attribute[int]{Base: 3},
 			},
@@ -299,7 +299,7 @@ func TestGetJudgeIntentions(t *testing.T) {
 		},
 		{
 			name: "Troll Tank",
-			attributes: Attributes{
+			attributes: &Attributes{
 				Intuition: Attribute[int]{Base: 3},
 				Charisma:  Attribute[int]{Base: 2},
 			},
@@ -307,7 +307,7 @@ func TestGetJudgeIntentions(t *testing.T) {
 		},
 		{
 			name: "Elf Face",
-			attributes: Attributes{
+			attributes: &Attributes{
 				Intuition: Attribute[int]{Base: 4},
 				Charisma:  Attribute[int]{Base: 7},
 			},
@@ -328,12 +328,12 @@ func TestGetJudgeIntentions(t *testing.T) {
 func TestGetMemory(t *testing.T) {
 	tests := []struct {
 		name       string
-		attributes Attributes
+		attributes *Attributes
 		expected   int
 	}{
 		{
 			name: "Elf Adept",
-			attributes: Attributes{
+			attributes: &Attributes{
 				Logic:     Attribute[int]{Base: 5},
 				Willpower: Attribute[int]{Base: 6},
 			},
@@ -341,7 +341,7 @@ func TestGetMemory(t *testing.T) {
 		},
 		{
 			name: "Troll Tank",
-			attributes: Attributes{
+			attributes: &Attributes{
 				Logic:     Attribute[int]{Base: 2},
 				Willpower: Attribute[int]{Base: 3},
 			},
@@ -349,7 +349,7 @@ func TestGetMemory(t *testing.T) {
 		},
 		{
 			name: "Elf Face",
-			attributes: Attributes{
+			attributes: &Attributes{
 				Logic:     Attribute[int]{Base: 4},
 				Willpower: Attribute[int]{Base: 4},
 			},
@@ -370,12 +370,12 @@ func TestGetMemory(t *testing.T) {
 func TestGetLiftCarry(t *testing.T) {
 	tests := []struct {
 		name       string
-		attributes Attributes
+		attributes *Attributes
 		expected   float64
 	}{
 		{
 			name: "Elf Adept",
-			attributes: Attributes{
+			attributes: &Attributes{
 				Strength: Attribute[int]{Base: 2},
 				Body:     Attribute[int]{Base: 3},
 			},
@@ -383,7 +383,7 @@ func TestGetLiftCarry(t *testing.T) {
 		},
 		{
 			name: "Troll Tank",
-			attributes: Attributes{
+			attributes: &Attributes{
 				Strength: Attribute[int]{Base: 7},
 				Body:     Attribute[int]{Base: 10},
 			},
@@ -391,7 +391,7 @@ func TestGetLiftCarry(t *testing.T) {
 		},
 		{
 			name: "Elf Face",
-			attributes: Attributes{
+			attributes: &Attributes{
 				Strength: Attribute[int]{Base: 2},
 				Body:     Attribute[int]{Base: 3},
 			},

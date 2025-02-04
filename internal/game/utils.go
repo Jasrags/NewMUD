@@ -2,11 +2,9 @@ package game
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"log/slog"
 	"os"
-	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -248,38 +246,18 @@ func WriteStringF(w io.Writer, s string, a ...interface{}) (int, error) {
 	return io.WriteString(w, cfmt.Sprintf(s, a...))
 }
 
-func RenderPromptMenu(title string, options []string) string {
-	var output strings.Builder
-	output.WriteString(cfmt.Sprintf("{{%s}}::white|bold"+CRLF, title))
-	output.WriteString(CRLF)
-	for i, option := range options {
-		output.WriteString(cfmt.Sprintf("{{%2d.}}::white|bold {{%-20s}}::green|bold"+CRLF, i+1, option))
-	}
-	output.WriteString(CRLF)
-	output.WriteString(cfmt.Sprintf("{{Enter choice:}}::white|bold "))
+// func RenderPromptMenu(title string, options []string) string {
+// 	var output strings.Builder
+// 	output.WriteString(cfmt.Sprintf("{{%s}}::white|bold"+CRLF, title))
+// 	output.WriteString(CRLF)
+// 	for i, option := range options {
+// 		output.WriteString(cfmt.Sprintf("{{%2d.}}::white|bold {{%-20s}}::green|bold"+CRLF, i+1, option))
+// 	}
+// 	output.WriteString(CRLF)
+// 	output.WriteString(cfmt.Sprintf("{{Enter choice:}}::white|bold "))
 
-	return output.String()
-}
-
-func PromptForMenu(s ssh.Session, title string, options []string) (string, error) {
-	t := term.NewTerminal(s, "")
-	for {
-		WriteString(s, RenderPromptMenu(title, options))
-
-		input, err := t.ReadLine()
-		if err != nil {
-			return "", fmt.Errorf("error reading input: %w", err)
-		}
-
-		choice, err := strconv.Atoi(strings.TrimSpace(input))
-		if err != nil || choice < 1 || choice > len(options) {
-			WriteStringF(s, "{{Invalid choice %q, please try again.}}::red"+CRLF, choice)
-			continue
-		}
-
-		return options[choice-1], nil
-	}
-}
+// 	return output.String()
+// }
 
 func PressEnterPrompt(s ssh.Session, label string) {
 	WriteString(s, label)
@@ -362,66 +340,55 @@ func SendToRoom(s ssh.Session, message string,
 	// }
 }
 
-func MenuPrompt(s ssh.Session, title string, options map[string]string) (string, error) {
-	var keys []string
-	for k := range options {
-		keys = append(keys, k)
-	}
-	sort.Strings(keys)
+type MenuOption struct {
+	DisplayText string
+	Value       string
+	Description string
+}
 
+func PromptForMenu(s ssh.Session, title string, options []MenuOption) (string, error) {
 	for {
-		WriteStringF(s, "{{%s}}::white|bold"+CRLF, title)
-		for i, key := range keys {
-			WriteStringF(s, "{{%2d.}}::white|bold {{%-20s}}::green|bold"+CRLF, i+1, key)
-		}
+		var menuBuilder strings.Builder
+		menuBuilder.WriteString(cfmt.Sprintf("\n{{%s}}::white|bold|underline\n\n", title))
 
-		WriteString(s, CRLF+"{{Enter a number to select, or type 'info <number>' for details.}}::white|bold"+CRLF)
-		WriteString(s, "{{> }}::white|bold")
+		for i, option := range options {
+			menuBuilder.WriteString(cfmt.Sprintf("{{%d}}::green|bold. {{%s}}::white|bold\n", i+1, option.DisplayText))
+		}
+		menuBuilder.WriteString(cfmt.Sprint("\n{{Enter choice or info <choice> for details:}}::white|bold "))
+
+		WriteString(s, menuBuilder.String())
 
 		input, err := InputPrompt(s, "")
 		if err != nil {
-			slog.Error("Error reading input", slog.Any("error", err))
 			return "", err
 		}
+		input = strings.TrimSpace(input)
 
-		input = strings.TrimSpace(strings.ToLower(input))
-
-		// Handle info requests
-		if strings.HasPrefix(input, "info") {
-			parts := strings.Split(input, " ")
-			if len(parts) != 2 {
-				WriteString(s, "{{Invalid command. Use 'info <number>' to see details.}}::red"+CRLF)
-
+		// Handle info request
+		if strings.HasPrefix(strings.ToLower(input), "info ") {
+			detailChoice := strings.TrimSpace(strings.TrimPrefix(strings.ToLower(input), "info "))
+			numChoice, err := strconv.Atoi(detailChoice)
+			if err == nil && numChoice > 0 && numChoice <= len(options) {
+				WriteStringF(s, "\n{{%s}}::cyan\n", options[numChoice-1].Description)
 				continue
 			}
-
-			index, err := strconv.Atoi(parts[1])
-			if err != nil || index < 1 || index > len(keys) {
-				WriteString(s, "{{Invalid choice. Please enter a valid number.}}::red"+CRLF)
-
-				continue
-			}
-
-			// Show information about the choice
-			selectedKey := keys[index-1]
-
-			WriteString(s, cfmt.Sprintf("%s"+CRLF, options[selectedKey]))
-
+			WriteString(s, "{{Invalid selection. Please try again.}}::red\n")
 			continue
 		}
 
-		// Handle normal selection
-		choice, err := strconv.Atoi(input)
-		if err != nil || choice < 1 || choice > len(keys) {
-			WriteString(s, "{{Invalid choice, please try again.}}::red"+CRLF)
-
-			continue
+		// Check if input is a number
+		numChoice, err := strconv.Atoi(input)
+		if err == nil && numChoice > 0 && numChoice <= len(options) {
+			return options[numChoice-1].Value, nil
 		}
 
-		// Return selected option
-		selectedKey := keys[choice-1]
-		WriteString(s, cfmt.Sprintf("{{You selected: %s}}::green"+CRLF, selectedKey))
+		// Check if input matches an option value
+		for _, option := range options {
+			if strings.EqualFold(input, option.Value) {
+				return option.Value, nil
+			}
+		}
 
-		return selectedKey, nil
+		WriteString(s, "{{Invalid selection. Please try again.}}::red\n")
 	}
 }

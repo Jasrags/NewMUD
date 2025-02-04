@@ -50,7 +50,7 @@ type GameEntity struct {
 	PublicAwareness int            `yaml:"public_awareness"`
 	Karma           int            `yaml:"karma"`
 	TotalKarma      int            `yaml:"total_karma"`
-	Attributes      Attributes     `yaml:"attributes"`
+	Attributes      *Attributes    `yaml:"attributes"`
 	PhysicalDamage  PhysicalDamage `yaml:"physical_damage"`
 	StunDamage      StunDamage     `yaml:"stun_damage"`
 	Edge            Edge           `yaml:"edge"`
@@ -67,6 +67,7 @@ type GameEntity struct {
 func NewGameEntity() GameEntity {
 	return GameEntity{
 		ID:            uuid.New().String(),
+		Attributes:    NewAttributes(),
 		Equipment:     make(map[string]*Item),
 		Listeners:     make([]ee.Listener, 0),
 		PositionState: PositionStanding,

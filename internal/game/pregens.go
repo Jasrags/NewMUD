@@ -11,8 +11,8 @@ type (
 		Description string     `yaml:"description"`
 		MetatypeID  string     `yaml:"metatype_id"`
 		Attributes  Attributes `yaml:"attributes"`
-		Skills      []string   `yaml:"skills"`
-		Qualities   []string   `yaml:"qualities"`
+		// Skills      []string   `yaml:"skills"`
+		// Qualities   []string   `yaml:"qualities"`
 	}
 )
 

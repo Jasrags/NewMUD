@@ -170,7 +170,7 @@ func (mgr *EntityManager) GetMetatype(id string) *Metatype {
 	mgr.RLock()
 	defer mgr.RUnlock()
 
-	return mgr.metatypes[id]
+	return mgr.metatypes[strings.ToLower(id)]
 }
 
 func (mgr *EntityManager) AddMetatype(m *Metatype) {

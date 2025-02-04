@@ -44,6 +44,7 @@ func NewCharacter() *Character {
 	return &Character{
 		GameEntity: NewGameEntity(),
 		Role:       CharacterRolePlayer,
+		Prompt:     DefaultPrompt,
 		CreatedAt:  time.Now(),
 	}
 }

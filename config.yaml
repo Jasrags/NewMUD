@@ -13,6 +13,7 @@ server:
   registration_enabled: True
   max_players: 100
   max_input_length: 1024
+  max_character_count: 3
   password_min_length: 5
   password_max_length: 64
   username_min_length: 3

@@ -119,7 +119,7 @@ func ValidateDescription(description string) error {
 func ValidatePassword(password string) error {
 	return RunValidators(password,
 		CheckLength(viper.GetInt("server.password_min_length"), viper.GetInt("server.password_max_length")),
-		CheckRequiresNumbers(),
-		CheckRequiresSpecialCharacters(viper.GetString("server.special_character_regex")),
+		// CheckRequiresNumbers(),
+		// CheckRequiresSpecialCharacters(viper.GetString("server.special_character_regex")),
 	)
 }

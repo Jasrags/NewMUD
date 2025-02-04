@@ -67,8 +67,8 @@ type (
 	}
 )
 
-func NewAttributes() Attributes {
-	return Attributes{
+func NewAttributes() *Attributes {
+	return &Attributes{
 		// Base attributes
 		Body:      Attribute[int]{Name: "Body"},
 		Agility:   Attribute[int]{Name: "Agility"},
