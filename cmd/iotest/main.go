@@ -63,10 +63,38 @@ func main() {
 	game.GameTimeMgr.Minutes = 90
 	char.Prompt = "{{time}} {{date}} {{>}}::white"
 
+	text := `Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+    Nulla convallis egestas rhoncus. Donec facilisis fermentum sem, ac viverra ante luctus vel.
+    Phasellus ultrices nulla quis nibh. Quisque a lectus. Donec consectetuer ligula vulputate sem tristique cursus.`
+
+	// Example 2: Use custom options.
+	customOptions := &game.WrapOptions{
+		Border:        game.RoundedBorder, // You can define your own border here.
+		TextWidth:     50,
+		PaddingTop:    1,
+		PaddingBottom: 1,
+		PaddingLeft:   1,
+		PaddingRight:  1,
+		BorderColor:   "red|bold",
+	}
+
 	var output strings.Builder
+	output.WriteString(game.WrapTextInBorder(text, nil))
+	output.WriteString(game.CRLF)
+	output.WriteString(game.WrapTextInBorder(text, customOptions))
 	// output.WriteString(game.RenderRoom(acct, char, room))
 	// output.WriteString(game.RenderCharacterTable(char))
 	// output.WriteString(game.RenderPromptMenu("Main Menu", []string{"Enter Game", "Create Character", "Change Password", "Quit"}))
 	// output.WriteString(game.RenderPrompt(char))
 	cfmt.Print(output.String())
 }
+
+// func main() {
+// 	text := `Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+// Nulla convallis egestas rhoncus. Donec facilisis fermentum sem, ac viverra ante luctus vel.
+// Phasellus ultrices nulla quis nibh. Quisque a lectus. Donec consectetuer ligula vulputate sem tristique cursus.`
+
+// 	// Wrap the text in a border with an inner width of 40 characters.
+// 	output := WrapTextInBorder(text, roundedBorder, 40)
+// 	fmt.Println(output)
+// }
