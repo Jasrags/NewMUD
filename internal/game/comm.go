@@ -42,7 +42,9 @@ func changePasswordState(s ssh.Session, ctx *GameContext) string {
 }
 
 func characterCreateState(s ssh.Session, ctx *GameContext) string {
-	return PromptCharacterCreate(s, ctx.Account)
+	state, char := PromptCharacterCreate(s, ctx.Account)
+	ctx.Character = char
+	return state
 }
 
 func enterGameState(s ssh.Session, ctx *GameContext) string {

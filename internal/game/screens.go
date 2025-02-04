@@ -512,7 +512,7 @@ func PromptChangePassword(s ssh.Session, a *Account) string {
 
 //		return StateMainMenu
 //	}
-func PromptCharacterCreate(s ssh.Session, a *Account) string {
+func PromptCharacterCreate(s ssh.Session, a *Account) (string, *Character) {
 	options := []MenuOption{
 		{"Choose a Pre-Generated Character", "pregen", "Select from predefined character archetypes"},
 		{"Create a Custom Character", "custom", "Build a character from scratch"},
@@ -522,7 +522,7 @@ func PromptCharacterCreate(s ssh.Session, a *Account) string {
 	for {
 		choice, err := PromptForMenu(s, "Character Creation", options)
 		if err != nil {
-			return StateError
+			return StateError, nil
 		}
 
 		switch choice {
@@ -530,9 +530,9 @@ func PromptCharacterCreate(s ssh.Session, a *Account) string {
 			return PromptSelectPregenCharacter(s, a)
 		case "custom":
 			WriteString(s, "{{Custom character creation is not yet implemented. Returning to main menu.}}::yellow"+CRLF)
-			return StateMainMenu
+			return StateMainMenu, nil
 		case "back":
-			return StateMainMenu
+			return StateMainMenu, nil
 		default:
 			// This branch should rarely be reached if PromptForMenu
 			// validates the input, but it's good to be defensive.
@@ -541,7 +541,7 @@ func PromptCharacterCreate(s ssh.Session, a *Account) string {
 	}
 }
 
-func PromptSelectPregenCharacter(s ssh.Session, a *Account) string {
+func PromptSelectPregenCharacter(s ssh.Session, a *Account) (string, *Character) {
 	// Build the menu options from the pre-generated characters.
 	pregens := EntityMgr.GetPregens()
 	options := make([]MenuOption, 0, len(pregens)+1)
@@ -558,11 +558,11 @@ func PromptSelectPregenCharacter(s ssh.Session, a *Account) string {
 	for {
 		choice, err := PromptForMenu(s, "Select a Pre-Generated Character", options)
 		if err != nil {
-			return StateError
+			return StateError, nil
 		}
 
 		if choice == "back" {
-			return StateCharacterCreate
+			return StateCharacterCreate, nil
 		}
 
 		pregen := EntityMgr.GetPregen(choice)
@@ -577,21 +577,81 @@ func PromptSelectPregenCharacter(s ssh.Session, a *Account) string {
 		// Confirm selection.
 		if !YesNoPrompt(s, true) {
 			WriteString(s, "{{Returning to character selection.}}::yellow"+CRLF)
-			return StateCharacterCreate
+			return StateCharacterCreate, nil
 		}
 
+		metatype := EntityMgr.GetMetatype(pregen.MetatypeID)
+
+		char := NewCharacter()
+		char.AccountID = a.ID
+		char.Metatype = pregen.MetatypeID
+		char.Attributes.Body.Base = pregen.Attributes.Body.Base
+		char.Attributes.Body.Min = metatype.Attributes.Body.Min
+		char.Attributes.Body.Max = metatype.Attributes.Body.Max
+		char.Attributes.Body.AugMax = metatype.Attributes.Body.AugMax
+		char.Attributes.Agility.Base = pregen.Attributes.Agility.Base
+		char.Attributes.Agility.Min = metatype.Attributes.Agility.Min
+		char.Attributes.Agility.Max = metatype.Attributes.Agility.Max
+		char.Attributes.Agility.AugMax = metatype.Attributes.Agility.AugMax
+		char.Attributes.Reaction.Base = pregen.Attributes.Reaction.Base
+		char.Attributes.Reaction.Min = metatype.Attributes.Reaction.Min
+		char.Attributes.Reaction.Max = metatype.Attributes.Reaction.Max
+		char.Attributes.Reaction.AugMax = metatype.Attributes.Reaction.AugMax
+		char.Attributes.Strength.Base = pregen.Attributes.Strength.Base
+		char.Attributes.Strength.Min = metatype.Attributes.Strength.Min
+		char.Attributes.Strength.Max = metatype.Attributes.Strength.Max
+		char.Attributes.Strength.AugMax = metatype.Attributes.Strength.AugMax
+		char.Attributes.Willpower.Base = pregen.Attributes.Willpower.Base
+		char.Attributes.Willpower.Min = metatype.Attributes.Willpower.Min
+		char.Attributes.Willpower.Max = metatype.Attributes.Willpower.Max
+		char.Attributes.Willpower.AugMax = metatype.Attributes.Willpower.AugMax
+		char.Attributes.Logic.Base = pregen.Attributes.Logic.Base
+		char.Attributes.Logic.Min = metatype.Attributes.Logic.Min
+		char.Attributes.Logic.Max = metatype.Attributes.Logic.Max
+		char.Attributes.Logic.AugMax = metatype.Attributes.Logic.AugMax
+		char.Attributes.Intuition.Base = pregen.Attributes.Intuition.Base
+		char.Attributes.Intuition.Min = metatype.Attributes.Intuition.Min
+		char.Attributes.Intuition.Max = metatype.Attributes.Intuition.Max
+		char.Attributes.Intuition.AugMax = metatype.Attributes.Intuition.AugMax
+		char.Attributes.Charisma.Base = pregen.Attributes.Charisma.Base
+		char.Attributes.Charisma.Min = metatype.Attributes.Charisma.Min
+		char.Attributes.Charisma.Max = metatype.Attributes.Charisma.Max
+		char.Attributes.Charisma.AugMax = metatype.Attributes.Charisma.AugMax
+		char.Attributes.Essence.Base = pregen.Attributes.Essence.Base
+		char.Attributes.Essence.Min = metatype.Attributes.Essence.Min
+		char.Attributes.Essence.Max = metatype.Attributes.Essence.Max
+		char.Attributes.Essence.AugMax = metatype.Attributes.Essence.AugMax
+		char.Attributes.Magic.Base = pregen.Attributes.Magic.Base
+		char.Attributes.Magic.Min = metatype.Attributes.Magic.Min
+		char.Attributes.Magic.Max = metatype.Attributes.Magic.Max
+		char.Attributes.Magic.AugMax = metatype.Attributes.Magic.AugMax
+		char.Attributes.Resonance.Base = pregen.Attributes.Resonance.Base
+		char.Attributes.Resonance.Min = metatype.Attributes.Resonance.Min
+		char.Attributes.Resonance.Max = metatype.Attributes.Resonance.Max
+		char.Attributes.Resonance.AugMax = metatype.Attributes.Resonance.AugMax
+		// TODO: Add Rating and Specialization
+		// for _, s := range pregen.Skills {
+		// sk := EntityMgr.GetSkillBlueprint(s.ID)
+
+		// char.Skills[s.ID] = Skill{
+		// BlueprintID: sk,
+		// Rating: s.Rating,
+		// Specialization: sk.Specialization,
+		// }
+		// }
+
 		// Proceed with character naming.
-		return PromptSetCharacterName(s, a, pregen)
+		return PromptSetCharacterName(s, a, char)
 	}
 }
 
-func PromptSetCharacterName(s ssh.Session, a *Account, pregen *Pregen) string {
+func PromptSetCharacterName(s ssh.Session, a *Account, char *Character) (string, *Character) {
 	for {
 		// Prompt for the character's name.
 		WriteString(s, "{{Enter your character's name:}}::cyan ")
 		name, err := InputPrompt(s, "")
 		if err != nil {
-			return StateError
+			return StateError, nil
 		}
 		name = strings.TrimSpace(name)
 
@@ -601,15 +661,21 @@ func PromptSetCharacterName(s ssh.Session, a *Account, pregen *Pregen) string {
 			continue
 		}
 
+		char.Name = name
+
 		// Instantiate and save the new character.
 		// This code is commented out because the actual instantiation logic may change.
 		// newChar := pregen.Instantiate(name, a.ID)
 		// newChar.Save()
-		// a.Characters = append(a.Characters, newChar.Name)
+		a.Characters = append(a.Characters, char.Name)
+		// a.Save()
+		CharacterMgr.AddCharacter(char)
+		char.Save()
 
 		// Inform the user of the successful character creation.
 		WriteString(s, cfmt.Sprintf("{{Character '%s' created successfully! Returning to main menu.}}::green"+CRLF, name))
-		return StateMainMenu
+
+		return StateMainMenu, char
 	}
 }
 
