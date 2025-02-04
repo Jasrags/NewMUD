@@ -8,12 +8,73 @@ import (
 	"github.com/spf13/viper"
 )
 
+// GameContext holds shared state during the connection.
+type GameContext struct {
+	Account   *Account
+	Character *Character
+}
+
+// stateHandler is a function that processes a state and returns the next state.
+type stateHandler func(s ssh.Session, ctx *GameContext) string
+
+func welcomeState(s ssh.Session, ctx *GameContext) string {
+	return PromptWelcome(s)
+}
+
+func loginState(s ssh.Session, ctx *GameContext) string {
+	state, acc := PromptLogin(s)
+	ctx.Account = acc
+	return state
+}
+
+func registrationState(s ssh.Session, ctx *GameContext) string {
+	state, acc := PromptRegistration(s)
+	ctx.Account = acc
+	return state
+}
+
+func mainMenuState(s ssh.Session, ctx *GameContext) string {
+	return PromptMainMenu(s, ctx.Account)
+}
+
+func changePasswordState(s ssh.Session, ctx *GameContext) string {
+	return PromptChangePassword(s, ctx.Account)
+}
+
+func characterCreateState(s ssh.Session, ctx *GameContext) string {
+	return PromptCharacterCreate(s, ctx.Account)
+}
+
+func enterGameState(s ssh.Session, ctx *GameContext) string {
+	state, char := PromptEnterGame(s, ctx.Account)
+	ctx.Character = char
+	return state
+}
+
+func gameLoopState(s ssh.Session, ctx *GameContext) string {
+	return PromptGameLoop(s, ctx.Account, ctx.Character)
+}
+
+func exitGameState(s ssh.Session, ctx *GameContext) string {
+	return PromptExitGame(s, ctx.Account, ctx.Character)
+}
+
+var stateHandlers = map[string]stateHandler{
+	StateWelcome:         welcomeState,
+	StateLogin:           loginState,
+	StateRegistration:    registrationState,
+	StateMainMenu:        mainMenuState,
+	StateChangePassword:  changePasswordState,
+	StateCharacterCreate: characterCreateState,
+	StateEnterGame:       enterGameState,
+	StateGameLoop:        gameLoopState,
+	StateExitGame:        exitGameState,
+}
+
 func handleConnection(s ssh.Session) {
 	defer s.Close()
 
 	_, winCh, _ := s.Pty()
-
-	// Set the window size
 	go func() {
 		for win := range winCh {
 			slog.Debug("Window size changed",
@@ -23,45 +84,23 @@ func handleConnection(s ssh.Session) {
 		}
 	}()
 
-	var account *Account
-	var char *Character
-	// var room *Room
-	var state = StateWelcome
+	ctx := &GameContext{}
+	state := StateWelcome
 
 	for {
-		switch state {
-		case StateWelcome:
-			state = PromptWelcome(s)
-		case StateLogin:
-			state, account = PromptLogin(s)
-		case StateRegistration:
-			state, account = PromptRegistration(s)
-		case StateMainMenu:
-			state = PromptMainMenu(s, account)
-		case StateChangePassword:
-			state = PromptChangePassword(s, account)
-			// case StateCharacterSelect:
-			// state, char = PromptCharacterSelect(s, user)
-		case StateCharacterCreate:
-			state = PromptCharacterCreate(s, account)
-		case StateEnterGame:
-			state, char = PromptEnterGame(s, account)
-		case StateGameLoop:
-			state = PromptGameLoop(s, account, char)
-		case StateExitGame:
-			state = PromptExitGame(s, account, char)
-		case StateQuit:
-			fallthrough
-		case StateError:
-			s.Close()
-			char = nil
-			account = nil
-			return
-		default:
-			slog.Error("Invalid state", slog.String("user_state", state))
-			s.Close()
-			char = nil
-			account = nil
+		// Look up the handler for the current state.
+		handler, ok := stateHandlers[state]
+		if !ok {
+			slog.Error("Invalid state", slog.String("state", state))
+			break
+		}
+
+		// Process the state and get the next one.
+		state = handler(s, ctx)
+
+		// If the state indicates exit, break out of the loop.
+		if state == StateQuit || state == StateError {
+			break
 		}
 	}
 }
