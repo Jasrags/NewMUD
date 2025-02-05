@@ -1,6 +1,7 @@
 package game
 
 import (
+	"log/slog"
 	"strings"
 	"unicode/utf8"
 
@@ -12,6 +13,7 @@ import (
 // ------------------------------
 
 type (
+	TextAlign  string
 	BorderType string
 	Border     struct {
 		Top          string
@@ -40,6 +42,10 @@ const (
 	BorderTypeThick          BorderType = "thick"
 	BorderTypeDouble         BorderType = "double"
 	BorderTypeHidden         BorderType = "hidden"
+
+	TextAlignLeft   TextAlign = "left"
+	TextAlignCenter TextAlign = "center"
+	TextAlignRight  TextAlign = "right"
 )
 
 var (
@@ -179,8 +185,6 @@ func getBorder(borderType BorderType) Border {
 		return doubleBorder
 	case BorderTypeHidden:
 		return hiddenBorder
-	case BorderTypeNormal:
-		fallthrough
 	default:
 		return normalBorder
 	}
@@ -191,26 +195,26 @@ func getBorder(borderType BorderType) Border {
 // ------------------------------
 
 type WrapOptions struct {
-	BorderType    BorderType // Which border to use: "none", "normal", "rounded", "block", "outerHalfBlock", "innerHalfBlock", "thick", "double", or "hidden"
-	TextWidth     int        // The width for wrapping the text (excluding padding).
-	PaddingTop    int        // Number of empty lines to add at the top inside the border.
-	PaddingBottom int        // Number of empty lines to add at the bottom inside the border.
-	PaddingLeft   int        // Number of spaces to add to the left of each text line.
-	PaddingRight  int        // Number of spaces to add to the right of each text line.
-	BorderColor   string     // The color (and style) for the border (e.g. "white|bold").
-	Alignment     string     // Horizontal text alignment inside the text area: "left", "center", or "right".
+	BorderType    BorderType
+	TextWidth     int    // The width for wrapping the text (excluding padding).
+	PaddingTop    int    // Number of empty lines to add at the top inside the border.
+	PaddingBottom int    // Number of empty lines to add at the bottom inside the border.
+	PaddingLeft   int    // Number of spaces to add to the left of each text line.
+	PaddingRight  int    // Number of spaces to add to the right of each text line.
+	BorderColor   string // The color (and style) for the border (e.g. "white|bold").
+	Alignment     TextAlign
 }
 
 // Default options if none are provided.
 var defaultWrapOptions = WrapOptions{
-	BorderType:    "normal",
-	TextWidth:     40,
+	BorderType:    BorderTypeNormal,
+	TextWidth:     80,
 	PaddingTop:    0,
 	PaddingBottom: 0,
 	PaddingLeft:   0,
 	PaddingRight:  0,
 	BorderColor:   "white|bold",
-	Alignment:     "left",
+	Alignment:     TextAlignLeft,
 }
 
 // ------------------------------
@@ -228,21 +232,24 @@ func padRight(str string, length int) string {
 
 // alignText aligns the input text within a field of width `width` according to alignment:
 // "left", "center", or "right". If the text is shorter than width, extra spaces are added.
-func alignText(text string, width int, alignment string) string {
+func alignText(text string, width int, alignment TextAlign) string {
 	runes := []rune(text)
 	length := len(runes)
 	if length >= width {
 		return text
 	}
 	spaces := width - length
-	switch strings.ToLower(alignment) {
-	case "right":
+	slog.Info("spaces",
+		slog.String("text", text),
+		slog.Int("spaces", spaces))
+	switch alignment {
+	case TextAlignRight:
 		return strings.Repeat(" ", spaces) + text
-	case "center":
+	case TextAlignCenter:
 		leftSpaces := spaces / 2
 		rightSpaces := spaces - leftSpaces
 		return strings.Repeat(" ", leftSpaces) + text + strings.Repeat(" ", rightSpaces)
-	default: // left alignment by default
+	default:
 		return text + strings.Repeat(" ", spaces)
 	}
 }
@@ -317,11 +324,11 @@ func WrapTextInBorder(text string, options *WrapOptions) string {
 
 	// Calculate effective inner width: text width plus left/right padding.
 	effectiveWidth := options.PaddingLeft + options.TextWidth + options.PaddingRight
-
+	slog.Info("effectiveWidth", slog.Int("effectiveWidth", effectiveWidth))
 	// Wrap the text using the specified TextWidth.
 	lines := wrapText(text, options.TextWidth)
-	var result strings.Builder
 
+	var result strings.Builder
 	// Build top and bottom borders.
 	topBorder := chosenBorder.TopLeft + strings.Repeat(chosenBorder.Top, effectiveWidth) + chosenBorder.TopRight
 	bottomBorder := chosenBorder.BottomLeft + strings.Repeat(chosenBorder.Bottom, effectiveWidth) + chosenBorder.BottomRight
@@ -350,8 +357,7 @@ func WrapTextInBorder(text string, options *WrapOptions) string {
 		paddedText := strings.Repeat(" ", options.PaddingLeft) + alignedText + strings.Repeat(" ", options.PaddingRight)
 		// Surround with colored side borders.
 		coloredLine := cfmt.Sprintf("{{%s}}::%s", chosenBorder.Left, options.BorderColor) +
-			paddedText +
-			cfmt.Sprintf("{{%s}}::%s", chosenBorder.Right, options.BorderColor)
+			paddedText + cfmt.Sprintf("{{%s}}::%s", chosenBorder.Right, options.BorderColor)
 		result.WriteString(coloredLine + "\n")
 	}
 
@@ -361,5 +367,6 @@ func WrapTextInBorder(text string, options *WrapOptions) string {
 	}
 
 	result.WriteString(coloredBottomBorder)
+
 	return result.String()
 }

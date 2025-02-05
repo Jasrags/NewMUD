@@ -63,25 +63,37 @@ func main() {
 	game.GameTimeMgr.Minutes = 90
 	char.Prompt = "{{time}} {{date}} {{>}}::white"
 
-	text := `Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-    Nulla convallis egestas rhoncus. Donec facilisis fermentum sem, ac viverra ante luctus vel.
-    Phasellus ultrices nulla quis nibh. Quisque a lectus. Donec consectetuer ligula vulputate sem tristique cursus.`
+	text := `
+    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+    A
+    AB
+    ABC
+    {{A}}::red|bold
+    {{AB}}::red|bold
+    {{ABC}}::red|bold
+    Nulla {{convallis}}::yellow egestas rhoncus. Donec facilisis fermentum sem, ac viverra ante luctus vel.
+    Phasellus ultrices nulla quis nibh. {{Quisque}}::cyan|bold a lectus. Donec consectetuer ligula vulputate sem tristique cursus.`
 
 	// Example 2: Use custom options.
 	customOptions := &game.WrapOptions{
-		BorderType:    "rounded", // You can define your own border here.
-		TextWidth:     50,
-		PaddingTop:    1,
-		PaddingBottom: 1,
-		PaddingLeft:   1,
-		PaddingRight:  1,
-		BorderColor:   "red|bold",
-		Alignment:     "center",
+		BorderType: game.BorderTypeDouble,
+		TextWidth:  50,
+		// PaddingTop:    1,
+		// PaddingBottom: 1,
+		// PaddingLeft:   1,
+		// PaddingRight:  1,
+		BorderColor: "red|bold",
+		Alignment:   game.TextAlignLeft,
 	}
 
 	var output strings.Builder
-	output.WriteString(game.WrapTextInBorder(text, nil))
-	output.WriteString(game.CRLF)
+	// output.WriteString(stripCfmt("{{convallis}}::yellow"))
+	// output.WriteString(game.CRLF)
+	// output.WriteString(stripCfmt("{{Quisque}}::cyan|bold"))
+	// output.WriteString(game.CRLF)
+	// output.WriteString(game.WrapTextInBorder(text, nil))
+	// output.WriteString(cfmt.Sprint(game.WrapTextInBorder(text, nil)))
+	// output.WriteString(game.CRLF)
 	output.WriteString(game.WrapTextInBorder(text, customOptions))
 	output.WriteString(game.CRLF)
 	// output.WriteString(game.RenderRoom(acct, char, room))
@@ -90,6 +102,18 @@ func main() {
 	// output.WriteString(game.RenderPrompt(char))
 	cfmt.Print(output.String())
 }
+
+// Use a regex that removes any {{...}} with optional :: formatting.
+// var cfmtRegex = regexp.MustCompile(`\{\{[^}]*\}\}(?:::[^}]*)?`)
+// var cfmtRegex = regexp.MustCompile(`\{\{(.*?)\}\}(?:::[^}]+)?`)
+
+// func stripCfmt(s string) string {
+// 	return cfmtRegex.ReplaceAllString(s, "$1")
+// }
+
+// func visibleLength(s string) int {
+// 	return len([]rune(stripCfmt(s)))
+// }
 
 // func main() {
 // 	text := `Lorem ipsum dolor sit amet, consectetur adipiscing elit.
