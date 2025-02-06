@@ -369,6 +369,7 @@ func PromptForMenu(s ssh.Session, title string, options []MenuOption) (string, e
 			detailChoice := strings.TrimSpace(strings.TrimPrefix(strings.ToLower(input), "info "))
 			numChoice, err := strconv.Atoi(detailChoice)
 			if err == nil && numChoice > 0 && numChoice <= len(options) {
+				// WriteString(s, borderStyle.Render(cfmt.Sprintf("{{%s}}::cyan", options[numChoice-1].Description)))
 				WriteStringF(s, "\n{{%s}}::cyan\n", options[numChoice-1].Description)
 				continue
 			}

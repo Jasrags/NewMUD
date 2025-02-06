@@ -28,7 +28,6 @@ const (
 
 func PromptWelcome(s ssh.Session) string {
 	var output strings.Builder
-
 	output.WriteString("{{  ::::::::  :::    :::     :::     :::::::::   ::::::::  :::       ::: ::::    ::::  :::    ::: :::::::::  }}::#ff8700" + CRLF)
 	output.WriteString("{{ :+:    :+: :+:    :+:   :+: :+:   :+:    :+: :+:    :+: :+:       :+: +:+:+: :+:+:+ :+:    :+: :+:    :+: }}::#ff5f00" + CRLF)
 	output.WriteString("{{ +:+        +:+    +:+  +:+   +:+  +:+    +:+ +:+    +:+ +:+       +:+ +:+ +:+:+ +:+ +:+    +:+ +:+    +:+ }}::#ff0000" + CRLF)
@@ -163,6 +162,7 @@ func PromptRegistration(s ssh.Session) (string, *Account) {
 }
 
 func PromptMainMenu(s ssh.Session, a *Account) string {
+
 	options := []MenuOption{
 		{"Enter Game", "enter_game", "Enter Game"},
 		{"Create Character", "create_character", "Create Character"},
