@@ -47,6 +47,10 @@ func characterCreateState(s ssh.Session, ctx *GameContext) string {
 	return state
 }
 
+func characterDeleteState(s ssh.Session, ctx *GameContext) string {
+	return PromptCharacterDelete(s, ctx.Account)
+}
+
 func enterGameState(s ssh.Session, ctx *GameContext) string {
 	state, char := PromptEnterGame(s, ctx.Account)
 	ctx.Character = char
@@ -68,6 +72,7 @@ var stateHandlers = map[string]stateHandler{
 	StateMainMenu:        mainMenuState,
 	StateChangePassword:  changePasswordState,
 	StateCharacterCreate: characterCreateState,
+	StateCharacterDelete: characterDeleteState,
 	StateEnterGame:       enterGameState,
 	StateGameLoop:        gameLoopState,
 	StateExitGame:        exitGameState,

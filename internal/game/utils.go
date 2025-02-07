@@ -107,6 +107,10 @@ func SaveJSON(filePath string, in interface{}) error {
 	return encoder.Encode(in)
 }
 
+func RemoveFile(filePath string) error {
+	return os.Remove(filePath)
+}
+
 func FileExists(filePath string) bool {
 	if _, err := os.Stat(filePath); os.IsNotExist(err) {
 		return false
@@ -245,19 +249,6 @@ func WriteStringF(w io.Writer, s string, a ...interface{}) (int, error) {
 	s = strings.ReplaceAll(s, ""+CRLF, CRLF)
 	return io.WriteString(w, cfmt.Sprintf(s, a...))
 }
-
-// func RenderPromptMenu(title string, options []string) string {
-// 	var output strings.Builder
-// 	output.WriteString(cfmt.Sprintf("{{%s}}::white|bold"+CRLF, title))
-// 	output.WriteString(CRLF)
-// 	for i, option := range options {
-// 		output.WriteString(cfmt.Sprintf("{{%2d.}}::white|bold {{%-20s}}::green|bold"+CRLF, i+1, option))
-// 	}
-// 	output.WriteString(CRLF)
-// 	output.WriteString(cfmt.Sprintf("{{Enter choice:}}::white|bold "))
-
-// 	return output.String()
-// }
 
 func PressEnterPrompt(s ssh.Session, label string) {
 	WriteString(s, label)

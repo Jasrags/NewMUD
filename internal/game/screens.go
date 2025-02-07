@@ -1,7 +1,9 @@
 package game
 
 import (
+	"fmt"
 	"log/slog"
+	"path/filepath"
 	"strings"
 
 	"github.com/gliderlabs/ssh"
@@ -19,6 +21,7 @@ const (
 	StateChangePassword  = "change_password"
 	StateCharacterSelect = "character_select"
 	StateCharacterCreate = "character_create"
+	StateCharacterDelete = "character_delete"
 	StateEnterGame       = "enter_game"
 	StateGameLoop        = "game_loop"
 	StateExitGame        = "exit_game"
@@ -166,6 +169,7 @@ func PromptMainMenu(s ssh.Session, a *Account) string {
 	options := []MenuOption{
 		{"Enter Game", "enter_game", "Enter Game"},
 		{"Create Character", "create_character", "Create Character"},
+		{"Delete Character", "delete_character", "Delete a character"},
 		{"Change Password", "change_password", "Change your password"},
 		{"Quit", "quit", "Exit the game"},
 	}
@@ -186,6 +190,8 @@ func PromptMainMenu(s ssh.Session, a *Account) string {
 			return StateEnterGame
 		case "create_character":
 			return StateCharacterCreate
+		case "delete_character":
+			return StateCharacterDelete
 		case "change_password":
 			return StateChangePassword
 		case "quit":
@@ -276,85 +282,6 @@ func PromptChangePassword(s ssh.Session, a *Account) string {
 // Finish DoStats now that we have a better character definition
 //
 
-// func PromptCharacterCreate(s ssh.Session, a *Account) string {
-// promptEnterCharacterName:
-
-// 	// Check if they already have the max number of characters per account
-// 	maxCharacterCount := viper.GetInt("server.max_character_count")
-// 	if len(a.Characters) >= maxCharacterCount {
-// 		noun := pluralizer.PluralizeNounPhrase("character", len(a.Characters))
-// 		PressEnterPrompt(s, cfmt.Sprintf("{{You already have %s. You cannot create any more.}}::red", noun))
-// 		PressEnterPrompt(s, "{{Press enter to continue...}}::white|bold")
-
-// 		return StateMainMenu
-// 	}
-
-// 	// Step 1: Prompt for character name
-// 	WriteString(s, "{{Enter your character's name:}}::cyan ")
-// 	name, err := InputPrompt(s, "")
-// 	if err != nil {
-// 		slog.Error("Error reading character name", slog.Any("error", err))
-// 		WriteString(s, "{{Error reading input. Returning to main menu.}}::red"+CRLF)
-
-// 		return StateMainMenu
-// 	}
-// 	name = strings.TrimSpace(name)
-
-// 	if err := ValidateCharacterName(name); err != nil {
-// 		slog.Error("Invalid character name", slog.Any("error", err))
-// 		WriteString(s, cfmt.Sprintf("{{Invalid name: %s}}::red"+CRLF, err.Error()))
-
-// 		goto promptEnterCharacterName
-// 	}
-
-// 	// promptEnterCharacterDescription:
-// 	// Step 2: Prompt for character description
-// 	// TODO: maybe move this after metatype and archtype selection
-// 	// TODO: Once we have a archtype, metatype and other personal information we can generate a "default" short and long description that can be changed later.
-
-// 	// Step 2: Prompt for metatype
-// 	// Display metatype options
-// 	// Allow showing details for the metatype including suggested archtypes
-// promptSelectMetatype:
-// 	metatypeChoice, err := MenuPrompt(s, "Select a Metatype:", EntityMgr.GetMetatypeMenuOptions())
-// 	if err != nil {
-// 		slog.Error("Error selecting metatype", slog.Any("error", err))
-
-// 		goto promptSelectMetatype
-// 	}
-// 	slog.Info("Metatype selected",
-// 		slog.String("metatype", metatypeChoice))
-
-// 	// Step 3: Prompt for archtype
-// 	// Display archtype options
-// 	// Allow showing details for the archtype (Highlight good/neutral/bad metatype choices for the selected archtype)
-// promptSelectArchetype:
-// 	archtypeChoice, err := MenuPrompt(s, "Select a archtype:", EntityMgr.GetPregenMenuOptions())
-// 	if err != nil {
-// 		slog.Error("Error selecting metatype", slog.Any("error", err))
-
-// 		goto promptSelectArchetype
-// 	}
-// 	slog.Info("Archtype selected",
-// 		slog.String("archtype", archtypeChoice))
-
-// 	// promptSelectItemPack:
-// 	// Step 4: Prompt for item pack purchase (Optional)
-// 	// Set a base nuyen level for the character
-// 	// Display item pack options
-// 	// Allow showing details for the item pack
-// 	// Select item pack and adjust nuyen
-
-// 	// Step 5: Build the character
-// 	// Apply base metatype attributes (min/max)
-// 	// Apply base archtype attributes adjust within min/max if needed
-// 	// Apply any metatype qualties
-// 	// Add any item pack items to the inventory
-
-// 	// Step 4: Create the character
-// 	metatype := EntityMgr.GetMetatype(metatypeChoice)
-// 	archtype := EntityMgr.GetPregen(archtypeChoice)
-
 // 	// slog.Debug("Creating character",
 // 	// 	slog.Any("metatype", metatype.Attributes),
 // 	// 	slog.Any("archtype", archtype.Attributes))
@@ -369,117 +296,6 @@ func PromptChangePassword(s ssh.Session, a *Account) string {
 // 	char.Height = 180                // TODO: Set this from our character creation
 // 	char.Weight = 75                 // TODO: Set this from our character creation
 // 	char.Ethnicity = "Caucasian"     // TODO: Set this from our character creation
-// 	// StreetCred      int              `yaml:"street_cred"`
-// 	// Notoriety       int              `yaml:"notoriety"`
-// 	// PublicAwareness int              `yaml:"public_awareness"`
-// 	// Karma           int              `yaml:"karma"`
-// 	// TotalKarma      int              `yaml:"total_karma"`
-// 	// Attributes      Attributes       `yaml:"attributes"`
-// 	char.Attributes.Body.Base = archtype.Attributes.Body.Base
-// 	char.Attributes.Body.Min = metatype.Attributes.Body.Min
-// 	char.Attributes.Body.Max = metatype.Attributes.Body.Max
-// 	char.Attributes.Body.AugMax = metatype.Attributes.Body.AugMax
-
-// 	char.Attributes.Agility.Base = archtype.Attributes.Agility.Base
-
-// 	char.Attributes.Reaction.Base = archtype.Attributes.Reaction.Base
-
-// 	char.Attributes.Strength.Base = archtype.Attributes.Strength.Base
-
-// 	char.Attributes.Willpower.Base = archtype.Attributes.Willpower.Base
-
-// 	char.Attributes.Logic.Base = archtype.Attributes.Logic.Base
-
-// 	char.Attributes.Intuition.Base = archtype.Attributes.Intuition.Base
-
-// 	char.Attributes.Charisma.Base = archtype.Attributes.Charisma.Base
-
-// 	// Edge
-// 	// Initiative
-
-// 	char.Attributes.Essence.Base = archtype.Attributes.Essence.Base
-
-// 	char.Attributes.Magic.Base = archtype.Attributes.Magic.Base
-
-// 	char.Attributes.Resonance.Base = archtype.Attributes.Resonance.Base
-
-// 	// char.Attributes.Body = Attribute[int]{
-// 	// 	Name:   "Body",
-// 	// 	Base:   archtype.Attributes.Body.Base,
-// 	// 	Min:    metatype.Attributes.Body.Min,
-// 	// 	Max:    metatype.Attributes.Body.Max,
-// 	// 	AugMax: metatype.Attributes.Body.AugMax,
-// 	// }
-// 	// char.Attributes.Agility = Attribute[int]{
-// 	// 	Name:   "Agility",
-// 	// 	Base:   archtype.Attributes.Agility.Base,
-// 	// 	Min:    metatype.Attributes.Agility.Min,
-// 	// 	Max:    metatype.Attributes.Agility.Max,
-// 	// 	AugMax: metatype.Attributes.Agility.AugMax,
-// 	// }
-// 	// char.Attributes.Reaction = Attribute[int]{
-// 	// 	Name:   "Reaction",
-// 	// 	Base:   archtype.Attributes.Reaction.Base,
-// 	// 	Min:    metatype.Attributes.Reaction.Min,
-// 	// 	Max:    metatype.Attributes.Reaction.Max,
-// 	// 	AugMax: metatype.Attributes.Reaction.AugMax,
-// 	// }
-// 	// char.Attributes.Strength = Attribute[int]{
-// 	// 	Name:   "Strength",
-// 	// 	Base:   archtype.Attributes.Strength.Base,
-// 	// 	Min:    metatype.Attributes.Strength.Min,
-// 	// 	Max:    metatype.Attributes.Strength.Max,
-// 	// 	AugMax: metatype.Attributes.Strength.AugMax,
-// 	// }
-// 	// char.Attributes.Willpower = Attribute[int]{
-// 	// 	Name:   "Willpower",
-// 	// 	Base:   archtype.Attributes.Willpower.Base,
-// 	// 	Min:    metatype.Attributes.Willpower.Min,
-// 	// 	Max:    metatype.Attributes.Willpower.Max,
-// 	// 	AugMax: metatype.Attributes.Willpower.AugMax,
-// 	// }
-// 	// char.Attributes.Logic = Attribute[int]{
-// 	// 	Name:   "Logic",
-// 	// 	Base:   archtype.Attributes.Logic.Base,
-// 	// 	Min:    metatype.Attributes.Logic.Min,
-// 	// 	Max:    metatype.Attributes.Logic.Max,
-// 	// 	AugMax: metatype.Attributes.Logic.AugMax,
-// 	// }
-// 	// char.Attributes.Intuition = Attribute[int]{
-// 	// 	Name:   "Intuition",
-// 	// 	Base:   archtype.Attributes.Intuition.Base,
-// 	// 	Min:    metatype.Attributes.Intuition.Min,
-// 	// 	Max:    metatype.Attributes.Intuition.Max,
-// 	// 	AugMax: metatype.Attributes.Intuition.AugMax,
-// 	// }
-// 	// char.Attributes.Charisma = Attribute[int]{
-// 	// 	Name:   "Charisma",
-// 	// 	Base:   archtype.Attributes.Charisma.Base,
-// 	// 	Min:    metatype.Attributes.Charisma.Min,
-// 	// 	Max:    metatype.Attributes.Charisma.Max,
-// 	// 	AugMax: metatype.Attributes.Charisma.AugMax,
-// 	// }
-// 	// char.Attributes.Essence = Attribute[float64]{
-// 	// 	Name:   "Essence",
-// 	// 	Base:   archtype.Attributes.Essence.Base,
-// 	// 	Min:    metatype.Attributes.Essence.Min,
-// 	// 	Max:    metatype.Attributes.Essence.Max,
-// 	// 	AugMax: metatype.Attributes.Essence.AugMax,
-// 	// }
-// 	// char.Attributes.Magic = Attribute[int]{
-// 	// 	Name:   "Magic",
-// 	// 	Base:   archtype.Attributes.Magic.Base,
-// 	// 	Min:    metatype.Attributes.Magic.Min,
-// 	// 	Max:    metatype.Attributes.Magic.Max,
-// 	// 	AugMax: metatype.Attributes.Magic.AugMax,
-// 	// }
-// 	// char.Attributes.Resonance = Attribute[int]{
-// 	// 	Name:   "Resonance",
-// 	// 	Base:   archtype.Attributes.Resonance.Base,
-// 	// 	Min:    metatype.Attributes.Resonance.Min,
-// 	// 	Max:    metatype.Attributes.Resonance.Max,
-// 	// 	AugMax: metatype.Attributes.Resonance.AugMax,
-// 	// }
 
 // 	// PhysicalDamage  PhysicalDamage   `yaml:"physical_damage"`
 // 	// StunDamage      StunDamage       `yaml:"stun_damage"`
@@ -557,28 +373,6 @@ func PromptSelectPregenCharacter(s ssh.Session, a *Account) (string, *Character)
 	}
 	options = append(options, MenuOption{"Back", "back", "Return to character creation menu"})
 
-	// // Build the menu options from the pre-generated characters.
-	// pregens := EntityMgr.GetPregens()
-	// options := make([]MenuOption, 0, len(pregens)+1)
-	// for _, pregen := range pregens {
-	// 	options = append(options, MenuOption{
-	// 		DisplayText: pregen.Title,
-	// 		Value:       pregen.ID,
-	// 		Description: pregen.GetSelectionInfo(),
-	// 	})
-	// }
-	// options = append(options, MenuOption{"Back", "back", "Return to character creation menu"})
-
-	//     pregenMap := make(map[string]*CharacterTemplate)
-	// for _, pregen := range pregens {
-	// 	pregenMap[pregen.ID] = pregen
-	// 	options = append(options, MenuOption{
-	// 		DisplayText: pregen.Title,
-	// 		Value:       pregen.ID,
-	// 		Description: pregen.GetSelectionInfo(),
-	// 	})
-	// }
-
 	// Loop until a valid selection and confirmation is made.
 	for {
 		choice, err := PromptForMenu(s, "Select a Pre-Generated Character", options)
@@ -596,12 +390,6 @@ func PromptSelectPregenCharacter(s ssh.Session, a *Account) (string, *Character)
 			WriteString(s, "{{Invalid selection. Try again.}}::red"+CRLF)
 			continue
 		}
-
-		// pregen := EntityMgr.GetPregen(choice)
-		// if pregen == nil {
-		// 	WriteString(s, "{{Invalid selection. Try again.}}::red"+CRLF)
-		// 	continue
-		// }
 
 		// Display selection details.
 		WriteString(s, cfmt.Sprintf("{{%s}}::cyan"+CRLF, pregen.GetSelectionInfo()))
@@ -628,55 +416,14 @@ func PromptSelectPregenCharacter(s ssh.Session, a *Account) (string, *Character)
 		char.Essence = Attribute[float64]{Name: "Essence", Base: pregen.Essence.Base, Min: metatype.Essence.Min, Max: metatype.Essence.Max, AugMax: metatype.Essence.AugMax}
 		char.Magic = Attribute[int]{Name: "Magic", Base: pregen.Magic.Base, Min: metatype.Magic.Min, Max: metatype.Magic.Max, AugMax: metatype.Magic.AugMax}
 		char.Resonance = Attribute[int]{Name: "Resonance", Base: pregen.Resonance.Base, Min: metatype.Resonance.Min, Max: metatype.Resonance.Max, AugMax: metatype.Resonance.AugMax}
-		// // applyPregenAttributes(char, pregen, metatype)
-
-		// TODO: Add Rating and Specialization
-		// for _, s := range pregen.Skills {
-		// sk := EntityMgr.GetSkillBlueprint(s.ID)
 
 		char.Skills = pregen.Skills
 		char.Qualtities = pregen.Qualtities
-		// for k,v := range pregen.Skills {
-		// char.Skills[k] = v
-		// }
-		// char.Skills[s.ID] = Skill{
-		// BlueprintID: sk,
-		// Rating: s.Rating,
-		// Specialization: sk.Specialization,
-		// }
-		// }
 
 		// Proceed with character naming.
 		return PromptSetCharacterName(s, a, char)
 	}
 }
-
-// func applyPregenAttributes(char *Character, pregen *Pregen, metatype *Metatype) {
-// 	attributes := []struct {
-// 		CharAttr   *Attributes
-// 		PregenAttr *Attributes
-// 		MetaAttr   *Attributes
-// 	}{
-// 		{&char.Attributes.Body, pregen.Attributes.Body, metatype.Attributes.Body},
-// 		{&char.Attributes.Agility, pregen.Attributes.Agility, metatype.Attributes.Agility},
-// 		{&char.Attributes.Reaction, pregen.Attributes.Reaction, metatype.Attributes.Reaction},
-// 		{&char.Attributes.Strength, pregen.Attributes.Strength, metatype.Attributes.Strength},
-// 		{&char.Attributes.Willpower, pregen.Attributes.Willpower, metatype.Attributes.Willpower},
-// 		{&char.Attributes.Logic, pregen.Attributes.Logic, metatype.Attributes.Logic},
-// 		{&char.Attributes.Intuition, pregen.Attributes.Intuition, metatype.Attributes.Intuition},
-// 		{&char.Attributes.Charisma, pregen.Attributes.Charisma, metatype.Attributes.Charisma},
-// 		{&char.Attributes.Essence, pregen.Attributes.Essence, metatype.Attributes.Essence},
-// 		{&char.Attributes.Magic, pregen.Attributes.Magic, metatype.Attributes.Magic},
-// 		{&char.Attributes.Resonance, pregen.Attributes.Resonance, metatype.Attributes.Resonance},
-// 	}
-
-// 	for _, attr := range attributes {
-// 		attr.CharAttr.Base = attr.PregenAttr.Base
-// 		attr.CharAttr.Min = attr.MetaAttr.Min
-// 		attr.CharAttr.Max = attr.MetaAttr.Max
-// 		attr.CharAttr.AugMax = attr.MetaAttr.AugMax
-// 	}
-// }
 
 func PromptSetCharacterName(s ssh.Session, a *Account, char *Character) (string, *Character) {
 	for {
@@ -713,10 +460,10 @@ func PromptSetCharacterName(s ssh.Session, a *Account, char *Character) (string,
 }
 
 func PromptEnterGame(s ssh.Session, a *Account) (string, *Character) {
-	// Ensure the account has at least one character.
+	// Ensure the account has at least one character; otherwise, redirect to character creation.
 	if len(a.Characters) == 0 {
 		WriteString(s, "{{You have no characters. Create one to start playing.}}::red"+CRLF)
-		return StateEnterGame, nil
+		return PromptCharacterCreate(s, a)
 	}
 
 	// Build menu options for each character and an option to return to the main menu.
@@ -775,6 +522,76 @@ func PromptEnterGame(s ssh.Session, a *Account) (string, *Character) {
 		WriteString(s, cfmt.Sprintf("{{Entering the game as %s...}}::green|bold"+CRLF, c.Name))
 		return StateGameLoop, c
 	}
+}
+
+func PromptCharacterDelete(s ssh.Session, a *Account) string {
+	// Ensure the account has at least one character.
+	if len(a.Characters) == 0 {
+		WriteString(s, "{{You have no characters to delete.}}::red"+CRLF)
+		return StateMainMenu
+	}
+
+	// Build menu options for each character and an option to return to the main menu.
+	options := make([]MenuOption, len(a.Characters)+1)
+	for i, name := range a.Characters {
+		options[i] = MenuOption{
+			DisplayText: name,
+			Value:       name,
+			Description: "Delete this character",
+		}
+	}
+	options[len(a.Characters)] = MenuOption{
+		DisplayText: "Back to Main Menu",
+		Value:       "back",
+		Description: "Return to main menu",
+	}
+
+	for {
+		choice, err := PromptForMenu(s, "Select a Character to Delete", options)
+		if err != nil {
+			slog.Error("Error prompting for character deletion", slog.Any("error", err))
+			return StateError
+		}
+
+		if choice == "back" {
+			return StateMainMenu
+		}
+
+		c := CharacterMgr.GetCharacterByName(choice)
+		if c == nil {
+			WriteString(s, "{{Character not found. Please try again.}}::red"+CRLF)
+			continue
+		}
+
+		// Confirm deletion
+		WriteString(s, cfmt.Sprintf("\n{{Are you sure you want to delete %s? This action cannot be undone.}}::red|bold\n", c.Name))
+		if !YesNoPrompt(s, false) {
+			WriteString(s, "{{Character deletion canceled.}}::yellow"+CRLF)
+			continue
+		}
+
+		// Remove the character
+		CharacterMgr.RemoveCharacter(c)
+		a.Characters = removeCharacterFromAccount(a.Characters, choice)
+		a.Save()
+
+		if err := RemoveFile(filepath.Join(CharactersFilepath, fmt.Sprintf("%s.yml", strings.ToLower(c.Name)))); err != nil {
+			slog.Error("Error removing character file", slog.Any("error", err))
+		}
+
+		WriteString(s, cfmt.Sprintf("\n{{Character %s has been deleted.}}::green\n", c.Name))
+		return StateMainMenu
+	}
+}
+
+func removeCharacterFromAccount(characters []string, name string) []string {
+	updated := []string{}
+	for _, char := range characters {
+		if char != name {
+			updated = append(updated, char)
+		}
+	}
+	return updated
 }
 
 func PromptGameLoop(s ssh.Session, a *Account, c *Character) string {
