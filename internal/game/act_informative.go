@@ -224,6 +224,7 @@ Usage:
 // }
 
 func RenderCharacterTable(char *Character) string {
+	metatype := EntityMgr.GetMetatype(char.MetatypeID)
 	char.Recalculate()
 	table := lipgloss.JoinVertical(lipgloss.Left,
 		// Personal Data
@@ -235,7 +236,7 @@ func RenderCharacterTable(char *Character) string {
 					RenderKeyValue("Title", char.Title),
 				),
 				lipgloss.JoinHorizontal(lipgloss.Top,
-					RenderKeyValue("Metatype", char.Metatype), "\t",
+					RenderKeyValue("Metatype", metatype.Name), "\t",
 					RenderKeyValue("Ethnicity", char.Ethnicity),
 				),
 				lipgloss.JoinHorizontal(lipgloss.Top,
@@ -265,40 +266,40 @@ func RenderCharacterTable(char *Character) string {
 				// Essence    6.00
 				dualColumnStyle.Render(
 					lipgloss.JoinVertical(lipgloss.Left,
-						RenderAttribute(char.Attributes.Body),      // 5  (7)
-						RenderAttribute(char.Attributes.Agility),   // 5  (7)
-						RenderAttribute(char.Attributes.Reaction),  // 5  (7)
-						RenderAttribute(char.Attributes.Strength),  // 5  (7)
-						RenderAttribute(char.Attributes.Willpower), // 5  (7)
-						RenderAttribute(char.Attributes.Logic),     // 5  (7)
-						RenderAttribute(char.Attributes.Intuition), // 5  (7)
-						RenderAttribute(char.Attributes.Charisma),  // 5  (7)
-						RenderAttribute(char.Attributes.Essence),   // 5  (7)
-						RenderAttribute(char.Attributes.Magic),     // 5  (7)
-						RenderAttribute(char.Attributes.Resonance), // Essence    6.00
+						RenderAttribute(char.Body),      // 5  (7)
+						RenderAttribute(char.Agility),   // 5  (7)
+						RenderAttribute(char.Reaction),  // 5  (7)
+						RenderAttribute(char.Strength),  // 5  (7)
+						RenderAttribute(char.Willpower), // 5  (7)
+						RenderAttribute(char.Logic),     // 5  (7)
+						RenderAttribute(char.Intuition), // 5  (7)
+						RenderAttribute(char.Charisma),  // 5  (7)
+						RenderAttribute(char.Essence),   // 5  (7)
+						RenderAttribute(char.Magic),     // 5  (7)
+						RenderAttribute(char.Resonance), // Essence    6.00
 						// strs...,
 					),
 				),
 			),
 			// Attributes RIGHT - Derivied attributes
-			lipgloss.JoinVertical(lipgloss.Left,
-				headerStyle.Render(""),
-				dualColumnStyle.Render(
-					lipgloss.JoinVertical(lipgloss.Left,
-						RenderAttribute(char.Attributes.Initiative), // Initiative 10 (12) + 1d6 (2d6)
-						RenderAttribute(char.Attributes.InitiativeDice),
-						RenderAttribute(char.Attributes.Composure),       // 5  (7)
-						RenderAttribute(char.Attributes.JudgeIntentions), // 5  (7)
-						RenderAttribute(char.Attributes.Memory),          // 5  (7)
-						RenderAttribute(char.Attributes.Lift),            // 5  (7)
-						RenderAttribute(char.Attributes.Carry),           // 5  (7)
-						RenderAttribute(char.Attributes.Walk),            // 5  (7)
-						RenderAttribute(char.Attributes.Run),             // 5  (7)
-						RenderAttribute(char.Attributes.Swim),            // 5  (7)
-						"",
-					),
-				),
-			),
+			// lipgloss.JoinVertical(lipgloss.Left,
+			// 	headerStyle.Render(""),
+			// 	dualColumnStyle.Render(
+			// 		lipgloss.JoinVertical(lipgloss.Left,
+			// 			RenderAttribute(char.Attributes.Initiative), // Initiative 10 (12) + 1d6 (2d6)
+			// 			RenderAttribute(char.Attributes.InitiativeDice),
+			// 			RenderAttribute(char.Attributes.Composure),       // 5  (7)
+			// 			RenderAttribute(char.Attributes.JudgeIntentions), // 5  (7)
+			// 			RenderAttribute(char.Attributes.Memory),          // 5  (7)
+			// 			RenderAttribute(char.Attributes.Lift),            // 5  (7)
+			// 			RenderAttribute(char.Attributes.Carry),           // 5  (7)
+			// 			RenderAttribute(char.Attributes.Walk),            // 5  (7)
+			// 			RenderAttribute(char.Attributes.Run),             // 5  (7)
+			// 			RenderAttribute(char.Attributes.Swim),            // 5  (7)
+			// 			"",
+			// 		),
+			// 	),
+			// ),
 		),
 	)
 

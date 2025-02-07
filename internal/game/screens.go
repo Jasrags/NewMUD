@@ -542,10 +542,13 @@ func PromptCharacterCreate(s ssh.Session, a *Account) (string, *Character) {
 }
 
 func PromptSelectPregenCharacter(s ssh.Session, a *Account) (string, *Character) {
-	// Build the menu options from the pre-generated characters.
+	// Build menu options
 	pregens := EntityMgr.GetPregens()
+	pregenMap := make(map[string]*Pregen)
 	options := make([]MenuOption, 0, len(pregens)+1)
+
 	for _, pregen := range pregens {
+		pregenMap[pregen.ID] = pregen
 		options = append(options, MenuOption{
 			DisplayText: pregen.Title,
 			Value:       pregen.ID,
@@ -554,10 +557,33 @@ func PromptSelectPregenCharacter(s ssh.Session, a *Account) (string, *Character)
 	}
 	options = append(options, MenuOption{"Back", "back", "Return to character creation menu"})
 
+	// // Build the menu options from the pre-generated characters.
+	// pregens := EntityMgr.GetPregens()
+	// options := make([]MenuOption, 0, len(pregens)+1)
+	// for _, pregen := range pregens {
+	// 	options = append(options, MenuOption{
+	// 		DisplayText: pregen.Title,
+	// 		Value:       pregen.ID,
+	// 		Description: pregen.GetSelectionInfo(),
+	// 	})
+	// }
+	// options = append(options, MenuOption{"Back", "back", "Return to character creation menu"})
+
+	//     pregenMap := make(map[string]*CharacterTemplate)
+	// for _, pregen := range pregens {
+	// 	pregenMap[pregen.ID] = pregen
+	// 	options = append(options, MenuOption{
+	// 		DisplayText: pregen.Title,
+	// 		Value:       pregen.ID,
+	// 		Description: pregen.GetSelectionInfo(),
+	// 	})
+	// }
+
 	// Loop until a valid selection and confirmation is made.
 	for {
 		choice, err := PromptForMenu(s, "Select a Pre-Generated Character", options)
 		if err != nil {
+			slog.Error("Error prompting for pregen selection", slog.Any("error", err))
 			return StateError, nil
 		}
 
@@ -565,11 +591,17 @@ func PromptSelectPregenCharacter(s ssh.Session, a *Account) (string, *Character)
 			return StateCharacterCreate, nil
 		}
 
-		pregen := EntityMgr.GetPregen(choice)
-		if pregen == nil {
+		pregen, exists := pregenMap[choice]
+		if !exists {
 			WriteString(s, "{{Invalid selection. Try again.}}::red"+CRLF)
 			continue
 		}
+
+		// pregen := EntityMgr.GetPregen(choice)
+		// if pregen == nil {
+		// 	WriteString(s, "{{Invalid selection. Try again.}}::red"+CRLF)
+		// 	continue
+		// }
 
 		// Display selection details.
 		WriteString(s, cfmt.Sprintf("{{%s}}::cyan"+CRLF, pregen.GetSelectionInfo()))
@@ -577,62 +609,36 @@ func PromptSelectPregenCharacter(s ssh.Session, a *Account) (string, *Character)
 		// Confirm selection.
 		if !YesNoPrompt(s, true) {
 			WriteString(s, "{{Returning to character selection.}}::yellow"+CRLF)
-			return StateCharacterCreate, nil
+			continue // Instead of returning, continue prompting
 		}
 
 		metatype := EntityMgr.GetMetatype(pregen.MetatypeID)
 
 		char := NewCharacter()
 		char.AccountID = a.ID
-		char.Metatype = pregen.MetatypeID
-		char.Attributes.Body.Base = pregen.Attributes.Body.Base
-		char.Attributes.Body.Min = metatype.Attributes.Body.Min
-		char.Attributes.Body.Max = metatype.Attributes.Body.Max
-		char.Attributes.Body.AugMax = metatype.Attributes.Body.AugMax
-		char.Attributes.Agility.Base = pregen.Attributes.Agility.Base
-		char.Attributes.Agility.Min = metatype.Attributes.Agility.Min
-		char.Attributes.Agility.Max = metatype.Attributes.Agility.Max
-		char.Attributes.Agility.AugMax = metatype.Attributes.Agility.AugMax
-		char.Attributes.Reaction.Base = pregen.Attributes.Reaction.Base
-		char.Attributes.Reaction.Min = metatype.Attributes.Reaction.Min
-		char.Attributes.Reaction.Max = metatype.Attributes.Reaction.Max
-		char.Attributes.Reaction.AugMax = metatype.Attributes.Reaction.AugMax
-		char.Attributes.Strength.Base = pregen.Attributes.Strength.Base
-		char.Attributes.Strength.Min = metatype.Attributes.Strength.Min
-		char.Attributes.Strength.Max = metatype.Attributes.Strength.Max
-		char.Attributes.Strength.AugMax = metatype.Attributes.Strength.AugMax
-		char.Attributes.Willpower.Base = pregen.Attributes.Willpower.Base
-		char.Attributes.Willpower.Min = metatype.Attributes.Willpower.Min
-		char.Attributes.Willpower.Max = metatype.Attributes.Willpower.Max
-		char.Attributes.Willpower.AugMax = metatype.Attributes.Willpower.AugMax
-		char.Attributes.Logic.Base = pregen.Attributes.Logic.Base
-		char.Attributes.Logic.Min = metatype.Attributes.Logic.Min
-		char.Attributes.Logic.Max = metatype.Attributes.Logic.Max
-		char.Attributes.Logic.AugMax = metatype.Attributes.Logic.AugMax
-		char.Attributes.Intuition.Base = pregen.Attributes.Intuition.Base
-		char.Attributes.Intuition.Min = metatype.Attributes.Intuition.Min
-		char.Attributes.Intuition.Max = metatype.Attributes.Intuition.Max
-		char.Attributes.Intuition.AugMax = metatype.Attributes.Intuition.AugMax
-		char.Attributes.Charisma.Base = pregen.Attributes.Charisma.Base
-		char.Attributes.Charisma.Min = metatype.Attributes.Charisma.Min
-		char.Attributes.Charisma.Max = metatype.Attributes.Charisma.Max
-		char.Attributes.Charisma.AugMax = metatype.Attributes.Charisma.AugMax
-		char.Attributes.Essence.Base = pregen.Attributes.Essence.Base
-		char.Attributes.Essence.Min = metatype.Attributes.Essence.Min
-		char.Attributes.Essence.Max = metatype.Attributes.Essence.Max
-		char.Attributes.Essence.AugMax = metatype.Attributes.Essence.AugMax
-		char.Attributes.Magic.Base = pregen.Attributes.Magic.Base
-		char.Attributes.Magic.Min = metatype.Attributes.Magic.Min
-		char.Attributes.Magic.Max = metatype.Attributes.Magic.Max
-		char.Attributes.Magic.AugMax = metatype.Attributes.Magic.AugMax
-		char.Attributes.Resonance.Base = pregen.Attributes.Resonance.Base
-		char.Attributes.Resonance.Min = metatype.Attributes.Resonance.Min
-		char.Attributes.Resonance.Max = metatype.Attributes.Resonance.Max
-		char.Attributes.Resonance.AugMax = metatype.Attributes.Resonance.AugMax
+		char.MetatypeID = pregen.MetatypeID
+		char.Body = Attribute[int]{Name: "Body", Base: pregen.Body.Base, Min: metatype.Body.Min, Max: metatype.Body.Max, AugMax: metatype.Body.AugMax}
+		char.Agility = Attribute[int]{Name: "Agility", Base: pregen.Agility.Base, Min: metatype.Agility.Min, Max: metatype.Agility.Max, AugMax: metatype.Agility.AugMax}
+		char.Reaction = Attribute[int]{Name: "Reaction", Base: pregen.Reaction.Base, Min: metatype.Reaction.Min, Max: metatype.Reaction.Max, AugMax: metatype.Reaction.AugMax}
+		char.Strength = Attribute[int]{Name: "Strength", Base: pregen.Strength.Base, Min: metatype.Strength.Min, Max: metatype.Strength.Max, AugMax: metatype.Strength.AugMax}
+		char.Willpower = Attribute[int]{Name: "Willpower", Base: pregen.Willpower.Base, Min: metatype.Willpower.Min, Max: metatype.Willpower.Max, AugMax: metatype.Willpower.AugMax}
+		char.Logic = Attribute[int]{Name: "Logic", Base: pregen.Logic.Base, Min: metatype.Logic.Min, Max: metatype.Logic.Max, AugMax: metatype.Logic.AugMax}
+		char.Intuition = Attribute[int]{Name: "Intuition", Base: pregen.Intuition.Base, Min: metatype.Intuition.Min, Max: metatype.Intuition.Max, AugMax: metatype.Intuition.AugMax}
+		char.Charisma = Attribute[int]{Name: "Charisma", Base: pregen.Charisma.Base, Min: metatype.Charisma.Min, Max: metatype.Charisma.Max, AugMax: metatype.Charisma.AugMax}
+		char.Essence = Attribute[float64]{Name: "Essence", Base: pregen.Essence.Base, Min: metatype.Essence.Min, Max: metatype.Essence.Max, AugMax: metatype.Essence.AugMax}
+		char.Magic = Attribute[int]{Name: "Magic", Base: pregen.Magic.Base, Min: metatype.Magic.Min, Max: metatype.Magic.Max, AugMax: metatype.Magic.AugMax}
+		char.Resonance = Attribute[int]{Name: "Resonance", Base: pregen.Resonance.Base, Min: metatype.Resonance.Min, Max: metatype.Resonance.Max, AugMax: metatype.Resonance.AugMax}
+		// // applyPregenAttributes(char, pregen, metatype)
+
 		// TODO: Add Rating and Specialization
 		// for _, s := range pregen.Skills {
 		// sk := EntityMgr.GetSkillBlueprint(s.ID)
 
+		char.Skills = pregen.Skills
+		char.Qualtities = pregen.Qualtities
+		// for k,v := range pregen.Skills {
+		// char.Skills[k] = v
+		// }
 		// char.Skills[s.ID] = Skill{
 		// BlueprintID: sk,
 		// Rating: s.Rating,
@@ -644,6 +650,33 @@ func PromptSelectPregenCharacter(s ssh.Session, a *Account) (string, *Character)
 		return PromptSetCharacterName(s, a, char)
 	}
 }
+
+// func applyPregenAttributes(char *Character, pregen *Pregen, metatype *Metatype) {
+// 	attributes := []struct {
+// 		CharAttr   *Attributes
+// 		PregenAttr *Attributes
+// 		MetaAttr   *Attributes
+// 	}{
+// 		{&char.Attributes.Body, pregen.Attributes.Body, metatype.Attributes.Body},
+// 		{&char.Attributes.Agility, pregen.Attributes.Agility, metatype.Attributes.Agility},
+// 		{&char.Attributes.Reaction, pregen.Attributes.Reaction, metatype.Attributes.Reaction},
+// 		{&char.Attributes.Strength, pregen.Attributes.Strength, metatype.Attributes.Strength},
+// 		{&char.Attributes.Willpower, pregen.Attributes.Willpower, metatype.Attributes.Willpower},
+// 		{&char.Attributes.Logic, pregen.Attributes.Logic, metatype.Attributes.Logic},
+// 		{&char.Attributes.Intuition, pregen.Attributes.Intuition, metatype.Attributes.Intuition},
+// 		{&char.Attributes.Charisma, pregen.Attributes.Charisma, metatype.Attributes.Charisma},
+// 		{&char.Attributes.Essence, pregen.Attributes.Essence, metatype.Attributes.Essence},
+// 		{&char.Attributes.Magic, pregen.Attributes.Magic, metatype.Attributes.Magic},
+// 		{&char.Attributes.Resonance, pregen.Attributes.Resonance, metatype.Attributes.Resonance},
+// 	}
+
+// 	for _, attr := range attributes {
+// 		attr.CharAttr.Base = attr.PregenAttr.Base
+// 		attr.CharAttr.Min = attr.MetaAttr.Min
+// 		attr.CharAttr.Max = attr.MetaAttr.Max
+// 		attr.CharAttr.AugMax = attr.MetaAttr.AugMax
+// 	}
+// }
 
 func PromptSetCharacterName(s ssh.Session, a *Account, char *Character) (string, *Character) {
 	for {

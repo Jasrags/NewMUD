@@ -34,28 +34,39 @@ type GameEntity struct {
 	sync.RWMutex `yaml:"-"`
 	Listeners    []ee.Listener `yaml:"-"`
 
-	ID              string         `yaml:"id"`
-	Name            string         `yaml:"name"`
-	Title           string         `yaml:"title"`
-	Description     string         `yaml:"description"`
-	Metatype        string         `yaml:"metatype"`
-	Age             int            `yaml:"age"`
-	Sex             string         `yaml:"sex"`
-	Height          int            `yaml:"height"`
-	Weight          int            `yaml:"weight"`
-	PositionState   PositionState  `yaml:"position_state"`
-	Ethnicity       string         `yaml:"ethnicity"`
-	StreetCred      int            `yaml:"street_cred"`
-	Notoriety       int            `yaml:"notoriety"`
-	PublicAwareness int            `yaml:"public_awareness"`
-	Karma           int            `yaml:"karma"`
-	TotalKarma      int            `yaml:"total_karma"`
-	Attributes      *Attributes    `yaml:"attributes"`
-	PhysicalDamage  PhysicalDamage `yaml:"physical_damage"`
-	StunDamage      StunDamage     `yaml:"stun_damage"`
-	Edge            Edge           `yaml:"edge"`
-	Room            *Room          `yaml:"-"`
-	RoomID          string         `yaml:"room_id"`
+	ID              string             `yaml:"id"`
+	Name            string             `yaml:"name"`
+	Title           string             `yaml:"title"`
+	Description     string             `yaml:"description"`
+	MetatypeID      string             `yaml:"metatype_id"`
+	Age             int                `yaml:"age"`
+	Sex             string             `yaml:"sex"`
+	Height          int                `yaml:"height"`
+	Weight          int                `yaml:"weight"`
+	PositionState   PositionState      `yaml:"position_state"`
+	Ethnicity       string             `yaml:"ethnicity"`
+	StreetCred      int                `yaml:"street_cred"`
+	Notoriety       int                `yaml:"notoriety"`
+	PublicAwareness int                `yaml:"public_awareness"`
+	Karma           int                `yaml:"karma"`
+	TotalKarma      int                `yaml:"total_karma"`
+	Body            Attribute[int]     `yaml:"body"`
+	Agility         Attribute[int]     `yaml:"agility"`
+	Reaction        Attribute[int]     `yaml:"reaction"`
+	Strength        Attribute[int]     `yaml:"strength"`
+	Willpower       Attribute[int]     `yaml:"willpower"`
+	Logic           Attribute[int]     `yaml:"logic"`
+	Intuition       Attribute[int]     `yaml:"intuition"`
+	Charisma        Attribute[int]     `yaml:"charisma"`
+	Essence         Attribute[float64] `yaml:"essence"`
+	Magic           Attribute[int]     `yaml:"magic"`
+	Resonance       Attribute[int]     `yaml:"resonance"`
+	// Attributes      *Attributes        `yaml:"attributes"`
+	PhysicalDamage PhysicalDamage `yaml:"physical_damage"`
+	StunDamage     StunDamage     `yaml:"stun_damage"`
+	Edge           Edge           `yaml:"edge"`
+	Room           *Room          `yaml:"-"`
+	RoomID         string         `yaml:"room_id"`
 	// Area            *Area            `yaml:"-"`
 	// AreaID     string           `yaml:"area_id"`
 	Inventory  Inventory          `yaml:"inventory"`
@@ -66,8 +77,8 @@ type GameEntity struct {
 
 func NewGameEntity() GameEntity {
 	return GameEntity{
-		ID:            uuid.New().String(),
-		Attributes:    NewAttributes(),
+		ID: uuid.New().String(),
+		// Attributes:    NewAttributes(),
 		Equipment:     make(map[string]*Item),
 		Listeners:     make([]ee.Listener, 0),
 		PositionState: PositionStanding,
@@ -92,26 +103,38 @@ func (e *GameEntity) SetRoom(room *Room) {
 // Recalculate triggers the recalculation of all attributes and derivied values.
 func (e *GameEntity) Recalculate() {
 	// Start with attributes
-	e.Attributes.Recalculate()
+	e.Body.Recalculate()
+	e.Agility.Recalculate()
+	e.Reaction.Recalculate()
+	e.Strength.Recalculate()
+	e.Willpower.Recalculate()
+	e.Logic.Recalculate()
+	e.Intuition.Recalculate()
+	e.Charisma.Recalculate()
+	e.Essence.Recalculate()
+	e.Magic.Recalculate()
+	e.Resonance.Recalculate()
 
-	// Then, recalculate derived values
-	// Composure
-	e.Attributes.Composure.Base = (e.Attributes.Charisma.TotalValue + e.Attributes.Willpower.TotalValue)
-	// Judge Intentions
-	e.Attributes.JudgeIntentions.Base = (e.Attributes.Intuition.TotalValue + e.Attributes.Charisma.TotalValue)
-	// Lift
-	e.Attributes.Lift.Base = (e.Attributes.Body.TotalValue + e.Attributes.Strength.TotalValue) * 15
-	// Carry
-	e.Attributes.Carry.Base = (e.Attributes.Body.TotalValue + e.Attributes.Strength.TotalValue) * 10
-	// Memory
-	e.Attributes.Memory.Base = (e.Attributes.Logic.TotalValue + e.Attributes.Willpower.TotalValue)
-	// Initiative
-	e.Attributes.Initiative.Base = (e.Attributes.Reaction.TotalValue + e.Attributes.Intuition.TotalValue)
-	// Walk Rate=Base Walk Rate (by metatype)+Agility
-	// Run Rate=Base Run Rate (by metatype)+(Agility×2)
-	// Swim
-	e.Attributes.Swim.Base = e.Attributes.Agility.TotalValue
-	e.Attributes.Recalculate()
+	// e.Attributes.Recalculate()
+
+	// // Then, recalculate derived values
+	// // Composure
+	// e.Attributes.Composure.Base = (e.Attributes.Charisma.TotalValue + e.Attributes.Willpower.TotalValue)
+	// // Judge Intentions
+	// e.Attributes.JudgeIntentions.Base = (e.Attributes.Intuition.TotalValue + e.Attributes.Charisma.TotalValue)
+	// // Lift
+	// e.Attributes.Lift.Base = (e.Attributes.Body.TotalValue + e.Attributes.Strength.TotalValue) * 15
+	// // Carry
+	// e.Attributes.Carry.Base = (e.Attributes.Body.TotalValue + e.Attributes.Strength.TotalValue) * 10
+	// // Memory
+	// e.Attributes.Memory.Base = (e.Attributes.Logic.TotalValue + e.Attributes.Willpower.TotalValue)
+	// // Initiative
+	// e.Attributes.Initiative.Base = (e.Attributes.Reaction.TotalValue + e.Attributes.Intuition.TotalValue)
+	// // Walk Rate=Base Walk Rate (by metatype)+Agility
+	// // Run Rate=Base Run Rate (by metatype)+(Agility×2)
+	// // Swim
+	// e.Attributes.Swim.Base = e.Attributes.Agility.TotalValue
+	// e.Attributes.Recalculate()
 }
 
 // UseEdge - Decreases the available Edge by 1.
@@ -180,26 +203,26 @@ func (e *GameEntity) RegainEdge() bool {
 
 // GetPhysicalConditionMax calculates and returns the Physical Condition Max of the character.
 func (e *GameEntity) GetPhysicalConditionMax() int {
-	e.Attributes.Recalculate()
+	// e.Attributes.Recalculate()
 	// Formula: [Body / 2] + 8 (rounded up)
 	// TODO: Add bonuses to Body before calculating; round up final results
-	return int(math.Ceil(float64(e.Attributes.Body.TotalValue)/2.0) + 8)
+	return int(math.Ceil(float64(e.Body.TotalValue)/2.0) + 8)
 }
 
 // GetStunConditionMax calculates and returns the Stun Condition Max of the character.
 func (e *GameEntity) GetStunConditionMax() int {
-	e.Attributes.Recalculate()
+	// e.Attributes.Recalculate()
 	// Formula: [Willpower / 2] + 8 (rounded up)
 	// TODO: Add bonuses to Willpower before calculating; round up final results
-	return int(math.Ceil(float64(e.Attributes.Willpower.TotalValue)/2.0) + 8)
+	return int(math.Ceil(float64(e.Willpower.TotalValue)/2.0) + 8)
 }
 
 // GetOverflowConditionMax calculates and returns the Overflow Condition Max of the character.
 func (e *GameEntity) GetOverflowConditionMax() int {
-	e.Attributes.Recalculate()
+	// e.Attributes.Recalculate()
 	// Formula: Body + Augmentation bonuses (rounded up)
 	// TODO: Implement Augmentation bonuses
-	return e.Attributes.Body.TotalValue
+	return e.Body.TotalValue
 }
 
 type PhysicalDamage struct {
@@ -220,9 +243,9 @@ type Edge struct {
 
 // TODO: implement movement
 func (e *GameEntity) GetMovement() int {
-	e.Attributes.Recalculate()
+	// e.Attributes.Recalculate()
 	// Formula: (Reaction + Agility) / 2
-	return (e.Attributes.Reaction.TotalValue + e.Attributes.Agility.TotalValue) / 2
+	return (e.Reaction.TotalValue + e.Agility.TotalValue) / 2
 }
 
 func (e *GameEntity) ApplyStunDamage(damage int) {
@@ -257,21 +280,21 @@ Injuries cause pain, bleeding, and other distractions that interfere with doing 
 Wound modifiers are applied to all tests not about reducing the number of boxes you’re about to take on your Condition Monitor (such as damage resistance, resisting direct combat spells, toxin resistance, and so on). The Wound Modifier penalty is also applied to the character’s Initiative attribute and therefore their Initiative Score during combat.
 */
 func (e *GameEntity) GetWoundModifiers() int {
-	e.Attributes.Recalculate()
+	// e.Attributes.Recalculate()
 	// Formula: [Body / 2] + 1 (rounded up)
-	return int(math.Ceil(float64(e.Attributes.Body.TotalValue)/2.0) + 1)
+	return int(math.Ceil(float64(e.Body.TotalValue)/2.0) + 1)
 }
 
 // Attributes
 
 // GetInitiative (Reaction + Intuition) + 1D6 + Attribute/Initiative Dice bonus
 func (e *GameEntity) GetInitative() int {
-	e.Attributes.Recalculate()
+	// e.Attributes.Recalculate()
 	poolSize := 1
 	_, _, results := RollDice(poolSize)
 	// Formula: (Reaction + Intuition) + 1D6
 	// TODO: Add appropriate attribute and Initiative
-	return (e.Attributes.Reaction.TotalValue + e.Attributes.Intuition.TotalValue) + RollResultsTotal(results)
+	return (e.Reaction.TotalValue + e.Intuition.TotalValue) + RollResultsTotal(results)
 }
 
 func (e *GameEntity) GetAdjustedInitiative() int {
@@ -292,16 +315,16 @@ func (e *GameEntity) ApplyWoundModifiers(baseDicePool int) int {
 // The baseline for lifting weight is 15 kilograms per point of Strength. Anything more than that requires a Strength + Body Test. Each hit increases the max weight lifted by 15 kilograms. Lifting weight above your head, as with a clean & jerk, is more difficult. The baseline for lifting weight above the head is 5 kilograms per point Strength. Each hit on the Lifting Test increases the maximum weight you can lift by 5 kilograms.
 // Carrying weight is significantly different than lifting weight. Characters can carry Strength x 10 kilograms in gear without effort. Additional weight requires a Lifting Test. Each hit increases the maximum by 10 kilograms.
 func (e *GameEntity) GetLiftCarry() float64 {
-	e.Attributes.Recalculate()
+	// e.Attributes.Recalculate()
 	baseCarryWeight := 10
 	// Lift Formula: STR * 15
 	// Carry Formula: STR * 10
-	return float64(e.Attributes.Strength.TotalValue+e.Attributes.Body.TotalValue) * float64(baseCarryWeight)
+	return float64(e.Strength.TotalValue+e.Body.TotalValue) * float64(baseCarryWeight)
 }
 
 // GetCurrentCarryWeight calculates and returns the current carry weight of the character.
 func (e *GameEntity) GetCurrentCarryWeight() float64 {
-	e.Attributes.Recalculate()
+	// e.Attributes.Recalculate()
 	totalWeight := 0.0
 
 	for _, item := range e.Inventory.Items {
@@ -325,26 +348,26 @@ func (e *GameEntity) IsEncumbered() bool {
 // Some situations are tough to deal with, even for hardened professionals like shadowrunners. When a character is faced with an emotionally overwhelming situation there are only two choices. Stay and fight or turn into a quivering lump of goo. To find out which one happens, make a Willpower + Charisma Test, with a threshold based on the severity of the situation.Take note that repeating similar situations over and again eventually eliminates the need to perform this test. Staring down a group of well-armed gangers will be scary at first, but after a character does it a few times the fear gives way to instinct.
 // (WIL + CHA)
 func (e *GameEntity) GetComposure() int {
-	e.Attributes.Recalculate()
+	// e.Attributes.Recalculate()
 	// Formula: (WIL + CHA)
-	return e.Attributes.Willpower.TotalValue + e.Attributes.Charisma.TotalValue
+	return e.Willpower.TotalValue + e.Charisma.TotalValue
 }
 
 // GetJudgeIntentions calculates and returns the Judge Intentions of the character.
 // Reading another person is also a matter of instinct. A character can use their instincts to guess at the intentions of another person or to gauge how much they can trust someone. Make an Opposed Intuition + Charisma Test against the target’s Willpower + Charisma. This is not an exact science. A successful test doesn’t mean the target will never betray you (intentions have been known to change), and deceptive characters can gain another’s confidence easily. This primarily serves as a benchmark or gut instinct about how much you can trust the person you are dealing with.
 func (e *GameEntity) GetJudgeIntentions() int {
-	e.Attributes.Recalculate()
+	// e.Attributes.Recalculate()
 	// Formula: (INT + CHA)
-	return e.Attributes.Intuition.TotalValue + e.Attributes.Charisma.TotalValue
+	return e.Intuition.TotalValue + e.Charisma.TotalValue
 }
 
 // GetMemory calculates and returns the Memory of the character.
 // While there are numerous mnemonic devices, and even a few select pieces of bioware, designed for remembering information, memory is not a skill. If a character needs to recall information make a Logic + Willpower Test. Use the Knowledge Skill Table to determine the threshold. If a character actively tries to memorize information, make a Logic + Willpower Test at the time of memorization. Each hit adds a dice to the Recall Test later on.
 // Glitches can have a devastating effect on memory. A glitch means the character misremembers some portion of the information, such as order of numbers in a passcode. A critical glitch means the character has completely fooled himself into believing and thus remembering something that never actually happened.
 func (e *GameEntity) GetMemory() int {
-	e.Attributes.Recalculate()
+	// e.Attributes.Recalculate()
 	// Formula: (LOG + WIL)
-	return e.Attributes.Logic.TotalValue + e.Attributes.Willpower.TotalValue
+	return e.Logic.TotalValue + e.Willpower.TotalValue
 }
 
 // Judge Intentions (INT + CHA)
@@ -352,10 +375,10 @@ func (e *GameEntity) GetMemory() int {
 
 // GetPhysicalLimit calculates and returns the Physical Limit of the character.
 func (e *GameEntity) GetPhysicalLimit() int {
-	e.Attributes.Recalculate()
-	strength := float64(e.Attributes.Strength.TotalValue)
-	body := float64(e.Attributes.Body.TotalValue)
-	reaction := float64(e.Attributes.Reaction.TotalValue)
+	// e.Attributes.Recalculate()
+	strength := float64(e.Strength.TotalValue)
+	body := float64(e.Body.TotalValue)
+	reaction := float64(e.Reaction.TotalValue)
 
 	// Formula: [(Strength x 2) + Body + Reaction] / 3 (round up)
 	limit := (strength*2 + body + reaction) / 3.0
@@ -364,10 +387,10 @@ func (e *GameEntity) GetPhysicalLimit() int {
 
 // GetSocialLimit calculates and returns the Social Limit of the character.
 func (e *GameEntity) GetSocialLimit() int {
-	e.Attributes.Recalculate()
-	charisma := float64(e.Attributes.Charisma.TotalValue)
-	willpower := float64(e.Attributes.Willpower.TotalValue)
-	essence := e.Attributes.Essence.TotalValue
+	// e.Attributes.Recalculate()
+	charisma := float64(e.Charisma.TotalValue)
+	willpower := float64(e.Willpower.TotalValue)
+	essence := e.Essence.TotalValue
 
 	// Formula: [(Charisma x 2) + Willpower + Essence] / 3 (round up)
 	limit := (charisma*2 + willpower + essence) / 3.0
@@ -376,10 +399,10 @@ func (e *GameEntity) GetSocialLimit() int {
 
 // GetMentalLimit calculates and returns the Mental Limit of the character.
 func (e *GameEntity) GetMentalLimit() int {
-	e.Attributes.Recalculate()
-	logic := float64(e.Attributes.Logic.TotalValue)
-	intuition := float64(e.Attributes.Intuition.TotalValue)
-	willpower := float64(e.Attributes.Willpower.TotalValue)
+	// e.Attributes.Recalculate()
+	logic := float64(e.Logic.TotalValue)
+	intuition := float64(e.Intuition.TotalValue)
+	willpower := float64(e.Willpower.TotalValue)
 
 	// Formula: [(Logic x 2) + Intuition + Willpower] / 3 (round up)
 	limit := (logic*2 + intuition + willpower) / 3.0
@@ -388,7 +411,7 @@ func (e *GameEntity) GetMentalLimit() int {
 
 // GetEncumbrancePenalty calculates and returns the encumbrance penalty of the character.
 func (e *GameEntity) GetEncumbrancePenalty() int {
-	e.Attributes.Recalculate()
+	// e.Attributes.Recalculate()
 	currentWeight := e.GetCurrentCarryWeight()
 	maxCarryWeight := float64(e.GetLiftCarry())
 	excessWeight := currentWeight - maxCarryWeight
@@ -404,7 +427,7 @@ func (e *GameEntity) GetEncumbrancePenalty() int {
 
 // GetAdjustedPhysicalLimit calculates and returns the adjusted physical limit of the character.
 func (e *GameEntity) GetAdjustedPhysicalLimit() int {
-	e.Attributes.Recalculate()
+	// e.Attributes.Recalculate()
 	basePhysicalLimit := e.GetPhysicalLimit()
 	penalty := e.GetEncumbrancePenalty()
 

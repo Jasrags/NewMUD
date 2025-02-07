@@ -35,16 +35,29 @@ type (
 	MetatypeCategory string
 
 	Metatype struct {
-		ID                  string     `yaml:"id"`
-		PointCost           int        `yaml:"point_cost"`
-		Name                string     `yaml:"name"`
-		Category            string     `yaml:"category"`
-		Description         string     `yaml:"description"`
-		Attributes          Attributes `yaml:"attributes"`
-		Hidden              bool       `yaml:"hidden"`
-		Qualities           []string   `yaml:"qualities"`
-		QualityRestrictions []string   `yaml:"quality_restrictions"`
-		RuleSource          string     `yaml:"rule_source"`
+		ID          string `yaml:"id"`
+		PointCost   int    `yaml:"point_cost"`
+		Name        string `yaml:"name"`
+		Category    string `yaml:"category"`
+		Description string `yaml:"description"`
+
+		Body      Attribute[int]     `yaml:"body"`
+		Agility   Attribute[int]     `yaml:"agility"`
+		Reaction  Attribute[int]     `yaml:"reaction"`
+		Strength  Attribute[int]     `yaml:"strength"`
+		Willpower Attribute[int]     `yaml:"willpower"`
+		Logic     Attribute[int]     `yaml:"logic"`
+		Intuition Attribute[int]     `yaml:"intuition"`
+		Charisma  Attribute[int]     `yaml:"charisma"`
+		Essence   Attribute[float64] `yaml:"essence"`
+		Magic     Attribute[int]     `yaml:"magic"`
+		Resonance Attribute[int]     `yaml:"resonance"`
+
+		// Attributes          Attributes `yaml:"attributes"`
+		Hidden              bool     `yaml:"hidden"`
+		Qualities           []string `yaml:"qualities"`
+		QualityRestrictions []string `yaml:"quality_restrictions"`
+		RuleSource          string   `yaml:"rule_source"`
 	}
 )
 

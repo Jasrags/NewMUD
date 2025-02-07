@@ -2,59 +2,58 @@ id: ork
 name: Ork
 category: Metahuman
 description: Orks are known for their strength, toughness, and tusks.
-attributes:
-  body:
-      min: 4
-      max: 9
-      aug_max: 13
-  agility:
-      min: 1
-      max: 6
-      aug_max: 10
-  reaction:
-      min: 1
-      max: 6
-      aug_max: 10
-  strength:
-      min: 3
-      max: 8
-      aug_max: 12
-  willpower:
-      min: 1
-      max: 6
-      aug_max: 10
-  logic:
-      min: 1
-      max: 5
-      aug_max: 9
-  intuition:
-      min: 1
-      max: 6
-      aug_max: 10
-  charisma:
-      min: 1
-      max: 5
-      aug_max: 9
-  edge:
-      min: 1
-      max: 6
-      aug_max: 6
-  initiative:
-      min: 2
-      max: 12
-      aug_max: 20
-  essence:
-      min: 0
-      max: 6
-      aug_max: 6
-  magic:
-      min: 1
-      max: 6
-      aug_max: 6
-  resonance:
-      min: 1
-      max: 6
-      aug_max: 6
+body:
+    min: 4
+    max: 9
+    aug_max: 13
+agility:
+    min: 1
+    max: 6
+    aug_max: 10
+reaction:
+    min: 1
+    max: 6
+    aug_max: 10
+strength:
+    min: 3
+    max: 8
+    aug_max: 12
+willpower:
+    min: 1
+    max: 6
+    aug_max: 10
+logic:
+    min: 1
+    max: 5
+    aug_max: 9
+intuition:
+    min: 1
+    max: 6
+    aug_max: 10
+charisma:
+    min: 1
+    max: 5
+    aug_max: 9
+edge:
+    min: 1
+    max: 6
+    aug_max: 6
+initiative:
+    min: 2
+    max: 12
+    aug_max: 20
+essence:
+    min: 0
+    max: 6
+    aug_max: 6
+magic:
+    min: 1
+    max: 6
+    aug_max: 6
+resonance:
+    min: 1
+    max: 6
+    aug_max: 6
 quality_restrictions: []
 qualities:
     - low_light_vision

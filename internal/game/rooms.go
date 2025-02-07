@@ -314,8 +314,9 @@ func RenderEntitiesInRoom(char *Character) string {
 	entityDescriptions := []string{}
 	for _, c := range char.Room.Characters {
 		if c.Name != char.Name {
+			metatype := EntityMgr.GetMetatype(c.MetatypeID)
 			entityDescriptions = append(entityDescriptions, cfmt.Sprintf(
-				"{{%s (%s)}}::cyan|bold", c.Name, c.Metatype))
+				"{{%s (%s)}}::cyan|bold", c.Name, metatype.Name))
 		}
 	}
 	// Count and map mob names for pluralization

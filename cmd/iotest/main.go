@@ -31,12 +31,12 @@ func main() {
 	player1 := game.NewCharacter()
 	player1.Name = "Player1"
 	player1.Room = room
-	player1.Metatype = "Human"
+	player1.MetatypeID = "Human"
 
 	player2 := game.NewCharacter()
 	player2.Name = "Player2"
 	player2.Room = room
-	player2.Metatype = "Ork"
+	player2.MetatypeID = "Ork"
 
 	char.Room.AddCharacter(player1)
 	char.Room.AddCharacter(player2)

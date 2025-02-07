@@ -46,11 +46,11 @@ type (
 		RuleSource      shared.RuleSource `yaml:"rule_source"`
 	}
 	Skill struct {
-		BlueprintID    string    `yaml:"blueprint_id"`
-		Name           string    `yaml:"name"`
-		Type           SkillType `yaml:"type"`
-		Specialization string    `yaml:"specialization"`
-		Rating         int       `yaml:"rating"`
+		BlueprintID string `yaml:"blueprint_id"`
+		// Name           string    `yaml:"name"`
+		// Type           SkillType `yaml:"type"`
+		Specialization string `yaml:"specialization"`
+		Rating         int    `yaml:"rating"`
 	}
 	SkillGroup struct {
 		ID          string            `yaml:"id,omitempty"`
