@@ -61,12 +61,11 @@ type GameEntity struct {
 	Essence         Attribute[float64] `yaml:"essence"`
 	Magic           Attribute[int]     `yaml:"magic"`
 	Resonance       Attribute[int]     `yaml:"resonance"`
-	// Attributes      *Attributes        `yaml:"attributes"`
-	PhysicalDamage PhysicalDamage `yaml:"physical_damage"`
-	StunDamage     StunDamage     `yaml:"stun_damage"`
-	Edge           Edge           `yaml:"edge"`
-	Room           *Room          `yaml:"-"`
-	RoomID         string         `yaml:"room_id"`
+	PhysicalDamage  PhysicalDamage     `yaml:"physical_damage"`
+	StunDamage      StunDamage         `yaml:"stun_damage"`
+	Edge            Edge               `yaml:"edge"`
+	Room            *Room              `yaml:"-"`
+	RoomID          string             `yaml:"room_id"`
 	// Area            *Area            `yaml:"-"`
 	// AreaID     string           `yaml:"area_id"`
 	Inventory  Inventory          `yaml:"inventory"`
@@ -77,8 +76,7 @@ type GameEntity struct {
 
 func NewGameEntity() GameEntity {
 	return GameEntity{
-		ID: uuid.New().String(),
-		// Attributes:    NewAttributes(),
+		ID:            uuid.New().String(),
 		Equipment:     make(map[string]*Item),
 		Listeners:     make([]ee.Listener, 0),
 		PositionState: PositionStanding,
@@ -135,6 +133,7 @@ func (e *GameEntity) Recalculate() {
 	// // Swim
 	// e.Attributes.Swim.Base = e.Attributes.Agility.TotalValue
 	// e.Attributes.Recalculate()
+
 }
 
 // UseEdge - Decreases the available Edge by 1.
@@ -203,6 +202,7 @@ func (e *GameEntity) RegainEdge() bool {
 
 // GetPhysicalConditionMax calculates and returns the Physical Condition Max of the character.
 func (e *GameEntity) GetPhysicalConditionMax() int {
+	// e.Recalculate()
 	// e.Attributes.Recalculate()
 	// Formula: [Body / 2] + 8 (rounded up)
 	// TODO: Add bonuses to Body before calculating; round up final results
@@ -315,7 +315,7 @@ func (e *GameEntity) ApplyWoundModifiers(baseDicePool int) int {
 // The baseline for lifting weight is 15 kilograms per point of Strength. Anything more than that requires a Strength + Body Test. Each hit increases the max weight lifted by 15 kilograms. Lifting weight above your head, as with a clean & jerk, is more difficult. The baseline for lifting weight above the head is 5 kilograms per point Strength. Each hit on the Lifting Test increases the maximum weight you can lift by 5 kilograms.
 // Carrying weight is significantly different than lifting weight. Characters can carry Strength x 10 kilograms in gear without effort. Additional weight requires a Lifting Test. Each hit increases the maximum by 10 kilograms.
 func (e *GameEntity) GetLiftCarry() float64 {
-	// e.Attributes.Recalculate()
+	e.Recalculate()
 	baseCarryWeight := 10
 	// Lift Formula: STR * 15
 	// Carry Formula: STR * 10
@@ -348,7 +348,7 @@ func (e *GameEntity) IsEncumbered() bool {
 // Some situations are tough to deal with, even for hardened professionals like shadowrunners. When a character is faced with an emotionally overwhelming situation there are only two choices. Stay and fight or turn into a quivering lump of goo. To find out which one happens, make a Willpower + Charisma Test, with a threshold based on the severity of the situation.Take note that repeating similar situations over and again eventually eliminates the need to perform this test. Staring down a group of well-armed gangers will be scary at first, but after a character does it a few times the fear gives way to instinct.
 // (WIL + CHA)
 func (e *GameEntity) GetComposure() int {
-	// e.Attributes.Recalculate()
+	e.Recalculate()
 	// Formula: (WIL + CHA)
 	return e.Willpower.TotalValue + e.Charisma.TotalValue
 }
@@ -356,7 +356,7 @@ func (e *GameEntity) GetComposure() int {
 // GetJudgeIntentions calculates and returns the Judge Intentions of the character.
 // Reading another person is also a matter of instinct. A character can use their instincts to guess at the intentions of another person or to gauge how much they can trust someone. Make an Opposed Intuition + Charisma Test against the target’s Willpower + Charisma. This is not an exact science. A successful test doesn’t mean the target will never betray you (intentions have been known to change), and deceptive characters can gain another’s confidence easily. This primarily serves as a benchmark or gut instinct about how much you can trust the person you are dealing with.
 func (e *GameEntity) GetJudgeIntentions() int {
-	// e.Attributes.Recalculate()
+	e.Recalculate()
 	// Formula: (INT + CHA)
 	return e.Intuition.TotalValue + e.Charisma.TotalValue
 }
@@ -365,7 +365,7 @@ func (e *GameEntity) GetJudgeIntentions() int {
 // While there are numerous mnemonic devices, and even a few select pieces of bioware, designed for remembering information, memory is not a skill. If a character needs to recall information make a Logic + Willpower Test. Use the Knowledge Skill Table to determine the threshold. If a character actively tries to memorize information, make a Logic + Willpower Test at the time of memorization. Each hit adds a dice to the Recall Test later on.
 // Glitches can have a devastating effect on memory. A glitch means the character misremembers some portion of the information, such as order of numbers in a passcode. A critical glitch means the character has completely fooled himself into believing and thus remembering something that never actually happened.
 func (e *GameEntity) GetMemory() int {
-	// e.Attributes.Recalculate()
+	e.Recalculate()
 	// Formula: (LOG + WIL)
 	return e.Logic.TotalValue + e.Willpower.TotalValue
 }
@@ -375,7 +375,7 @@ func (e *GameEntity) GetMemory() int {
 
 // GetPhysicalLimit calculates and returns the Physical Limit of the character.
 func (e *GameEntity) GetPhysicalLimit() int {
-	// e.Attributes.Recalculate()
+	e.Recalculate()
 	strength := float64(e.Strength.TotalValue)
 	body := float64(e.Body.TotalValue)
 	reaction := float64(e.Reaction.TotalValue)
@@ -387,7 +387,7 @@ func (e *GameEntity) GetPhysicalLimit() int {
 
 // GetSocialLimit calculates and returns the Social Limit of the character.
 func (e *GameEntity) GetSocialLimit() int {
-	// e.Attributes.Recalculate()
+	e.Recalculate()
 	charisma := float64(e.Charisma.TotalValue)
 	willpower := float64(e.Willpower.TotalValue)
 	essence := e.Essence.TotalValue
@@ -399,7 +399,7 @@ func (e *GameEntity) GetSocialLimit() int {
 
 // GetMentalLimit calculates and returns the Mental Limit of the character.
 func (e *GameEntity) GetMentalLimit() int {
-	// e.Attributes.Recalculate()
+	e.Recalculate()
 	logic := float64(e.Logic.TotalValue)
 	intuition := float64(e.Intuition.TotalValue)
 	willpower := float64(e.Willpower.TotalValue)
