@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log/slog"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	"github.com/gliderlabs/ssh"
@@ -420,43 +421,190 @@ func PromptSelectPregenCharacter(s ssh.Session, a *Account) (string, *Character)
 		char.Skills = pregen.Skills
 		char.Qualtities = pregen.Qualtities
 
-		// Proceed with character naming.
-		return PromptSetCharacterName(s, a, char)
+		// Proceed with character details.
+		return PromptSetCharacterDetails(s, a, char)
 	}
 }
 
+func PromptSetCharacterDetails(s ssh.Session, a *Account, char *Character) (string, *Character) {
+	if state, updatedChar := PromptSetCharacterName(s, a, char); state == StateError {
+		return state, nil
+	} else {
+		char = updatedChar
+	}
+
+	// Prompt for additional details
+	if state, updatedChar := PromptSetCharacterSex(s, a, char); state == StateError {
+		return state, nil
+	} else {
+		char = updatedChar
+	}
+
+	if state, updatedChar := PromptSetCharacterAge(s, a, char); state == StateError {
+		return state, nil
+	} else {
+		char = updatedChar
+	}
+
+	if state, updatedChar := PromptSetCharacterHeight(s, a, char); state == StateError {
+		return state, nil
+	} else {
+		char = updatedChar
+	}
+
+	if state, updatedChar := PromptSetCharacterWeight(s, a, char); state == StateError {
+		return state, nil
+	} else {
+		char = updatedChar
+	}
+
+	if state, updatedChar := PromptSetCharacterShortDescription(s, a, char); state == StateError {
+		return state, nil
+	} else {
+		char = updatedChar
+	}
+
+	if state, updatedChar := PromptSetCharacterLongDescription(s, a, char); state == StateError {
+		return state, nil
+	} else {
+		char = updatedChar
+	}
+
+	// Save and return
+	a.Characters = append(a.Characters, char.Name)
+	CharacterMgr.AddCharacter(char)
+	char.Save()
+
+	WriteString(s, cfmt.Sprintf("{{Character '%s' created successfully! Returning to main menu.}}::green"+CRLF, char.Name))
+
+	return StateMainMenu, char
+}
+
 func PromptSetCharacterName(s ssh.Session, a *Account, char *Character) (string, *Character) {
+	WriteString(s, "{{Enter your character's name:}}::white|bold ")
+	name, err := InputPrompt(s, "")
+	if err != nil {
+		return StateError, nil
+	}
+
+	if err := ValidateCharacterName(name); err != nil {
+		WriteString(s, cfmt.Sprintf("{{Invalid name: %s}}::red"+CRLF, err.Error()))
+		return StateError, nil
+	}
+
+	char.Name = strings.TrimSpace(name)
+
+	return "", char
+}
+
+func PromptSetCharacterSex(s ssh.Session, a *Account, char *Character) (string, *Character) {
+	options := []MenuOption{
+		{"Male", "male", "Male character"},
+		{"Female", "female", "Female character"},
+		{"Non-Binary", "non_binary", "Non-binary character"},
+		// {"Custom", "custom", "Enter a custom gender identity"},
+	}
+
 	for {
-		// Prompt for the character's name.
-		WriteString(s, "{{Enter your character's name:}}::cyan ")
-		name, err := InputPrompt(s, "")
+		choice, err := PromptForMenu(s, "Select Your Character's Sex", options)
 		if err != nil {
 			return StateError, nil
 		}
-		name = strings.TrimSpace(name)
 
-		// Validate the character name.
-		if err := ValidateCharacterName(name); err != nil {
-			WriteString(s, cfmt.Sprintf("{{Invalid name: %s}}::red"+CRLF, err.Error()))
+		// if choice == "custom" {
+		// 	WriteString(s, "{{Enter your character's gender identity:}}::cyan ")
+		// 	customGender, err := InputPrompt(s, "")
+		// 	if err != nil {
+		// 		return StateError, nil
+		// 	}
+		// 	char.Sex = strings.TrimSpace(customGender)
+		// } else {
+		char.Sex = choice
+		// }
+
+		return "", char
+	}
+}
+
+func PromptSetCharacterAge(s ssh.Session, a *Account, char *Character) (string, *Character) {
+	for {
+		WriteString(s, "{{Enter your character's age (numeric):}}::white|bold ")
+		input, err := InputPrompt(s, "")
+		if err != nil {
+			return StateError, nil
+		}
+
+		age, err := strconv.Atoi(strings.TrimSpace(input))
+		if err != nil || age < 0 {
+			WriteString(s, "{{Invalid age. Please enter a positive number.}}::red"+CRLF)
 			continue
 		}
 
-		char.Name = name
-
-		// Instantiate and save the new character.
-		// This code is commented out because the actual instantiation logic may change.
-		// newChar := pregen.Instantiate(name, a.ID)
-		// newChar.Save()
-		a.Characters = append(a.Characters, char.Name)
-		// a.Save()
-		CharacterMgr.AddCharacter(char)
-		char.Save()
-
-		// Inform the user of the successful character creation.
-		WriteString(s, cfmt.Sprintf("{{Character '%s' created successfully! Returning to main menu.}}::green"+CRLF, name))
-
-		return StateMainMenu, char
+		char.Age = age
+		return "", char
 	}
+}
+
+func PromptSetCharacterHeight(s ssh.Session, a *Account, char *Character) (string, *Character) {
+	for {
+		WriteString(s, "{{Enter your character's height in cm:}}::white|bold ")
+		input, err := InputPrompt(s, "")
+		if err != nil {
+			return StateError, nil
+		}
+
+		height, err := strconv.Atoi(strings.TrimSpace(input))
+		if err != nil || height < 50 || height > 300 {
+			WriteString(s, "{{Invalid height. Enter a value between 50cm and 300cm.}}::red"+CRLF)
+			continue
+		}
+
+		char.Height = height
+		return "", char
+	}
+}
+
+func PromptSetCharacterWeight(s ssh.Session, a *Account, char *Character) (string, *Character) {
+	for {
+		WriteString(s, "{{Enter your character's weight in kg:}}::white|bold ")
+		input, err := InputPrompt(s, "")
+		if err != nil {
+			return StateError, nil
+		}
+
+		weight, err := strconv.Atoi(strings.TrimSpace(input))
+		if err != nil || weight < 20 || weight > 500 {
+			WriteString(s, "{{Invalid weight. Enter a value between 20kg and 500kg.}}::red"+CRLF)
+			continue
+		}
+
+		char.Weight = weight
+		return "", char
+	}
+}
+
+// TODO: Using details about this character, generate a random description
+func PromptSetCharacterShortDescription(s ssh.Session, a *Account, char *Character) (string, *Character) {
+	WriteString(s, "{{Enter a short description of your character:}}::white|bold ")
+	description, err := InputPrompt(s, "")
+	if err != nil {
+		return StateError, nil
+	}
+
+	char.Description = strings.TrimSpace(description)
+	return "", char
+}
+
+// TODO: Using details about this character, generate a random description
+func PromptSetCharacterLongDescription(s ssh.Session, a *Account, char *Character) (string, *Character) {
+	WriteString(s, "{{Enter a long description of your character (background, details, etc.):}}::white|bold ")
+	description, err := InputPrompt(s, "")
+	if err != nil {
+		return StateError, nil
+	}
+
+	char.LongDescription = strings.TrimSpace(description)
+	return "", char
 }
 
 func PromptEnterGame(s ssh.Session, a *Account) (string, *Character) {
@@ -515,6 +663,8 @@ func PromptEnterGame(s ssh.Session, a *Account) (string, *Character) {
 
 		// Save any changes to the account and character, and mark the character as online.
 		a.Save()
+
+		c.Recalculate()
 		c.Save()
 		CharacterMgr.SetCharacterOnline(c)
 

@@ -34,17 +34,18 @@ type GameEntity struct {
 	sync.RWMutex `yaml:"-"`
 	Listeners    []ee.Listener `yaml:"-"`
 
-	ID              string             `yaml:"id"`
-	Name            string             `yaml:"name"`
-	Title           string             `yaml:"title"`
-	Description     string             `yaml:"description"`
-	MetatypeID      string             `yaml:"metatype_id"`
-	Age             int                `yaml:"age"`
-	Sex             string             `yaml:"sex"`
-	Height          int                `yaml:"height"`
-	Weight          int                `yaml:"weight"`
-	PositionState   PositionState      `yaml:"position_state"`
-	Ethnicity       string             `yaml:"ethnicity"`
+	ID              string        `yaml:"id"`
+	Name            string        `yaml:"name"`
+	Title           string        `yaml:"title"`
+	Description     string        `yaml:"description"`
+	LongDescription string        `yaml:"long_description"`
+	MetatypeID      string        `yaml:"metatype_id"`
+	Age             int           `yaml:"age"`
+	Sex             string        `yaml:"sex"`
+	Height          int           `yaml:"height"`
+	Weight          int           `yaml:"weight"`
+	PositionState   PositionState `yaml:"position_state"`
+	// Ethnicity       string             `yaml:"ethnicity"`
 	StreetCred      int                `yaml:"street_cred"`
 	Notoriety       int                `yaml:"notoriety"`
 	PublicAwareness int                `yaml:"public_awareness"`

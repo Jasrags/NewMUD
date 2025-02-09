@@ -237,7 +237,7 @@ func RenderCharacterTable(char *Character) string {
 				),
 				lipgloss.JoinHorizontal(lipgloss.Top,
 					RenderKeyValue("Metatype", metatype.Name), "\t",
-					RenderKeyValue("Ethnicity", char.Ethnicity),
+					// RenderKeyValue("Ethnicity", char.Ethnicity),
 				),
 				lipgloss.JoinHorizontal(lipgloss.Top,
 					RenderKeyValue("Age", "0"), "\t",
@@ -282,24 +282,22 @@ func RenderCharacterTable(char *Character) string {
 				),
 			),
 			// Attributes RIGHT - Derivied attributes
-			// lipgloss.JoinVertical(lipgloss.Left,
-			// 	headerStyle.Render(""),
-			// 	dualColumnStyle.Render(
-			// 		lipgloss.JoinVertical(lipgloss.Left,
-			// 			RenderAttribute(char.Attributes.Initiative), // Initiative 10 (12) + 1d6 (2d6)
-			// 			RenderAttribute(char.Attributes.InitiativeDice),
-			// 			RenderAttribute(char.Attributes.Composure),       // 5  (7)
-			// 			RenderAttribute(char.Attributes.JudgeIntentions), // 5  (7)
-			// 			RenderAttribute(char.Attributes.Memory),          // 5  (7)
-			// 			RenderAttribute(char.Attributes.Lift),            // 5  (7)
-			// 			RenderAttribute(char.Attributes.Carry),           // 5  (7)
-			// 			RenderAttribute(char.Attributes.Walk),            // 5  (7)
-			// 			RenderAttribute(char.Attributes.Run),             // 5  (7)
-			// 			RenderAttribute(char.Attributes.Swim),            // 5  (7)
-			// 			"",
-			// 		),
-			// 	),
-			// ),
+			lipgloss.JoinVertical(lipgloss.Left,
+				headerStyle.Render(""),
+				dualColumnStyle.Render(
+					lipgloss.JoinVertical(lipgloss.Left), // RenderAttribute(char.Attributes.Initiative), // Initiative 10 (12) + 1d6 (2d6)
+					// 			RenderAttribute(char.Attributes.InitiativeDice),
+					// 			RenderAttribute(char.Attributes.Composure),       // 5  (7)
+					// 			RenderAttribute(char.Attributes.JudgeIntentions), // 5  (7)
+					// 			RenderAttribute(char.Attributes.Memory),          // 5  (7)
+					// 			RenderAttribute(char.Attributes.Lift),            // 5  (7)
+					// 			RenderAttribute(char.Attributes.Carry),           // 5  (7)
+					// 			RenderAttribute(char.Attributes.Walk),            // 5  (7)
+					// 			RenderAttribute(char.Attributes.Run),             // 5  (7)
+					// 			RenderAttribute(char.Attributes.Swim),            // 5  (7)
+					// 			"",
+				),
+			),
 		),
 	)
 
