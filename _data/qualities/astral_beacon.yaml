@@ -1,0 +1,7 @@
+id: astral_beacon
+type: Negative
+name: Astral Beacon
+description: The character is an astral beacon. The character’s astral form is unusually bright and easy to spot. The character receives a –2 dice pool modifier on all tests to hide his aura from astral perception.
+modifiers: []
+cost: 10
+rule_source: SR5:Core

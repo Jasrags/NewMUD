@@ -1,0 +1,8 @@
+id: thermographic_vision
+type: Positive
+name: Thermographic Vision
+description: The character can see heat sources. The character can see in the infrared spectrum, allowing him to see warm objects in the dark. This quality is common among trolls and some other metatypes.
+modifiers: []
+cost: 0
+rule_source: SR5:Core
+hidden: true

@@ -92,6 +92,18 @@ func (mgr *AccountManager) IsBannedName(name string) bool {
 	return mgr.bannedNames[strings.ToLower(name)]
 }
 
+func (mgr *AccountManager) GetAccountNames() []string {
+	mgr.RLock()
+	defer mgr.RUnlock()
+
+	var names []string
+	for _, u := range mgr.accounts {
+		names = append(names, u.Username)
+	}
+
+	return names
+}
+
 func (mgr *AccountManager) LoadDataFiles() {
 	dataFilePath := viper.GetString("data.accounts_path")
 	bannedNames := viper.GetStringSlice("banned_names")

@@ -57,7 +57,7 @@ func (h *ColorHandler) Handle(ctx context.Context, r slog.Record) error {
 				switch a.Value.Kind() {
 				case slog.KindString:
 					fgcolor = 33 // yellow
-					if strings.ContainsAny(strVal, "\r\n") {
+					if strings.ContainsAny(strVal, "\r"+CRLF) {
 						strVal = strings.ReplaceAll(strVal, "\n", `\n`)
 						strVal = strings.ReplaceAll(strVal, "\r", `\r`)
 					}

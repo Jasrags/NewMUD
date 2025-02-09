@@ -1,0 +1,9 @@
+id: banishing
+name: Banishing
+description: Banishing is used to disrupt the link between spirits and the physical world. Banished spirits are forced to return to their native plane and are no longer required to complete unfulfilled services.
+is_defaultable: false
+linked_attribute: Magic
+specializations:
+    - Spirits of Air
+    - Spirits of Man
+rule_source: SR5:Core

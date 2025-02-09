@@ -1,0 +1,11 @@
+id: astral_combat
+name: Astral Combat
+description: Fighting in Astral Space requires the Astral Combat skill. Combat in the Astral World relies on a very different set of abilities and attributes than physical combatants.
+is_defaultable: false
+linked_attribute: Willpower
+specializations:
+    - By specific weapon focus type
+    - Magicians
+    - Spirits
+    - Mana Barriers
+rule_source: SR5:Core

@@ -1,0 +1,10 @@
+id: computer
+name: Computer
+description: Computer is the base skill for interacting with the Matrix. It represents the ability to use computers and other Matrix-connected devices. The Computer skill focuses on understanding multiple operating systems. It does not allow the character to exploit code (Hacking) or strip down mainframes (Hardware).
+is_defaultable: false
+linked_attribute: Logic
+specializations:
+    - Edit File
+    - Matrix Perception
+    - Matrix Search
+rule_source: SR5:Core

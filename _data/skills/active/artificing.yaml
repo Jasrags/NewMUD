@@ -1,0 +1,9 @@
+id: artificing
+name: Artificing
+description: Artificing is the process of crafting magical foci. The skill may also be used forensically, in order to assense qualities about an existing focus’ creation and purpose.
+is_defaultable: false
+linked_attribute: Magic
+specializations:
+    - Focus Analysis
+    - 'Crafting (by focus type) '
+rule_source: SR5:Core

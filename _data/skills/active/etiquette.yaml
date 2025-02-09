@@ -1,0 +1,8 @@
+id: etiquette
+name: Etiquette
+description: Etiquette represents the level of understanding and awareness of proper social rituals. The skill works as a sort of social version of Sneak, allowing you to move unimpeded through various social situations. Etiquette also serves as a social safety net in case a player botches a social situation in a way a skilled character would not.
+is_defaultable: true
+linked_attribute: Charisma
+specializations:
+    - By culture or subculture (Corporate, High Society, Media, Mercenary, Street, Yakuza, etc.)
+rule_source: SR5:Core

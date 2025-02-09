@@ -1,0 +1,10 @@
+id: software
+name: Software
+description: Software is the skill used to create and manipulate programming in the Matrix. It’s also what technomancers use when they create their complex forms.
+is_defaultable: false
+linked_attribute: Logic
+specializations:
+    - Editor
+    - Resonance Spike
+    - Tattletale
+rule_source: SR5:Core

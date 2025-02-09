@@ -11,9 +11,13 @@ import (
 	"github.com/spf13/viper"
 )
 
-type GameServer struct {
-	TickDuration time.Duration
-}
+const ()
+
+type (
+	GameServer struct {
+		TickDuration time.Duration
+	}
+)
 
 func NewGameServer() *GameServer {
 	return &GameServer{}

@@ -1,0 +1,7 @@
+id: tasking
+name: Tasking
+skills:
+    - compiling
+    - decompiling
+    - registering
+rule_source: SR5:Core

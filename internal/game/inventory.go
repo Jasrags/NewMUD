@@ -4,9 +4,13 @@ import (
 	"strings"
 )
 
-type Inventory struct {
-	Items []*Item `yaml:"items"`
-}
+const ()
+
+type (
+	Inventory struct {
+		Items []*Item `yaml:"items"`
+	}
+)
 
 // NewInventory creates a new inventory
 func NewInventory() *Inventory {

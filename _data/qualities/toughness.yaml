@@ -1,0 +1,7 @@
+id: toughness
+type: Positive
+name: Toughness
+description: The character is tough and resilient. The character receives a +1 dice pool modifier on all tests to resist the effects of wound modifiers.
+modifiers: []
+cost: 9
+rule_source: SR5:Core

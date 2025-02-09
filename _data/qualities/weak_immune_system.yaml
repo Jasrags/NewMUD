@@ -1,0 +1,7 @@
+id: weak_immune_system
+type: Negative
+name: Weak Immune System
+description: The character has a weak immune system. The character receives a –2 dice pool modifier on all tests to resist the effects of pathogens and toxins.
+modifiers: []
+cost: 10
+rule_source: SR5:Core

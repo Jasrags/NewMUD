@@ -1,0 +1,12 @@
+id: spellcasting
+name: Spellcasting
+description: The Spellcasting skill permits the character to channel mana into effects known as spells.
+is_defaultable: false
+linked_attribute: Magic
+specializations:
+    - Combat Spells
+    - Detection Spells
+    - Health Spells
+    - Illusion Spells
+    - Manipulation Spells
+rule_source: SR5:Core

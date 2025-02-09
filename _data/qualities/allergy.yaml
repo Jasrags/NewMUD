@@ -1,0 +1,7 @@
+id: allergy
+type: Negative
+name: Allergy
+description: The character is allergic to a particular substance. The character suffers a –2 dice pool modifier on all tests while exposed to the substance.
+modifiers: []
+cost: 5
+rule_source: SR5:Core

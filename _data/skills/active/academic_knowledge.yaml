@@ -1,0 +1,8 @@
+id: academic_knowledge
+name: Academic Knowledge
+description: Academic knowledge is linked to Logic. This type of knowledge includes university subjects such as history, science, design, technology, magical theory, and the people and organizations with fingers in those pies. The humanities (cultures, art, philosophy, and so on) are also included in this category.
+is_defaultable: true
+linked_attribute: Logic
+specializations:
+    - By trigger (Command, Contact, Time), by spell type (Combat Spells, Detection Spells, etc.)
+rule_source: SR5:Core

@@ -1,0 +1,7 @@
+id: mentor_spirit
+type: Positive
+name: Mentor Spirit
+description: The character has a mentor spirit. The character receives a +2 dice pool modifier on all tests involving a skill associated with the mentor spirit.
+modifiers: []
+cost: 5
+rule_source: SR5:Core

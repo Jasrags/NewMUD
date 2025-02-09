@@ -1,0 +1,9 @@
+id: registering
+name: Registering
+description: This skill allows a technomancer to register sprites on the Matrix, thereby convincing the grids that they are legitimate.
+is_defaultable: false
+linked_attribute: Resonance
+specializations:
+    - Data Sprites
+    - Machine Sprites
+rule_source: SR5:Core

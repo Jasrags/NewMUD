@@ -1,0 +1,12 @@
+id: pistols
+name: Pistols
+description: The Pistols skill is for firing handguns. This category includes hold-out pistols, light pistols, heavy pistols, machine pistols, and revolvers.
+is_defaultable: true
+linked_attribute: Agility
+specializations:
+    - Hold-Out Pistols
+    - Light Pistols
+    - Heavy Pistols
+    - Machine Pistols
+    - Revolvers
+rule_source: SR5:Core

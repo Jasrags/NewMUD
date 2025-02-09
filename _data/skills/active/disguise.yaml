@@ -1,0 +1,11 @@
+id: disguise
+name: Disguise
+description: Disguise covers non-magical forms of masking your identity, including makeup and enhancement.
+is_defaultable: true
+linked_attribute: Intuition
+specializations:
+    - Camouflage
+    - Cosmetic
+    - Theatrical
+    - Trideo & Video
+rule_source: SR5:Core

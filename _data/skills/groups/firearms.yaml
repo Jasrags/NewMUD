@@ -1,0 +1,7 @@
+id: firearms
+name: Firearms
+skills:
+    - automatics
+    - longarms
+    - pistols
+rule_source: SR5:Core

@@ -1,0 +1,3380 @@
+---
+- id: 9f348c99-27e8-47ac-a098-a8a6a54c446a
+  name: Administration
+  attribute: LOG
+  category: Professional
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Corporate
+          - Government
+          - Religious
+- id: 60156c75-78e9-4d79-af3f-494baa20edb7
+  name: Alchemy
+  attribute: LOG
+  category: Professional
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Combat
+          - Command
+          - Contact
+          - Detection
+          - Health
+          - Illusion
+          - Manipulation
+          - Time
+          - "[Trigger]"
+- id: 40d28f1b-2171-4a3b-a640-6b097a4dea95
+  name: Alcohol
+  attribute: INT
+  category: Interest
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Beers
+          - Coolers
+          - Hard Liquor
+          - Wines
+          - Atlanta
+          - Cheyenne
+          - Chicago
+          - Denver
+          - Hong Kong
+          - LA
+          - Manhattan
+          - FDC
+          - Portland
+          - Seattle
+          - Saskatoon
+          - Sacramento
+          - Quebec City
+          - Algonkian-Manitou Council
+          - Athabaskan Council
+          - Amazonia
+          - Aztlan
+          - Caribbean League
+          - California Free State
+          - Pueblo Corporate Council
+          - CAS
+          - UCAS
+          - Quebec
+          - Salish-Shidhe Council
+          - Sioux
+          - Tir Tairngire
+          - Tsimshian Protectorate
+          - Yucatan
+          - N. America
+          - S. America
+          - Central America
+          - Antarctica
+          - Africa
+          - Western Europe
+          - Eastern Europe
+          - Northern Europe
+          - Asia - Pacific
+          - Asia - Minor
+          - Middle East
+          - Australia
+- id: f43b2a75-a556-4d3a-8f8b-f1615a78538c
+  name: Anishinaabe
+  attribute: INT
+  category: Language
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Read/Write
+          - Speak
+          - "[Dialect]"
+          - "[Lingo]"
+          - Street
+          - l33tspeak
+          - Milspec
+          - Corp
+          - Orbital
+- id: 534600a0-395e-4bbc-8dc9-97a007e97504
+  name: Anatomy
+  attribute: LOG
+  category: Academic
+  default: "False"
+  skillgroup:
+  specs:
+- id: 05eb2251-81aa-4dfb-8619-75102fc7b895
+  name: Arabic
+  attribute: INT
+  category: Language
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Read/Write
+          - Speak
+          - "[Dialect]"
+          - "[Lingo]"
+          - Street
+          - l33tspeak
+          - Milspec
+          - Corp
+          - Orbital
+- id: 6cc80a0b-a9e2-46fe-8951-af4f34bfe3b3
+  name: Architecture
+  attribute: LOG
+  category: Professional
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Art Nouveau
+          - Brutalist
+          - Commercial
+          - Residential
+          - Elven
+          - Orkish
+          - Medieval
+          - Gothic
+          - Renaissance
+          - Baroque
+          - Victorian
+          - Neo-Classical
+          - Modern
+          - High-Tech
+- id: 3ea2eb75-69d3-4ecd-9f63-6dfc690cadf8
+  name: "Area Knowledge: Atlanta"
+  attribute: INT
+  category: Street
+  default: "False"
+  skillgroup:
+  specs:
+- id: ad99dbbc-e1b3-46a2-82cc-8f5ec4bfbed2
+  name: "Area Knowledge: Cheyenne"
+  attribute: INT
+  category: Street
+  default: "False"
+  skillgroup:
+  specs:
+- id: c8b1f29f-38d7-4364-b160-7b163f6bf715
+  name: "Area Knowledge: Chicago"
+  attribute: INT
+  category: Street
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Chicago Matrix
+          - Containment Zone
+          - Matrix Hot Spots
+          - Safe Houses
+- id: 4952de53-b333-45cd-bceb-cffe57b1e5a6
+  name: "Area Knowledge: Denver"
+  attribute: INT
+  category: Street
+  default: "False"
+  skillgroup:
+  specs:
+- id: 67885d5a-4e26-40d9-8196-eebc7a2e49ec
+  name: "Area Knowledge: FDC"
+  attribute: INT
+  category: Street
+  default: "False"
+  skillgroup:
+  specs:
+- id: 8337e83f-af9a-4396-9cbe-0e6679e15b4e
+  name: "Area Knowledge: Hong Kong"
+  attribute: INT
+  category: Street
+  default: "False"
+  skillgroup:
+  specs:
+- id: 7041437e-b98b-4605-a95a-c93ed45f1de5
+  name: "Area Knowledge: LA"
+  attribute: INT
+  category: Street
+  default: "False"
+  skillgroup:
+  specs:
+- id: eec57f7e-0e91-4a58-8b0e-5d3de98b7b44
+  name: "Area Knowledge: Manhattan"
+  attribute: INT
+  category: Street
+  default: "False"
+  skillgroup:
+  specs:
+- id: 8879baa1-4e10-4667-bd00-62f4f594dbbb
+  name: "Area Knowledge: Neo-Tokyo"
+  attribute: INT
+  category: Street
+  default: "False"
+  skillgroup:
+  specs:
+- id: f9f9badb-0f5e-4662-8b34-fdd8e2994caa
+  name: "Area Knowledge: Portland"
+  attribute: INT
+  category: Street
+  default: "False"
+  skillgroup:
+  specs:
+- id: 822b059f-c132-45ee-8c0b-df6912d5c862
+  name: "Area Knowledge: Seattle"
+  attribute: INT
+  category: Street
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Auburn
+          - Bellevue
+          - Council Island
+          - Downtown
+          - Everett
+          - Fort Lewis
+          - Matrix Hot Spots
+          - Puyallup
+          - Redmond
+          - Renton
+          - Safe Houses
+          - Snohomish
+          - Outremer
+          - Seattle Matrix
+          - Salish-Shide
+          - Tacoma
+- id: 3f7935ef-dc5d-4b53-88ef-cb7db7cbe1a9
+  name: Art
+  attribute: LOG
+  category: Academic
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Da Vinci
+          - Monet
+          - Matisse
+          - Michelangelo
+          - Picasso
+          - Rembrandt
+          - Van Gogh
+          - N. America
+          - S. America
+          - Central America
+          - Antarctica
+          - Africa
+          - Western Europe
+          - Eastern Europe
+          - Northern Europe
+          - Asia - Pacific
+          - Asia - Minor
+          - Middle East
+          - Australia
+- id: 15f89f34-cdbd-4523-a1eb-4d8043252389
+  name: Athabaskan
+  attribute: INT
+  category: Language
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Read/Write
+          - Speak
+          - "[Dialect]"
+          - "[Lingo]"
+          - Street
+          - l33tspeak
+          - Milspec
+          - Corp
+          - Orbital
+- id: bee29957-affb-4593-a4fe-002f6dd5be9c
+  name: Bars and Clubs
+  attribute: INT
+  category: Street
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Atlanta
+          - Awakened
+          - Biker
+          - Cheyenne
+          - Chicago
+          - Corporate
+          - Denver
+          - Dwarf
+          - Elf
+          - FDC
+          - Gay
+          - High-Class
+          - Hotel
+          - Jazz
+          - Hong Kong
+          - LA
+          - Low-Class
+          - Mafia
+          - Matrix
+          - Manhattan
+          - Ork
+          - Portland
+          - Piano
+          - Pubs
+          - Quebec City
+          - Rock
+          - Sacramento
+          - Saskatoon
+          - Seattle
+          - Sports
+          - Surge
+          - Triad
+          - Troll
+          - Vory
+          - Yakuza
+- id: d6e4efdd-d0a2-4727-8425-b43e480b3256
+  name: Bengali
+  attribute: INT
+  category: Language
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Read/Write
+          - Speak
+          - "[Dialect]"
+          - "[Lingo]"
+          - Street
+          - l33tspeak
+          - Milspec
+          - Corp
+          - Orbital
+- id: 2d757c45-14af-43fb-98d4-0db9380ab073
+  name: Biology
+  attribute: LOG
+  category: Academic
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Anatomy
+          - Microbiology
+          - Physiology
+          - Parazoology
+- id: c0be1393-e4a1-4af6-8c0d-f9eef89a93b1
+  name: Zoology
+  attribute: LOG
+  category: Academic
+  default: "False"
+  skillgroup:
+  specs:
+- id: 6331a44a-ad26-4b08-8b7a-2dbe3c2d0584
+  name: Black Markets
+  attribute: INT
+  category: Street
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Atlanta
+          - Cheyenne
+          - Chicago
+          - Denver
+          - Hong Kong
+          - LA
+          - Manhattan
+          - FDC
+          - Portland
+          - Seattle
+          - Saskatoon
+          - Sacramento
+          - Quebec City
+          - Algonkian-Manitou Council
+          - Athabaskan Council
+          - Amazonia
+          - Aztlan
+          - Caribbean League
+          - California Free State
+          - Pueblo Corporate Council
+          - CAS
+          - UCAS
+          - Quebec
+          - Salish-Shidhe Council
+          - Sioux
+          - Tir Tairngire
+          - Tsimshian Protectorate
+          - Yucatan
+- id: c52d63de-ddc0-477f-bf46-33002f8f4aaa
+  name: BTLs
+  attribute: INT
+  category: Interest
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Bunraku
+          - Calhots
+          - Crime Fantasy
+          - Drug Emulation
+          - Historical Fantasy
+          - Hot-Sim Pornography
+          - Mind Control Chips
+          - Power Fantasy
+          - Reality Enhancer
+          - Revenge Fantasy
+          - Snuff
+          - Soma Chips
+          - Synesthesia
+          - Ultraviolence
+- id: a621ba8f-92e9-4032-b506-c1b2408dfa4e
+  name: Bulgarian
+  attribute: INT
+  category: Language
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Read/Write
+          - Speak
+          - "[Dialect]"
+          - "[Lingo]"
+          - Street
+          - l33tspeak
+          - Milspec
+          - Corp
+          - Orbital
+- id: 0a1dfc0e-dcb9-448d-a2d3-718670d79df1
+  name: Business
+  attribute: LOG
+  category: Professional
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Budgeting
+          - Compliance
+          - Digital Accountancy
+          - Distribution
+          - Finance
+          - Manufacturing
+          - Megacorp
+          - People Management
+          - Project Management
+          - Reporting
+          - Retail
+          - Supply and Demand
+          - Small Business
+          - Time Management
+- id: dcf38896-6054-4ece-90e1-901352eb0201
+  name: Cantonese
+  attribute: INT
+  category: Language
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Read/Write
+          - Speak
+          - "[Dialect]"
+          - "[Lingo]"
+          - Street
+          - l33tspeak
+          - Milspec
+          - Corp
+          - Orbital
+- id: d5412408-46a4-4871-945e-7983ad43857e
+  name: Charity Shelters
+  attribute: INT
+  category: Street
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Atlanta
+          - Cheyenne
+          - Chicago
+          - Denver
+          - Hong Kong
+          - LA
+          - Manhattan
+          - FDC
+          - Portland
+          - Seattle
+          - Saskatoon
+          - Sacramento
+          - Quebec City
+- id: aa6199a5-717e-42b8-984b-0dd2ccd5369f
+  name: Chemistry
+  attribute: LOG
+  category: Academic
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Industrial
+          - Inorganic
+          - Organic
+          - Pharmaceuticals
+- id: ac86aba3-a7d6-4938-b5f1-186955912643
+  name: Combat Tactics
+  attribute: LOG
+  category: Professional
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Ambush
+          - Guerrilla
+          - Hostage Rescue
+          - Magic
+          - Anti-Magic
+          - Open Field
+          - Outer Space
+          - Terror
+          - Underwater
+          - Urban
+          - Wilderness
+- id: 47c41bfc-2cfa-47ca-b20e-ec3351979791
+  name: Critters
+  attribute: INT
+  category: Street
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Alligators
+          - Barracudas
+          - Bears
+          - Boars
+          - Chimpanzees
+          - Cockroaches
+          - Crows
+          - Deer
+          - Dogs
+          - Dolphins
+          - Domestic Cats
+          - Eagles
+          - Elephants
+          - Ferrets
+          - Giraffes
+          - Great Cats
+          - Horses
+          - Killer Whales
+          - Raccoons
+          - Rats
+          - Sea Lions
+          - Sharks
+          - Snakes
+          - Spiders
+          - Squids
+          - Wolves
+- id: 17c50e74-f009-4794-9dda-19062abb1d90
+  name: Croatian
+  attribute: INT
+  category: Language
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Read/Write
+          - Speak
+          - "[Dialect]"
+          - "[Lingo]"
+          - Street
+          - l33tspeak
+          - Milspec
+          - Corp
+          - Orbital
+- id: 48bd3a3e-9ea8-425a-b2cd-c764479e9565
+  name: Crook Hangouts
+  attribute: INT
+  category: Street
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Atlanta
+          - Cheyenne
+          - Chicago
+          - Denver
+          - FDC
+          - High-Class
+          - Hong Kong
+          - LA
+          - Low-Class
+          - Manhattan
+          - Portland
+          - Quebec City
+          - Sacramento
+          - Seattle
+- id: 878181d4-2f54-4993-ae30-06c9bf1ee11b
+  name: Danish
+  attribute: INT
+  category: Language
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Read/Write
+          - Speak
+          - "[Dialect]"
+          - "[Lingo]"
+          - Street
+          - l33tspeak
+          - Milspec
+          - Corp
+          - Orbital
+- id: 4fa93586-b5b4-4bf7-ad18-aacecc3a6894
+  name: Data Havens
+  attribute: INT
+  category: Street
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Hacking
+          - Magic
+          - Matrix
+          - Shadows
+          - N. America
+          - S. America
+          - Central America
+          - Antarctica
+          - Africa
+          - Western Europe
+          - Eastern Europe
+          - Northern Europe
+          - Asia - Pacific
+          - Asia - Minor
+          - Middle East
+          - Australia
+- id: 5227212f-507d-4aa7-8894-7d35a1eb98cf
+  name: DIY
+  attribute: LOG
+  category: Professional
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Electronics
+          - Carpentry
+          - Plumbing
+          - Sewing
+- id: be9be259-3109-489f-91d4-6e62e44f5ea3
+  name: Disease
+  attribute: LOG
+  category: Academic
+  default: "False"
+  skillgroup:
+  specs:
+- id: c9ca1da3-11d0-4921-8a87-4726f342a04b
+  name: Drones
+  attribute: LOG
+  category: Professional
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Wheeled
+          - Walker
+          - Hovercraft
+          - Tracked
+- id: b1d33738-a93a-46f3-a64a-0fc329ab1740
+  name: Economics
+  attribute: LOG
+  category: Academic
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Micro-economics
+          - Macro-economics
+          - Corporate
+          - Tribal
+          - Underworld
+          - Atlanta
+          - Cheyenne
+          - Chicago
+          - Denver
+          - Hong Kong
+          - LA
+          - Manhattan
+          - FDC
+          - Portland
+          - Seattle
+          - Saskatoon
+          - Sacramento
+          - Quebec City
+          - Algonkian-Manitou Council
+          - Athabaskan Council
+          - Amazonia
+          - Aztlan
+          - Caribbean League
+          - California Free State
+          - Pueblo Corporate Council
+          - CAS
+          - UCAS
+          - Quebec
+          - Salish-Shidhe Council
+          - Sioux
+          - Tir Tairngire
+          - Tsimshian Protectorate
+          - Yucatan
+          - N. America
+          - S. America
+          - Central America
+          - Antarctica
+          - Africa
+          - Western Europe
+          - Eastern Europe
+          - Northern Europe
+          - Asia - Pacific
+          - Asia - Minor
+          - Middle East
+          - Australia
+- id: cbb44acf-10cd-4b67-afc6-bf28efe74ea4
+  name: Engineering
+  attribute: LOG
+  category: Academic
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Chemical
+          - Civil
+          - Electrical
+          - Mechanical
+          - Nuclear
+- id: 907a3a8f-2c40-4543-a5a9-891bcde41f6b
+  name: English
+  attribute: INT
+  category: Language
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Read/Write
+          - Speak
+          - "[Dialect]"
+          - "[Lingo]"
+          - Cityspeak
+          - Creole
+          - Street
+          - l33tspeak
+          - Milspec
+          - Corp
+          - Orbital
+- id: f5a57bc4-8131-4a73-9c9a-03276d24a513
+  name: Eskimo-Aleut
+  attribute: INT
+  category: Language
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Read/Write
+          - Speak
+          - "[Dialect]"
+          - "[Lingo]"
+          - Street
+          - l33tspeak
+          - Milspec
+          - Corp
+          - Orbital
+- id: b21c9f0f-9db0-4de1-b901-2a911d9abd62
+  name: Fashion
+  attribute: INT
+  category: Interest
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Harajuku Scene
+          - London Scene
+          - New York Scene
+          - Paris Scene
+- id: cee3de6f-4947-4947-b2e1-75fde02a5d78
+  name: Fashion Design
+  attribute: LOG
+  category: Professional
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Harajuku Scene
+          - London Scene
+          - New York Scene
+          - Paris Scene
+- id: 6d9880ee-c017-4e7f-a7ee-502eb542709b
+  name: Firearms
+  attribute: LOG
+  category: Professional
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Accessories
+          - Ammunition
+          - Automatics
+          - Design
+          - Heavy Weapons
+          - History
+          - Longarms
+          - Modification
+          - Pistols
+- id: 7ace94b0-ab82-446a-93d0-e1fdb380d1d8
+  name: Blade Design
+  attribute: LOG
+  category: Professional
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Accessories
+          - Axes
+          - Knives
+          - Swords
+          - Throwing Weapons
+          - History
+          - Modification
+- id: a0ab7534-8f74-4690-be2b-040adc1413d7
+  name: Gun Trivia
+  attribute: INT
+  category: Interest
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Accessories
+          - Ammunition
+          - Automatics
+          - Design
+          - Heavy Weapons
+          - History
+          - Longarms
+          - Modification
+          - Pistols
+- id: 026062e0-9bdd-4a06-9cca-c3640c634cfd
+  name: French
+  attribute: INT
+  category: Language
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Read/Write
+          - Speak
+          - "[Dialect]"
+          - "[Lingo]"
+          - Creole
+          - Street
+          - l33tspeak
+          - Milspec
+          - Corp
+          - Orbital
+- id: 7e1204ab-fc99-4453-9ec2-cc3f60ec2349
+  name: Gaming
+  attribute: INT
+  category: Interest
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Dawn of Atlantis
+          - Dark Eye
+          - Grand Larceny
+          - Killing Floor
+          - Paranormal Crisis
+          - Miracle Shooter
+          - Spectrum Delta
+          - "SC IV: Protoss Gate"
+          - World of Shadows
+          - Urban Brawl League 70
+          - Guild Ages
+- id: a1c95207-1864-4723-b26f-b0a8c5b6290d
+  name: Gangs
+  attribute: INT
+  category: Street
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Ancients
+          - Area Boys
+          - Cirque du Sorciere
+          - Chaos Engine
+          - Cocotona
+          - Comando Verdge
+          - Cutters
+          - Desolation Angels
+          - First Nations
+          - Ghost Cartels
+          - Halloweeners
+          - Hell's Angels
+          - Iron Crosses
+          - Los Verdugos
+          - Los Angeles Ardientes
+          - Lynch Mob
+          - Merlyns
+          - Numbers Gang
+          - Spikes
+          - Steppin Wulfs
+          - Thunder Boys
+          - Yardies
+          - Vikings
+          - Atlanta
+          - Cheyenne
+          - Chicago
+          - Denver
+          - Hong Kong
+          - LA
+          - Manhattan
+          - FDC
+          - Portland
+          - Seattle
+          - Saskatoon
+          - Sacramento
+          - Quebec City
+          - Algonkian-Manitou Council
+          - Athabaskan Council
+          - Amazonia
+          - Aztlan
+          - Caribbean League
+          - California Free State
+          - Pueblo Corporate Council
+          - CAS
+          - UCAS
+          - Quebec
+          - Salish-Shidhe Council
+          - Sioux
+          - Tir Tairngire
+          - Tsimshian Protectorate
+          - Yucatan
+- id: a72084f6-3a4c-4c23-82aa-4697e543ee0b
+  name: German
+  attribute: INT
+  category: Language
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Read/Write
+          - Speak
+          - "[Dialect]"
+          - "[Lingo]"
+          - Street
+          - l33tspeak
+          - Milspec
+          - Corp
+          - Orbital
+- id: 85dc4a4c-57e2-4066-9de4-171f367a74ab
+  name: Ghost Cartels
+  attribute: INT
+  category: Street
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Turf
+          - Politics
+          - Signs
+          - History
+          - Organizations
+          - Safe Houses
+- id: b4d3d48a-bff1-4303-ac69-4dd9269d1b2c
+  name: Hebrew
+  attribute: INT
+  category: Language
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Read/Write
+          - Speak
+          - "[Dialect]"
+          - "[Lingo]"
+          - Street
+          - l33tspeak
+          - Milspec
+          - Corp
+          - Orbital
+- id: 406ddc53-6635-4cd7-8ad0-90024b683492
+  name: Hindi-Urdu
+  attribute: INT
+  category: Language
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Read/Write
+          - Speak
+          - "[Dialect]"
+          - "[Lingo]"
+          - Street
+          - l33tspeak
+          - Milspec
+          - Corp
+          - Orbital
+- id: a68b4d38-9e7b-4f0d-be04-d28d2bec3803
+  name: History
+  attribute: LOG
+  category: Academic
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Ancient
+          - Medieval
+          - Modern
+          - Art
+          - Corporate
+          - Military
+          - Political
+          - Religion
+          - Social
+          - Tribal
+          - Underworld
+          - Atlanta
+          - Cheyenne
+          - Chicago
+          - Denver
+          - Hong Kong
+          - LA
+          - Manhattan
+          - FDC
+          - Portland
+          - Seattle
+          - Saskatoon
+          - Sacramento
+          - Quebec City
+          - Algonkian-Manitou Council
+          - Athabaskan Council
+          - Amazonia
+          - Aztlan
+          - Caribbean League
+          - California Free State
+          - Pueblo Corporate Council
+          - CAS
+          - UCAS
+          - Quebec
+          - Salish-Shidhe Council
+          - Sioux
+          - Tir Tairngire
+          - Tsimshian Protectorate
+          - Yucatan
+          - N. America
+          - S. America
+          - Central America
+          - Antarctica
+          - Africa
+          - Western Europe
+          - Eastern Europe
+          - Northern Europe
+          - Asia - Pacific
+          - Asia - Minor
+          - Middle East
+          - Australia
+- id: a03b153c-1f16-484c-b229-1090e61c1f92
+  name: Indonesian
+  attribute: INT
+  category: Language
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Read/Write
+          - Speak
+          - "[Dialect]"
+          - "[Lingo]"
+          - Street
+          - l33tspeak
+          - Milspec
+          - Corp
+          - Orbital
+- id: 71407a60-c753-40d9-9d5b-416c43b51fef
+  name: Infected
+  attribute: LOG
+  category: Academic
+  default: "False"
+  skillgroup:
+  specs:
+- id: c66aff30-b99b-47c3-94df-e5b4cc4e06d2
+  name: Iroquoian
+  attribute: INT
+  category: Language
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Read/Write
+          - Speak
+          - "[Dialect]"
+          - "[Lingo]"
+          - Street
+          - l33tspeak
+          - Milspec
+          - Corp
+          - Orbital
+- id: 87627536-a185-427a-bb14-54a4ff89901c
+  name: Italian
+  attribute: INT
+  category: Language
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Read/Write
+          - Speak
+          - "[Dialect]"
+          - "[Lingo]"
+          - Street
+          - l33tspeak
+          - Milspec
+          - Corp
+          - Orbital
+- id: f876953e-a14e-4ca5-b454-b0090907da28
+  name: Japanese
+  attribute: INT
+  category: Language
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Read/Write
+          - Speak
+          - "[Dialect]"
+          - "[Lingo]"
+          - Cityspeak
+          - Street
+          - l33tspeak
+          - Milspec
+          - Corp
+          - Orbital
+- id: 0ecbddff-4e99-485b-b54a-6c087c03f07b
+  name: Korean
+  attribute: INT
+  category: Language
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Read/Write
+          - Speak
+          - "[Dialect]"
+          - "[Lingo]"
+          - Street
+          - l33tspeak
+          - Milspec
+          - Corp
+          - Orbital
+- id: bcf6bfe5-a454-43b3-9de0-bbdc7e18b5a5
+  name: Latin
+  attribute: INT
+  category: Language
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Read/Write
+          - Speak
+          - "[Dialect]"
+          - "[Lingo]"
+          - Street
+          - l33tspeak
+          - Milspec
+          - Corp
+          - Orbital
+- id: cca8e4dc-4c67-45d2-bee6-57366d277206
+  name: Literature
+  attribute: LOG
+  category: Academic
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Japanese
+          - Early Twentieth Century
+          - Science Fiction
+          - Poetry
+          - Fiction
+          - Romance
+          - N. America
+          - S. America
+          - Central America
+          - Antarctica
+          - Africa
+          - Western Europe
+          - Eastern Europe
+          - Northern Europe
+          - Asia - Pacific
+          - Asia - Minor
+          - Middle East
+          - Australia
+- id: 7e942ac9-8c2c-4f7c-91d5-cfaf5d0e9262
+  name: Mafia
+  attribute: INT
+  category: Street
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Turf
+          - Politics
+          - Signs
+          - History
+          - Organizations
+          - Safe Houses
+- id: f8a3a8da-e177-49c7-9b3d-2749fd3704cd
+  name: Magic Traditions
+  attribute: LOG
+  category: Academic
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Adepts
+          - Shamans
+          - Mages
+          - Mystic Adepts
+- id: 0bbb3078-a940-4003-b4f3-fa23937cf227
+  name: Magical Theory (Academic)
+  attribute: LOG
+  category: Academic
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Sorcery
+          - Conjuring
+          - Enchanting
+          - Foci
+          - Astral World
+          - Metaplanes
+          - Initiation
+          - Mentor Spirits
+- id: 49f3497e-0111-42f3-8e36-6119a51995cd
+  name: Magical Theory (Street)
+  attribute: INT
+  category: Street
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Sorcery
+          - Conjuring
+          - Enchanting
+          - Foci
+          - Astral World
+          - Metaplanes
+          - Initiation
+          - Mentor Spirits
+- id: a1adb39d-6bac-4c10-a01e-692a4edac293
+  name: Magical Security
+  attribute: LOG
+  category: Professional
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Government
+          - Military
+          - Private
+          - Home
+          - "[Corporation]"
+- id: 9843709f-803a-4424-88a2-d972d3405955
+  name: Magical Threats
+  attribute: LOG
+  category: Academic
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Blood Magic
+          - Toxic Magic
+          - Insect Spirits
+          - Shadow Spirits
+- id: 7f7fea00-e656-4c7c-afd3-03f34aafa9f4
+  name: Mandarin
+  attribute: INT
+  category: Language
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Read/Write
+          - Speak
+          - "[Dialect]"
+          - "[Lingo]"
+          - Street
+          - l33tspeak
+          - Milspec
+          - Corp
+          - Orbital
+- id: a02ee5ad-42a4-4f3c-8e9f-24730fadd440
+  name: Mathematics
+  attribute: LOG
+  category: Academic
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Arithmetic
+          - Calculus
+          - Geometry
+          - Algebra
+          - Number Theory
+          - Game Theory
+          - Graph Theory
+          - Group Theory
+          - Combinatorics
+          - Statistics
+- id: 95730d81-d189-4cbe-8ee7-23b62f6efdb6
+  name: Matrix Games
+  attribute: INT
+  category: Interest
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - "Astral Dreams: Legend of Tenku"
+          - "Awakening: 1949"
+          - Beat the Market
+          - Dawn of Atlantis III
+          - Dragon Storm
+          - Fermat's Last Hermetic Equation
+          - Galaxy Ten
+          - Grand Larceny
+          - Killing Floor
+          - Life's a Bitch
+          - Miracle Shooter
+          - Noir Confidential
+          - Run, Run Runner
+          - Shadowrun Online
+          - The Seelie Court
+- id: 3b29366e-bbb9-43a7-9cbc-4c7c17a2bbb3
+  name: Mechanics
+  attribute: LOG
+  category: Professional
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Automotive
+          - Aeronautic
+          - Industrial
+          - Nautical
+- id: 58a3da0b-86da-48ec-953b-11ffcf6d283f
+  name: Military
+  attribute: LOG
+  category: Professional
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Air Force
+          - Army
+          - Coast Guard
+          - Marines
+          - Military Magic
+          - Navy
+          - Special Forces
+- id: 05388bd3-e3c6-4d61-b902-72f8163a2134
+  name: Foreign Military
+  attribute: LOG
+  category: Professional
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Air Force
+          - Army
+          - Coast Guard
+          - Marines
+          - Military Magic
+          - Navy
+          - Special Forces
+- id: 1862a5ed-7b7b-4fa8-bf25-5d10ec45223f
+  name: Military Vehicles
+  attribute: LOG
+  category: Professional
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Air Force
+          - Army
+          - Coast Guard
+          - Marines
+          - Navy
+          - Special Forces
+- id: 0e5b89c5-1143-4e73-ab71-0700910fcaaa
+  name: Mixed Unit Tactics
+  attribute: INT
+  category: Interest
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Aerial/Aircraft
+          - Armored Infantry
+          - Artillery
+          - Naval
+          - Mechanized Infantry
+          - Standard Infantry
+          - "[Single Unit Type]"
+- id: 8feeb71f-8864-4ece-88b2-52f77eb1851f
+  name: NAN Military
+  attribute: LOG
+  category: Professional
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Air Force
+          - Army
+          - Coast Guard
+          - Marines
+          - Military Magic
+          - Navy
+          - Special Forces
+- id: 9cc48c53-ebc4-49a4-87b9-be0ec5efac0a
+  name: Peacekeepers
+  attribute: LOG
+  category: Professional
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Air Force
+          - Army
+          - Coast Guard
+          - Marines
+          - Military Magic
+          - Navy
+          - Special Forces
+- id: a068c0d8-5c87-46f2-a13d-f981fda80a06
+  name: Tir Military Vehicles
+  attribute: LOG
+  category: Professional
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Air Force
+          - Army
+          - Coast Guard
+          - Marines
+          - Navy
+          - Special Forces
+- id: ee36423c-21c7-4af3-81da-93778da83a45
+  name: Club Music
+  attribute: INT
+  category: Interest
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Astral Rock
+          - Electron Wave
+          - Goblin Rock
+          - Powernoize
+          - Rockabilly
+          - Sinthcore
+          - Wizpunk
+          - Trash Metal Troll
+          - Retro Gothic
+          - Elven Rap
+          - Neo-J Pop
+          - Nova K Rock
+          - Beatpace
+          - Bugstomp
+          - Fractal
+          - Plex
+- id: 516713c4-8022-46ea-b1d1-f843922731d4
+  name: National Threats
+  attribute: LOG
+  category: Professional
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Denver
+          - Hong Kong
+          - Seattle
+          - Algonkian-Manitou Council
+          - Athabaskan Council
+          - Amazonia
+          - Aztlan
+          - Caribbean League
+          - California Free State
+          - Pueblo Corporate Council
+          - CAS
+          - UCAS
+          - Quebec
+          - Salish-Shidhe Council
+          - Sioux
+          - Tir Tairngire
+          - Tsimshian Protectorate
+          - Yucatan
+- id: 5ea73805-1e96-4770-afef-647322f1eeff
+  name: News
+  attribute: INT
+  category: Interest
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Business
+          - Entertainment
+          - Health
+          - Science/Environment
+          - Sports
+          - Technology
+          - Underworld
+          - Atlanta
+          - Cheyenne
+          - Chicago
+          - Denver
+          - Hong Kong
+          - LA
+          - Manhattan
+          - FDC
+          - Portland
+          - Seattle
+          - Saskatoon
+          - Sacramento
+          - Quebec City
+          - Algonkian-Manitou Council
+          - Athabaskan Council
+          - Amazonia
+          - Aztlan
+          - Caribbean League
+          - California Free State
+          - Pueblo Corporate Council
+          - CAS
+          - UCAS
+          - Quebec
+          - Salish-Shidhe Council
+          - Sioux
+          - Tir Tairngire
+          - Tsimshian Protectorate
+          - Yucatan
+          - N. America
+          - S. America
+          - Central America
+          - Antarctica
+          - Africa
+          - Western Europe
+          - Eastern Europe
+          - Northern Europe
+          - Asia - Pacific
+          - Asia - Minor
+          - Middle East
+          - Australia
+- id: 3057f850-d7d8-4c5d-9315-556ebb12f0e1
+  name: Or'zet
+  attribute: INT
+  category: Language
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Read/Write
+          - Speak
+          - "[Dialect]"
+          - "[Lingo]"
+          - Street
+          - l33tspeak
+          - Milspec
+          - Corp
+          - Orbital
+- id: 0b90b4b9-2290-45ad-9827-82fd0c6454be
+  name: Parazoology
+  attribute: LOG
+  category: Academic
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Spirits
+          - N. America
+          - S. America
+          - Central America
+          - Antarctica
+          - Africa
+          - Western Europe
+          - Eastern Europe
+          - Northern Europe
+          - Asia - Pacific
+          - Asia - Minor
+          - Middle East
+          - Australia
+- id: 004ef112-3f24-4ca1-bc9c-b0e4229fc3b6
+  name: Persian
+  attribute: INT
+  category: Language
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Read/Write
+          - Speak
+          - "[Dialect]"
+          - "[Lingo]"
+          - Street
+          - l33tspeak
+          - Milspec
+          - Corp
+          - Orbital
+- id: 5fc15c3f-7b1c-4b87-a469-ccefb7d60820
+  name: Polish
+  attribute: INT
+  category: Language
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Read/Write
+          - Speak
+          - "[Dialect]"
+          - "[Lingo]"
+          - Street
+          - l33tspeak
+          - Milspec
+          - Corp
+          - Orbital
+- id: 57090b04-5d4c-47ec-9cf3-9b414c40cb09
+  name: Politics
+  attribute: LOG
+  category: Academic
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Corporate
+          - Military
+          - Social
+          - Tribal
+          - Underworld
+          - Atlanta
+          - Cheyenne
+          - Chicago
+          - Denver
+          - Hong Kong
+          - LA
+          - Manhattan
+          - FDC
+          - Portland
+          - Seattle
+          - Saskatoon
+          - Sacramento
+          - Quebec City
+          - Algonkian-Manitou Council
+          - Athabaskan Council
+          - Amazonia
+          - Aztlan
+          - Caribbean League
+          - California Free State
+          - Pueblo Corporate Council
+          - CAS
+          - UCAS
+          - Quebec
+          - Salish-Shidhe Council
+          - Sioux
+          - Tir Tairngire
+          - Tsimshian Protectorate
+          - Yucatan
+          - N. America
+          - S. America
+          - Central America
+          - Antarctica
+          - Africa
+          - Western Europe
+          - Eastern Europe
+          - Northern Europe
+          - Asia - Pacific
+          - Asia - Minor
+          - Middle East
+          - Australia
+- id: d11e8181-215e-41b3-8775-521b1d629123
+  name: Portuguese
+  attribute: INT
+  category: Language
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Read/Write
+          - Speak
+          - "[Dialect]"
+          - "[Lingo]"
+          - Street
+          - l33tspeak
+          - Milspec
+          - Corp
+          - Orbital
+- id: a8187f25-74d6-43f5-9a43-8d03cef04a6e
+  name: Punjabi
+  attribute: INT
+  category: Language
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Read/Write
+          - Speak
+          - "[Dialect]"
+          - "[Lingo]"
+          - Street
+          - l33tspeak
+          - Milspec
+          - Corp
+          - Orbital
+- id: bce7ec73-39ef-43bf-a74f-8fa7627753ab
+  name: Religion
+  attribute: LOG
+  category: Academic
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Islam
+          - Judaism
+          - Buddhism
+          - Christianity
+          - Hinduism
+          - Zoroastrianism
+          - Shinto
+          - Paganism
+          - Taoism
+- id: 7ba1f555-f6b5-4d3a-b0f6-38f9a030b661
+  name: Russian
+  attribute: INT
+  category: Language
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Read/Write
+          - Speak
+          - "[Dialect]"
+          - "[Lingo]"
+          - Street
+          - l33tspeak
+          - Milspec
+          - Corp
+          - Orbital
+- id: 09ae5c16-0b45-4ab9-9634-cab22ad781c4
+  name: Security Companies
+  attribute: LOG
+  category: Street
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Lone Star
+          - Knight Errant
+          - Hard Corps
+          - Minutemen Security
+          - Seattle Sec Corps
+- id: 3dc3854e-5d67-4ee8-8ffa-c637394859a6
+  name: Security Design
+  attribute: INT
+  category: Interest
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Bank
+          - Corporate
+          - Government
+          - Home
+          - Public Event
+          - Vehicle
+          - VIP
+- id: 86ac486a-6e5b-4c04-b575-f63beb10b809
+  name: Security Tactics
+  attribute: LOG
+  category: Academic
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Corporate
+          - Crimson Rush
+          - Entertainment
+          - Government
+          - Security Company
+          - Rapid Response
+          - Border Patrol
+          - Customs
+          - VIP
+- id: 083e28e0-885a-4123-a8db-847c3509d14a
+  name: Sioux
+  attribute: INT
+  category: Language
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Read/Write
+          - Speak
+          - "[Dialect]"
+          - "[Lingo]"
+          - Street
+          - l33tspeak
+          - Milspec
+          - Corp
+          - Orbital
+- id: d06dfd90-1df0-4f05-84d5-1fea9d146f87
+  name: Small Unit Tactics
+  attribute: INT
+  category: Interest
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Arctic
+          - Desert
+          - Forest
+          - Jungle
+          - Mountains
+          - Urban
+          - "[Terrain]"
+- id: b6aa3faa-64e0-4323-9617-49add784064a
+  name: Spanish
+  attribute: INT
+  category: Language
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Read/Write
+          - Speak
+          - "[Dialect]"
+          - "[Lingo]"
+          - Street
+          - l33tspeak
+          - Milspec
+          - Corp
+          - Orbital
+- id: a364caab-f0bd-49b8-859e-1fa0d73c3c53
+  name: Sperethiel
+  attribute: INT
+  category: Language
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Read/Write
+          - Speak
+          - "[Dialect]"
+          - "[Lingo]"
+          - Street
+          - l33tspeak
+          - Milspec
+          - Corp
+          - Orbital
+- id: 67e74b72-7970-4243-ad68-4db92894a12d
+  name: Spirits
+  attribute: LOG
+  category: Professional
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Beast
+          - Earth
+          - Fire
+          - Guardian
+          - Guidance
+          - Man
+          - Plant
+          - Task
+          - Water
+          - Watcher
+- id: 219d4e62-a378-480d-ba6a-9278490e4539
+  name: Sports
+  attribute: INT
+  category: Interest
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Baseball
+          - Basketball
+          - Boxing
+          - Combat Biking
+          - Court Ball
+          - Drone Racing
+          - Duello Magicae
+          - E-Sports
+          - Football
+          - Hockey
+          - Hoverball
+          - Hurling
+          - Piloted Racing
+          - MMA
+          - Soccer
+          - Stickball
+          - UFC
+          - Underground Fighting
+          - Urban Brawl
+          - Wrestling
+- id: 0af06344-3637-4160-813b-a33dda2d16aa
+  name: Sprawl Life
+  attribute: INT
+  category: Street
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Scavenging
+          - Soup Kitchens
+          - Squats
+          - Street Docs
+          - Street Rumors
+- id: d0f7dabe-667a-45b1-ab51-a17f463b1bb1
+  name: Smuggler Routes
+  attribute: INT
+  category: Street
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Atlanta
+          - Cheyenne
+          - Chicago
+          - Denver
+          - Hong Kong
+          - LA
+          - Manhattan
+          - FDC
+          - Portland
+          - Seattle
+          - Saskatoon
+          - Sacramento
+          - Quebec City
+          - Algonkian-Manitou Council
+          - Athabaskan Council
+          - Amazonia
+          - Aztlan
+          - Caribbean League
+          - California Free State
+          - Pueblo Corporate Council
+          - CAS
+          - UCAS
+          - Quebec
+          - Salish-Shidhe Council
+          - Sioux
+          - Tir Tairngire
+          - Tsimshian Protectorate
+          - Yucatan
+- id: 4a046ac0-b5fe-40d8-9ec6-305ffbac189c
+  name: Smuggler Safe Houses
+  attribute: INT
+  category: Street
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Atlanta
+          - Cheyenne
+          - Chicago
+          - Denver
+          - Hong Kong
+          - LA
+          - Manhattan
+          - FDC
+          - Portland
+          - Seattle
+          - Saskatoon
+          - Sacramento
+          - Quebec City
+          - Algonkian-Manitou Council
+          - Athabaskan Council
+          - Amazonia
+          - Aztlan
+          - Caribbean League
+          - California Free State
+          - Pueblo Corporate Council
+          - CAS
+          - UCAS
+          - Quebec
+          - Salish-Shidhe Council
+          - Sioux
+          - Tir Tairngire
+          - Tsimshian Protectorate
+          - Yucatan
+- id: 51ea095a-2f1f-4090-afcb-d2cbb88c8f91
+  name: Street Drugs
+  attribute: INT
+  category: Interest
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Betel
+          - Binaural Beats
+          - BTLs
+          - Cram
+          - Deepweed
+          - Novacoke
+          - Spike
+          - Tempo
+- id: ac2d2cb7-e602-42cc-bc53-9bb45588244c
+  name: Strategy
+  attribute: LOG
+  category: Professional
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Logistics
+          - Reconnaissance
+          - Offensive
+          - Defensive
+- id: 19a3925e-7ae7-4037-9d59-de63a7ab7a92
+  name: Syndicates
+  attribute: INT
+  category: Street
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Personalities
+          - Ghost Cartels
+          - Mafia
+          - Triad
+          - Yakuza
+          - Vory
+          - Atlanta
+          - Cheyenne
+          - Chicago
+          - Denver
+          - Hong Kong
+          - LA
+          - Manhattan
+          - FDC
+          - Portland
+          - Seattle
+          - Saskatoon
+          - Sacramento
+          - Quebec City
+          - Algonkian-Manitou Council
+          - Athabaskan Council
+          - Amazonia
+          - Aztlan
+          - Caribbean League
+          - California Free State
+          - Pueblo Corporate Council
+          - CAS
+          - UCAS
+          - Quebec
+          - Salish-Shidhe Council
+          - Sioux
+          - Tir Tairngire
+          - Tsimshian Protectorate
+          - Yucatan
+- id: bb231493-bc95-4783-8ad9-e66078ee31ef
+  name: Thai
+  attribute: INT
+  category: Language
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Read/Write
+          - Speak
+          - "[Dialect]"
+          - "[Lingo]"
+          - Street
+          - l33tspeak
+          - Milspec
+          - Corp
+          - Orbital
+- id: 0e364dfa-7160-46a7-bd98-601afcc08dd5
+  name: Triads
+  attribute: INT
+  category: Street
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Turf
+          - Politics
+          - Signs
+          - History
+          - Organizations
+          - Safe Houses
+- id: 8f81d25b-a1e3-4d3a-8eea-ea66711a3454
+  name: Trids
+  attribute: INT
+  category: Interest
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Action
+          - Comedy
+          - Cop
+          - Documentary
+          - Drama
+          - Fantasy
+          - Horror
+          - Rom-Com
+          - Sci-fi
+          - Thriller
+- id: 2ffc7361-466a-4f9e-a09c-f6c56046f2ef
+  name: Trideo Shows
+  attribute: INT
+  category: Interest
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Action
+          - Comedy
+          - Cop
+          - Documentary
+          - Drama
+          - Fantasy
+          - Game Shows
+          - Horror
+          - Reality Shows
+          - Rom-Com
+          - Sci-fi
+          - Thriller
+          - BattleRun
+          - Berlin Nights
+          - Blood Runners
+          - The Coffee Clutch
+          - "DASH: Star Loner!"
+          - Debonair Dave
+          - Desert Wars
+          - Dessert Wars
+          - Dis is Uz
+          - Granny Sweetspell's Magical Kitchen
+          # ReSharper disable once MarkupTextTypo
+
+          - Karl Kombatmage
+          - Reloaded
+          - The Master Wizard
+          - Max Wild
+          - A Murder to Kill For
+          - "Ningyo: The Digital"
+          - Geisha Diaries
+          - On Point
+          - Ork and Mindy
+          - Polar Wars
+          - Porky's Landing
+          - Red Samurai Run
+          - The Runners
+          - "Seas of Death: The Tale of Kane"
+          - Space Fleet
+          - Street by Street
+          - Temple Terror
+          - The Wrong Shift
+- id: dad44f50-efc1-4dc9-a1ac-ca7d89a18218
+  name: Turkish
+  attribute: INT
+  category: Language
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Read/Write
+          - Speak
+          - "[Dialect]"
+          - "[Lingo]"
+          - Street
+          - l33tspeak
+          - Milspec
+          - Corp
+          - Orbital
+- id: 974e376f-5eec-4df8-b7d5-e53e900058e9
+  name: Undead
+  attribute: LOG
+  category: Academic
+  default: "False"
+  skillgroup:
+  specs:
+- id: 5c3ebb6f-d075-4486-8900-d7a19bae958f
+  name: Underworld
+  attribute: INT
+  category: Street
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Arson
+          - Black Magic
+          - Black Market Pipeline
+          - Blackmail
+          - BTL
+          - Counterfeiting
+          - Drugs
+          - Drug Dealers
+          - Fencing
+          - Financial Crime
+          - Fixing
+          - Forgery
+          - Gambling
+          - Grifting
+          - Hijacking
+          - Illegal Goods
+          - Kidnapping
+          - Loansharking
+          - Local Runners
+          - Medicine
+          - Matrix Crime
+          - Money Laundering
+          - Organleggers
+          - Pornography
+          - Prostitution
+          - Protection
+          - Robbery
+          - Smugglers
+          - Smuggling
+          - Talislegger
+          - Tamanous groups
+          - White Collar
+          - Wetwork
+- id: 250f080a-9a79-4e8b-8980-d19bef402852
+  name: Vory
+  attribute: INT
+  category: Street
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Turf
+          - Politics
+          - Signs
+          - History
+          - Organizations
+          - Safe Houses
+- id: 20041f7e-7725-403e-8771-0904090bdfd1
+  name: Wu
+  attribute: INT
+  category: Language
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Read/Write
+          - Speak
+          - "[Dialect]"
+          - "[Lingo]"
+          - Street
+          - l33tspeak
+          - Milspec
+          - Corp
+          - Orbital
+- id: ea024ba4-dabf-4da5-be96-a1bccfead27e
+  name: Xiang
+  attribute: INT
+  category: Language
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Read/Write
+          - Speak
+          - "[Dialect]"
+          - "[Lingo]"
+          - Street
+          - l33tspeak
+          - Milspec
+          - Corp
+          - Orbital
+- id: e216aad1-15fa-48c5-9d0e-0c6a92e819e0
+  name: Yakuza
+  attribute: INT
+  category: Street
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Turf
+          - Politics
+          - Signs
+          - History
+          - Organizations
+          - Safe Houses
+- id: 99d3b5ed-7862-410f-b3d9-ca7427bc2791
+  name: Astronomy
+  attribute: LOG
+  category: Academic
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Comets
+          - Mars
+          - Moon
+          - Stars
+          - "[category]"
+- id: 37013018-70bd-4016-827c-c366949622f5
+  name: Awakened Hangouts
+  attribute: INT
+  category: Street
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Atlanta
+          - Cheyenne
+          - Chicago
+          - Denver
+          - Hong Kong
+          - LA
+          - Manhattan
+          - FDC
+          - Portland
+          - Seattle
+          - Saskatoon
+          - Sacramento
+          - Quebec City
+          - Algonkian-Manitou Council
+          - Athabaskan Council
+          - Amazonia
+          - Aztlan
+          - Caribbean League
+          - California Free State
+          - Pueblo Corporate Council
+          - CAS
+          - UCAS
+          - Quebec
+          - Salish-Shidhe Council
+          - Sioux
+          - Tir Tairngire
+          - Tsimshian Protectorate
+          - Yucatan
+- id: 63bb99a1-457c-4ee6-ab63-05267b0b0e09
+  name: City Speak
+  attribute: INT
+  category: Language
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Read/Write
+          - Speak
+          - "[Dialect]"
+          - "[Lingo]"
+- id: a7d0c675-ca0d-4df0-9023-b03674d79d0e
+  name: Classical Music
+  attribute: INT
+  category: Interest
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Ballet
+          - Baroque
+          - Chamber Music
+          - Medieval
+          - Opera
+          - Orchestral
+          - Renaissance
+          - "[music style]"
+- id: 40829746-9376-4a0a-a80c-25c3767582df
+  name: Codes
+  attribute: LOG
+  category: Professional
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Magical
+          - Matrix
+          - Physical
+          - Mathematical
+- id: 678da16f-6446-4e0c-8bef-cc1d619e1d1a
+  name: Connoisseur
+  attribute: INT
+  category: Interest
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Fine Arts
+          - Beers
+          - Cuisines
+          - Cuisine (Aztlaner)
+          - Cuisine (French)
+          - Cuisine (Italian)
+          - Teas
+          - Wines
+          - Wine (Elven)
+          - "[Cuisine, Wine]"
+- id: d9c2e7c4-b9c6-4904-b4a4-56ecca7c9530
+  name: "Corporation: Ares Macrotechnology"
+  attribute: LOG
+  category: Academic
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Damien Knight
+          - Ares Arms
+          - AresSpace
+          - Seattle Operations
+          - Corporate Finances
+          - Corporate Politics
+          - Corporate Rumors
+          - Corporate Security
+- id: 50a4cbd7-a0f7-474a-97ae-a781320d6780
+  name: "Corporation: Aztechnology"
+  attribute: LOG
+  category: Academic
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Seattle Operations
+          - Corporate Finances
+          - Corporate Politics
+          - Corporate Rumors
+          - Corporate Security
+- id: 987d7063-73ec-4170-beb2-1851c0dd7cee
+  name: "Corporation: Evo"
+  attribute: LOG
+  category: Academic
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - CrashCart Medical Services
+          - Red Star Clinics
+          - Seattle Operations
+          - Corporate Finances
+          - Corporate Politics
+          - Corporate Rumors
+          - Corporate Security
+- id: 6a3bd597-09e5-45ba-8719-d4eda627e780
+  name: "Corporation: Horizon Group"
+  attribute: LOG
+  category: Academic
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Seattle Operations
+          - Corporate Finances
+          - Corporate Politics
+          - Corporate Rumors
+          - Corporate Security
+- id: dd4779db-4c54-4fa3-b56c-7caf0ba6926b
+  name: "Corporation: Mitsuhama Computer Technologies"
+  attribute: LOG
+  category: Academic
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Seattle Operations
+          - Magical Goods and Services
+          - Corporate Finances
+          - Corporate Politics
+          - Corporate Rumors
+          - Corporate Security
+- id: ee28a346-d0a8-476e-93a9-6db56ae4b298
+  name: "Corporation: NeoNET"
+  attribute: LOG
+  category: Academic
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Seattle Operations
+          - Corporate Finances
+          - Corporate Politics
+          - Corporate Rumors
+          - Corporate Security
+- id: 603f7245-62ef-477e-923e-f8a4681dec35
+  name: "Corporation: Renraku Computer Systems"
+  attribute: LOG
+  category: Academic
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Haruhiko Nakada
+          - Seattle Operations
+          - Corporate Finances
+          - Corporate Politics
+          - Corporate Rumors
+          - Corporate Security
+- id: 8db5cc64-5dc4-4ae9-a56b-e0c54a6e2413
+  name: "Corporation: Saeder-Krupp"
+  attribute: LOG
+  category: Academic
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Saeder-Krupp Heavy Industries
+          - Saeder-Krupp Prime
+          - Seattle Operations
+          - Corporate Finances
+          - Corporate Politics
+          - Corporate Rumors
+          - Corporate Security
+- id: 03707f22-bebe-469a-817b-f6dfd4d7d6a1
+  name: "Corporation: Shiawase"
+  attribute: LOG
+  category: Academic
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Seattle Operations
+          - Corporate Finances
+          - Corporate Politics
+          - Corporate Rumors
+          - Corporate Security
+- id: c9826bde-bb0b-4e45-9348-aa77546dfc7c
+  name: "Corporation: Wuxing, Inc."
+  attribute: LOG
+  category: Academic
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Seattle Operations
+          - Magical Goods and Services
+          - Corporate Finances
+          - Corporate Politics
+          - Corporate Rumors
+          - Corporate Security
+- id: 44181f85-9472-4ab6-8da7-d4d2aeb38a96
+  name: "Corporation: Brackhaven Investments"
+  attribute: LOG
+  category: Academic
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Kenneth Brackhaven
+          - Seattle Operations
+          - Corporate Finances
+          - Corporate Politics
+          - Corporate Rumors
+          - Corporate Security
+- id: 7592dc37-0d4f-4790-a1a8-188601b0d137
+  name: "Corporation: DocWagon"
+  attribute: LOG
+  category: Academic
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Denny Coleman
+          - Seattle Operations
+          - Corporate Finances
+          - Corporate Politics
+          - Corporate Rumors
+          - Corporate Security
+- id: 0346bd5b-4a87-47b9-86de-9b322ef0a2c7
+  name: "Corporation: Federated-Boeing"
+  attribute: LOG
+  category: Academic
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Seattle Operations
+          - Corporate Finances
+          - Corporate Politics
+          - Corporate Rumors
+          - Corporate Security
+- id: 7d76f579-eec5-4521-a7bb-c4dedfd85af4
+  name: "Corporation: Gaeatronics"
+  attribute: LOG
+  category: Academic
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Seattle Operations
+          - Corporate Finances
+          - Corporate Politics
+          - Corporate Rumors
+          - Corporate Security
+- id: dc767e9a-796a-494a-b200-d018efd4fa49
+  name: "Corporation: Global Technologies"
+  attribute: LOG
+  category: Academic
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Seattle Operations
+          - Corporate Finances
+          - Corporate Politics
+          - Corporate Rumors
+          - Corporate Security
+- id: 23efe0de-0830-40f4-ab54-ee5e324b31e9
+  name: "Corporation: Knight Errant"
+  attribute: LOG
+  category: Academic
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Damien Knight
+          - Seattle Operations
+          - Corporate Finances
+          - Corporate Politics
+          - Corporate Rumors
+          - Corporate Security
+- id: d62f9a9e-9614-4421-a70c-b20b0f60641e
+  name: "Corporation: Kong-Walmart"
+  attribute: LOG
+  category: Academic
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Seattle Operations
+          - Corporate Finances
+          - Corporate Politics
+          - Corporate Rumors
+          - Corporate Security
+- id: 43378bcc-7ca9-4f26-9ee5-8bbc69953628
+  name: "Corporation: Lone Star Security Services"
+  attribute: LOG
+  category: Academic
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Chicago Operations
+          - Corporate Finances
+          - Corporate Politics
+          - Corporate Rumors
+          - Corporate Security
+- id: 183d5e40-4c27-4068-a30d-e75176f4da67
+  name: "Corporation: Regency MegaMedia"
+  attribute: LOG
+  category: Academic
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Seattle Operations
+          - Corporate Finances
+          - Corporate Politics
+          - Corporate Rumors
+          - Corporate Security
+- id: a142e6ff-b97c-4cf6-9fbc-caebe1c3ba9f
+  name: "Corporation: Stuffer Shack"
+  attribute: LOG
+  category: Academic
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Seattle Operations
+          - Corporate Finances
+          - Corporate Politics
+          - Corporate Rumors
+          - Corporate Security
+- id: eb92764d-5dff-4454-88a0-f7c8233c9016
+  name: "Corporation: Telestrian Industries Corporation"
+  attribute: LOG
+  category: Academic
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Seattle Operations
+          - Corporate Finances
+          - Corporate Politics
+          - Corporate Rumors
+          - Corporate Security
+- id: 0b1dfbba-c787-4455-95e0-0b87b885011b
+  name: "Corporation: Universal Omnitech"
+  attribute: LOG
+  category: Academic
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Ingersoll and Berkley
+          - Seattle Operations
+          - Corporate Finances
+          - Corporate Politics
+          - Corporate Rumors
+          - Corporate Security
+- id: cb35837e-09bd-4c53-96de-6fbd92b3d99f
+  name: "Corporation: Zurich-Orbit Gemeinschaft Bank (ZOG)"
+  attribute: LOG
+  category: Academic
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Corporate Finances
+          - Corporate Politics
+          - Corporate Rumors
+          - Corporate Security
+- id: decebd3c-5fb0-426e-8e9c-431e0fa3b880
+  name: Creole
+  attribute: INT
+  category: Language
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Read/Write
+          - Speak
+          - "[Dialect]"
+          - "[Lingo]"
+- id: 94f7ee6d-e79d-4236-9787-c7bc45727e9f
+  name: Cybertechnology
+  attribute: LOG
+  category: Academic
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Cyberware
+          - Cyberware Design
+          - SOTA
+- id: d768f35f-9c1f-4792-a609-9f7c61aea557
+  name: Entertainment
+  attribute: INT
+  category: Interest
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Classical Music
+          - Kaiju Monster Movies
+          - Music
+          - Neo-Classical Music
+          - Sports
+          - "[Gambling]"
+          - "[Pornography]"
+- id: 2d74b337-f0c4-465c-a03a-23af8d93082b
+  name: Fight Clubs
+  attribute: INT
+  category: Street
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Atlanta
+          - Cheyenne
+          - Chicago
+          - Denver
+          - Hong Kong
+          - LA
+          - Manhattan
+          - FDC
+          - Portland
+          - Seattle
+          - Saskatoon
+          - Sacramento
+          - Quebec City
+          - Algonkian-Manitou Council
+          - Athabaskan Council
+          - Amazonia
+          - Aztlan
+          - Caribbean League
+          - California Free State
+          - Pueblo Corporate Council
+          - CAS
+          - UCAS
+          - Quebec
+          - Salish-Shidhe Council
+          - Sioux
+          - Tir Tairngire
+          - Tsimshian Protectorate
+          - Yucatan
+- id: abeaf83e-edeb-4780-baff-4662e73ea8e6
+  name: Farming
+  attribute: LOG
+  category: Professional
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Organic
+          - Factory
+          - Awakened
+- id: 487f0a4f-584d-484f-8778-942c5ecda065
+  name: Forensics
+  attribute: LOG
+  category: Professional
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Cleaning
+          - Thaumaturgic
+- id: cd7444d3-8eb4-41f7-a8a9-753df5958d0c
+  name: Foster System
+  attribute: LOG
+  category: Professional
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - UCAS
+          - CAS
+          - "[Jurisdiction]"
+- id: fe04fd63-2d4f-4046-8356-0bad4d251e50
+  name: Journalism
+  attribute: LOG
+  category: Professional
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Investigative
+          - Editorial
+          - Print
+          - Trid
+- id: e48a5194-57e7-420a-b176-5f51bdb235c4
+  name: Megacorp Law (Street)
+  attribute: INT
+  category: Street
+  default: "False"
+  skillgroup:
+  specs:
+      spec: Contracts
+- id: 227bcaa5-0cc0-4f85-99e6-345a5d7e696d
+  name: Law
+  attribute: LOG
+  category: Professional
+  default: "False"
+  skillgroup:
+  specs:
+      spec: Contracts
+- id: d6304862-cfa6-4916-aee1-40789798b590
+  name: Matrix
+  attribute: LOG
+  category: Professional
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Host Design
+          - Host Networking
+- id: cb491fb5-2fa9-422e-b572-9ff84fcd5616
+  name: Matrix Threats
+  attribute: LOG
+  category: Professional
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Protosapients
+          - Xenosapients
+          - Technocritters
+          - Dissonant Technomancers
+- id: 4dd0d947-b1e1-471b-bfc0-9ba8ecd827dc
+  name: Magical Law
+  attribute: LOG
+  category: Professional
+  default: "False"
+  skillgroup:
+  specs:
+      spec: Contracts
+- id: e93e443e-7b21-41f7-9f8e-ba316b1e385a
+  name: Metahumans
+  attribute: LOG
+  category: Academic
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Dwarves
+          - Elves
+          - Humans
+          - Orks
+          - Trolls
+- id: a2a68932-b602-4387-931b-03b2408a416d
+  name: Medicine
+  attribute: LOG
+  category: Academic
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Field Medicine
+          - Medical Advances
+          - Technology
+- id: 85334671-01ec-42ef-9908-dae556376a2c
+  name: Psychology
+  attribute: LOG
+  category: Academic
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Mental Illnesses
+          - Mental Reprogramming
+          - Xenosapient
+- id: 2d107401-7319-4b41-8800-e0cbdf7251f0
+  name: Sociology
+  attribute: LOG
+  category: Academic
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Cultural
+          - Medical
+          - Behavioral
+          - Matrix
+          - Political
+- id: a69c0dc0-891d-4d06-8fd4-0312b1288c0c
+  name: Philosophy
+  attribute: LOG
+  category: Academic
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Christian
+          - Buddhist
+          - Taoist
+          - Confucian
+          - Kantian
+          - Socialist
+          - Fascist
+          - Utilitarian
+          - Existentialist
+          - Rationalist
+          - Anti-Rationalist
+- id: 4df60d90-2b0a-414c-955e-f52a57ff9760
+  name: Neo-Classical Music
+  attribute: INT
+  category: Interest
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Rock n Roll
+          - The (19)60's
+          - The (19)70's
+          - Early Millennial
+          - Mid-century
+          - "[musical era]"
+- id: d232a676-7550-4e5a-8b5a-57417bb8038d
+  name: "Organized Crime: Chicago"
+  attribute: INT
+  category: Street
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Turf
+          - Politics
+          - Signs
+          - History
+          - Organizations
+          - Safe Houses
+- id: 8ba59909-186d-4629-97ee-62880189b5c3
+  name: Police Procedures (Professional)
+  attribute: LOG
+  category: Professional
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Government
+          - Military Security Design
+          - Magical
+          - Matrix
+          - Military
+          - Physical
+          - Private
+          - Home
+          - "[Corporation]"
+- id: a9ba4d49-7a9c-4d3f-9e71-99ef8458ca5f
+  name: Police Procedures (Street)
+  attribute: INT
+  category: Street
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Government
+          - Military Security Design
+          - Magical
+          - Matrix
+          - Military
+          - Physical
+          - Private
+          - Home
+          - "[Corporation]"
+- id: 8a82edaa-9ff0-447d-acb7-3a72a8bcfb9f
+  name: Security Procedures
+  attribute: LOG
+  category: Professional
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Government
+          - Military Security Design
+          - Magical
+          - Matrix
+          - Military
+          - Physical
+          - Private
+          - Home
+          - "[Corporation]"
+- id: af8ea3b6-5ffd-41b6-892a-7e77ee8e247a
+  name: Law Enforcement Procedures (Professional)
+  attribute: LOG
+  category: Professional
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Government
+          - Magical
+          - Matrix
+          - Military
+          - Physical
+          - Private
+          - "[Corporation]"
+- id: 687a25c8-2f47-40fd-a9f8-a44bedb2c1f3
+  name: Law Enforcement Procedures (Street)
+  attribute: INT
+  category: Street
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Government
+          - Magical
+          - Matrix
+          - Military
+          - Physical
+          - Private
+          - "[Corporation]"
+- id: 31357280-24e0-4146-b5ee-ad532decaa5e
+  name: Government Procedures
+  attribute: LOG
+  category: Professional
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Magical
+          - Matrix
+          - Physical
+          - Bureaucratic
+- id: 1d68ed58-91ff-495a-a456-2bc04d82a3b7
+  name: Lone Star Procedures
+  attribute: INT
+  category: Street
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Government
+          - Magical
+          - Matrix
+          - Physical
+          - Home
+- id: c345b536-1406-4d32-9ae1-0fc5002cd9c5
+  name: "Politics: UCAS"
+  attribute: INT
+  category: Street
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Presidential
+          - Congressional
+          - "[state, party, lobby group]"
+- id: 519e73c7-d1d4-4c53-9654-e4974f9e531b
+  name: Popular Culture
+  attribute: INT
+  category: Interest
+  default: "False"
+  skillgroup:
+  specs:
+- id: 9176d81a-ac8b-4168-afe6-affd4bb9514e
+  name: Popular Music
+  attribute: INT
+  category: Interest
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Dwarven Punkbilly
+          - Modern Punk
+          - Feathercore
+          - Beatpace
+          - Bugstomp
+          - Fractal
+          - Plex
+          - "[genre]"
+- id: 06c125c8-01cc-40ba-9a11-2fdad092398f
+  name: Radical Groups
+  attribute: INT
+  category: Street
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Alamos 20K
+          - Ex Pacis
+          - GreenWar
+          - Logos
+          - Neo-Anarchist Movement
+          - Seed
+          - TerraFirst!
+          - "[group]"
+- id: 85a3fe58-b638-4272-949e-bd7549e32e00
+  name: Runner Hangouts
+  attribute: INT
+  category: Street
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Atlanta
+          - Cheyenne
+          - Chicago
+          - Denver
+          - FDC
+          - High-Class
+          - Hong Kong
+          - LA
+          - Low-Class
+          - Manhattan
+          - Portland
+          - Quebec City
+          - Sacramento
+          - Seattle
+- id: 79a0069c-4517-4698-91b5-3d24b928c5ee
+  name: Salish
+  attribute: INT
+  category: Language
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Read/Write
+          - Speak
+          - "[Dialect]"
+          - "[Lingo]"
+          - Street
+          - l33tspeak
+          - Milspec
+          - Corp
+          - Orbital
+- id: 1708eff8-a7fe-491f-b349-a6130c83e8d0
+  name: Serbo-Croatian
+  attribute: INT
+  category: Language
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Read/Write
+          - Speak
+          - "[Dialect]"
+          - "[Lingo]"
+          - Street
+          - l33tspeak
+          - Milspec
+          - Corp
+          - Orbital
+- id: fe3ccfd5-9e14-4e0a-962d-f9601fc24950
+  name: Shadow Community
+  attribute: INT
+  category: Street
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Turf
+          - Politics
+          - History
+          - Organizations
+          - Safe Houses
+          - News
+          - Personalities
+          - Rumors
+          - Famous Shadowrunners
+- id: 4c0b7b81-5dd4-4247-82da-88161992a374
+  name: Aztlaner Spanish
+  attribute: INT
+  category: Language
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Read/Write
+          - Speak
+          - "[Dialect]"
+          - "[Lingo]"
+          - Street
+          - l33tspeak
+          - Milspec
+          - Corp
+          - Orbital
+- id: 39f7b0cb-dd7c-4196-808b-8910119ea884
+  name: "Street Gangs: Seattle"
+  attribute: INT
+  category: Street
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - 405 Hellhounds
+          - Ancients
+          - Black Rains
+          - Blood Mountains Boys
+          - Bloody Screamers
+          - Brain Eaters
+          - Crimson Crush
+          - Disassemblers
+          - First Nations
+          - Forever Tacoma
+          - Halloweeners
+          - Kabuki Ronin
+          - Lake Acids
+          - Leather Devils
+          - Night Hunters
+          - Nova Rich
+          - Princes
+          - Reality Hackers
+          - Red Hot Nukes
+          - Red Rovers
+          - Rusted Stilettos
+          - Scatterbrains
+          - Spiders
+          - Spikes
+          - The Ragers
+          - Troll Killers
+- id: ea016ac9-8000-4cb3-ae84-102e9c989667
+  name: Telesma
+  attribute: LOG
+  category: Professional
+  default: "False"
+  skillgroup:
+  specs:
+      spec: "[Focus Type]"
+- id: 9d03c940-d018-40eb-8273-c33215de3948
+  name: Tlingit
+  attribute: INT
+  category: Language
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Read/Write
+          - Speak
+          - "[Dialect]"
+          - "[Lingo]"
+          - Street
+          - l33tspeak
+          - Milspec
+          - Corp
+          - Orbital
+- id: ca63887a-1cee-4364-8fb9-126aa3526908
+  name: "Triads: Hong Kong"
+  attribute: INT
+  category: Street
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Black Chrysanthemums
+          - Red Dragons
+          - Yellow Lotus
+- id: 7dd3d095-fdfb-4d95-b910-205f6e980434
+  name: Tsimshianic
+  attribute: INT
+  category: Language
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Read/Write
+          - Speak
+          - "[Dialect]"
+          - "[Lingo]"
+          - Street
+          - l33tspeak
+          - Milspec
+          - Corp
+          - Orbital
+- id: 3fcfdd55-03f6-4e08-aaa6-6c98f15b1cd3
+  name: Uto-Aztecan
+  attribute: INT
+  category: Language
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Read/Write
+          - Speak
+          - "[Dialect]"
+          - "[Lingo]"
+          - Street
+          - l33tspeak
+          - Milspec
+          - Corp
+          - Orbital
+- id: 4e62ab4f-4877-4a7f-bcb9-3023fc443078
+  name: Vehicles
+  attribute: INT
+  category: Interest
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Military
+          - Aircraft
+          - Bikes
+          - Boats
+          - Cars
+          - Spacecraft
+          - Trains
+          - Trucks
+          - Vintage Cars
+- id: 53b99129-39d5-4bc4-9815-6bab79144c7c
+  name: Yiddish
+  attribute: INT
+  category: Language
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Read/Write
+          - Speak
+          - "[Dialect]"
+          - "[Lingo]"
+          - Street
+          - l33tspeak
+          - Milspec
+          - Corp
+          - Orbital
+- id: 037f8de4-9485-4efe-8e93-d7b929c62b29
+  name: Zuni
+  attribute: INT
+  category: Language
+  default: "False"
+  skillgroup:
+  specs:
+      spec:
+          - Read/Write
+          - Speak
+          - "[Dialect]"
+          - "[Lingo]"
+          - Street
+          - l33tspeak
+          - Milspec
+          - Corp
+          - Orbital
+...

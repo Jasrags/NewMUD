@@ -1,0 +1,13 @@
+id: gymnastics
+name: Gymnastics
+description: Gymnastics measures your balance, general athleticism, and all-around ability to use your body.
+is_defaultable: true
+linked_attribute: Agility
+specializations:
+    - Balance
+    - Climbing
+    - Dance
+    - Leaping
+    - Parkour
+    - Rolling
+rule_source: SR5:Core

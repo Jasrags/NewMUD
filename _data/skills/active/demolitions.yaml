@@ -1,0 +1,12 @@
+id: demolitions
+name: Demolitions
+description: Demolitions is used to prepare, plant, detonate, and often defuse chemical-based explosives.
+is_defaultable: false
+linked_attribute: Logic
+specializations:
+    - Chemical Explosives
+    - Demolition Charges
+    - Improvised Explosives
+    - Plastic Explosives
+    - Pyrotechnics
+rule_source: SR5:Core

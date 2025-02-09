@@ -1,0 +1,10 @@
+id: negotiation
+name: Negotiation
+description: Negotiation governs a character’s ability to apply their charisma, tactics, and knowledge of situational psychology in order to create a better position when making deals.
+is_defaultable: true
+linked_attribute: Charisma
+specializations:
+    - Bargaining
+    - Contracts
+    - Diplomacy
+rule_source: SR5:Core

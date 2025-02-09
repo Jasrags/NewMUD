@@ -7,14 +7,21 @@ import (
 	ee "github.com/vansante/go-event-emitter"
 )
 
-type Area struct {
-	sync.RWMutex
-	Listeners []ee.Listener `yaml:"-"`
+const (
+	AreasFilepath = "_data/areas"
+	AreasFilename = "manifest.yml"
+)
 
-	ID          string `yaml:"id"`
-	Title       string `yaml:"title"`
-	Description string `yaml:"description"`
-}
+type (
+	Area struct {
+		sync.RWMutex
+		Listeners []ee.Listener `yaml:"-"`
+
+		ID          string `yaml:"id"`
+		Title       string `yaml:"title"`
+		Description string `yaml:"description"`
+	}
+)
 
 func NewArea() *Area {
 	return &Area{}

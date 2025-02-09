@@ -1,0 +1,5 @@
+id: mandarin
+name: Mandarin
+is_common: false
+rule_source: SR5:Core
+file_version: 0.0.1

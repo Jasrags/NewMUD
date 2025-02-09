@@ -1,0 +1,6 @@
+id: acting
+name: Acting
+skills:
+    - impersonation
+    - performance
+rule_source: SR5:Core

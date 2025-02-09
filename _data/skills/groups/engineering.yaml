@@ -1,0 +1,8 @@
+id: engineering
+name: Engineering
+skills:
+    - aeronautics_mechanic
+    - automotive_mechanic
+    - industrial_mechanic
+    - nautical_mechanic
+rule_source: SR5:Core

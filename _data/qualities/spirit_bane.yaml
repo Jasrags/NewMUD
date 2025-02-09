@@ -1,0 +1,7 @@
+id: spirit_bane
+type: Negative
+name: Spirit Bane
+description: The character is particularly vulnerable to spirits. The character receives a –2 dice pool modifier on all tests to resist the effects of spirits.
+modifiers: []
+cost: 7
+rule_source: SR5:Core

@@ -1,0 +1,11 @@
+id: longarms
+name: Longarms
+description: The Longarms skill is for firing extended-barrel weapons such as sporting rifles and sniper rifles. This grouping also includes weapons like shotguns that are designed to be braced against the shoulder.
+is_defaultable: true
+linked_attribute: Agility
+specializations:
+    - Extended-Range Shots
+    - Long-Range Shots
+    - Shotguns
+    - Sniper Rifles
+rule_source: SR5:Core

@@ -1,0 +1,8 @@
+id: performance
+name: Performance
+description: This skill governs the ability to execute a performing art. Performance is to the arts what Artisan is to craft. The performer uses her skill to entertain or even captivate an audience.
+is_defaultable: true
+linked_attribute: Charisma
+specializations:
+    - By performance art (Presentation, Acting, Comedy, specific Musical Instrument, etc.)
+rule_source: SR5:Core
