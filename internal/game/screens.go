@@ -392,8 +392,9 @@ func PromptSelectPregenCharacter(s ssh.Session, a *Account) (string, *Character)
 			continue
 		}
 
+		WriteStringF(s, CRLF+"{{Pregen: %s}}::cyan"+CRLF, pregen.Title)
 		// Display selection details.
-		WriteString(s, cfmt.Sprintf("{{%s}}::cyan"+CRLF, pregen.GetSelectionInfo()))
+		// WriteStringF(s, CRLF+"{{%s}}::cyan"+CRLF, pregen.GetSelectionInfo())
 
 		// Confirm selection.
 		if !YesNoPrompt(s, true) {
@@ -475,26 +476,34 @@ func PromptSetCharacterDetails(s ssh.Session, a *Account, char *Character) (stri
 	CharacterMgr.AddCharacter(char)
 	char.Save()
 
-	WriteString(s, cfmt.Sprintf("{{Character '%s' created successfully! Returning to main menu.}}::green"+CRLF, char.Name))
+	WriteStringF(s, "{{Character '%s' created successfully! Returning to main menu.}}::green"+CRLF, char.Name)
 
 	return StateMainMenu, char
 }
 
 func PromptSetCharacterName(s ssh.Session, a *Account, char *Character) (string, *Character) {
-	WriteString(s, "{{Enter your character's name:}}::white|bold ")
-	name, err := InputPrompt(s, "")
-	if err != nil {
-		return StateError, nil
+	for {
+		WriteString(s, CRLF+"{{Enter your character's name:}}::white|bold|underline ")
+		name, err := InputPrompt(s, "")
+		if err != nil {
+			return StateError, nil
+		}
+
+		if err := ValidateCharacterName(name); err != nil {
+			WriteStringF(s, "{{Invalid name: %s}}::red"+CRLF, err.Error())
+			continue
+		}
+
+		name = strings.TrimSpace(name)
+
+		WriteStringF(s, CRLF+"{{Name: %s}}::cyan"+CRLF, name)
+
+		if !YesNoPrompt(s, true) {
+			continue
+		}
+
+		return "", char
 	}
-
-	if err := ValidateCharacterName(name); err != nil {
-		WriteString(s, cfmt.Sprintf("{{Invalid name: %s}}::red"+CRLF, err.Error()))
-		return StateError, nil
-	}
-
-	char.Name = strings.TrimSpace(name)
-
-	return "", char
 }
 
 func PromptSetCharacterSex(s ssh.Session, a *Account, char *Character) (string, *Character) {
@@ -502,13 +511,18 @@ func PromptSetCharacterSex(s ssh.Session, a *Account, char *Character) (string, 
 		{"Male", "male", "Male character"},
 		{"Female", "female", "Female character"},
 		{"Non-Binary", "non_binary", "Non-binary character"},
-		// {"Custom", "custom", "Enter a custom gender identity"},
 	}
 
 	for {
 		choice, err := PromptForMenu(s, "Select Your Character's Sex", options)
 		if err != nil {
-			return StateError, nil
+			continue
+		}
+
+		WriteStringF(s, CRLF+"{{Sex: %s}}::cyan"+CRLF, choice)
+
+		if !YesNoPrompt(s, true) {
+			continue
 		}
 
 		// if choice == "custom" {
@@ -541,6 +555,7 @@ func PromptSetCharacterAge(s ssh.Session, a *Account, char *Character) (string, 
 		}
 
 		char.Age = age
+
 		return "", char
 	}
 }
@@ -560,6 +575,7 @@ func PromptSetCharacterHeight(s ssh.Session, a *Account, char *Character) (strin
 		}
 
 		char.Height = height
+
 		return "", char
 	}
 }
@@ -579,6 +595,7 @@ func PromptSetCharacterWeight(s ssh.Session, a *Account, char *Character) (strin
 		}
 
 		char.Weight = weight
+
 		return "", char
 	}
 }
@@ -592,6 +609,7 @@ func PromptSetCharacterShortDescription(s ssh.Session, a *Account, char *Charact
 	}
 
 	char.Description = strings.TrimSpace(description)
+
 	return "", char
 }
 
@@ -604,6 +622,7 @@ func PromptSetCharacterLongDescription(s ssh.Session, a *Account, char *Characte
 	}
 
 	char.LongDescription = strings.TrimSpace(description)
+
 	return "", char
 }
 
