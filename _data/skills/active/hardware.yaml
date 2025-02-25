@@ -1,0 +1,16 @@
+id: hardware
+name: Hardware
+description: Hardware reflects a characters ability to build and repair electronic devices. A workspace, proper materials, and sufficient build time are required to enact a repair or to build a new device. See Building & Repairing, at right.
+is_defaultable: false
+linked_attribute: Logic
+specializations:
+    - Audio
+    - Communications
+    - Computers
+    - Cyberdecks
+    - Data Storage
+    - Drones
+    - Electronic Warfare
+    - Sensors
+    - Video
+rule_source: SR5:Core

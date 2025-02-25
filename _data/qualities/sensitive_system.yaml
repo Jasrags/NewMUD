@@ -1,0 +1,7 @@
+id: sensitive_system
+type: Negative
+name: Sensitive System
+description: The character’s cyberware is more susceptible to damage. The character’s cyberware Essence cost is increased by 10%.
+modifiers: []
+cost: 12
+rule_source: SR5:Core

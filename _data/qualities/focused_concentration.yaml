@@ -1,0 +1,8 @@
+id: focused_concentration
+type: Positive
+name: Focused Concentration
+max_rating: 6
+description: The character can concentrate on a task with an intensity that borders on the supernatural. The character can take this quality multiple times, each time applying it to a different skill. The character receives a +1 dice pool modifier on all tests involving that skill. This quality can be taken up to six times for a single skill.
+modifiers: []
+cost: 4
+rule_source: SR5:Core

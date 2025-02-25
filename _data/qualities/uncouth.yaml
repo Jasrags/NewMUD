@@ -1,0 +1,7 @@
+id: uncouth
+type: Negative
+name: Uncouth
+description: The character is rude and socially awkward. The character receives a –2 dice pool modifier on all Social Tests.
+modifiers: []
+cost: 14
+rule_source: SR5:Core

@@ -1,0 +1,12 @@
+id: gunnery
+name: Gunnery
+description: Gunnery is used when firing any vehicle-mounted weapon, regardless of how or where the weapon is mounted. This skill extends to manual and sensor-enhanced gunnery.
+is_defaultable: true
+linked_attribute: Agility
+specializations:
+    - Artillery
+    - Ballistic
+    - Energy
+    - Guided Missile
+    - Rocket
+rule_source: SR5:Core

@@ -1,0 +1,7 @@
+id: exotic_ranged_weapon
+name: Exotic Ranged Weapon
+description: Sometimes a regular gun or blade won’t do the job and you need something fancier. Or weirder. This skill must be taken once for each unusual ranged weapon you want to use. Some examples include blowguns, gyrojet pistols, flamethrowers, and lasers.
+is_defaultable: true
+linked_attribute: Agility
+specializations: []
+rule_source: SR5:Core

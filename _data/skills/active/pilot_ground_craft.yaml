@@ -1,0 +1,12 @@
+id: pilot_ground_craft
+name: Pilot Ground Craft
+description: This skill is used to pilot any ground-based vehicle, excluding legged vehicles. This skill applies whether the pilot is in the vehicle or controlling the vehicle via remote access.
+is_defaultable: false
+linked_attribute: Reaction
+specializations:
+    - Bike
+    - Hovercraft
+    - Remote Operation
+    - Tracked
+    - Wheeled
+rule_source: SR5:Core

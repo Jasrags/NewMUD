@@ -1,0 +1,7 @@
+id: combat_paralysis
+type: Negative
+name: Combat Paralysis
+description: The character freezes up in combat. The character receives a –2 dice pool modifier on all tests to resist fear and intimidation in combat.
+modifiers: []
+cost: 12
+rule_source: SR5:Core

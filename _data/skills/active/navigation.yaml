@@ -1,0 +1,12 @@
+id: navigation
+name: Navigation
+description: Navigation governs the use of technology and natural instinct to navigate through territory. This skill enables characters to read maps, use GPS devices, follow AR nav points, or follow a course by landmarks or general direction sense. Navigation applies to both AR and non-AR-enhanced environments.
+is_defaultable: true
+linked_attribute: Intuition
+specializations:
+    - Augmented Reality Markers
+    - Celestial
+    - Compass
+    - Maps
+    - 'GPS '
+rule_source: SR5:Core

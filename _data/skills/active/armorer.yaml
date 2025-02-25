@@ -1,0 +1,14 @@
+id: armorer
+name: Armorer
+description: Armorer encompasses the broad array of skills required to build and maintain weapons and armor. As with all mechanics-based skills, the proper tools and equipment are required to perform any repair or build operation.
+is_defaultable: false
+linked_attribute: Logic
+specializations:
+    - Armor
+    - Artillery
+    - Explosives
+    - Firearms
+    - Melee Weapons
+    - Heavy Weapons
+    - Weapon Accessories
+rule_source: SR5:Core

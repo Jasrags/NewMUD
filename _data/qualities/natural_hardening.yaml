@@ -1,0 +1,7 @@
+id: natural_hardening
+type: Positive
+name: Natural Hardening
+description: The character is naturally tough. The character receives a +1 dice pool modifier on all tests to resist damage.
+modifiers: []
+cost: 10
+rule_source: SR5:Core

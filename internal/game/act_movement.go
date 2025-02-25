@@ -1,8 +1,6 @@
 package game
 
 import (
-	"io"
-
 	"github.com/gliderlabs/ssh"
 	"github.com/i582/cfmt/cmd/cfmt"
 	"golang.org/x/exp/rand"
@@ -11,45 +9,45 @@ import (
 // This command is for opening closed entities
 func DoOpen(s ssh.Session, cmd string, args []string, user *Account, char *Character, room *Room) {
 	if len(args) < 1 {
-		io.WriteString(s, cfmt.Sprintf("{{Open what?}}::yellow\n"))
+		WriteString(s, "{{Open what?}}::yellow"+CRLF)
 		return
 	}
 
 	direction := ParseDirection(args[0])
 	exit, exists := room.Exits[direction]
 	if !exists {
-		io.WriteString(s, cfmt.Sprintf("{{There is no exit to the %s.}}::red\n", direction))
+		WriteStringF(s, "{{There is no exit to the %s.}}::red"+CRLF, direction)
 		return
 	}
 
 	if exit.Door == nil {
-		io.WriteString(s, cfmt.Sprintf("{{There is no door to the %s.}}::red\n", direction))
+		WriteStringF(s, "{{There is no door to the %s.}}::red"+CRLF, direction)
 		return
 	}
 
 	if !exit.Door.IsClosed {
-		io.WriteString(s, cfmt.Sprintf("{{The door to the %s is already open.}}::yellow\n", direction))
+		WriteStringF(s, "{{The door to the %s is already open.}}::yellow"+CRLF, direction)
 		return
 	}
 
 	if exit.Door.IsLocked {
-		io.WriteString(s, cfmt.Sprintf("{{The door to the %s is locked.}}::red\n", direction))
+		WriteStringF(s, "{{The door to the %s is locked.}}::red"+CRLF, direction)
 		return
 	}
 
 	exit.Door.IsClosed = false
-	io.WriteString(s, cfmt.Sprintf("{{You open the door to the %s.}}::green\n", direction))
-	room.Broadcast(cfmt.Sprintf("{{%s opens the door to the %s.}}::green\n", char.Name, direction), []string{char.ID})
+	WriteStringF(s, "{{You open the door to the %s.}}::green"+CRLF, direction)
+	room.Broadcast(cfmt.Sprintf("{{%s opens the door to the %s.}}::green"+CRLF, char.Name, direction), []string{char.ID})
 
 	// Notify the adjacent room
 	if exit.Room != nil {
-		exit.Room.Broadcast(cfmt.Sprintf("{{The door to the %s opens from the other side.}}::green\n", ReverseDirection(direction)), []string{})
+		exit.Room.Broadcast(cfmt.Sprintf("{{The door to the %s opens from the other side.}}::green"+CRLF, ReverseDirection(direction)), []string{})
 	}
 }
 
 func DoClose(s ssh.Session, cmd string, args []string, user *Account, char *Character, room *Room) {
 	if len(args) < 1 {
-		io.WriteString(s, cfmt.Sprintf("{{Close what?}}::yellow\n"))
+		WriteString(s, "{{Close what?}}::yellow"+CRLF)
 		return
 	}
 
@@ -57,27 +55,27 @@ func DoClose(s ssh.Session, cmd string, args []string, user *Account, char *Char
 
 	exit, exists := room.Exits[direction]
 	if !exists {
-		io.WriteString(s, cfmt.Sprintf("{{There is no exit to the %s.}}::red\n", direction))
+		WriteStringF(s, "{{There is no exit to the %s.}}::red"+CRLF, direction)
 		return
 	}
 
 	if exit.Door == nil {
-		io.WriteString(s, cfmt.Sprintf("{{There is no door to the %s.}}::red\n", direction))
+		WriteStringF(s, "{{There is no door to the %s.}}::red"+CRLF, direction)
 		return
 	}
 
 	if exit.Door.IsClosed {
-		io.WriteString(s, cfmt.Sprintf("{{The door to the %s is already closed.}}::yellow\n", direction))
+		WriteStringF(s, "{{The door to the %s is already closed.}}::yellow"+CRLF, direction)
 		return
 	}
 
 	exit.Door.IsClosed = true
-	io.WriteString(s, cfmt.Sprintf("{{You close the door to the %s.}}::green\n", direction))
-	room.Broadcast(cfmt.Sprintf("{{%s closes the door to the %s.}}::green\n", char.Name, direction), []string{char.ID})
+	WriteStringF(s, "{{You close the door to the %s.}}::green"+CRLF, direction)
+	room.Broadcast(cfmt.Sprintf("{{%s closes the door to the %s.}}::green"+CRLF, char.Name, direction), []string{char.ID})
 
 	// Notify the adjacent room
 	if exit.Room != nil {
-		exit.Room.Broadcast(cfmt.Sprintf("{{The door to the %s closes from the other side.}}::green\n", ReverseDirection(direction)), []string{})
+		exit.Room.Broadcast(cfmt.Sprintf("{{The door to the %s closes from the other side.}}::green"+CRLF, ReverseDirection(direction)), []string{})
 	}
 }
 
@@ -88,12 +86,12 @@ Usage:
 */
 func DoMove(s ssh.Session, cmd string, args []string, user *Account, char *Character, room *Room) {
 	if room == nil {
-		io.WriteString(s, cfmt.Sprintf("{{You are not in a room.}}::red\n"))
+		WriteString(s, "{{You are not in a room.}}::red"+CRLF)
 		return
 	}
 
 	if cmd == "move" && len(args) == 0 {
-		io.WriteString(s, cfmt.Sprintf("{{Move where?}}::red\n"))
+		WriteString(s, "{{Move where?}}::red"+CRLF)
 		return
 	}
 
@@ -102,51 +100,51 @@ func DoMove(s ssh.Session, cmd string, args []string, user *Account, char *Chara
 	// Check if the exit exists
 	if exit, ok := char.Room.Exits[dir]; ok {
 		if exit.Door != nil && exit.Door.IsClosed {
-			io.WriteString(s, cfmt.Sprintf("{{The door to the %s is closed.}}::red\n", dir))
+			WriteStringF(s, "{{The door to the %s is closed.}}::red"+CRLF, dir)
 			return
 		}
 
 		char.MoveToRoom(exit.Room)
 		char.Save()
 
-		io.WriteString(s, cfmt.Sprintf("You move %s.\n\n", dir))
-		io.WriteString(s, RenderRoom(user, char, nil))
+		WriteStringF(s, "You move %s."+CRLF, dir)
+		WriteString(s, RenderRoom(user, char, nil))
 	} else {
-		io.WriteString(s, cfmt.Sprintf("{{You can't go that way.}}::red\n"))
+		WriteString(s, "{{You can't go that way.}}::red"+CRLF)
 		return
 	}
 }
 
 func DoLock(s ssh.Session, cmd string, args []string, user *Account, char *Character, room *Room) {
 	if len(args) < 1 {
-		io.WriteString(s, cfmt.Sprintf("{{Lock what?}}::yellow\n"))
+		WriteString(s, "{{Lock what?}}::yellow"+CRLF)
 		return
 	}
 
 	direction := ParseDirection(args[0])
 	if direction == "" {
-		io.WriteString(s, cfmt.Sprintf("{{Invalid direction.}}::red\n"))
+		WriteString(s, "{{Invalid direction.}}::red"+CRLF)
 		return
 	}
 
 	exit, exists := room.Exits[direction]
 	if !exists {
-		io.WriteString(s, cfmt.Sprintf("{{There is no exit to the %s.}}::red\n", direction))
+		WriteStringF(s, "{{There is no exit to the %s.}}::red"+CRLF, direction)
 		return
 	}
 
 	if exit.Door == nil {
-		io.WriteString(s, cfmt.Sprintf("{{There is no door to the %s.}}::red\n", direction))
+		WriteStringF(s, "{{There is no door to the %s.}}::red"+CRLF, direction)
 		return
 	}
 
 	if exit.Door.IsLocked {
-		io.WriteString(s, cfmt.Sprintf("{{The door to the %s is already locked.}}::yellow\n", direction))
+		WriteStringF(s, "{{The door to the %s is already locked.}}::yellow"+CRLF, direction)
 		return
 	}
 
 	if !exit.Door.IsClosed {
-		io.WriteString(s, cfmt.Sprintf("{{You must close the door to the %s before locking it.}}::yellow\n", direction))
+		WriteStringF(s, "{{You must close the door to the %s before locking it.}}::yellow"+CRLF, direction)
 		return
 	}
 
@@ -165,35 +163,35 @@ func DoLock(s ssh.Session, cmd string, args []string, user *Account, char *Chara
 	}
 
 	if !hasKey {
-		io.WriteString(s, cfmt.Sprintf("{{You don't have the key to lock the door to the %s.}}::red\n", direction))
+		WriteStringF(s, "{{You don't have the key to lock the door to the %s.}}::red"+CRLF, direction)
 		return
 	}
 
 	exit.Door.IsLocked = true
-	io.WriteString(s, cfmt.Sprintf("{{You lock the door to the %s.}}::green\n", direction))
-	room.Broadcast(cfmt.Sprintf("{{%s locks the door to the %s.}}::green\n", char.Name, direction), []string{char.ID})
+	WriteStringF(s, "{{You lock the door to the %s.}}::green"+CRLF, direction)
+	room.Broadcast(cfmt.Sprintf("{{%s locks the door to the %s.}}::green"+CRLF, char.Name, direction), []string{char.ID})
 }
 
 func DoUnlock(s ssh.Session, cmd string, args []string, user *Account, char *Character, room *Room) {
 	if len(args) < 1 {
-		io.WriteString(s, cfmt.Sprintf("{{Unlock what?}}::yellow\n"))
+		WriteString(s, "{{Unlock what?}}::yellow"+CRLF)
 		return
 	}
 
 	direction := ParseDirection(args[0])
 	exit, exists := room.Exits[direction]
 	if !exists {
-		io.WriteString(s, cfmt.Sprintf("{{There is no exit to the %s.}}::red\n", direction))
+		WriteStringF(s, "{{There is no exit to the %s.}}::red"+CRLF, direction)
 		return
 	}
 
 	if exit.Door == nil {
-		io.WriteString(s, cfmt.Sprintf("{{There is no door to the %s.}}::red\n", direction))
+		WriteStringF(s, "{{There is no door to the %s.}}::red"+CRLF, direction)
 		return
 	}
 
 	if !exit.Door.IsLocked {
-		io.WriteString(s, cfmt.Sprintf("{{The door to the %s is not locked.}}::yellow\n", direction))
+		WriteStringF(s, "{{The door to the %s is not locked.}}::yellow"+CRLF, direction)
 		return
 	}
 
@@ -213,35 +211,35 @@ func DoUnlock(s ssh.Session, cmd string, args []string, user *Account, char *Cha
 	}
 
 	if !hasKey {
-		io.WriteString(s, cfmt.Sprintf("{{You don't have the key to unlock the door to the %s.}}::red\n", direction))
+		WriteStringF(s, "{{You don't have the key to unlock the door to the %s.}}::red"+CRLF, direction)
 		return
 	}
 
 	exit.Door.IsLocked = false
-	io.WriteString(s, cfmt.Sprintf("{{You unlock the door to the %s.}}::green\n", direction))
-	room.Broadcast(cfmt.Sprintf("{{%s unlocks the door to the %s.}}::green\n", char.Name, direction), []string{char.ID})
+	WriteStringF(s, "{{You unlock the door to the %s.}}::green"+CRLF, direction)
+	room.Broadcast(cfmt.Sprintf("{{%s unlocks the door to the %s.}}::green"+CRLF, char.Name, direction), []string{char.ID})
 }
 
 func DoPick(s ssh.Session, cmd string, args []string, user *Account, char *Character, room *Room) {
 	if len(args) < 1 {
-		io.WriteString(s, cfmt.Sprintf("{{Pick what?}}::yellow\n"))
+		WriteString(s, "{{Pick what?}}::yellow"+CRLF)
 		return
 	}
 
 	direction := args[0]
 	exit, exists := room.Exits[direction]
 	if !exists {
-		io.WriteString(s, cfmt.Sprintf("{{There is no exit to the %s.}}::red\n", direction))
+		WriteStringF(s, "{{There is no exit to the %s.}}::red"+CRLF, direction)
 		return
 	}
 
 	if exit.Door == nil {
-		io.WriteString(s, cfmt.Sprintf("{{There is no door to the %s.}}::red\n", direction))
+		WriteStringF(s, "{{There is no door to the %s.}}::red"+CRLF, direction)
 		return
 	}
 
 	if !exit.Door.IsLocked {
-		io.WriteString(s, cfmt.Sprintf("{{The door to the %s is not locked.}}::yellow\n", direction))
+		WriteStringF(s, "{{The door to the %s is not locked.}}::yellow"+CRLF, direction)
 		return
 	}
 
@@ -250,25 +248,25 @@ func DoPick(s ssh.Session, cmd string, args []string, user *Account, char *Chara
 	//         success := AttemptLockPick(char, exit.Door.PickDifficulty)
 	//         if success {
 	//             exit.Door.IsLocked = false
-	//             io.WriteString(s, cfmt.Sprintf("{{You successfully pick the lock on the door to the %s.}}::green\n", direction))
-	//             room.Broadcast(cfmt.Sprintf("{{%s picks the lock on the door to the %s.}}::green\n", char.Name, direction), []string{char.ID})
+	//             WriteString(s, "{{You successfully pick the lock on the door to the %s.}}::green"+CRLF, direction)
+	//             room.Broadcast("{{%s picks the lock on the door to the %s.}}::green"+CRLF, char.Name, direction), []string{char.ID}
 	//             return
 	//         } else {
-	//             io.WriteString(s, cfmt.Sprintf("{{You fail to pick the lock on the door to the %s.}}::red\n", direction))
+	//             WriteString(s, "{{You fail to pick the lock on the door to the %s.}}::red"+CRLF, direction)
 	//             return
 	//         }
 	//     }
 
-	//     io.WriteString(s, cfmt.Sprintf("{{You don't have the key to unlock the door to the %s.}}::red\n", direction))
+	//     WriteString(s, "{{You don't have the key to unlock the door to the %s.}}::red"+CRLF, direction)
 	//     return
 	// }
 
 	pickRoll := rand.Intn(100) + 1 // Random roll between 1 and 100
 	if pickRoll > exit.Door.PickDifficulty {
 		exit.Door.IsLocked = false
-		io.WriteString(s, cfmt.Sprintf("{{You successfully pick the lock on the door to the %s.}}::green\n", direction))
-		room.Broadcast(cfmt.Sprintf("{{%s picks the lock on the door to the %s.}}::green\n", char.Name, direction), []string{char.ID})
+		WriteStringF(s, "{{You successfully pick the lock on the door to the %s.}}::green"+CRLF, direction)
+		room.Broadcast(cfmt.Sprintf("{{%s picks the lock on the door to the %s.}}::green"+CRLF, char.Name, direction), []string{char.ID})
 	} else {
-		io.WriteString(s, cfmt.Sprintf("{{You fail to pick the lock on the door to the %s.}}::red\n", direction))
+		WriteStringF(s, "{{You fail to pick the lock on the door to the %s.}}::red"+CRLF, direction)
 	}
 }

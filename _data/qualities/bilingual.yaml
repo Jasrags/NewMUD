@@ -1,0 +1,7 @@
+id: bilingual
+type: Positive
+name: Bilingual
+description: The character speaks two languages fluently. This quality can be taken multiple times to represent additional languages.
+modifiers: []
+cost: 5
+rule_source: SR5:Core

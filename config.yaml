@@ -13,19 +13,31 @@ server:
   registration_enabled: True
   max_players: 100
   max_input_length: 1024
+  max_character_count: 3
   password_min_length: 5
   password_max_length: 64
   username_min_length: 3
   username_max_length: 32
-  charactername_min_length: 3
-  charactername_max_length: 32
+  name_regex: "^[a-zA-Z]+$"
+  special_character_regex: "[!@#$%^&*()_+={}[]:;<>,.?]"
+  short_description_min_length: 10
+  short_description_max_length: 50
+  description_min_length: 10
+  description_max_length: 1024
+  name_min_length: 3
+  name_max_length: 32
   tick_duration: 1000ms
   max_history_size: 100
+  default_prompt: "{{time}} {{>}}::white"
 data:
   accounts_path: _data/accounts
   areas_path: _data/areas
   players_path: _data/players
   characters_path: _data/characters
+  metatypes_path: _data/metatypes
+  skills_path: _data/skills
+  qualities_path: _data/qualities
+  pregens_path: _data/pregens
   manifest_file: manifest.yml
   rooms_file: rooms.yml
   items_file: items.yml

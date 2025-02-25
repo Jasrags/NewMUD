@@ -1,0 +1,7 @@
+id: dependents
+type: Negative
+name: Dependents
+description: The character has dependents who rely on him for support. The character must spend time and money caring for his dependents, and must be available to help them when they need him.
+modifiers: []
+cost: 3
+rule_source: SR5:Core

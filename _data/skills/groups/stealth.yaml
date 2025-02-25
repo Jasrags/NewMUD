@@ -1,0 +1,7 @@
+id: stealth
+name: Stealth
+skills:
+    - disguise
+    - palming
+    - sneaking
+rule_source: SR5:Core
