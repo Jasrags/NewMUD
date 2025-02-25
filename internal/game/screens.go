@@ -247,91 +247,9 @@ func PromptChangePassword(s ssh.Session, a *Account) string {
 	}
 }
 
-// Code prequisites: for character creation
-// Hook up PromptCharacterCreate
-// 1. Metatypes defined and loaded
-// 2. Archetypes defined and loaded
-// 3. Item packs defined and loaded (use fake items for now)
-
-// --- Character creation steps ---
-// Step 1: Prompt for character name
-// Validate name (not empty, not already taken, length within limits, alphanumeric)
-
-// Step 2: Prompt for metatype
-// Display metatype options
-// Allow showing details for the metatype including suggested archtypes
-
-// Step 3: Prompt for archtype
-// Display archtype options
-// Allow showing details for the archtype (Highlight good/neutral/bad metatype choices for the selected archtype)
-
-// Step 4: Prompt for item pack purchase (Optional)
-// Set a base nuyen level for the character
-// Display item pack options
-// Allow showing details for the item pack
-// Select item pack and adjust nuyen
-
-// Step 5: Build the character
-// Apply base metatype attributes (min/max)
-// Apply base archtype attributes adjust within min/max if needed
-// Apply any metatype qualties
-// Add any item pack items to the inventory
-
-// --- Future functions ---
-// Item type support for shadowrun item types (weapons, armor, etc)
-// PromptCharacterDelete
-// Finish DoStats now that we have a better character definition
-//
-
-// 	// slog.Debug("Creating character",
-// 	// 	slog.Any("metatype", metatype.Attributes),
-// 	// 	slog.Any("archtype", archtype.Attributes))
-// 	char := NewCharacter()
-// 	char.AccountID = a.ID
-// 	char.Name = name
-// 	char.Title = "The Brave"         // TODO: Set this from our character creation
-// 	char.Description = "Description" // TODO: Generate this from descriptive character data
-// 	char.Metatype = "Human"          // TODO: Set this from our character creation
-// 	char.Age = 25                    // TODO: Set this from our character creation
-// 	char.Sex = "Male"                // TODO: Set this from our character creation
-// 	char.Height = 180                // TODO: Set this from our character creation
-// 	char.Weight = 75                 // TODO: Set this from our character creation
-// 	char.Ethnicity = "Caucasian"     // TODO: Set this from our character creation
-
-// 	// PhysicalDamage  PhysicalDamage   `yaml:"physical_damage"`
-// 	// StunDamage      StunDamage       `yaml:"stun_damage"`
-// 	// Edge            Edge             `yaml:"edge"`
-// 	// Room            *Room            `yaml:"-"`
-// 	// RoomID          string           `yaml:"room_id"`
-// 	// Area            *Area            `yaml:"-"`
-// 	// AreaID          string           `yaml:"area_id"`
-// 	// Inventory       Inventory        `yaml:"inventory"`
-// 	// Equipment       map[string]*Item `yaml:"equipment"`
-// 	// Qualtities      []Quality        `yaml:"qualities"`
-// 	// Skills          []Skill          `yaml:"skills"`
-
-// 	char.Save()
-
-// 	// Step 5: Add character to user
-// 	a.Characters = append(a.Characters, char.Name)
-// 	// a.Save()
-
-// 	// Step 6: Save user
-// 	// err = UserMgr.SaveUser(u)
-// 	// if err != nil {
-// 	// 	slog.Error("Error saving user after character creation", slog.Any("error", err))
-// 	// 	WriteString(s, "{{Error saving character. Returning to main menu.}}::red"+CRLF)
-// 	// 	return StateMainMenu
-// 	// }
-
-// 	// Step 7: Confirmation and return to main menu
-// 	WriteStringF(s, "{{Character '%s' created successfully! Returning to main menu.}}::green"+CRLF, name)
-
-//		return StateMainMenu
-//	}
 func PromptCharacterCreate(s ssh.Session, a *Account) (string, *Character) {
 	options := []MenuOption{
-		{"Choose a Pre-Generated Character", "pregen", "Select from predefined character archetypes"},
+		{"Create a Pre-Generated Character", "pregen", "Select from predefined character archetypes"},
 		{"Create a Custom Character", "custom", "Build a character from scratch"},
 		{"Back to Main Menu", "back", "Return to the main menu"},
 	}
@@ -344,7 +262,8 @@ func PromptCharacterCreate(s ssh.Session, a *Account) (string, *Character) {
 
 		switch choice {
 		case "pregen":
-			return PromptSelectPregenCharacter(s, a)
+			c := NewCharacter()
+			return PromptPregenCharacterMenu(s, a, c)
 		case "custom":
 			WriteString(s, "{{Custom character creation is not yet implemented. Returning to main menu.}}::yellow"+CRLF)
 			return StateMainMenu, nil
@@ -358,12 +277,218 @@ func PromptCharacterCreate(s ssh.Session, a *Account) (string, *Character) {
 	}
 }
 
-func PromptSelectPregenCharacter(s ssh.Session, a *Account) (string, *Character) {
-	// Build menu options
+func PromptPregenCharacterMenu(s ssh.Session, a *Account, c *Character) (string, *Character) {
+
+	// Build the menu options
+	options := []MenuOption{
+		{"Set Character Template", "template", "Select a pre-generated character template"},
+		{"Set Character Name", "name", "Enter the character's name"},
+		{"Set Character Sex", "sex", "Select the character's sex"},
+		{"Set Character Age", "age", "Enter the character's age"},
+		{"Set Character Height", "height", "Enter the character's height in cm"},
+		{"Set Character Weight", "weight", "Enter the character's weight in kg"},
+		{"Set Character Short Description", "short_desc", "Enter a short description"},
+		{"Set Character Long Description", "long_desc", "Enter a detailed description"},
+		{"Save Character", "save", "Save the character (all fields must be completed)"},
+		{"Back", "back", "Return to the previous menu"},
+	}
+
+	for {
+		// Display current creation progress.
+		displayCharacterProgress(s, c)
+
+		choice, err := PromptForMenu(s, "Create a Pre-Generated Character", options)
+		if err != nil {
+			return StateError, nil
+		}
+
+		switch choice {
+		case "template":
+			// Optionally, you can reuse your existing pregen selection
+			state, newChar := PromptSelectPregenTemplate(s, a, c)
+			if state == StateError {
+				return state, nil
+			}
+			c = newChar
+		case "name":
+			state, newChar := PromptSetCharacterName(s, a, c)
+			if state == StateError {
+				continue
+			}
+			c = newChar
+		case "sex":
+			state, newChar := PromptSetCharacterSex(s, a, c)
+			if state == StateError {
+				continue
+			}
+			c = newChar
+		case "age":
+			state, newChar := PromptSetCharacterAge(s, a, c)
+			if state == StateError {
+				continue
+			}
+			c = newChar
+		case "height":
+			state, newChar := PromptSetCharacterHeight(s, a, c)
+			if state == StateError {
+				continue
+			}
+			c = newChar
+		case "weight":
+			state, newChar := PromptSetCharacterWeight(s, a, c)
+			if state == StateError {
+				continue
+			}
+			c = newChar
+		case "short_desc":
+			state, newChar := PromptSetCharacterShortDescription(s, a, c)
+			if state == StateError {
+				continue
+			}
+			c = newChar
+		case "long_desc":
+			state, newChar := PromptSetCharacterLongDescription(s, a, c)
+			if state == StateError {
+				continue
+			}
+			c = newChar
+		case "save":
+			// Validate that all required fields are present.
+			missing := validateCharacterFields(c)
+			if len(missing) > 0 {
+				WriteString(s, fmt.Sprintf("The following fields are missing: %s. Please complete them before saving."+CRLF, strings.Join(missing, ", ")))
+				continue
+			}
+
+			// Save the character
+			a.Characters = append(a.Characters, c.Name)
+			CharacterMgr.AddCharacter(c)
+			c.Save()
+			WriteStringF(s, "Character '%s' created successfully! Returning to main menu."+CRLF, c.Name)
+			return StateMainMenu, c
+		case "back":
+			return StateCharacterCreate, nil
+		default:
+			WriteString(s, "Invalid selection. Please try again."+CRLF)
+		}
+	}
+}
+
+// displayCharacterProgress prints the current state of the character creation.
+func displayCharacterProgress(s ssh.Session, char *Character) {
+	var progress strings.Builder
+
+	titleString := "{{%s:}}::white|bold|underline "
+	unsetString := "{{<unset>}}::red" + CRLF
+	setString := "{{%v}}::green" + CRLF
+
+	// Template: If MetatypeID is set, try to get the corresponding template title.
+	progress.WriteString(fmt.Sprintf(titleString, "Template"))
+	if char.MetatypeID == "" {
+		progress.WriteString(unsetString)
+	} else {
+		p := EntityMgr.GetPregen(char.PregenID)
+		progress.WriteString(fmt.Sprintf(setString, p.Title))
+	}
+
+	// Name
+	progress.WriteString(fmt.Sprintf(titleString, "Name"))
+	if strings.TrimSpace(char.Name) == "" {
+		progress.WriteString(unsetString)
+	} else {
+		progress.WriteString(fmt.Sprintf(setString, char.Name))
+	}
+
+	// Sex
+	progress.WriteString(fmt.Sprintf(titleString, "Sex"))
+	if strings.TrimSpace(char.Sex) == "" {
+		progress.WriteString(unsetString)
+	} else {
+		progress.WriteString(fmt.Sprintf(setString, char.Sex))
+	}
+
+	// Age
+	progress.WriteString(fmt.Sprintf(titleString, "Age"))
+	if char.Age <= 0 {
+		progress.WriteString(unsetString)
+	} else {
+		progress.WriteString(fmt.Sprintf(setString, char.Age))
+	}
+
+	// Height
+	progress.WriteString(fmt.Sprintf(titleString, "Height"))
+	if char.Height <= 0 {
+		progress.WriteString(unsetString)
+	} else {
+		progress.WriteString(fmt.Sprintf(setString, char.Height))
+	}
+
+	// Weight
+	progress.WriteString(fmt.Sprintf(titleString, "Weight"))
+	if char.Weight <= 0 {
+		progress.WriteString(unsetString)
+	} else {
+		progress.WriteString(fmt.Sprintf(setString, char.Weight))
+	}
+
+	// Short Description
+	progress.WriteString(fmt.Sprintf(titleString, "Short Description"))
+	if strings.TrimSpace(char.Description) == "" {
+		progress.WriteString(unsetString)
+	} else {
+		progress.WriteString(fmt.Sprintf(setString, char.Description))
+	}
+
+	// Long Description
+	progress.WriteString(fmt.Sprintf(titleString, "Long Description"))
+	if strings.TrimSpace(char.LongDescription) == "" {
+		progress.WriteString(unsetString)
+	} else {
+		progress.WriteString(fmt.Sprintf(setString, char.LongDescription))
+	}
+
+	// WriteString(s, borderStyle.Render(progress.String()))
+	// Write the progress block with a newline after.
+	WriteString(s, CRLF+progress.String()+CRLF)
+}
+
+// validateCharacterFields checks required fields and returns a slice of missing field names.
+func validateCharacterFields(char *Character) []string {
+	missing := []string{}
+	if char.MetatypeID == "" {
+		missing = append(missing, "Character Template")
+	}
+	if strings.TrimSpace(char.Name) == "" {
+		missing = append(missing, "Character Name")
+	}
+	if strings.TrimSpace(char.Sex) == "" {
+		missing = append(missing, "Character Sex")
+	}
+	if char.Age <= 0 {
+		missing = append(missing, "Character Age")
+	}
+	if char.Height <= 0 {
+		missing = append(missing, "Character Height")
+	}
+	if char.Weight <= 0 {
+		missing = append(missing, "Character Weight")
+	}
+	if strings.TrimSpace(char.Description) == "" {
+		missing = append(missing, "Short Description")
+	}
+	if strings.TrimSpace(char.LongDescription) == "" {
+		missing = append(missing, "Long Description")
+	}
+	return missing
+}
+
+func PromptSelectPregenTemplate(s ssh.Session, a *Account, char *Character) (string, *Character) {
+	// Retrieve the list of pre-generated templates.
 	pregens := EntityMgr.GetPregens()
 	pregenMap := make(map[string]*Pregen)
 	options := make([]MenuOption, 0, len(pregens)+1)
 
+	// Build menu options from available pregens.
 	for _, pregen := range pregens {
 		pregenMap[pregen.ID] = pregen
 		options = append(options, MenuOption{
@@ -372,40 +497,42 @@ func PromptSelectPregenCharacter(s ssh.Session, a *Account) (string, *Character)
 			Description: pregen.GetSelectionInfo(),
 		})
 	}
-	options = append(options, MenuOption{"Back", "back", "Return to character creation menu"})
+	// Add a "Back" option.
+	options = append(options, MenuOption{"Back", "back", "Return to previous menu"})
 
-	// Loop until a valid selection and confirmation is made.
+	// Loop until a valid selection is made.
 	for {
-		choice, err := PromptForMenu(s, "Select a Pre-Generated Character", options)
+		choice, err := PromptForMenu(s, "Select a Pre-Generated Template", options)
 		if err != nil {
-			slog.Error("Error prompting for pregen selection", slog.Any("error", err))
-			return StateError, nil
+			slog.Error("Error prompting for pregen template", slog.Any("error", err))
+			return StateError, char
 		}
 
 		if choice == "back" {
-			return StateCharacterCreate, nil
+			// Return to the calling menu without modifying the character.
+			return "", char
 		}
 
 		pregen, exists := pregenMap[choice]
 		if !exists {
-			WriteString(s, "{{Invalid selection. Try again.}}::red"+CRLF)
+			WriteString(s, "Invalid selection. Please try again."+CRLF)
 			continue
 		}
 
-		WriteStringF(s, CRLF+"{{Pregen: %s}}::cyan"+CRLF, pregen.Title)
-		// Display selection details.
-		// WriteStringF(s, CRLF+"{{%s}}::cyan"+CRLF, pregen.GetSelectionInfo())
-
-		// Confirm selection.
+		// Show details of the selected template.
+		WriteStringF(s, CRLF+"Template Selected: %s"+CRLF, pregen.Title)
+		// Optionally, you can display more details by calling pregen.GetSelectionInfo()
+		// and then ask for confirmation.
 		if !YesNoPrompt(s, true) {
-			WriteString(s, "{{Returning to character selection.}}::yellow"+CRLF)
-			continue // Instead of returning, continue prompting
+			WriteString(s, "Selection canceled. Please choose again."+CRLF)
+			continue
 		}
 
+		// Retrieve the metatype details to properly set attribute constraints.
 		metatype := EntityMgr.GetMetatype(pregen.MetatypeID)
 
-		char := NewCharacter()
-		char.AccountID = a.ID
+		// Update the existing character with the template data.
+		char.PregenID = pregen.ID
 		char.MetatypeID = pregen.MetatypeID
 		char.Body = Attribute[int]{Name: "Body", Base: pregen.Body.Base, Min: metatype.Body.Min, Max: metatype.Body.Max, AugMax: metatype.Body.AugMax}
 		char.Agility = Attribute[int]{Name: "Agility", Base: pregen.Agility.Base, Min: metatype.Agility.Min, Max: metatype.Agility.Max, AugMax: metatype.Agility.AugMax}
@@ -419,11 +546,12 @@ func PromptSelectPregenCharacter(s ssh.Session, a *Account) (string, *Character)
 		char.Magic = Attribute[int]{Name: "Magic", Base: pregen.Magic.Base, Min: metatype.Magic.Min, Max: metatype.Magic.Max, AugMax: metatype.Magic.AugMax}
 		char.Resonance = Attribute[int]{Name: "Resonance", Base: pregen.Resonance.Base, Min: metatype.Resonance.Min, Max: metatype.Resonance.Max, AugMax: metatype.Resonance.AugMax}
 
+		// Update skills and qualities from the template.
 		char.Skills = pregen.Skills
 		char.Qualtities = pregen.Qualtities
 
-		// Proceed with character details.
-		return PromptSetCharacterDetails(s, a, char)
+		// Successfully updated; return to the central menu.
+		return "", char
 	}
 }
 
@@ -502,6 +630,8 @@ func PromptSetCharacterName(s ssh.Session, a *Account, char *Character) (string,
 			continue
 		}
 
+		char.Name = name
+
 		return "", char
 	}
 }
@@ -525,16 +655,7 @@ func PromptSetCharacterSex(s ssh.Session, a *Account, char *Character) (string, 
 			continue
 		}
 
-		// if choice == "custom" {
-		// 	WriteString(s, "{{Enter your character's gender identity:}}::cyan ")
-		// 	customGender, err := InputPrompt(s, "")
-		// 	if err != nil {
-		// 		return StateError, nil
-		// 	}
-		// 	char.Sex = strings.TrimSpace(customGender)
-		// } else {
 		char.Sex = choice
-		// }
 
 		return "", char
 	}

@@ -30,6 +30,7 @@ type (
 	Character struct {
 		GameEntity     `yaml:",inline"`
 		AccountID      string        `yaml:"account_id"`
+		PregenID       string        `yaml:"pregen_id"`
 		Role           CharacterRole `yaml:"role"`
 		Prompt         string        `yaml:"prompt"`
 		Conn           ssh.Session   `yaml:"-"`

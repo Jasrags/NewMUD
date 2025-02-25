@@ -222,13 +222,13 @@ var defaultWrapOptions = WrapOptions{
 // ------------------------------
 
 // padRight pads a string with spaces on the right until it reaches the specified rune length.
-func padRight(str string, length int) string {
-	runes := []rune(str)
-	if len(runes) >= length {
-		return str
-	}
-	return str + strings.Repeat(" ", length-len(runes))
-}
+// func padRight(str string, length int) string {
+// 	runes := []rune(str)
+// 	if len(runes) >= length {
+// 		return str
+// 	}
+// 	return str + strings.Repeat(" ", length-len(runes))
+// }
 
 // alignText aligns the input text within a field of width `width` according to alignment:
 // "left", "center", or "right". If the text is shorter than width, extra spaces are added.
