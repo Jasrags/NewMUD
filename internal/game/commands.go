@@ -34,6 +34,14 @@ type (
 
 func RegisterCommands() {
 	CommandMgr.RegisterCommand(Command{
+		Name:            "list",
+		Description:     "List game entities",
+		CommandCategory: CommandCategoryAdministration,
+		Usage:           []string{"list <mobs|m> [tags]", "list <rooms|r> [tags]", "list <items|i> [tags]"},
+		RequiredRoles:   []CharacterRole{CharacterRoleAdmin},
+		Func:            DoList,
+	})
+	CommandMgr.RegisterCommand(Command{
 		Name:            "goto",
 		Description:     "Teleport to a room or character",
 		CommandCategory: CommandCategoryAdministration,

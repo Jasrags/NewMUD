@@ -212,3 +212,80 @@ func DoGoto(s ssh.Session, cmd string, args []string, user *Account, char *Chara
 	// If no valid target is found, return an error
 	WriteStringF(s, "{{No room or character found matching '%s'.}}::red"+CRLF, target)
 }
+
+// hasAnyTag returns true if filterTags is empty or if any tag in filterTags is found (case-insensitive)
+// in the object's tags.
+func hasAnyTag(objectTags []string, filterTags []string) bool {
+	if len(filterTags) == 0 {
+		return true
+	}
+	for _, ft := range filterTags {
+		for _, ot := range objectTags {
+			if strings.EqualFold(ot, ft) {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+// DoList implements the admin "list" command.
+// Usage: list <mobs|items|rooms> [tags]
+// e.g. "list rooms shopping", "list items weapon,gun", "list mobs thug"
+func DoList(s ssh.Session, cmd string, args []string, user *Account, char *Character, room *Room) {
+	// Validate arguments.
+	if len(args) < 1 {
+		WriteString(s, cfmt.Sprintf("{{Usage: list <mobs|items|rooms> [tags]}}::yellow"+CRLF))
+		return
+	}
+
+	category := strings.ToLower(args[0])
+	var filterTags []string
+	if len(args) > 1 {
+		// Split the tags by comma and trim any extra spaces.
+		filterTags = strings.Split(args[1], ",")
+		for i, tag := range filterTags {
+			filterTags[i] = strings.TrimSpace(tag)
+		}
+	}
+
+	var outputBuilder strings.Builder
+
+	switch category {
+	case "rooms", "r":
+		rooms := EntityMgr.GetAllRooms()
+		for _, r := range rooms {
+			if hasAnyTag(r.Tags, filterTags) {
+				outputBuilder.WriteString(cfmt.Sprintf("ID: {{%-35s}}::white|bold  Title: {{%-35s}}::white|bold  Tags: {{%s}}::white|bold"+CRLF, r.ID, r.Title, strings.Join(r.Tags, ", ")))
+			}
+		}
+		if outputBuilder.Len() == 0 {
+			outputBuilder.WriteString(cfmt.Sprintf("{{No rooms found with the specified tags.}}::red" + CRLF))
+		}
+	case "items", "i":
+		items := EntityMgr.GetAllItemBlueprints()
+		for _, it := range items {
+			if hasAnyTag(it.Tags, filterTags) {
+				outputBuilder.WriteString(cfmt.Sprintf("ID: {{%-20s}}::white|bold  Name: {{%-20s}}::white|bold  Tags: {{%s}}::white|bold"+CRLF, it.ID, it.Name, strings.Join(it.Tags, ", ")))
+			}
+		}
+		if outputBuilder.Len() == 0 {
+			outputBuilder.WriteString(cfmt.Sprintf("{{No items found with the specified tags.}}::red" + CRLF))
+		}
+	case "mobs", "m":
+		mobs := EntityMgr.GetAllMobs()
+		for _, m := range mobs {
+			if hasAnyTag(m.Tags, filterTags) {
+				outputBuilder.WriteString(cfmt.Sprintf("ID: {{%-20s}}::white|bold  Name: {{%-20s}}::white|bold  Tags: {{%s}}::white|bold"+CRLF, m.ID, m.Name, strings.Join(m.Tags, ", ")))
+			}
+		}
+		if outputBuilder.Len() == 0 {
+			outputBuilder.WriteString(cfmt.Sprintf("{{No mobs found with the specified tags.}}::red" + CRLF))
+		}
+	default:
+		WriteString(s, cfmt.Sprintf("{{Unknown category '%s'. Valid categories are: mobs, items, rooms.}}::red"+CRLF, args[0]))
+		return
+	}
+
+	WriteString(s, outputBuilder.String())
+}
