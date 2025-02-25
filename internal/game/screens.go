@@ -277,6 +277,9 @@ func PromptCharacterCreate(s ssh.Session, a *Account) (string, *Character) {
 	}
 }
 
+// TODO: Set a base nuyen level for the character
+// TODO: We should use a item pack to set the starting gear when we have that implemented
+// TODO: Should we allow changing of the metatype for a pregen?
 func PromptPregenCharacterMenu(s ssh.Session, a *Account, c *Character) (string, *Character) {
 
 	// Build the menu options
