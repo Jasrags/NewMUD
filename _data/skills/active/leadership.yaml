@@ -1,0 +1,11 @@
+id: leadership
+name: Leadership
+description: Leadership is the ability to direct and motivate others. It’s like Con, except rather than using deception you’re using a position of authority. This skill is especially helpful in situations where the will of a teammate is shaken or someone is being asked to do something uncomfortable. The Leadership skill is not meant to replace or make up for poor teamwork. When using Leadership make an opposed test Charisma + Leadership.
+is_defaultable: true
+linked_attribute: Charisma
+specializations:
+    - Command
+    - Direct
+    - Inspire
+    - Rally
+rule_source: SR5:Core

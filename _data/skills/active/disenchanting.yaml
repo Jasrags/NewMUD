@@ -1,0 +1,9 @@
+id: disenchanting
+name: Disenchanting
+description: This skill governs a character’s ability to remove the enchantment from an item.
+is_defaultable: false
+linked_attribute: Magic
+specializations:
+    - Alchemical Preparations
+    - Power Foci
+rule_source: SR5:Core

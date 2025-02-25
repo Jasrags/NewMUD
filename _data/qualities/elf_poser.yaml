@@ -1,0 +1,7 @@
+id: elf_poser
+type: Negative
+name: Elf Poser
+description: The character pretends to be an elf. The character receives a –2 dice pool modifier on all tests to avoid notice as a poser.
+modifiers: []
+cost: 6
+rule_source: SR5:Core

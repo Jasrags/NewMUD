@@ -1,0 +1,7 @@
+id: resistance_to_pathogens_toxins
+type: Positive
+name: Resistance To Pathogens/Toxins
+description: The character is naturally resistant to a particular toxin or pathogen. The character receives a +1 dice pool modifier on all tests to resist the effects of that toxin or pathogen.
+modifiers: []
+cost: 4
+rule_source: SR5:Core

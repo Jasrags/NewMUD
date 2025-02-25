@@ -1,0 +1,51 @@
+id: ork_street_samurai
+title: Ork Street Samurai
+description: A street samurai is a combat-oriented character that specializes in physical combat and is often augmented with cyberware or bioware.
+metatype_id: ork
+body:
+    base: 7
+agility:
+    base: 6
+reaction:
+    base: 5
+strength:
+    base: 5
+willpower:
+    base: 3
+logic:
+    base: 2
+intuition:
+    base: 3
+charisma:
+    base: 2
+edge:
+    base: 1
+essence:
+    base: 6
+magic:
+    base: 0
+resonance:
+    base: 0
+skills:
+  automatics:
+    blueprint_id: "automatics"
+    rating: 5
+  blades:
+    blueprint_id: "blades"
+    rating: 5
+  longarms:
+    blueprint_id: "longarms"
+    rating: 3
+  pilot_ground_craft:
+    blueprint_id: "pilot_ground_craft"
+    rating: 1
+  pistols:
+    blueprint_id: "pistols"
+    rating: 4
+  sneaking:
+    blueprint_id: "sneaking"
+    rating: 2
+  unarmed_combat:
+    blueprint_id: "unarmed_combat"
+    rating: 2
+qualities: 

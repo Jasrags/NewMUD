@@ -1,0 +1,13 @@
+id: pilot_aircraft
+name: Pilot Aircraft
+description: This skill is used to pilot any manned or unmanned aircraft operating solely within planetary atmosphere.
+is_defaultable: true
+linked_attribute: Reaction
+specializations:
+    - Fixed-Wing
+    - Lighter-Than-Air
+    - Remote Operation
+    - Rotary Wing
+    - Tilt Wing
+    - Vectored Thrust
+rule_source: SR5:Core

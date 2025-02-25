@@ -1,0 +1,7 @@
+id: codeslinger
+type: Positive
+name: Codeslinger
+description: The character is a master of a particular computer program. Choose a single program at character creation. The character receives a +2 dice pool modifier on all tests involving that program.
+modifiers: []
+cost: 10
+rule_source: SR5:Core

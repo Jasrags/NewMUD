@@ -1,0 +1,8 @@
+id: arcana
+name: Arcana
+description: Arcana governs the creation of magical formulae used to create spells, foci, and all other manner of magical manipulations. Arcana is required to understand formulae that may be purchased over the counter or discovered by other means.
+is_defaultable: false
+linked_attribute: Logic
+specializations:
+    - Spell Design, Focus Design, Spirit Formula
+rule_source: SR5:Core

@@ -1,0 +1,7 @@
+id: home_ground
+type: Positive
+name: Home Ground
+description: The character knows a particular area like the back of his hand. The character receives a +2 dice pool modifier on all Knowledge and Language skill tests when operating in his home ground.
+modifiers: []
+cost: 10
+rule_source: SR5:Core

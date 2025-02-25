@@ -1,0 +1,7 @@
+id: photographic_memory
+type: Positive
+name: Photographic Memory
+description: The character has a photographic memory. The character can remember anything he has seen or read with perfect clarity. The character receives a +2 dice pool modifier on all Memory Tests.
+modifiers: []
+cost: 6
+rule_source: SR5:Core

@@ -128,10 +128,10 @@ func TestWrapText(t *testing.T) {
 		width    int
 		expected string
 	}{
-		{"This is a test of the wrap text function.", 10, "This is a\ntest of\nthe wrap\ntext\nfunction."},
-		{"Another example with different width.", 15, "Another example\nwith different\nwidth."},
+		{"This is a test of the wrap text function.", 10, "This is a\r\ntest of\r\nthe wrap\r\ntext\r\nfunction."},
+		{"Another example with different width.", 15, "Another example\r\nwith different\r\nwidth."},
 		{"Short text.", 20, "Short text."},
-		{"A very long word that exceeds the width.", 5, "A\nvery\nlong\nword\nthat\nexceeds\nthe\nwidth."},
+		{"A very long word that exceeds the width.", 5, "A\r\nvery\r\nlong\r\nword\r\nthat\r\nexceeds\r\nthe\r\nwidth."},
 		{"", 10, ""},
 		{"Singleword", 10, "Singleword"},
 	}

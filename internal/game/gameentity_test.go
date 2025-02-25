@@ -6,145 +6,60 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var (
-	testStreetSamurai = &Character{
-		UserID: "test_user",
-		Role:   CharacterRolePlayer,
-		GameEntity: GameEntity{
-			Name:            "Street Samurai",
-			Title:           "Street Samurai",
-			ID:              "ID",
-			Metatype:        "Ork",
-			Age:             25,
-			Sex:             "Male",
-			Height:          180,
-			Weight:          80,
-			Ethnicity:       "White",
-			StreetCred:      2,
-			Notoriety:       2,
-			PublicAwareness: 2,
-			Karma:           2,
-			TotalKarma:      5,
-			Description:     "A street samurai character",
-			Attributes: Attributes{
-				Body:      Attribute[int]{Base: 7},
-				Agility:   Attribute[int]{Base: 6},
-				Reaction:  Attribute[int]{Base: 5}, // (7)
-				Strength:  Attribute[int]{Base: 5},
-				Willpower: Attribute[int]{Base: 3},
-				Logic:     Attribute[int]{Base: 2},
-				Intuition: Attribute[int]{Base: 3},
-				Charisma:  Attribute[int]{Base: 2},
-				Essence:   Attribute[float64]{Base: 0.88},
-				Magic:     Attribute[int]{Base: 0},
-				Resonance: Attribute[int]{Base: 0},
-			},
-			PhysicalDamage: PhysicalDamage{
-				Current:  0,
-				Max:      10,
-				Overflow: 0,
-			},
-			StunDamage: StunDamage{
-				Current: 0,
-				Max:     10,
-			},
-			Edge: Edge{
-				Max:       5,
-				Available: 5,
-			},
-			Equipment: map[string]*Item{},
-		},
-	}
-	testCovertOpsSpecialist = &Character{
-		UserID: "test_user",
-		Role:   CharacterRolePlayer,
-		GameEntity: GameEntity{
-			Name:            "Covert Ops Specialist",
-			Title:           "Covert Ops Specialist",
-			ID:              "ID",
-			Metatype:        "Dwarf",
-			Age:             25,
-			Sex:             "Male",
-			Height:          180,
-			Weight:          80,
-			Ethnicity:       "White",
-			StreetCred:      0,
-			Notoriety:       0,
-			PublicAwareness: 0,
-			Karma:           0,
-			TotalKarma:      0,
-			Description:     "A covert ops specialist character",
-			Attributes: Attributes{
-				Body:      Attribute[int]{Base: 5},
-				Agility:   Attribute[int]{Base: 6},
-				Reaction:  Attribute[int]{Base: 4},
-				Strength:  Attribute[int]{Base: 5},
-				Willpower: Attribute[int]{Base: 4},
-				Logic:     Attribute[int]{Base: 4},
-				Intuition: Attribute[int]{Base: 5},
-				Charisma:  Attribute[int]{Base: 4},
-				Essence:   Attribute[float64]{Base: 5.6},
-				Magic:     Attribute[int]{Base: 0},
-				Resonance: Attribute[int]{Base: 0},
-			},
-			Equipment: map[string]*Item{},
-		},
-	}
-	// OCCULT INVESTIGATOR
-	// STREET SHAMAN
-	// COMBAT MAGE
-	// BRAWLING ADEPT
-	// WEAPONS SPECIALIST
-	// FACE
-	// TANK
-	// DECKER
-	// TECHNOMANCER
-	// GUNSLINGER ADEPT
-	// DRONE RIGGER
-	// SMUGGLER
-	// SPRAWL GANGER
-	// BOUNTY HUNTER
-)
+// Street Samurai
+// Covert Ops Specialist
+// OCCULT INVESTIGATOR
+// STREET SHAMAN
+// COMBAT MAGE
+// BRAWLING ADEPT
+// WEAPONS SPECIALIST
+// FACE
+// TANK
+// DECKER
+// TECHNOMANCER
+// GUNSLINGER ADEPT
+// DRONE RIGGER
+// SMUGGLER
+// SPRAWL GANGER
+// BOUNTY HUNTER
 
 func TestGetSocialLimit(t *testing.T) {
 	tests := []struct {
-		name       string
-		attributes Attributes
-		expected   int
+		name      string
+		charisma  Attribute[int]
+		willpower Attribute[int]
+		essence   Attribute[float64]
+		expected  int
 	}{
 		{
-			name: "Elf Adept",
-			attributes: Attributes{
-				Charisma:  Attribute[int]{Base: 3},
-				Willpower: Attribute[int]{Base: 2},
-				Essence:   Attribute[float64]{Base: 6.0},
-			},
-			expected: 5,
+			name:      "Elf Adept",
+			charisma:  Attribute[int]{Base: 3},
+			willpower: Attribute[int]{Base: 2},
+			essence:   Attribute[float64]{Base: 6.0},
+			expected:  5,
 		},
 		{
-			name: "Troll Tank",
-			attributes: Attributes{
-				Charisma:  Attribute[int]{Base: 2},
-				Willpower: Attribute[int]{Base: 3},
-				Essence:   Attribute[float64]{Base: 1.56},
-			},
-			expected: 3,
+			name:      "Troll Tank",
+			charisma:  Attribute[int]{Base: 2},
+			willpower: Attribute[int]{Base: 3},
+			essence:   Attribute[float64]{Base: 1.56},
+			expected:  3,
 		},
 		{
-			name: "Elf Face",
-			attributes: Attributes{
-				Charisma:  Attribute[int]{Base: 7},
-				Willpower: Attribute[int]{Base: 4},
-				Essence:   Attribute[float64]{Base: 6},
-			},
-			expected: 8,
+			name:      "Elf Face",
+			charisma:  Attribute[int]{Base: 7},
+			willpower: Attribute[int]{Base: 4},
+			essence:   Attribute[float64]{Base: 6},
+			expected:  8,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			entity := NewGameEntity()
-			entity.Attributes = tt.attributes
+			entity.Charisma = tt.charisma
+			entity.Willpower = tt.willpower
+			entity.Essence = tt.essence
 
 			result := entity.GetSocialLimit()
 			assert.Equal(t, tt.expected, result)
@@ -153,35 +68,31 @@ func TestGetSocialLimit(t *testing.T) {
 }
 func TestGetPhysicalLimit(t *testing.T) {
 	tests := []struct {
-		name       string
-		attributes Attributes
-		expected   int
+		name     string
+		strength Attribute[int]
+		body     Attribute[int]
+		reaction Attribute[int]
+		expected int
 	}{
 		{
-			name: "Elf Adept",
-			attributes: Attributes{
-				Strength: Attribute[int]{Base: 2},
-				Body:     Attribute[int]{Base: 3},
-				Reaction: Attribute[int]{Base: 3},
-			},
+			name:     "Elf Adept",
+			strength: Attribute[int]{Base: 2},
+			body:     Attribute[int]{Base: 3},
+			reaction: Attribute[int]{Base: 3},
 			expected: 4,
 		},
 		{
-			name: "Troll Tank",
-			attributes: Attributes{
-				Strength: Attribute[int]{Base: 7},
-				Body:     Attribute[int]{Base: 10},
-				Reaction: Attribute[int]{Base: 3},
-			},
+			name:     "Troll Tank",
+			strength: Attribute[int]{Base: 7},
+			body:     Attribute[int]{Base: 10},
+			reaction: Attribute[int]{Base: 3},
 			expected: 9,
 		},
 		{
-			name: "Elf Face",
-			attributes: Attributes{
-				Strength: Attribute[int]{Base: 2},
-				Body:     Attribute[int]{Base: 3},
-				Reaction: Attribute[int]{Base: 3},
-			},
+			name:     "Elf Face",
+			strength: Attribute[int]{Base: 2},
+			body:     Attribute[int]{Base: 3},
+			reaction: Attribute[int]{Base: 3},
 			expected: 4,
 		},
 	}
@@ -189,7 +100,9 @@ func TestGetPhysicalLimit(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			entity := NewGameEntity()
-			entity.Attributes = tt.attributes
+			entity.Strength = tt.strength
+			entity.Body = tt.body
+			entity.Reaction = tt.reaction
 
 			result := entity.GetPhysicalLimit()
 			assert.Equal(t, tt.expected, result)
@@ -198,43 +111,41 @@ func TestGetPhysicalLimit(t *testing.T) {
 }
 func TestGetMentalLimit(t *testing.T) {
 	tests := []struct {
-		name       string
-		attributes Attributes
-		expected   int
+		name      string
+		logic     Attribute[int]
+		intuition Attribute[int]
+		willpower Attribute[int]
+		expected  int
 	}{
 		{
-			name: "Elf Adept",
-			attributes: Attributes{
-				Logic:     Attribute[int]{Base: 5},
-				Intuition: Attribute[int]{Base: 6},
-				Willpower: Attribute[int]{Base: 5},
-			},
-			expected: 7,
+			name:      "Elf Adept",
+			logic:     Attribute[int]{Base: 5},
+			intuition: Attribute[int]{Base: 6},
+			willpower: Attribute[int]{Base: 5},
+			expected:  7,
 		},
 		{
-			name: "Troll Tank",
-			attributes: Attributes{
-				Logic:     Attribute[int]{Base: 2},
-				Intuition: Attribute[int]{Base: 3},
-				Willpower: Attribute[int]{Base: 3},
-			},
-			expected: 4,
+			name:      "Troll Tank",
+			logic:     Attribute[int]{Base: 2},
+			intuition: Attribute[int]{Base: 3},
+			willpower: Attribute[int]{Base: 3},
+			expected:  4,
 		},
 		{
-			name: "Elf Face",
-			attributes: Attributes{
-				Logic:     Attribute[int]{Base: 4},
-				Intuition: Attribute[int]{Base: 4},
-				Willpower: Attribute[int]{Base: 4},
-			},
-			expected: 6,
+			name:      "Elf Face",
+			logic:     Attribute[int]{Base: 4},
+			intuition: Attribute[int]{Base: 4},
+			willpower: Attribute[int]{Base: 4},
+			expected:  6,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			entity := NewGameEntity()
-			entity.Attributes = tt.attributes
+			entity.Logic = tt.logic
+			entity.Intuition = tt.intuition
+			entity.Willpower = tt.willpower
 
 			result := entity.GetMentalLimit()
 			assert.Equal(t, tt.expected, result)
@@ -243,40 +154,36 @@ func TestGetMentalLimit(t *testing.T) {
 }
 func TestGetComposure(t *testing.T) {
 	tests := []struct {
-		name       string
-		attributes Attributes
-		expected   int
+		name      string
+		charisma  Attribute[int]
+		willpower Attribute[int]
+		expected  int
 	}{
 		{
-			name: "Elf Adept",
-			attributes: Attributes{
-				Charisma:  Attribute[int]{Base: 3},
-				Willpower: Attribute[int]{Base: 2},
-			},
-			expected: 5,
+			name:      "Elf Adept",
+			charisma:  Attribute[int]{Base: 3},
+			willpower: Attribute[int]{Base: 2},
+			expected:  5,
 		},
 		{
-			name: "Troll Tank",
-			attributes: Attributes{
-				Charisma:  Attribute[int]{Base: 2},
-				Willpower: Attribute[int]{Base: 3},
-			},
-			expected: 5,
+			name:      "Troll Tank",
+			charisma:  Attribute[int]{Base: 2},
+			willpower: Attribute[int]{Base: 3},
+			expected:  5,
 		},
 		{
-			name: "Elf Face",
-			attributes: Attributes{
-				Charisma:  Attribute[int]{Base: 7},
-				Willpower: Attribute[int]{Base: 4},
-			},
-			expected: 11,
+			name:      "Elf Face",
+			charisma:  Attribute[int]{Base: 7},
+			willpower: Attribute[int]{Base: 4},
+			expected:  11,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			entity := NewGameEntity()
-			entity.Attributes = tt.attributes
+			entity.Charisma = tt.charisma
+			entity.Willpower = tt.willpower
 
 			result := entity.GetComposure()
 			assert.Equal(t, tt.expected, result)
@@ -285,40 +192,36 @@ func TestGetComposure(t *testing.T) {
 }
 func TestGetJudgeIntentions(t *testing.T) {
 	tests := []struct {
-		name       string
-		attributes Attributes
-		expected   int
+		name      string
+		intuition Attribute[int]
+		charisma  Attribute[int]
+		expected  int
 	}{
 		{
-			name: "Elf Adept",
-			attributes: Attributes{
-				Intuition: Attribute[int]{Base: 6},
-				Charisma:  Attribute[int]{Base: 3},
-			},
-			expected: 9,
+			name:      "Elf Adept",
+			intuition: Attribute[int]{Base: 6},
+			charisma:  Attribute[int]{Base: 3},
+			expected:  9,
 		},
 		{
-			name: "Troll Tank",
-			attributes: Attributes{
-				Intuition: Attribute[int]{Base: 3},
-				Charisma:  Attribute[int]{Base: 2},
-			},
-			expected: 5,
+			name:      "Troll Tank",
+			intuition: Attribute[int]{Base: 3},
+			charisma:  Attribute[int]{Base: 2},
+			expected:  5,
 		},
 		{
-			name: "Elf Face",
-			attributes: Attributes{
-				Intuition: Attribute[int]{Base: 4},
-				Charisma:  Attribute[int]{Base: 7},
-			},
-			expected: 11,
+			name:      "Elf Face",
+			intuition: Attribute[int]{Base: 4},
+			charisma:  Attribute[int]{Base: 7},
+			expected:  11,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			entity := NewGameEntity()
-			entity.Attributes = tt.attributes
+			entity.Intuition = tt.intuition
+			entity.Charisma = tt.charisma
 
 			result := entity.GetJudgeIntentions()
 			assert.Equal(t, tt.expected, result)
@@ -327,40 +230,36 @@ func TestGetJudgeIntentions(t *testing.T) {
 }
 func TestGetMemory(t *testing.T) {
 	tests := []struct {
-		name       string
-		attributes Attributes
-		expected   int
+		name      string
+		logic     Attribute[int]
+		willpower Attribute[int]
+		expected  int
 	}{
 		{
-			name: "Elf Adept",
-			attributes: Attributes{
-				Logic:     Attribute[int]{Base: 5},
-				Willpower: Attribute[int]{Base: 6},
-			},
-			expected: 11,
+			name:      "Elf Adept",
+			logic:     Attribute[int]{Base: 5},
+			willpower: Attribute[int]{Base: 6},
+			expected:  11,
 		},
 		{
-			name: "Troll Tank",
-			attributes: Attributes{
-				Logic:     Attribute[int]{Base: 2},
-				Willpower: Attribute[int]{Base: 3},
-			},
-			expected: 5,
+			name:      "Troll Tank",
+			logic:     Attribute[int]{Base: 2},
+			willpower: Attribute[int]{Base: 3},
+			expected:  5,
 		},
 		{
-			name: "Elf Face",
-			attributes: Attributes{
-				Logic:     Attribute[int]{Base: 4},
-				Willpower: Attribute[int]{Base: 4},
-			},
-			expected: 8,
+			name:      "Elf Face",
+			logic:     Attribute[int]{Base: 4},
+			willpower: Attribute[int]{Base: 4},
+			expected:  8,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			entity := NewGameEntity()
-			entity.Attributes = tt.attributes
+			entity.Logic = tt.logic
+			entity.Willpower = tt.willpower
 
 			result := entity.GetMemory()
 			assert.Equal(t, tt.expected, result)
@@ -369,32 +268,27 @@ func TestGetMemory(t *testing.T) {
 }
 func TestGetLiftCarry(t *testing.T) {
 	tests := []struct {
-		name       string
-		attributes Attributes
-		expected   float64
+		name     string
+		strength Attribute[int]
+		body     Attribute[int]
+		expected float64
 	}{
 		{
-			name: "Elf Adept",
-			attributes: Attributes{
-				Strength: Attribute[int]{Base: 2},
-				Body:     Attribute[int]{Base: 3},
-			},
+			name:     "Elf Adept",
+			strength: Attribute[int]{Base: 2},
+			body:     Attribute[int]{Base: 3},
 			expected: 50.0,
 		},
 		{
-			name: "Troll Tank",
-			attributes: Attributes{
-				Strength: Attribute[int]{Base: 7},
-				Body:     Attribute[int]{Base: 10},
-			},
+			name:     "Troll Tank",
+			strength: Attribute[int]{Base: 7},
+			body:     Attribute[int]{Base: 10},
 			expected: 170.0,
 		},
 		{
-			name: "Elf Face",
-			attributes: Attributes{
-				Strength: Attribute[int]{Base: 2},
-				Body:     Attribute[int]{Base: 3},
-			},
+			name:     "Elf Face",
+			strength: Attribute[int]{Base: 2},
+			body:     Attribute[int]{Base: 3},
 			expected: 50.0,
 		},
 	}
@@ -402,7 +296,8 @@ func TestGetLiftCarry(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			entity := NewGameEntity()
-			entity.Attributes = tt.attributes
+			entity.Strength = tt.strength
+			entity.Body = tt.body
 
 			result := entity.GetLiftCarry()
 			assert.Equal(t, tt.expected, result)

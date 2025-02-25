@@ -1,0 +1,8 @@
+id: street_knowledge
+name: Street Knowledge
+description: Street Knowledge is linked to Intuition. This type of Knowledge skill is about knowing the movers and shakers in an urban area, along with how things get done on the street. You know about the people who live in different neighborhoods, who to ask to get what, and where things are. The information that these skills cover tends to change rapidly, but your instincts help you keep up.
+is_defaultable: false
+linked_attribute: Intuition
+specializations:
+    - By city (Seattle, Hong Kong, etc.)
+rule_source: SR5:Core

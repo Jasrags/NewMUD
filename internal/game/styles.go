@@ -2,6 +2,19 @@ package game
 
 import "github.com/charmbracelet/lipgloss"
 
+const (
+	CRLF = CR + LF
+	BEL  = "\a" // Terminal bell
+	BS   = "\b" // Backspace
+	HT   = "\t" // Horizontal TAB
+	LF   = "\n" // Linefeed (newline)
+	VT   = "\v" // Vertical TAB
+	FF   = "\f" // Formfeed (also: New page NP)
+	CR   = "\r" // Carriage return
+	// ESC = "\e*" // Escape character
+	DEL = "\x7F" // Delete character
+)
+
 var (
 	borderStyle = lipgloss.NewStyle().
 			BorderStyle(lipgloss.NormalBorder()).
@@ -11,6 +24,8 @@ var (
 	// Table formatting
 	singleColumnStyle = borderStyle.Width(80)
 	dualColumnStyle   = borderStyle.Width(39)
+
+	// menuStyle = borderStyle.Width(25)
 
 	// Text styles
 	headerStyle        = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("63"))
@@ -22,19 +37,19 @@ var (
 	// blackText          = lipgloss.NewStyle().Foreground(black)
 	// boldBlackText      = lipgloss.NewStyle().Foreground(black).Bold(true)
 	// boldRedText        = lipgloss.NewStyle().Foreground(red).Bold(true)
-	boldGreenText = lipgloss.NewStyle().Foreground(green).Bold(true)
+	// boldGreenText = lipgloss.NewStyle().Foreground(green).Bold(true)
 	// boldYellowText     = lipgloss.NewStyle().Foreground(yellow).Bold(true)
 	// boldBlueText       = lipgloss.NewStyle().Foreground(blue).Bold(true)
 	// boldMagentaText    = lipgloss.NewStyle().Foreground(magenta).Bold(true)
 	// boldCyanText       = lipgloss.NewStyle().Foreground(cyan).Bold(true)
-	boldWhiteText = lipgloss.NewStyle().Foreground(white).Bold(true)
-	redText       = lipgloss.NewStyle().Foreground(red)
-	greenText     = lipgloss.NewStyle().Foreground(green)
+	// boldWhiteText = lipgloss.NewStyle().Foreground(white).Bold(true)
+	// redText       = lipgloss.NewStyle().Foreground(red)
+	// greenText     = lipgloss.NewStyle().Foreground(green)
 	// yellowText         = lipgloss.NewStyle().Foreground(yellow)
 	// blueText           = lipgloss.NewStyle().Foreground(blue)
 	// magentaText        = lipgloss.NewStyle().Foreground(magenta)
 	// cyanText           = lipgloss.NewStyle().Foreground(cyan)
-	whiteText = lipgloss.NewStyle().Foreground(white)
+	// whiteText = lipgloss.NewStyle().Foreground(white)
 
 	// Colors
 	// black   = lipgloss.Color("0")

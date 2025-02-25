@@ -1,0 +1,7 @@
+id: magic_resistance
+type: Positive
+name: Magic Resistance
+description: The character is naturally resistant to magic. The character receives a +1 dice pool modifier on all tests to resist the effects of spells and critter powers.
+modifiers: []
+cost: 6
+rule_source: SR5:Core

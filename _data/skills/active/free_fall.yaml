@@ -1,0 +1,16 @@
+id: free_fall
+name: Free-Fall
+description: This skill covers any jump from height, including leaps from a third-floor window to jumps from a plane at high altitude. If it involves any kind of attempt to slow or control your fall, this covers it, so it includes skydiving with a parachute, flying a wingsuit, or descending on a line, bungee cord, or zipline.
+is_defaultable: true
+linked_attribute: Body
+specializations:
+    - BASE Jumping
+    - Break-Fall
+    - Bungee
+    - HALO
+    - Low Altitude
+    - Parachute
+    - Static Line
+    - Wingsuit
+    - Zipline
+rule_source: SR5:Core

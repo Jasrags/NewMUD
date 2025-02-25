@@ -1,0 +1,7 @@
+id: outdoors
+name: Outdoors
+skills:
+    - navigation
+    - survival
+    - tracking
+rule_source: SR5:Core

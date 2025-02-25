@@ -1,0 +1,7 @@
+id: quick_healer
+type: Positive
+name: Quick Healer
+description: The character heals quickly. The character receives a +2 dice pool modifier on all Healing Tests.
+modifiers: []
+cost: 3
+rule_source: SR5:Core

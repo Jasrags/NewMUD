@@ -1,0 +1,7 @@
+id: astral_chameleon
+type: Positive
+name: Astral Chameleon
+description: The character is difficult to spot on the astral plane. The character’s aura is less distinct, making him harder to spot. The character receives a +2 dice pool modifier to Infiltration Tests made to hide his aura from astral perception.
+modifiers: []
+cost: 10
+rule_source: SR5:Core

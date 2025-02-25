@@ -1,0 +1,7 @@
+id: analytical_mind
+type: Positive
+name: Analytical Mind
+description: Analytical Mind describes the uncanny ability to logically analyze information, deduce solutions to problems, or separate vital information from distractions and noise. It’s useful in cracking cyphers, solving puzzles, figuring out traps, and sifting through data.
+modifiers: []
+cost: 5
+rule_source: SR5:Core
