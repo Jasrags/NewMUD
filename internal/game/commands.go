@@ -34,6 +34,14 @@ type (
 
 func RegisterCommands() {
 	CommandMgr.RegisterCommand(Command{
+		Name:            "goto",
+		Description:     "Teleport to a room or character",
+		CommandCategory: CommandCategoryAdministration,
+		Usage:           []string{"goto <room_id>", "goto <character_name>"},
+		RequiredRoles:   []CharacterRole{CharacterRoleAdmin},
+		Func:            DoGoto,
+	})
+	CommandMgr.RegisterCommand(Command{
 		Name:            "mobstats",
 		Description:     "Display the stats of a mob",
 		CommandCategory: CommandCategoryAdministration,

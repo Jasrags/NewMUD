@@ -171,3 +171,44 @@ func DoMobStats(s ssh.Session, cmd string, args []string, acct *Account, char *C
 	WriteString(s, RenderMobTable(chosenMob))
 	WriteString(s, CRLF)
 }
+
+func DoGoto(s ssh.Session, cmd string, args []string, user *Account, char *Character, room *Room) {
+	// Ensure an argument is provided
+	if len(args) == 0 {
+		WriteString(s, "{{Usage: goto <room_id|character_name>}}::yellow"+CRLF)
+		return
+	}
+
+	target := args[0]
+
+	// Check if the target is a room ID
+	newRoom := EntityMgr.GetRoom(target)
+	if newRoom != nil {
+		if char.Room == newRoom {
+			WriteString(s, "{{You are already in that room.}}::yellow"+CRLF)
+			return
+		}
+
+		char.MoveToRoom(newRoom)
+		WriteStringF(s, "{{You teleport to room '%s'.}}::green"+CRLF, newRoom.ID)
+		WriteString(s, RenderRoom(user, char, nil))
+		return
+	}
+
+	// Check if the target is a character
+	targetChar := CharacterMgr.GetCharacterByName(target)
+	if targetChar != nil && targetChar.Room != nil {
+		if char.Room == targetChar.Room {
+			WriteString(s, "{{You are already in the same room as that character.}}::yellow"+CRLF)
+			return
+		}
+
+		char.MoveToRoom(targetChar.Room)
+		WriteStringF(s, "{{You teleport to %s.}}::green"+CRLF, targetChar.Name)
+		WriteString(s, RenderRoom(user, char, nil))
+		return
+	}
+
+	// If no valid target is found, return an error
+	WriteStringF(s, "{{No room or character found matching '%s'.}}::red"+CRLF, target)
+}
