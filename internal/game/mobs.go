@@ -23,6 +23,7 @@ type (
 	// TODO: Do we want mobs to be an "instance" that will persist after spawning?
 	Mob struct {
 		GameEntity            `yaml:",inline"`
+		ProfessionalRating    int                       `yaml:"professional_rating"`
 		GeneralDisposition    MobDisposition            `yaml:"general_disposition"`
 		CharacterDispositions map[string]MobDisposition `yaml:"character_dispositions"`
 	}

@@ -14,11 +14,6 @@ Usage:
 // TODO: overall for communication commands we need to log messages to a database with time, to/from, and message.
 // TODO: need to implement a block/unblock function for preventing messages from certain users
 func DoSay(s ssh.Session, cmd string, args []string, user *Account, char *Character, room *Room) {
-	if room == nil {
-		WriteString(s, "{{You are not in a room.}}::red"+CRLF)
-		return
-	}
-
 	if len(args) == 0 {
 		WriteString(s, "{{What do you want to say?}}::red"+CRLF)
 		return
@@ -34,11 +29,6 @@ func DoSay(s ssh.Session, cmd string, args []string, user *Account, char *Charac
 }
 
 func DoTell(s ssh.Session, cmd string, args []string, user *Account, char *Character, room *Room) {
-	if room == nil {
-		WriteString(s, "{{You are not in a room.}}::red"+CRLF)
-		return
-	}
-
 	if len(args) < 2 {
 		WriteString(s, "{{Usage: tell <username> <message>.}}::red"+CRLF)
 		return
