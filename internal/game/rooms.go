@@ -1,6 +1,7 @@
 package game
 
 import (
+	"fmt"
 	"log/slog"
 	"strings"
 	"sync"
@@ -12,16 +13,79 @@ import (
 	ee "github.com/vansante/go-event-emitter"
 )
 
-const ()
+const (
+	BiasNone Bias = "None"
+	BiasGood Bias = "Metahuman"
+
+	RoomTagPeaceful = "Peaceful"
+	RoomTagElevator = "Elevator"
+
+	// Corporate & High-Security
+	RoomTagCorporate  = "Corporate"
+	RoomTagExecutive  = "Executive"
+	RoomTagDataCenter = "DataCenter"
+	RoomTagSecurity   = "Security"
+
+	// Street-Level & Underground
+	RoomTagStreet      = "Street"
+	RoomTagSlum        = "Slum"
+	RoomTagGangHideout = "GangHideout"
+	RoomTagUnderground = "Underground"
+
+	// Commerce & Services
+	RoomTagBlackMarket = "BlackMarket"
+	RoomTagCyberClinic = "CyberClinic"
+	RoomTagBar         = "Bar"
+	RoomTagNightclub   = "Nightclub"
+	RoomTagArcade      = "Arcade"
+	RoomTagHotel       = "Hotel"
+	RoomTagRestaurant  = "Restaurant"
+
+	// Safehouses & Hideouts
+	RoomTagSafehouse         = "Safehouse"
+	RoomTagWarehouse         = "Warehouse"
+	RoomTagUndergroundLab    = "UndergroundLab"
+	RoomTagAbandonedBuilding = "AbandonedBuilding"
+
+	// Matrix & Digital Spaces
+	RoomTagMatrixNode = "MatrixNode"
+	RoomTagHost       = "Host"
+	RoomTagVRClub     = "VRClub"
+
+	// Combat Zones & Hostile Environments
+	RoomTagCombatZone = "CombatZone"
+	RoomTagMilitary   = "Military"
+	RoomTagDroneBay   = "DroneBay"
+	RoomTagToxicZone  = "ToxicZone"
+
+	// Magic-Related
+	RoomTagShamanicLodge = "ShamanicLodge"
+	RoomTagMagicShop     = "MagicShop"
+	RoomTagAstralPlane   = "AstralPlane"
+	RoomTagRitualSite    = "RitualSite"
+
+	ExitTypeStairs    = "stairs"
+	ExitTypeEscalator = "escalator"
+	ExitTypeLadder    = "ladder"
+	ExitTypeRope      = "rope"
+	ExitTypeRamp      = "ramp"
+	ExitTypeSlide     = "slide"
+	ExitTypeJumpPad   = "jump_pad"
+	ExitTypePassage   = "passage" // Default
+)
 
 // TODO: do we want to persist the room state between resets (mobs, items, etc)?
 
 type (
+	ExitType string
+	// RoomTag string
+	Bias string
 	Exit struct {
 		Room      *Room  `yaml:"-"`
 		RoomID    string `yaml:"room_id"`
 		Direction string `yaml:"direction"`
 		Door      *Door  `yaml:"door"`
+		Type      string `yaml:"type,omitempty"`
 	}
 	Door struct {
 		IsClosed       bool     `yaml:"is_closed"`
@@ -60,6 +124,8 @@ type (
 		Area         *Area            `yaml:"-"`
 		Title        string           `yaml:"title"`
 		Description  string           `yaml:"description"`
+		Tags         []string         `yaml:"tags"`
+		Bias         Bias             `yaml:"bias"`
 		Exits        map[string]*Exit `yaml:"exits"`
 		Corrdinates  *Corrdinates     `yaml:"corrdinates"`
 		Inventory    Inventory        `yaml:"inventory"`
@@ -283,13 +349,16 @@ func (r *Room) Broadcast(msg string, excludeIDs []string) {
 // RenderRoom renders the room to a string for the player.
 func RenderRoom(user *Account, char *Character, room *Room) string {
 	var builder strings.Builder
-	roomTitle := cfmt.Sprintf("{{%-10s}}::cyan|bold", char.Room.Title)
-
 	if char.Role == CharacterRoleAdmin {
-		roomTitle = cfmt.Sprintf("%s {{[%s]}}::white", roomTitle, char.Room.ID)
+		builder.WriteString(cfmt.Sprintf("{{[}}::white|bold{{%s}}::yellow{{]}}::white|bold", char.Room.ID))
+		builder.WriteString(CRLF)
 	}
 
-	builder.WriteString(roomTitle + "" + CRLF)
+	builder.WriteString(cfmt.Sprintf("{{%s}}::cyan|bold", char.Room.Title))
+	if len(char.Room.Tags) > 0 {
+		builder.WriteString(cfmt.Sprintf(" {{[}}::white|bold{{%s}}::green{{]}}::white|bold", strings.Join(char.Room.Tags, ", ")))
+	}
+	builder.WriteString(CRLF + HT)
 	builder.WriteString(wordwrap.String(cfmt.Sprint(char.Room.Description), 80) + "" + CRLF)
 	builder.WriteString("" + CRLF)
 	builder.WriteString(RenderEntitiesInRoom(char) + "" + CRLF)
@@ -372,31 +441,63 @@ func RenderItemsInRoom(char *Character) string {
 
 func RenderRoomExits(char *Character) string {
 	var builder strings.Builder
-	// Handle no exits case early
 	if len(char.Room.Exits) == 0 {
 		return cfmt.Sprintf("{{There are no exits}}::red")
 	}
-
-	// Build exits descriptions
-	exitStrings := make([]string, 0, len(char.Room.Exits)) // Preallocate capacity
+	exitStrings := make([]string, 0, len(char.Room.Exits))
 	for dir, exit := range char.Room.Exits {
-		// Determine the door description
-		doorDescription := "a passage"
+		// Determine exit description based on exit type
+		var exitDescription string
+		switch exit.Type {
+		case ExitTypeEscalator:
+			exitDescription = "an escalator"
+		case ExitTypeStairs:
+			exitDescription = "a set of stairs"
+		case ExitTypeLadder:
+			exitDescription = "a ladder"
+		case ExitTypeRope:
+			exitDescription = "a rope"
+		case ExitTypeRamp:
+			exitDescription = "a ramp"
+		case ExitTypeSlide:
+			exitDescription = "a slide"
+		case ExitTypeJumpPad:
+			exitDescription = "a jump pad"
+		default:
+			exitDescription = "a passage"
+		}
+
+		// Adjust for door state if there is one
 		if exit.Door != nil {
 			if exit.Door.IsClosed {
-				doorDescription = "a closed door"
+				exitDescription = fmt.Sprintf("a closed %s", exit.Type)
 			} else {
-				doorDescription = "an open doorway"
+				exitDescription = fmt.Sprintf("an open %s", exit.Type)
 			}
 		}
 
-		// Format the exit description
-		exitStrings = append(exitStrings,
-			cfmt.Sprintf("To the {{%s}}::yellow|underline you see %s leading to {{%s}}::yellow|italic.", dir, doorDescription, exit.Room.Title),
-		)
-
+		// Special phrasing for vertical movement
+		if dir == "up" {
+			// For a rope, you might want different phrasing
+			if exit.Type == ExitTypeRope {
+				exitStrings = append(exitStrings,
+					cfmt.Sprintf("There is %s from the floor above.", exitDescription))
+			} else {
+				exitStrings = append(exitStrings,
+					cfmt.Sprintf("There is %s leading {{up}}::yellow to {{%s}}::yellow.", exitDescription, exit.Room.Title))
+			}
+		} else if dir == "down" {
+			exitStrings = append(exitStrings,
+				cfmt.Sprintf("There is %s leading {{down}}::yellow to {{%s}}::yellow.", exitDescription, exit.Room.Title))
+		} else {
+			// Generic phrasing for non-vertical exits
+			exitStrings = append(exitStrings,
+				cfmt.Sprintf("To the {{%s}}::yellow, there is %s leading to {{%s}}::yellow.", dir, exitDescription, exit.Room.Title))
+		}
 	}
+
 	builder.WriteString(strings.Join(exitStrings, " "))
 
 	return wordwrap.String(builder.String(), 80)
+
 }

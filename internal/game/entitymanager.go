@@ -76,6 +76,13 @@ func (mgr *EntityManager) RemoveArea(a *Area) {
 }
 
 // Item functions
+func (mgr *EntityManager) GetAllItemBlueprints() map[string]*ItemBlueprint {
+	mgr.RLock()
+	defer mgr.RUnlock()
+
+	return mgr.items
+}
+
 func (mgr *EntityManager) AddItemBlueprint(i *ItemBlueprint) {
 	mgr.Lock()
 	defer mgr.Unlock()
@@ -241,6 +248,13 @@ func (mgr *EntityManager) loadMetatypes() {
 }
 
 // Mob functions
+func (mgr *EntityManager) GetAllMobs() map[string]*Mob {
+	mgr.RLock()
+	defer mgr.RUnlock()
+
+	return mgr.mobs
+}
+
 func (mgr *EntityManager) AddMob(m *Mob) {
 	mgr.Lock()
 	defer mgr.Unlock()
@@ -399,6 +413,13 @@ func (mgr *EntityManager) loadQualities() {
 }
 
 // Room Functions
+func (mgr *EntityManager) GetAllRooms() map[string]*Room {
+	mgr.RLock()
+	defer mgr.RUnlock()
+
+	return mgr.rooms
+}
+
 func (mgr *EntityManager) AddRoom(r *Room) {
 	mgr.Lock()
 	defer mgr.Unlock()
