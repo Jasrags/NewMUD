@@ -41,7 +41,7 @@ func main() {
 	player2.MetatypeID = "Ork"
 	char.Room.AddCharacter(player2)
 
-	mob1 := game.EntityMgr.GetMob("thug_lieutenant")
+	mob1 := game.EntityMgr.GetMob("ork_thug_lieutenant")
 	// if mob1 == nil {
 	// 	panic("Mob not found")
 	// }
@@ -53,8 +53,8 @@ func main() {
 	// mob2 := game.NewMob()
 	// mob2.Name = "Mob2"
 
-	char.Room.AddMob(game.EntityMgr.GetMob("thug_basic"))
-	char.Room.AddMob(game.EntityMgr.GetMob("thug_lieutenant"))
+	char.Room.AddMob(game.EntityMgr.GetMob("ork_thug_basic"))
+	char.Room.AddMob(game.EntityMgr.GetMob("ork_thug_lieutenant"))
 
 	// item1 := game.EntityMgr.CreateItemInstanceFromBlueprintID("small_rock")
 	// item2 := game.EntityMgr.CreateItemInstanceFromBlueprintID("jagged_rock")
