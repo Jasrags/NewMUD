@@ -113,8 +113,8 @@ func RenderMobTable(mob *Mob) string {
 	var builder strings.Builder
 
 	// Header: basic details from GameEntity.
-	builder.WriteString(cfmt.Sprintf("{{Name:}}::white|bold {{%s}}::cyan"+CRLF, mob.Name))
 	builder.WriteString(cfmt.Sprintf("{{ID:}}::white|bold {{%s}}::cyan"+CRLF, mob.ID))
+	builder.WriteString(cfmt.Sprintf("{{Name:}}::white|bold {{%s}}::cyan"+CRLF, mob.Name))
 	builder.WriteString(cfmt.Sprintf("{{Title:}}::white|bold {{%s}}::cyan"+CRLF, mob.Title))
 	builder.WriteString(cfmt.Sprintf("{{Description:}}::white|bold {{%s}}::cyan"+CRLF, mob.Description))
 	builder.WriteString(cfmt.Sprintf("{{Long Description:}}::white|bold {{%s}}::cyan"+CRLF, mob.LongDescription))
@@ -126,20 +126,28 @@ func RenderMobTable(mob *Mob) string {
 	builder.WriteString(CRLF)
 
 	// Attributes from the embedded GameEntity.
-	builder.WriteString(cfmt.Sprintf("{{Body:}}::white|bold {{%d}}::cyan"+CRLF, mob.Body.TotalValue))
-	builder.WriteString(cfmt.Sprintf("{{Agility:}}::white|bold {{%d}}::cyan"+CRLF, mob.Agility.TotalValue))
-	builder.WriteString(cfmt.Sprintf("{{Reaction:}}::white|bold {{%d}}::cyan"+CRLF, mob.Reaction.TotalValue))
-	builder.WriteString(cfmt.Sprintf("{{Strength:}}::white|bold {{%d}}::cyan"+CRLF, mob.Strength.TotalValue))
-	builder.WriteString(cfmt.Sprintf("{{Willpower:}}::white|bold {{%d}}::cyan"+CRLF, mob.Willpower.TotalValue))
-	builder.WriteString(cfmt.Sprintf("{{Logic:}}::white|bold {{%d}}::cyan"+CRLF, mob.Logic.TotalValue))
-	builder.WriteString(cfmt.Sprintf("{{Intuition:}}::white|bold {{%d}}::cyan"+CRLF, mob.Intuition.TotalValue))
-	builder.WriteString(cfmt.Sprintf("{{Charisma:}}::white|bold {{%d}}::cyan"+CRLF, mob.Charisma.TotalValue))
-	builder.WriteString(cfmt.Sprintf("{{Essence:}}::white|bold {{%.1f}}::cyan"+CRLF, mob.Essence.TotalValue))
+	intAttributeStr := "{{%-10s}}::white|bold {{%-2d}}::cyan" + CRLF
+	floatAttributeStr := "{{%-10s}}::white|bold {{%.1f}}::cyan" + CRLF
+	builder.WriteString(cfmt.Sprintf(intAttributeStr, "Body:", mob.Body.TotalValue))
+	builder.WriteString(cfmt.Sprintf(intAttributeStr, "Agility:", mob.Agility.TotalValue))
+	builder.WriteString(cfmt.Sprintf(intAttributeStr, "Reaction:", mob.Reaction.TotalValue))
+	builder.WriteString(cfmt.Sprintf(intAttributeStr, "Strength:", mob.Strength.TotalValue))
+	builder.WriteString(cfmt.Sprintf(intAttributeStr, "Willpower:", mob.Willpower.TotalValue))
+	builder.WriteString(cfmt.Sprintf(intAttributeStr, "Logic:", mob.Logic.TotalValue))
+	builder.WriteString(cfmt.Sprintf(intAttributeStr, "Intuition:", mob.Intuition.TotalValue))
+	builder.WriteString(cfmt.Sprintf(intAttributeStr, "Charisma:", mob.Charisma.TotalValue))
+	builder.WriteString(cfmt.Sprintf(floatAttributeStr, "Essence:", mob.Essence.TotalValue))
 	if mob.Magic.Base > 0 {
-		builder.WriteString(cfmt.Sprintf("{{Magic:}}::white|bold {{%d}}::cyan"+CRLF, mob.Magic.TotalValue))
+		builder.WriteString(cfmt.Sprintf(intAttributeStr, "Magic:", mob.Magic.TotalValue))
 	}
 	if mob.Resonance.Base > 0 {
-		builder.WriteString(cfmt.Sprintf("{{Resonance:}}::white|bold {{%d}}::cyan"+CRLF, mob.Resonance.TotalValue))
+		builder.WriteString(cfmt.Sprintf(intAttributeStr, "Resonance:", mob.Resonance.TotalValue))
+	}
+
+	builder.WriteString(cfmt.Sprintf("{{Skills:}}::white|bold" + CRLF))
+	for _, skill := range mob.Skills {
+		bp := EntityMgr.GetSkillBlueprint(skill.BlueprintID)
+		builder.WriteString(cfmt.Sprintf(HT+"%s: (%d)"+CRLF, bp.Name, skill.Rating))
 	}
 
 	return builder.String()

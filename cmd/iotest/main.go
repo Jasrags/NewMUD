@@ -21,7 +21,7 @@ func main() {
 	game.CharacterMgr.LoadDataFiles()
 	game.GameTimeMgr = game.NewGameTime()
 
-	acct := game.AccountMgr.GetByUsername("Jasrags")
+	// acct := game.AccountMgr.GetByUsername("Jasrags")
 	char := game.CharacterMgr.GetCharacterByName("fred")
 	// char.Role = game.CharacterRolePlayer
 	char.Role = game.CharacterRoleAdmin
@@ -41,7 +41,7 @@ func main() {
 	player2.MetatypeID = "Ork"
 	char.Room.AddCharacter(player2)
 
-	// mob1 := game.EntityMgr.GetMob("orc")
+	mob1 := game.EntityMgr.GetMob("thug_lieutenant")
 	// if mob1 == nil {
 	// 	panic("Mob not found")
 	// }
@@ -112,7 +112,8 @@ func main() {
 	// sb.WriteString(game.RenderCharacterTable(char))
 	// sb.WriteString(borderStyle.Width(80).Render(cfmt.Sprint(text)))
 	sb.WriteString(game.CRLF)
-	output.WriteString(game.RenderRoom(acct, char, room))
+	// output.WriteString(game.RenderRoom(acct, char, room))
+	output.WriteString(game.RenderMobTable(mob1))
 	// output.WriteString(game.RenderCharacterTable(char))
 	// output.WriteString(game.RenderPromptMenu("Main Menu", []string{"Enter Game", "Create Character", "Change Password", "Quit"}))
 	// output.WriteString(game.RenderPrompt(char))
