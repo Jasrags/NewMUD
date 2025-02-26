@@ -3,11 +3,9 @@ package game
 import (
 	"fmt"
 	"regexp"
-	"strconv"
 	"strings"
 
 	"github.com/Jasrags/NewMUD/pluralizer"
-	"github.com/charmbracelet/lipgloss"
 	"github.com/gliderlabs/ssh"
 	"github.com/i582/cfmt/cmd/cfmt"
 )
@@ -222,123 +220,6 @@ Usage:
 // 		FormatColumn(label3, value3, 20))
 // }
 
-func RenderCharacterTable(char *Character) string {
-	metatype := EntityMgr.GetMetatype(char.MetatypeID)
-	char.Recalculate()
-	table := lipgloss.JoinVertical(lipgloss.Left,
-		// Personal Data
-		headerStyle.Render("Personal Data"),
-		singleColumnStyle.Render(
-			lipgloss.JoinVertical(lipgloss.Left,
-				lipgloss.JoinHorizontal(lipgloss.Top,
-					RenderKeyValue("Name", char.Name), "\t",
-					RenderKeyValue("Title", char.Title),
-				),
-				lipgloss.JoinHorizontal(lipgloss.Top,
-					RenderKeyValue("Metatype", metatype.Name), "\t",
-					// RenderKeyValue("Ethnicity", char.Ethnicity),
-				),
-				lipgloss.JoinHorizontal(lipgloss.Top,
-					RenderKeyValue("Age", "0"), "\t",
-					RenderKeyValue("Sex", char.Sex), "\t",
-					RenderKeyValue("Height", "0"), "\t",
-					RenderKeyValue("Weight", "0"),
-				),
-				lipgloss.JoinHorizontal(lipgloss.Top,
-					RenderKeyValue("Street Cred", "0"), "\t",
-					RenderKeyValue("Notoriety", "0"), "\t",
-					RenderKeyValue("Public Awareness", "0"),
-				),
-				lipgloss.JoinHorizontal(lipgloss.Top,
-					RenderKeyValue("Karma", "0"), "\t",
-					RenderKeyValue("Total Karma", "0"),
-				),
-			),
-		),
-		// Attributes doble column
-		lipgloss.JoinHorizontal(lipgloss.Top,
-			lipgloss.JoinVertical(lipgloss.Left,
-				headerStyle.Render("Attributes"),
-				// Attributes - LEFT - Base attributes
-				// Formats:
-				// Reaction   5  (7)
-				// Essence    6.00
-				dualColumnStyle.Render(
-					lipgloss.JoinVertical(lipgloss.Left,
-						RenderAttribute(char.Body),      // 5  (7)
-						RenderAttribute(char.Agility),   // 5  (7)
-						RenderAttribute(char.Reaction),  // 5  (7)
-						RenderAttribute(char.Strength),  // 5  (7)
-						RenderAttribute(char.Willpower), // 5  (7)
-						RenderAttribute(char.Logic),     // 5  (7)
-						RenderAttribute(char.Intuition), // 5  (7)
-						RenderAttribute(char.Charisma),  // 5  (7)
-						RenderAttribute(char.Essence),   // 5  (7)
-						RenderAttribute(char.Magic),     // 5  (7)
-						RenderAttribute(char.Resonance), // Essence    6.00
-						// strs...,
-					),
-				),
-			),
-			// Attributes RIGHT - Derivied attributes
-			lipgloss.JoinVertical(lipgloss.Left,
-				headerStyle.Render(""),
-				dualColumnStyle.Render(
-					lipgloss.JoinVertical(lipgloss.Left), // RenderAttribute(char.Attributes.Initiative), // Initiative 10 (12) + 1d6 (2d6)
-					// 			RenderAttribute(char.Attributes.InitiativeDice),
-					// 			RenderAttribute(char.Attributes.Composure),       // 5  (7)
-					// 			RenderAttribute(char.Attributes.JudgeIntentions), // 5  (7)
-					// 			RenderAttribute(char.Attributes.Memory),          // 5  (7)
-					// 			RenderAttribute(char.Attributes.Lift),            // 5  (7)
-					// 			RenderAttribute(char.Attributes.Carry),           // 5  (7)
-					// 			RenderAttribute(char.Attributes.Walk),            // 5  (7)
-					// 			RenderAttribute(char.Attributes.Run),             // 5  (7)
-					// 			RenderAttribute(char.Attributes.Swim),            // 5  (7)
-					// 			"",
-				),
-			),
-		),
-	)
-
-	return table
-}
-
-// RenderAttribute renders a single attribute for display.
-func RenderAttribute[T int | float64](attr Attribute[T]) string {
-	var output strings.Builder
-
-	if attr.Base == 0 {
-		return ""
-	}
-
-	output.WriteString(attrNameStyle.Render(fmt.Sprintf("%-10s", attr.Name)))
-	output.WriteString(attrValueStyle.Render(fmt.Sprintf(" %-2v", renderValue(attr.Base))))
-	if attr.TotalValue != attr.Base {
-		style := attrPosModStyle
-		if attr.TotalValue < attr.Base {
-			style = attrNegModStyle
-		}
-		output.WriteString(style.Render(fmt.Sprintf(" (%v)", renderValue(attr.TotalValue))))
-	}
-
-	return output.String()
-}
-
-// renderValue formats the value of an attribute for display.
-func renderValue[T int | float64](value T) string {
-	switch v := any(value).(type) {
-	case int:
-		return strconv.Itoa(v)
-	case float64:
-		return fmt.Sprintf("%.2f", v)
-	default:
-		return fmt.Sprintf("%v", v)
-	}
-}
-func RenderKeyValue(key, value string) string {
-	return fmt.Sprintf("%s: %s", attrNameStyle.Render(key), attrTextValueStyle.Render(value))
-}
-
 func DoStats(s ssh.Session, cmd string, args []string, acct *Account, char *Character, room *Room) {
 	// If arguments are provided, assume the user is requesting stats for another character.
 	if len(args) > 0 {
@@ -541,17 +422,6 @@ func DoHelp(s ssh.Session, cmd string, args []string, user *Account, char *Chara
 	}
 
 	WriteString(s, builder.String())
-}
-
-// CanSeeCommand determines if a character can view a specific command
-func CanSeeCommand(char *Character, command *Command) bool {
-	// Admin-only commands should only be shown to admins
-	if command.CommandCategory == CommandCategoryAdministration || len(command.RequiredRoles) > 0 {
-		if char.Role != CharacterRoleAdmin {
-			return false
-		}
-	}
-	return true
 }
 
 func DoInventory(s ssh.Session, cmd string, args []string, user *Account, char *Character, room *Room) {

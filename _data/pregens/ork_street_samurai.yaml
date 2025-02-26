@@ -1,6 +1,6 @@
 id: ork_street_samurai
 title: Ork Street Samurai
-description: A street samurai is a combat-oriented character that specializes in physical combat and is often augmented with cyberware or bioware.
+description: Some artists work in watercolors, some in oils. The street samurai is an artist of pain. In any given situation, he knows fifteen ways to hurt an opponent, and an additional eight ways to hurt an opponent real bad. He can take significant amounts of damage and stay standing, leveling devastating damage on her opponents. He typically is augmented with significant amounts of cyberware and bioware to make him exceptionally tough and dangerous in physical and armed combat. While he is ferocious and deadly, he tends to have a code—it may be a code comprehensible only to him, but it’s something. Body, Strength, and Agility are important attributes for characters that are street samurai.
 metatype_id: ork
 body:
     base: 7

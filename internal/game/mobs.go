@@ -103,3 +103,44 @@ func DescribeMobDisposition(mob *Mob, char *Character) string {
 		return fmt.Sprintf("%s's demeanor is unreadable.", mob.Name)
 	}
 }
+
+// RenderMobTable builds a formatted table of a mob's stats.
+// It leverages the embedded GameEntity fields from Mob.
+func RenderMobTable(mob *Mob) string {
+	// Optionally, recalculate attributes if needed.
+	mob.Recalculate()
+
+	var builder strings.Builder
+
+	// Header: basic details from GameEntity.
+	builder.WriteString(cfmt.Sprintf("{{Name:}}::white|bold {{%s}}::cyan"+CRLF, mob.Name))
+	builder.WriteString(cfmt.Sprintf("{{ID:}}::white|bold {{%s}}::cyan"+CRLF, mob.ID))
+	builder.WriteString(cfmt.Sprintf("{{Title:}}::white|bold {{%s}}::cyan"+CRLF, mob.Title))
+	builder.WriteString(cfmt.Sprintf("{{Description:}}::white|bold {{%s}}::cyan"+CRLF, mob.Description))
+	builder.WriteString(cfmt.Sprintf("{{Long Description:}}::white|bold {{%s}}::cyan"+CRLF, mob.LongDescription))
+	builder.WriteString(CRLF)
+
+	// Mob-specific data.
+	builder.WriteString(cfmt.Sprintf("{{Professional Rating:}}::white|bold {{%d}}::cyan"+CRLF, mob.ProfessionalRating))
+	builder.WriteString(cfmt.Sprintf("{{General Disposition:}}::white|bold {{%s}}::cyan"+CRLF, mob.GeneralDisposition))
+	builder.WriteString(CRLF)
+
+	// Attributes from the embedded GameEntity.
+	builder.WriteString(cfmt.Sprintf("{{Body:}}::white|bold {{%d}}::cyan"+CRLF, mob.Body.TotalValue))
+	builder.WriteString(cfmt.Sprintf("{{Agility:}}::white|bold {{%d}}::cyan"+CRLF, mob.Agility.TotalValue))
+	builder.WriteString(cfmt.Sprintf("{{Reaction:}}::white|bold {{%d}}::cyan"+CRLF, mob.Reaction.TotalValue))
+	builder.WriteString(cfmt.Sprintf("{{Strength:}}::white|bold {{%d}}::cyan"+CRLF, mob.Strength.TotalValue))
+	builder.WriteString(cfmt.Sprintf("{{Willpower:}}::white|bold {{%d}}::cyan"+CRLF, mob.Willpower.TotalValue))
+	builder.WriteString(cfmt.Sprintf("{{Logic:}}::white|bold {{%d}}::cyan"+CRLF, mob.Logic.TotalValue))
+	builder.WriteString(cfmt.Sprintf("{{Intuition:}}::white|bold {{%d}}::cyan"+CRLF, mob.Intuition.TotalValue))
+	builder.WriteString(cfmt.Sprintf("{{Charisma:}}::white|bold {{%d}}::cyan"+CRLF, mob.Charisma.TotalValue))
+	builder.WriteString(cfmt.Sprintf("{{Essence:}}::white|bold {{%.1f}}::cyan"+CRLF, mob.Essence.TotalValue))
+	if mob.Magic.Base > 0 {
+		builder.WriteString(cfmt.Sprintf("{{Magic:}}::white|bold {{%d}}::cyan"+CRLF, mob.Magic.TotalValue))
+	}
+	if mob.Resonance.Base > 0 {
+		builder.WriteString(cfmt.Sprintf("{{Resonance:}}::white|bold {{%d}}::cyan"+CRLF, mob.Resonance.TotalValue))
+	}
+
+	return builder.String()
+}

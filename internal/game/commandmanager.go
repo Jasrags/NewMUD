@@ -179,3 +179,14 @@ func ParseArguments(input string) (string, []string) {
 	}
 	return parts[0], parts[1:]
 }
+
+// CanSeeCommand determines if a character can view a specific command
+func CanSeeCommand(char *Character, command *Command) bool {
+	// Admin-only commands should only be shown to admins
+	if command.CommandCategory == CommandCategoryAdministration || len(command.RequiredRoles) > 0 {
+		if char.Role != CharacterRoleAdmin {
+			return false
+		}
+	}
+	return true
+}

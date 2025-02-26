@@ -18,6 +18,7 @@ const (
 	BiasGood Bias = "Metahuman"
 
 	RoomTagPeaceful = "Peaceful"
+	RoomTagElevator = "Elevator"
 
 	// Corporate & High-Security
 	RoomTagCorporate  = "Corporate"

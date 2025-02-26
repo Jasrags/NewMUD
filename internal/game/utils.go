@@ -2,6 +2,7 @@ package game
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"log/slog"
 	"os"
@@ -383,4 +384,71 @@ func PromptForMenu(s ssh.Session, title string, options []MenuOption) (string, e
 
 		WriteString(s, "{{Invalid selection. Please try again.}}::red\n")
 	}
+}
+
+// HasAnyTag returns true if filterTags is empty or if any tag in filterTags is found (case-insensitive)
+// in the object's tags.
+func HasAnyTag(objectTags []string, filterTags []string) bool {
+	if len(filterTags) == 0 {
+		return true
+	}
+	for _, ft := range filterTags {
+		for _, ot := range objectTags {
+			if strings.EqualFold(ot, ft) {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+// FindMobsByName searches the current room's mobs and returns all instances
+// that match the provided name (case-insensitive).
+func FindMobsByName(room *Room, name string) []*Mob {
+	var matches []*Mob
+	room.RLock()
+	defer room.RUnlock()
+
+	for _, mob := range room.Mobs {
+		if strings.EqualFold(mob.Name, name) {
+			matches = append(matches, mob)
+		}
+	}
+	return matches
+}
+
+// RenderAttribute renders a single attribute for display.
+func RenderAttribute[T int | float64](attr Attribute[T]) string {
+	var output strings.Builder
+
+	if attr.Base == 0 {
+		return ""
+	}
+
+	output.WriteString(attrNameStyle.Render(fmt.Sprintf("%-10s", attr.Name)))
+	output.WriteString(attrValueStyle.Render(fmt.Sprintf(" %-2v", renderValue(attr.Base))))
+	if attr.TotalValue != attr.Base {
+		style := attrPosModStyle
+		if attr.TotalValue < attr.Base {
+			style = attrNegModStyle
+		}
+		output.WriteString(style.Render(fmt.Sprintf(" (%v)", renderValue(attr.TotalValue))))
+	}
+
+	return output.String()
+}
+
+// renderValue formats the value of an attribute for display.
+func renderValue[T int | float64](value T) string {
+	switch v := any(value).(type) {
+	case int:
+		return strconv.Itoa(v)
+	case float64:
+		return fmt.Sprintf("%.2f", v)
+	default:
+		return fmt.Sprintf("%v", v)
+	}
+}
+func RenderKeyValue(key, value string) string {
+	return fmt.Sprintf("%s: %s", attrNameStyle.Render(key), attrTextValueStyle.Render(value))
 }

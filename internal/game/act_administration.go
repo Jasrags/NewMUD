@@ -47,62 +47,6 @@ func DoSpawn(s ssh.Session, cmd string, args []string, user *Account, char *Char
 	}
 }
 
-// findMobsByName searches the current room's mobs and returns all instances
-// that match the provided name (case-insensitive).
-func findMobsByName(room *Room, name string) []*Mob {
-	var matches []*Mob
-	room.RLock()
-	defer room.RUnlock()
-
-	for _, mob := range room.Mobs {
-		if strings.EqualFold(mob.Name, name) {
-			matches = append(matches, mob)
-		}
-	}
-	return matches
-}
-
-// RenderMobTable builds a formatted table of a mob's stats.
-// It leverages the embedded GameEntity fields from Mob.
-func RenderMobTable(mob *Mob) string {
-	// Optionally, recalculate attributes if needed.
-	mob.Recalculate()
-
-	var builder strings.Builder
-
-	// Header: basic details from GameEntity.
-	builder.WriteString(cfmt.Sprintf("{{Name:}}::white|bold {{%s}}::cyan"+CRLF, mob.Name))
-	builder.WriteString(cfmt.Sprintf("{{ID:}}::white|bold {{%s}}::cyan"+CRLF, mob.ID))
-	builder.WriteString(cfmt.Sprintf("{{Title:}}::white|bold {{%s}}::cyan"+CRLF, mob.Title))
-	builder.WriteString(cfmt.Sprintf("{{Description:}}::white|bold {{%s}}::cyan"+CRLF, mob.Description))
-	builder.WriteString(cfmt.Sprintf("{{Long Description:}}::white|bold {{%s}}::cyan"+CRLF, mob.LongDescription))
-	builder.WriteString(CRLF)
-
-	// Mob-specific data.
-	builder.WriteString(cfmt.Sprintf("{{Professional Rating:}}::white|bold {{%d}}::cyan"+CRLF, mob.ProfessionalRating))
-	builder.WriteString(cfmt.Sprintf("{{General Disposition:}}::white|bold {{%s}}::cyan"+CRLF, mob.GeneralDisposition))
-	builder.WriteString(CRLF)
-
-	// Attributes from the embedded GameEntity.
-	builder.WriteString(cfmt.Sprintf("{{Body:}}::white|bold {{%d}}::cyan"+CRLF, mob.Body.TotalValue))
-	builder.WriteString(cfmt.Sprintf("{{Agility:}}::white|bold {{%d}}::cyan"+CRLF, mob.Agility.TotalValue))
-	builder.WriteString(cfmt.Sprintf("{{Reaction:}}::white|bold {{%d}}::cyan"+CRLF, mob.Reaction.TotalValue))
-	builder.WriteString(cfmt.Sprintf("{{Strength:}}::white|bold {{%d}}::cyan"+CRLF, mob.Strength.TotalValue))
-	builder.WriteString(cfmt.Sprintf("{{Willpower:}}::white|bold {{%d}}::cyan"+CRLF, mob.Willpower.TotalValue))
-	builder.WriteString(cfmt.Sprintf("{{Logic:}}::white|bold {{%d}}::cyan"+CRLF, mob.Logic.TotalValue))
-	builder.WriteString(cfmt.Sprintf("{{Intuition:}}::white|bold {{%d}}::cyan"+CRLF, mob.Intuition.TotalValue))
-	builder.WriteString(cfmt.Sprintf("{{Charisma:}}::white|bold {{%d}}::cyan"+CRLF, mob.Charisma.TotalValue))
-	builder.WriteString(cfmt.Sprintf("{{Essence:}}::white|bold {{%.1f}}::cyan"+CRLF, mob.Essence.TotalValue))
-	if mob.Magic.Base > 0 {
-		builder.WriteString(cfmt.Sprintf("{{Magic:}}::white|bold {{%d}}::cyan"+CRLF, mob.Magic.TotalValue))
-	}
-	if mob.Resonance.Base > 0 {
-		builder.WriteString(cfmt.Sprintf("{{Resonance:}}::white|bold {{%d}}::cyan"+CRLF, mob.Resonance.TotalValue))
-	}
-
-	return builder.String()
-}
-
 // DoMobStats is an admin-only command that displays the stats for a specific mob
 // in the current room. Usage: mobstats <mob_name> [index]
 // If multiple mobs match the given name and no index is provided,
@@ -134,7 +78,7 @@ func DoMobStats(s ssh.Session, cmd string, args []string, acct *Account, char *C
 	}
 
 	// Find all matching mobs in the current room.
-	matches := findMobsByName(room, mobName)
+	matches := FindMobsByName(room, mobName)
 	if len(matches) == 0 {
 		WriteString(s, fmt.Sprintf("{{No mob found matching '%s' in this room.}}::red"+CRLF, mobName))
 		return
@@ -213,22 +157,6 @@ func DoGoto(s ssh.Session, cmd string, args []string, user *Account, char *Chara
 	WriteStringF(s, "{{No room or character found matching '%s'.}}::red"+CRLF, target)
 }
 
-// hasAnyTag returns true if filterTags is empty or if any tag in filterTags is found (case-insensitive)
-// in the object's tags.
-func hasAnyTag(objectTags []string, filterTags []string) bool {
-	if len(filterTags) == 0 {
-		return true
-	}
-	for _, ft := range filterTags {
-		for _, ot := range objectTags {
-			if strings.EqualFold(ot, ft) {
-				return true
-			}
-		}
-	}
-	return false
-}
-
 // DoList implements the admin "list" command.
 // Usage: list <mobs|items|rooms> [tags]
 // e.g. "list rooms shopping", "list items weapon,gun", "list mobs thug"
@@ -255,7 +183,7 @@ func DoList(s ssh.Session, cmd string, args []string, user *Account, char *Chara
 	case "rooms", "r":
 		rooms := EntityMgr.GetAllRooms()
 		for _, r := range rooms {
-			if hasAnyTag(r.Tags, filterTags) {
+			if HasAnyTag(r.Tags, filterTags) {
 				outputBuilder.WriteString(cfmt.Sprintf("ID: {{%-35s}}::white|bold  Title: {{%-35s}}::white|bold  Tags: {{%s}}::white|bold"+CRLF, r.ID, r.Title, strings.Join(r.Tags, ", ")))
 			}
 		}
@@ -265,7 +193,7 @@ func DoList(s ssh.Session, cmd string, args []string, user *Account, char *Chara
 	case "items", "i":
 		items := EntityMgr.GetAllItemBlueprints()
 		for _, it := range items {
-			if hasAnyTag(it.Tags, filterTags) {
+			if HasAnyTag(it.Tags, filterTags) {
 				outputBuilder.WriteString(cfmt.Sprintf("ID: {{%-20s}}::white|bold  Name: {{%-20s}}::white|bold  Tags: {{%s}}::white|bold"+CRLF, it.ID, it.Name, strings.Join(it.Tags, ", ")))
 			}
 		}
@@ -275,7 +203,7 @@ func DoList(s ssh.Session, cmd string, args []string, user *Account, char *Chara
 	case "mobs", "m":
 		mobs := EntityMgr.GetAllMobs()
 		for _, m := range mobs {
-			if hasAnyTag(m.Tags, filterTags) {
+			if HasAnyTag(m.Tags, filterTags) {
 				outputBuilder.WriteString(cfmt.Sprintf("ID: {{%-20s}}::white|bold  Name: {{%-20s}}::white|bold  Tags: {{%s}}::white|bold"+CRLF, m.ID, m.Name, strings.Join(m.Tags, ", ")))
 			}
 		}
