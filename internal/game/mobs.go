@@ -107,18 +107,29 @@ func DescribeMobDisposition(mob *Mob, char *Character) string {
 // RenderMobTable builds a formatted table of a mob's stats.
 // It leverages the embedded GameEntity fields from Mob.
 func RenderMobTable(mob *Mob) string {
-	// Optionally, recalculate attributes if needed.
 	mob.Recalculate()
+
+	intAttributeStr := "{{%-10s}}::white|bold {{%-2d}}::cyan" + CRLF
+	floatAttributeStr := "{{%-10s}}::white|bold {{%.1f}}::cyan" + CRLF
+	strAttributeStr := "{{%-10s}}::white|bold {{%-2s}}::cyan" + CRLF
 
 	var builder strings.Builder
 
 	// Header: basic details from GameEntity.
-	builder.WriteString(cfmt.Sprintf("{{ID:}}::white|bold {{%s}}::cyan"+CRLF, mob.ID))
-	builder.WriteString(cfmt.Sprintf("{{Name:}}::white|bold {{%s}}::cyan"+CRLF, mob.Name))
-	builder.WriteString(cfmt.Sprintf("{{Title:}}::white|bold {{%s}}::cyan"+CRLF, mob.Title))
-	builder.WriteString(cfmt.Sprintf("{{Description:}}::white|bold {{%s}}::cyan"+CRLF, mob.Description))
-	builder.WriteString(cfmt.Sprintf("{{Long Description:}}::white|bold {{%s}}::cyan"+CRLF, mob.LongDescription))
+	builder.WriteString(cfmt.Sprintf(strAttributeStr, "ID:", mob.ID))
+	builder.WriteString(cfmt.Sprintf(strAttributeStr, "Name:", mob.Name))
+	builder.WriteString(cfmt.Sprintf(strAttributeStr, "Title:", mob.Title))
+	builder.WriteString(cfmt.Sprintf(strAttributeStr, "Description:", mob.Description))
+	builder.WriteString(cfmt.Sprintf(strAttributeStr, "Long Description:", mob.LongDescription))
 	builder.WriteString(CRLF)
+
+	// Limits
+	builder.WriteString(cfmt.Sprintf("{{Limits:}}::white|bold Mental %-2d Physical %-2d Social %-2d"+CRLF,
+		mob.GetMentalLimit(), mob.GetPhysicalLimit(), mob.GetSocialLimit()))
+
+	// Condition monitors
+	builder.WriteString(cfmt.Sprintf("{{Condition:}}::white|bold Physical %2d/%-2d Stun %2d/%-2d Overflow %2d/%-2d"+CRLF,
+		0, mob.GetPhysicalConditionMax(), 0, mob.GetStunConditionMax(), 0, mob.GetOverflowConditionMax()))
 
 	// Mob-specific data.
 	builder.WriteString(cfmt.Sprintf("{{Professional Rating:}}::white|bold {{%d}}::cyan"+CRLF, mob.ProfessionalRating))
@@ -126,8 +137,6 @@ func RenderMobTable(mob *Mob) string {
 	builder.WriteString(CRLF)
 
 	// Attributes from the embedded GameEntity.
-	intAttributeStr := "{{%-10s}}::white|bold {{%-2d}}::cyan" + CRLF
-	floatAttributeStr := "{{%-10s}}::white|bold {{%.1f}}::cyan" + CRLF
 	builder.WriteString(cfmt.Sprintf(intAttributeStr, "Body:", mob.Body.TotalValue))
 	builder.WriteString(cfmt.Sprintf(intAttributeStr, "Agility:", mob.Agility.TotalValue))
 	builder.WriteString(cfmt.Sprintf(intAttributeStr, "Reaction:", mob.Reaction.TotalValue))
@@ -144,10 +153,11 @@ func RenderMobTable(mob *Mob) string {
 		builder.WriteString(cfmt.Sprintf(intAttributeStr, "Resonance:", mob.Resonance.TotalValue))
 	}
 
+	// Skills
 	builder.WriteString(cfmt.Sprintf("{{Skills:}}::white|bold" + CRLF))
 	for _, skill := range mob.Skills {
 		bp := EntityMgr.GetSkillBlueprint(skill.BlueprintID)
-		builder.WriteString(cfmt.Sprintf(HT+"%s: (%d)"+CRLF, bp.Name, skill.Rating))
+		builder.WriteString(cfmt.Sprintf("  - %s: (%d)"+CRLF, bp.Name, skill.Rating))
 	}
 
 	return builder.String()
