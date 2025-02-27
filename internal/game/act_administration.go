@@ -32,6 +32,7 @@ func DoSpawn(s ssh.Session, cmd string, args []string, user *Account, char *Char
 		// room.Inventory.AddItem(i)
 		WriteStringF(s, "{{You spawn a %s.}}::green"+CRLF, bp.Name)
 		room.Broadcast(cfmt.Sprintf("{{%s spawns a %s.}}::green"+CRLF, char.Name, bp.Name), []string{char.ID})
+		char.Save()
 
 	case "m":
 		// Spawn a mob into the room

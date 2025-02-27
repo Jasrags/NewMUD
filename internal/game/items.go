@@ -3,15 +3,28 @@ package game
 import "github.com/google/uuid"
 
 const (
+	ItemTagArmor     = "Armor"
+	ItemTagJacket    = "Jacket"
+	ItemTagSynthetic = "Synthetic"
+	ItemTagLeather   = "Leather"
+
 	ItemsFilename = "items.yml"
 
-	ItemTypeJunk ItemType = "junk"
-	ItemTypeKey  ItemType = "key"
+	ItemTypeJunk  = "junk"
+	ItemTypeKey   = "key"
+	ItemTypeArmor = "armor"
 
-	ItemSubtypeNone ItemSubtype = "none"
+	ItemSubtypeNone = "None"
 
-	EquipSlotNone EquipSlot = "none"
-	EquipSlotHead EquipSlot = "head"
+	EquipSlotNone  = "none"
+	EquipSlotHead  = "head"
+	EquipSlotBody  = "body"
+	EquipSlotHands = "hands"
+	EquipSlotLegs  = "legs"
+)
+
+var (
+	EquipSlots = []string{EquipSlotHead, EquipSlotBody, EquipSlotHands, EquipSlotLegs}
 )
 
 // TODO: For keys we need subtypes for the different locks they can open.
@@ -33,9 +46,9 @@ type (
 		Weight      float64        `yaml:"weight"`
 		Value       int            `yaml:"value"`
 		BaseStats   map[string]int `yaml:"base_stats"`
-		EquipSlots  []EquipSlot    `yaml:"equip_slots"`
-		Type        ItemType       `yaml:"type"`
-		Subtype     ItemSubtype    `yaml:"subtype"`
+		EquipSlots  []string       `yaml:"equip_slots"`
+		Type        string         `yaml:"type"`
+		Subtype     string         `yaml:"subtype"`
 	}
 
 	// TODO: need to add the weight of attachments to the weight of the item

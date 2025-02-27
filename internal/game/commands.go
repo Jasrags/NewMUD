@@ -34,6 +34,28 @@ type (
 
 func RegisterCommands() {
 	CommandMgr.RegisterCommand(Command{
+		Name:            "equipment",
+		Aliases:         []string{"eq"},
+		Description:     "List your equipment",
+		CommandCategory: CommandCategoryInformative,
+		Usage:           []string{"equipment"},
+		Func:            DoEquipment,
+	})
+	CommandMgr.RegisterCommand(Command{
+		Name:            "equip",
+		Description:     "Equip an item",
+		CommandCategory: CommandCategoryInteraction,
+		Usage:           []string{"equip <item>"},
+		Func:            DoEquip,
+	})
+	CommandMgr.RegisterCommand(Command{
+		Name:            "unequip",
+		Description:     "Unequip an item",
+		CommandCategory: CommandCategoryInteraction,
+		Usage:           []string{"unequip <item>"},
+		Func:            DoUnequip,
+	})
+	CommandMgr.RegisterCommand(Command{
 		Name:            "list",
 		Description:     "List game entities",
 		CommandCategory: CommandCategoryAdministration,

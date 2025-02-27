@@ -451,6 +451,27 @@ func DoInventory(s ssh.Session, cmd string, args []string, user *Account, char *
 
 /*
 Usage:
+  - equipment
+*/
+func DoEquipment(s ssh.Session, cmd string, args []string, user *Account, char *Character, room *Room) {
+	// Display equipped items for each supported slot.
+	WriteString(s, cfmt.Sprintf("{{Equipped Items:}}::cyan"+CRLF))
+	for _, slot := range EquipSlots {
+		if item, exists := char.Equipment[slot]; exists && item != nil {
+			bp := EntityMgr.GetItemBlueprintByInstance(item)
+			if bp != nil {
+				WriteStringF(s, "{{%-6s}}::cyan %s"+CRLF, slot+":", bp.Name)
+			} else {
+				WriteStringF(s, "{{%-6s}}::cyan {{<unknown>}}::red"+CRLF, slot+":")
+			}
+		} else {
+			WriteStringF(s, "{{%-6s}}::cyan <empty>"+CRLF, slot+":")
+		}
+	}
+}
+
+/*
+Usage:
   - who
 */
 // TODO: Sort all admins to the top of the list
