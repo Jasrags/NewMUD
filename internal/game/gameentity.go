@@ -62,6 +62,7 @@ type GameEntity struct {
 	Essence         Attribute[float64] `yaml:"essence"`
 	Magic           Attribute[int]     `yaml:"magic"`
 	Resonance       Attribute[int]     `yaml:"resonance"`
+	InitiativeDice  Attribute[int]     `yaml:"initiative_dice"`
 	PhysicalDamage  PhysicalDamage     `yaml:"physical_damage"`
 	StunDamage      StunDamage         `yaml:"stun_damage"`
 	Edge            Edge               `yaml:"edge"`
@@ -113,6 +114,7 @@ func (e *GameEntity) Recalculate() {
 	e.Essence.Recalculate()
 	e.Magic.Recalculate()
 	e.Resonance.Recalculate()
+	e.InitiativeDice.Recalculate()
 
 	// e.Attributes.Recalculate()
 
@@ -290,12 +292,15 @@ func (e *GameEntity) GetWoundModifiers() int {
 
 // GetInitiative (Reaction + Intuition) + 1D6 + Attribute/Initiative Dice bonus
 func (e *GameEntity) GetInitative() int {
-	// e.Attributes.Recalculate()
+	// Formula: (Reaction + Intuition)
+	return (e.Reaction.TotalValue + e.Intuition.TotalValue)
+}
+
+func (e *GameEntity) RollInitative() int {
 	poolSize := 1
 	_, _, results := RollDice(poolSize)
 	// Formula: (Reaction + Intuition) + 1D6
-	// TODO: Add appropriate attribute and Initiative
-	return (e.Reaction.TotalValue + e.Intuition.TotalValue) + RollResultsTotal(results)
+	return e.GetInitative() + RollResultsTotal(results)
 }
 
 func (e *GameEntity) GetAdjustedInitiative() int {

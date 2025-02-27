@@ -26,6 +26,8 @@ magic:
     base: 0
 resonance:
     base: 0
+initiative_dice:
+    base: 1
 skills:
   automatics:
     blueprint_id: "automatics"

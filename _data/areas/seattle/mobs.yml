@@ -1,6 +1,6 @@
 ---
-- id: thug_basic
-  name: Thug
+- id: ork_thug_basic
+  name: Ork Thug
   professional_rating: 0
   general_disposition: Neutral
   title:
@@ -13,7 +13,7 @@
   weight: 128
   position_state: Standing
   body:
-    base: 3
+    base: 4
   agility:
     base: 3
   reaction:
@@ -34,6 +34,11 @@
     base: 0
   resonance:
     base: 0
+  edge:
+    available: 1
+    max: 1
+  initiative_dice:
+    base: 1
   skills:
     blades:
       blueprint_id: "blades"
@@ -47,8 +52,8 @@
     unarmed_combat:
       blueprint_id: "unarmed_combat"
       rating: 3
-- id: thug_lieutenant
-  name: Thug Lieutenant
+- id: ork_thug_lieutenant
+  name: Ork Thug Lieutenant
   professional_rating: 0
   general_disposition: Neutral
   title:
@@ -61,7 +66,7 @@
   weight: 128
   position_state: Standing
   body:
-    base: 3
+    base: 4
   agility:
     base: 4
   reaction:
@@ -82,6 +87,11 @@
     base: 0
   resonance:
     base: 0
+  edge:
+    available: 1
+    max: 1
+  initiative_dice:
+    base: 1
   skills:
     blades:
       blueprint_id: "blades"
