@@ -179,7 +179,7 @@ func RenderMobTable(mob *Mob) string {
 		lipgloss.JoinHorizontal(lipgloss.Top,
 			doubleColumnStyle.Render(fmt.Sprintf("%s %d", "Strength:", mob.Strength.TotalValue)),
 			doubleColumnStyle.Render(fmt.Sprintf("%s %d+%dd6", "Initiative:",
-				mob.GetInitative(), mob.InitiativeDice.TotalValue)),
+				mob.GetInitative(), mob.GetInitativeDice())),
 		),
 		lipgloss.JoinHorizontal(lipgloss.Top,
 			doubleColumnStyle.Render(fmt.Sprintf("%s %d", "Willpower:", mob.Willpower.TotalValue)),

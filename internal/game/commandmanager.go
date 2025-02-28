@@ -160,7 +160,7 @@ func (mgr *CommandManager) CanRunCommand(char *Character, cmd *Command) bool {
 		return true
 	}
 
-	requiredRoles := make(map[CharacterRole]bool)
+	requiredRoles := make(map[string]bool)
 	for _, role := range cmd.RequiredRoles {
 		requiredRoles[role] = true
 	}
