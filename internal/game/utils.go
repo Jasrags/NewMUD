@@ -418,14 +418,14 @@ func FindMobsByName(room *Room, name string) []*Mob {
 }
 
 // RenderAttribute renders a single attribute for display.
-func RenderAttribute[T int | float64](attr Attribute[T]) string {
+func RenderAttribute[T int | float64](name string, attr Attribute[T]) string {
 	var output strings.Builder
 
 	if attr.Base == 0 {
 		return ""
 	}
 
-	output.WriteString(attrNameStyle.Render(fmt.Sprintf("%-10s", attr.Name)))
+	output.WriteString(attrNameStyle.Render(fmt.Sprintf("%-10s", name)))
 	output.WriteString(attrValueStyle.Render(fmt.Sprintf(" %-2v", renderValue(attr.Base))))
 	if attr.TotalValue != attr.Base {
 		style := attrPosModStyle

@@ -470,7 +470,7 @@ func (mgr *EntityManager) RemoveSkillBlueprint(s *SkillBlueprint) {
 	delete(mgr.skills, s.ID)
 }
 
-func (mgr *EntityManager) loadSkills(t SkillType, path string) {
+func (mgr *EntityManager) loadSkills(t string, path string) {
 	st := time.Now()
 	slog.Info("Loading skills",
 		slog.Any("skill_type", t))
