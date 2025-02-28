@@ -26,7 +26,7 @@ type (
 		CommandCategory CommandCategory
 		Usage           []string
 		Aliases         []string
-		RequiredRoles   []CharacterRole
+		RequiredRoles   []string
 		Func            CommandFunc
 		SuggestFunc     SuggestFunc // Optional suggestion logic
 	}
@@ -60,7 +60,7 @@ func RegisterCommands() {
 		Description:     "List game entities",
 		CommandCategory: CommandCategoryAdministration,
 		Usage:           []string{"list <mobs|m> [tags]", "list <rooms|r> [tags]", "list <items|i> [tags]"},
-		RequiredRoles:   []CharacterRole{CharacterRoleAdmin},
+		RequiredRoles:   []string{CharacterRoleAdmin},
 		Func:            DoList,
 	})
 	CommandMgr.RegisterCommand(Command{
@@ -68,7 +68,7 @@ func RegisterCommands() {
 		Description:     "Teleport to a room or character",
 		CommandCategory: CommandCategoryAdministration,
 		Usage:           []string{"goto <room_id>", "goto <character_name>"},
-		RequiredRoles:   []CharacterRole{CharacterRoleAdmin},
+		RequiredRoles:   []string{CharacterRoleAdmin},
 		Func:            DoGoto,
 	})
 	CommandMgr.RegisterCommand(Command{
@@ -77,7 +77,7 @@ func RegisterCommands() {
 		CommandCategory: CommandCategoryAdministration,
 		Usage:           []string{"mobstats <mob>"},
 		Func:            DoMobStats,
-		RequiredRoles:   []CharacterRole{CharacterRoleAdmin},
+		RequiredRoles:   []string{CharacterRoleAdmin},
 	})
 	CommandMgr.RegisterCommand(Command{
 		Name:            "prompt",
@@ -227,7 +227,7 @@ func RegisterCommands() {
 		Description:     "Spawn an item or mob into the room",
 		CommandCategory: CommandCategoryAdministration,
 		Usage:           []string{"spawn item <item>", "spawn mob <mob>"},
-		RequiredRoles:   []CharacterRole{CharacterRoleAdmin},
+		RequiredRoles:   []string{CharacterRoleAdmin},
 		Func:            DoSpawn,
 	})
 }

@@ -144,20 +144,6 @@ func NewRoom() *Room {
 	}
 }
 
-func (r *Room) FindInteractableByName(name string) Interactable {
-	for _, c := range r.Characters {
-		if strings.EqualFold(c.Name, name) {
-			return c
-		}
-	}
-	for _, m := range r.Mobs {
-		if strings.EqualFold(m.Name, name) {
-			return m
-		}
-	}
-	return nil
-}
-
 // func (r *Room) Init() {
 // 	slog.Debug("Initializing room",
 // 		slog.String("room_id", r.ID))

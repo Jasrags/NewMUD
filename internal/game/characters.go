@@ -15,30 +15,28 @@ import (
 const (
 	CharactersFilepath = "_data/characters"
 
-	CharacterRoleAdmin  CharacterRole = "admin"
-	CharacterRolePlayer CharacterRole = "player"
+	CharacterRoleAdmin  = "admin"
+	CharacterRolePlayer = "player"
 )
 
 type (
-	CharacterRole string
-
-	Interactable interface {
-		GetName() string
-		GetID() string
-		ReactToMessage(sender *Character, message string)
+	Karma struct {
+		Available int `yaml:"available"` // Karma available to spend
+		Total     int `yaml:"total"`     // Total karma earned
 	}
 
 	Character struct {
 		GameEntity     `yaml:",inline"`
-		AccountID      string        `yaml:"account_id"`
-		PregenID       string        `yaml:"pregen_id"`
-		Role           CharacterRole `yaml:"role"`
-		Prompt         string        `yaml:"prompt"`
-		Conn           ssh.Session   `yaml:"-"`
-		CreatedAt      time.Time     `yaml:"created_at"`
-		UpdatedAt      *time.Time    `yaml:"updated_at"`
-		DeletedAt      *time.Time    `yaml:"deleted_at"`
-		CommandHistory []string      `yaml:"-"`
+		AccountID      string      `yaml:"account_id"`
+		PregenID       string      `yaml:"pregen_id"`
+		Role           string      `yaml:"role"`
+		Prompt         string      `yaml:"prompt"`
+		Karma          Karma       `yaml:"karma"`
+		Conn           ssh.Session `yaml:"-"`
+		CreatedAt      time.Time   `yaml:"created_at"`
+		UpdatedAt      *time.Time  `yaml:"updated_at"`
+		DeletedAt      *time.Time  `yaml:"deleted_at"`
+		CommandHistory []string    `yaml:"-"`
 	}
 )
 
@@ -204,17 +202,17 @@ func RenderCharacterTable(char *Character) string {
 				// Essence    6.00
 				dualColumnStyle.Render(
 					lipgloss.JoinVertical(lipgloss.Left,
-						RenderAttribute(char.Body),      // 5  (7)
-						RenderAttribute(char.Agility),   // 5  (7)
-						RenderAttribute(char.Reaction),  // 5  (7)
-						RenderAttribute(char.Strength),  // 5  (7)
-						RenderAttribute(char.Willpower), // 5  (7)
-						RenderAttribute(char.Logic),     // 5  (7)
-						RenderAttribute(char.Intuition), // 5  (7)
-						RenderAttribute(char.Charisma),  // 5  (7)
-						RenderAttribute(char.Essence),   // 5  (7)
-						RenderAttribute(char.Magic),     // 5  (7)
-						RenderAttribute(char.Resonance), // Essence    6.00
+						RenderAttribute("Body", char.Body),
+						RenderAttribute("Agility", char.Agility),
+						RenderAttribute("Reaction", char.Reaction),
+						RenderAttribute("Strength", char.Strength),
+						RenderAttribute("Willpower", char.Willpower),
+						RenderAttribute("Logic", char.Logic),
+						RenderAttribute("Intuition", char.Intuition),
+						RenderAttribute("Charisma", char.Charisma),
+						RenderAttribute("Essence", char.Essence),
+						RenderAttribute("Magic", char.Magic),
+						RenderAttribute("Resonance", char.Resonance),
 						// strs...,
 					),
 				),

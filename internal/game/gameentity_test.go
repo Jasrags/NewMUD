@@ -412,3 +412,155 @@ func TestBurnEdge(t *testing.T) {
 		})
 	}
 }
+func TestGetPhysicalConditionMax(t *testing.T) {
+	tests := []struct {
+		name     string
+		body     Attribute[int]
+		expected int
+	}{
+		{
+			name:     "Body 3",
+			body:     Attribute[int]{Base: 3},
+			expected: 10,
+		},
+		{
+			name:     "Body 4",
+			body:     Attribute[int]{Base: 4},
+			expected: 10,
+		},
+		{
+			name:     "Body 5",
+			body:     Attribute[int]{Base: 5},
+			expected: 11,
+		},
+		{
+			name:     "Body 7",
+			body:     Attribute[int]{Base: 7},
+			expected: 12,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			entity := NewGameEntity()
+			entity.Body = tt.body
+
+			result := entity.GetPhysicalConditionMax()
+			assert.Equal(t, tt.expected, result)
+		})
+	}
+}
+func TestGetStunConditionMax(t *testing.T) {
+	tests := []struct {
+		name      string
+		willpower Attribute[int]
+		expected  int
+	}{
+		{
+			name:      "Willpower 3",
+			willpower: Attribute[int]{Base: 3},
+			expected:  10,
+		},
+		{
+			name:      "Willpower 4",
+			willpower: Attribute[int]{Base: 4},
+			expected:  10,
+		},
+		{
+			name:      "Willpower 5",
+			willpower: Attribute[int]{Base: 5},
+			expected:  11,
+		},
+		{
+			name:      "Willpower 7",
+			willpower: Attribute[int]{Base: 7},
+			expected:  12,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			entity := NewGameEntity()
+			entity.Willpower = tt.willpower
+
+			result := entity.GetStunConditionMax()
+			assert.Equal(t, tt.expected, result)
+		})
+	}
+}
+func TestGetOverflowConditionMax(t *testing.T) {
+	tests := []struct {
+		name     string
+		body     Attribute[int]
+		expected int
+	}{
+		{
+			name:     "Body 3",
+			body:     Attribute[int]{Base: 3},
+			expected: 3,
+		},
+		{
+			name:     "Body 4",
+			body:     Attribute[int]{Base: 4},
+			expected: 4,
+		},
+		{
+			name:     "Body 5",
+			body:     Attribute[int]{Base: 5},
+			expected: 5,
+		},
+		{
+			name:     "Body 7",
+			body:     Attribute[int]{Base: 7},
+			expected: 7,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			entity := NewGameEntity()
+			entity.Body = tt.body
+
+			result := entity.GetOverflowConditionMax()
+			assert.Equal(t, tt.expected, result)
+		})
+	}
+}
+func TestGetInitative(t *testing.T) {
+	tests := []struct {
+		name      string
+		reaction  Attribute[int]
+		intuition Attribute[int]
+		expected  int
+	}{
+		{
+			name:      "Elf Adept",
+			reaction:  Attribute[int]{Base: 3},
+			intuition: Attribute[int]{Base: 6},
+			expected:  9,
+		},
+		{
+			name:      "Troll Tank",
+			reaction:  Attribute[int]{Base: 3},
+			intuition: Attribute[int]{Base: 3},
+			expected:  6,
+		},
+		{
+			name:      "Elf Face",
+			reaction:  Attribute[int]{Base: 4},
+			intuition: Attribute[int]{Base: 4},
+			expected:  8,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			entity := NewGameEntity()
+			entity.Reaction = tt.reaction
+			entity.Intuition = tt.intuition
+
+			result := entity.GetInitative()
+			assert.Equal(t, tt.expected, result)
+		})
+	}
+}

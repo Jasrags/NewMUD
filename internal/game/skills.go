@@ -9,39 +9,36 @@ const (
 	SkillKnowledgeFilepath = "_data/skills/knowledge"
 	SkillLanguagesFilepath = "_data/skills/languages"
 
-	SkillTypeActive    SkillType = "Active"
-	SkillTypeGroup     SkillType = "Group"
-	SkillTypeKnowledge SkillType = "Knowledge"
-	SkillTypeLanguage  SkillType = "Language"
+	SkillTypeActive    = "Active"
+	SkillTypeGroup     = "Group"
+	SkillTypeKnowledge = "Knowledge"
+	SkillTypeLanguage  = "Language"
 
 	// Skill Categories
-	SkillCategoryCombat        SkillCategory = "Combat Active"
-	SkillCategoryMagical       SkillCategory = "Magical Active"
-	SkillCategoryPhysical      SkillCategory = "Physical Active"
-	SkillCategoryPseudoMagical SkillCategory = "Pseudo-Magical Active"
-	SkillCategoryResonance     SkillCategory = "Resonance Active"
-	SkillCategorySocial        SkillCategory = "Social Active"
-	SkillCategoryTechnical     SkillCategory = "Technical Active"
-	SkillCategoryVehicle       SkillCategory = "Vehicle Active"
+	SkillCategoryCombat        = "Combat Active"
+	SkillCategoryMagical       = "Magical Active"
+	SkillCategoryPhysical      = "Physical Active"
+	SkillCategoryPseudoMagical = "Pseudo-Magical Active"
+	SkillCategoryResonance     = "Resonance Active"
+	SkillCategorySocial        = "Social Active"
+	SkillCategoryTechnical     = "Technical Active"
+	SkillCategoryVehicle       = "Vehicle Active"
 	// Knowledge Skills
-	SkillCategoryAcademic     SkillCategory = "Academic"
-	SkillCategoryInterest     SkillCategory = "Interest"
-	SkillCategoryLanguage     SkillCategory = "Language"
-	SkillCategoryProfessional SkillCategory = "Professional"
-	SkillCategoryStreet       SkillCategory = "Street"
+	SkillCategoryAcademic     = "Academic"
+	SkillCategoryInterest     = "Interest"
+	SkillCategoryLanguage     = "Language"
+	SkillCategoryProfessional = "Professional"
+	SkillCategoryStreet       = "Street"
 )
 
 type (
-	SkillType     string
-	SkillCategory string
-
 	SkillBlueprint struct {
 		ID              string            `yaml:"id"`
 		Name            string            `yaml:"name"`
-		Type            SkillType         `yaml:"type"`
+		Type            string            `yaml:"type"`
 		Description     string            `yaml:"description"`
 		IsDefaultable   bool              `yaml:"is_defaultable"`
-		LinkedAttribute AttributeType     `yaml:"linked_attribute"`
+		LinkedAttribute string            `yaml:"linked_attribute"`
 		Specializations []string          `yaml:"specializations"`
 		RuleSource      shared.RuleSource `yaml:"rule_source"`
 	}

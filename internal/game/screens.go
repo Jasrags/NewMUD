@@ -531,23 +531,20 @@ func PromptSelectPregenTemplate(s ssh.Session, a *Account, char *Character) (str
 			continue
 		}
 
-		// Retrieve the metatype details to properly set attribute constraints.
-		metatype := EntityMgr.GetMetatype(pregen.MetatypeID)
-
 		// Update the existing character with the template data.
 		char.PregenID = pregen.ID
 		char.MetatypeID = pregen.MetatypeID
-		char.Body = Attribute[int]{Name: "Body", Base: pregen.Body.Base, Min: metatype.Body.Min, Max: metatype.Body.Max, AugMax: metatype.Body.AugMax}
-		char.Agility = Attribute[int]{Name: "Agility", Base: pregen.Agility.Base, Min: metatype.Agility.Min, Max: metatype.Agility.Max, AugMax: metatype.Agility.AugMax}
-		char.Reaction = Attribute[int]{Name: "Reaction", Base: pregen.Reaction.Base, Min: metatype.Reaction.Min, Max: metatype.Reaction.Max, AugMax: metatype.Reaction.AugMax}
-		char.Strength = Attribute[int]{Name: "Strength", Base: pregen.Strength.Base, Min: metatype.Strength.Min, Max: metatype.Strength.Max, AugMax: metatype.Strength.AugMax}
-		char.Willpower = Attribute[int]{Name: "Willpower", Base: pregen.Willpower.Base, Min: metatype.Willpower.Min, Max: metatype.Willpower.Max, AugMax: metatype.Willpower.AugMax}
-		char.Logic = Attribute[int]{Name: "Logic", Base: pregen.Logic.Base, Min: metatype.Logic.Min, Max: metatype.Logic.Max, AugMax: metatype.Logic.AugMax}
-		char.Intuition = Attribute[int]{Name: "Intuition", Base: pregen.Intuition.Base, Min: metatype.Intuition.Min, Max: metatype.Intuition.Max, AugMax: metatype.Intuition.AugMax}
-		char.Charisma = Attribute[int]{Name: "Charisma", Base: pregen.Charisma.Base, Min: metatype.Charisma.Min, Max: metatype.Charisma.Max, AugMax: metatype.Charisma.AugMax}
-		char.Essence = Attribute[float64]{Name: "Essence", Base: pregen.Essence.Base, Min: metatype.Essence.Min, Max: metatype.Essence.Max, AugMax: metatype.Essence.AugMax}
-		char.Magic = Attribute[int]{Name: "Magic", Base: pregen.Magic.Base, Min: metatype.Magic.Min, Max: metatype.Magic.Max, AugMax: metatype.Magic.AugMax}
-		char.Resonance = Attribute[int]{Name: "Resonance", Base: pregen.Resonance.Base, Min: metatype.Resonance.Min, Max: metatype.Resonance.Max, AugMax: metatype.Resonance.AugMax}
+		char.Body = Attribute[int]{Base: pregen.Body.Base}
+		char.Agility = Attribute[int]{Base: pregen.Agility.Base}
+		char.Reaction = Attribute[int]{Base: pregen.Reaction.Base}
+		char.Strength = Attribute[int]{Base: pregen.Strength.Base}
+		char.Willpower = Attribute[int]{Base: pregen.Willpower.Base}
+		char.Logic = Attribute[int]{Base: pregen.Logic.Base}
+		char.Intuition = Attribute[int]{Base: pregen.Intuition.Base}
+		char.Charisma = Attribute[int]{Base: pregen.Charisma.Base}
+		char.Essence = Attribute[float64]{Base: pregen.Essence.Base}
+		char.Magic = Attribute[int]{Base: pregen.Magic.Base}
+		char.Resonance = Attribute[int]{Base: pregen.Resonance.Base}
 
 		// Update skills and qualities from the template.
 		char.Skills = pregen.Skills
