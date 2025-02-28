@@ -295,13 +295,23 @@ func (e *GameEntity) GetMemory() int {
 // Resist Psychological Addiction
 
 // DAMAGE RESISTANCES
-// GetArmorResistance calculates and returns the Armor Resistance of the character.
+// GetArmorValue calculates and returns the Armor value of the character.
 // Formula: (Body + armor bonuses)
-// TODO: Implement bonuses
-func (e *GameEntity) GetArmorResistance() int {
+func (e *GameEntity) GetArmorValue() int {
 	e.Recalculate()
 
-	return e.Body.TotalValue
+	totalArmorValueBonus := 0
+
+	// Check equiped items for armor
+	for _, item := range e.Equipment {
+		bp := EntityMgr.GetItemBlueprintByInstance(item)
+		if armor, ok := bp.BaseStats["armor"]; ok {
+			totalArmorValueBonus += armor
+		}
+	}
+	// TODO: Check for other bonuses (qualtites, racial traits, spells, etc)
+
+	return e.Body.TotalValue + totalArmorValueBonus
 }
 
 // Formula: (Body + acid_resistance bonuses)
@@ -309,7 +319,18 @@ func (e *GameEntity) GetArmorResistance() int {
 func (e *GameEntity) GetAcidResistance() int {
 	e.Recalculate()
 
-	return e.Body.TotalValue
+	totalResistance := 0
+
+	// Check equiped items for armor
+	for _, item := range e.Equipment {
+		bp := EntityMgr.GetItemBlueprintByInstance(item)
+		if armor, ok := bp.BaseStats["acid_resistance"]; ok {
+			totalResistance += armor
+		}
+	}
+	// TODO: Check for other bonuses (qualtites, racial traits, spells, etc)
+
+	return e.Body.TotalValue + totalResistance
 }
 
 // GetColdResistance calculates and returns the Cold Resistance of the character.
@@ -318,7 +339,18 @@ func (e *GameEntity) GetAcidResistance() int {
 func (e *GameEntity) GetColdResistance() int {
 	e.Recalculate()
 
-	return e.Body.TotalValue
+	totalResistance := 0
+
+	// Check equiped items for armor
+	for _, item := range e.Equipment {
+		bp := EntityMgr.GetItemBlueprintByInstance(item)
+		if armor, ok := bp.BaseStats["acid_resistance"]; ok {
+			totalResistance += armor
+		}
+	}
+	// TODO: Check for other bonuses (qualtites, racial traits, spells, etc)
+
+	return e.Body.TotalValue + totalResistance
 }
 
 // GetFallingResistance calculates and returns the Falling Resistance of the character.
@@ -326,7 +358,7 @@ func (e *GameEntity) GetColdResistance() int {
 func (e *GameEntity) GetFallingResistance() int {
 	e.Recalculate()
 
-	return e.Body.TotalValue + e.Willpower.TotalValue
+	return e.Body.TotalValue + e.GetArmorValue()
 }
 
 // GetElectricityResistance calculates and returns the Electricity Resistance of the character.
@@ -335,7 +367,18 @@ func (e *GameEntity) GetFallingResistance() int {
 func (e *GameEntity) GetElectricityResistance() int {
 	e.Recalculate()
 
-	return e.Body.TotalValue
+	totalResistance := 0
+
+	// Check equiped items for armor
+	for _, item := range e.Equipment {
+		bp := EntityMgr.GetItemBlueprintByInstance(item)
+		if armor, ok := bp.BaseStats["acid_resistance"]; ok {
+			totalResistance += armor
+		}
+	}
+	// TODO: Check for other bonuses (qualtites, racial traits, spells, etc)
+
+	return e.Body.TotalValue + totalResistance
 }
 
 // GetFireResistance calculates and returns the Fire Resistance of the character.
@@ -344,7 +387,18 @@ func (e *GameEntity) GetElectricityResistance() int {
 func (e *GameEntity) GetFireResistance() int {
 	e.Recalculate()
 
-	return e.Body.TotalValue
+	totalResistance := 0
+
+	// Check equiped items for armor
+	for _, item := range e.Equipment {
+		bp := EntityMgr.GetItemBlueprintByInstance(item)
+		if armor, ok := bp.BaseStats["acid_resistance"]; ok {
+			totalResistance += armor
+		}
+	}
+	// TODO: Check for other bonuses (qualtites, racial traits, spells, etc)
+
+	return e.Body.TotalValue + totalResistance
 }
 
 // GetFatigueResistance calculates and returns the Fatigue Resistance of the character.

@@ -1,6 +1,10 @@
 package game
 
-import "github.com/google/uuid"
+import (
+	"slices"
+
+	"github.com/google/uuid"
+)
 
 const (
 	ItemTagArmor     = "Armor"
@@ -68,4 +72,14 @@ func NewItem(blueprint *ItemBlueprint) *Item {
 		Modifiers:   make(map[string]int),
 		Attachments: []string{},
 	}
+}
+
+func (ib *ItemBlueprint) HasTags(searchTags ...string) bool {
+	for _, searchTag := range searchTags {
+		if !slices.Contains(ib.Tags, searchTag) {
+			return true
+		}
+	}
+
+	return false
 }
