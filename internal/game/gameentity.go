@@ -73,7 +73,7 @@ type (
 		PhysicalDamage PhysicalDamage `yaml:"physical_damage"`
 		StunDamage     StunDamage     `yaml:"stun_damage"`
 		// Other
-		Room   *Room  `yaml:"-"`
+		Room   *Room  `yaml:"-"` // TODO: move away from using the Room pointer and using the RoomID to reference the room via EntityMgr
 		RoomID string `yaml:"room_id"`
 		// Area            *Area            `yaml:"-"`
 		// AreaID     string           `yaml:"area_id"`
