@@ -18,6 +18,7 @@ const (
 )
 
 type (
+	// TODO: Do we want to move to using a mob blueprint? If so how will we maintain the GameEntity
 	MobBlueprint struct {
 	}
 	// TODO: Implement mob AI behaviors.
