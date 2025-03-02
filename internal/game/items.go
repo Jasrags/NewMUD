@@ -38,10 +38,6 @@ var (
 // TODO: Locks should somehow tie into alarm/traps or other events
 
 type (
-	ItemType    string
-	ItemSubtype string
-	EquipSlot   string
-
 	ItemBlueprint struct {
 		ID          string         `yaml:"id"`
 		Name        string         `yaml:"name"`

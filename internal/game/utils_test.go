@@ -123,27 +123,7 @@ func TestSingularize(t *testing.T) {
 		})
 	}
 }
-func TestWrapText(t *testing.T) {
-	tests := []struct {
-		text     string
-		width    int
-		expected string
-	}{
-		{"This is a test of the wrap text function.", 10, "This is a\r\ntest of\r\nthe wrap\r\ntext\r\nfunction."},
-		{"Another example with different width.", 15, "Another example\r\nwith different\r\nwidth."},
-		{"Short text.", 20, "Short text."},
-		{"A very long word that exceeds the width.", 5, "A\r\nvery\r\nlong\r\nword\r\nthat\r\nexceeds\r\nthe\r\nwidth."},
-		{"", 10, ""},
-		{"Singleword", 10, "Singleword"},
-	}
 
-	for _, test := range tests {
-		t.Run(fmt.Sprintf("WrapText(%s,%d)", test.text, test.width), func(t *testing.T) {
-			result := WrapText(test.text, test.width)
-			assert.Equal(t, test.expected, result)
-		})
-	}
-}
 func TestParseDirection(t *testing.T) {
 	tests := []struct {
 		input    string

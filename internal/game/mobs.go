@@ -12,22 +12,22 @@ import (
 const (
 	MobsFilename = "mobs.yml"
 
-	DispositionFriendly   MobDisposition = "Friendly"
-	DispositionNeutral    MobDisposition = "Neutral"
-	DispositionAggressive MobDisposition = "Aggressive"
+	DispositionFriendly   = "Friendly"
+	DispositionNeutral    = "Neutral"
+	DispositionAggressive = "Aggressive"
 )
 
 type (
-	MobDisposition string
-
+	MobBlueprint struct {
+	}
 	// TODO: Implement mob AI behaviors.
 	// TODO: Do we want mobs to be an "instance" that will persist after spawning?
 	Mob struct {
 		GameEntity            `yaml:",inline"`
-		Tags                  []string                  `yaml:"tags"`
-		ProfessionalRating    int                       `yaml:"professional_rating"`
-		GeneralDisposition    MobDisposition            `yaml:"general_disposition"`
-		CharacterDispositions map[string]MobDisposition `yaml:"character_dispositions"`
+		Tags                  []string          `yaml:"tags"`
+		ProfessionalRating    int               `yaml:"professional_rating"`
+		GeneralDisposition    string            `yaml:"general_disposition"`
+		CharacterDispositions map[string]string `yaml:"character_dispositions"`
 	}
 )
 
@@ -35,7 +35,7 @@ func NewMob() *Mob {
 	return &Mob{
 		GameEntity:            NewGameEntity(),
 		GeneralDisposition:    DispositionNeutral,
-		CharacterDispositions: make(map[string]MobDisposition),
+		CharacterDispositions: make(map[string]string),
 	}
 }
 
@@ -52,7 +52,7 @@ func (m *Mob) GetID() string {
 	return m.ID
 }
 
-func (m *Mob) SetGeneralDisposition(disposition MobDisposition) {
+func (m *Mob) SetGeneralDisposition(disposition string) {
 	m.GeneralDisposition = disposition
 }
 
@@ -61,11 +61,11 @@ func (m *Mob) ReactToMessage(sender *Character, message string) {
 	m.ReactToInteraction(sender, message)
 }
 
-func (m *Mob) SetDispositionForCharacter(char *Character, disposition MobDisposition) {
+func (m *Mob) SetDispositionForCharacter(char *Character, disposition string) {
 	m.CharacterDispositions[char.ID] = disposition
 }
 
-func (m *Mob) GetDispositionForCharacter(char *Character) MobDisposition {
+func (m *Mob) GetDispositionForCharacter(char *Character) string {
 	if disposition, exists := m.CharacterDispositions[char.ID]; exists {
 		return disposition
 	}

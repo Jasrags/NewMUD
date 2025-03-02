@@ -141,6 +141,18 @@ func DoMobStats(s ssh.Session, cmd string, args []string, acct *Account, char *C
 		return
 	}
 
+	// options := []MenuOption{}
+	// for _, m := range matches {
+	// 	options = append(options,
+	// 		MenuOption{DisplayText: m.Name, Value: m.ID, Description: m.Name})
+	// }
+
+	// option, err := PromptForMenu(s, "Main Menu", options)
+	// 	if err != nil {
+	// 		slog.Error("Error prompting for menu", slog.Any("error", err))
+	// 		return StateError
+	// 	}
+
 	// Multiple matches found, prompt selection
 	var builder strings.Builder
 	builder.WriteString(fmt.Sprintf("{{Multiple mobs found matching '%s':}}::yellow"+CRLF, mobName))

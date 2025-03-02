@@ -718,7 +718,6 @@ func (mgr *EntityManager) BuildRooms() {
 			}
 
 			// Loop over the quantity of mobs to spawn
-			// TODO: Support the mobs default_items loading
 			for range quantity {
 				if !RollChance(spawnChance) {
 					continue
@@ -730,8 +729,33 @@ func (mgr *EntityManager) BuildRooms() {
 						slog.String("mob_id", dm.ID))
 					continue
 				}
-				room.AddMob(mob)
 
+				// TODO: Support the mobs default_items loading
+				for _, di := range room.DefaultItems {
+					quantity := di.Quantity
+					if di.Quantity == 0 {
+						quantity = 1
+					}
+					spawnChance := di.SpawnChance
+					if di.SpawnChance == 0 {
+						spawnChance = 100
+					}
+
+					for range quantity {
+						if !RollChance(spawnChance) {
+							continue
+						}
+
+						i := EntityMgr.CreateItemInstanceFromBlueprintID(di.ID)
+						if i == nil {
+							slog.Warn("Item not found",
+								slog.String("item_id", di.ID))
+							continue
+						}
+						mob.Inventory.AddItem(i)
+					}
+				}
+				room.AddMob(mob)
 			}
 		}
 	}
