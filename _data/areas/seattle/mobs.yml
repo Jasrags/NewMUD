@@ -11,6 +11,9 @@
   sex: male
   height: 190
   weight: 128
+  street_cred: 1
+  notoriety: 2
+  public_awareness: 3
   position_state: Standing
   body:
     base: 4
@@ -30,10 +33,6 @@
     base: 2
   essence:
     base: 6
-  magic:
-    base: 0
-  resonance:
-    base: 0
   edge:
     available: 1
     max: 1
@@ -64,7 +63,14 @@
   sex: Male
   height: 190
   weight: 128
+  street_cred: 1
+  notoriety: 2
+  public_awareness: 3
   position_state: Standing
+  default_items:
+  - id: "synth_leather_jacket"
+    quantity: 1
+    equip_item: true
   body:
     base: 4
   agility:
@@ -83,10 +89,6 @@
     base: 3
   essence:
     base: 6
-  magic:
-    base: 0
-  resonance:
-    base: 0
   edge:
     available: 1
     max: 1

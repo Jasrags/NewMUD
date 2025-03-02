@@ -99,15 +99,24 @@ type (
 		Z int `yaml:"z"`
 	}
 	DefaultItem struct {
-		ID string `yaml:"id"`
-		// RespawnChance    int    `yaml:"respawn_chance"`
-		MaxLoad int `yaml:"max_load"`
-		// ReplaceOnRespawn bool   `yaml:"replace_on_respawn"`
-		Quantity int `yaml:"quantity"`
+		ID          string `yaml:"id"`
+		SpawnChance int    `yaml:"spawn_chance"`
+		Quantity    int    `yaml:"quantity"`
+		MaxCount    int    `yaml:"max_count"`
 	}
 	DefaultMob struct {
-		ID string `yaml:"id"`
-		// RespawnChance    int    `yaml:"respawn_chance"`
+		ID          string           `yaml:"id"`
+		SpawnChance int              `yaml:"spawn_chance"`
+		Quantity    int              `yaml:"quantity"`
+		MaxCount    int              `yaml:"max_count"`
+		Items       []DefaultMobItem `yaml:"default_items"`
+	}
+	DefaultMobItem struct {
+		ID          string `yaml:"id"`
+		SpawnChance int    `yaml:"spawn_chance"`
+		Quantity    int    `yaml:"quantity"`
+		MaxCount    int    `yaml:"max_count"`
+		EquipItem   bool   `yaml:"equip_item"`
 	}
 	// TODO: Add Doors and Locks
 	// TODO: Keep track of items in the room between resets

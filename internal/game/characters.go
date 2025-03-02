@@ -24,7 +24,6 @@ type (
 		Available int `yaml:"available"` // Karma available to spend
 		Total     int `yaml:"total"`     // Total karma earned
 	}
-
 	Character struct {
 		GameEntity     `yaml:",inline"`
 		AccountID      string      `yaml:"account_id"`
@@ -173,7 +172,6 @@ func RenderCharacterTable(char *Character) string {
 				),
 				lipgloss.JoinHorizontal(lipgloss.Top,
 					RenderKeyValue("Metatype", metatype.Name), "\t",
-					// RenderKeyValue("Ethnicity", char.Ethnicity),
 				),
 				lipgloss.JoinHorizontal(lipgloss.Top,
 					RenderKeyValue("Age", "0"), "\t",
@@ -182,9 +180,9 @@ func RenderCharacterTable(char *Character) string {
 					RenderKeyValue("Weight", "0"),
 				),
 				lipgloss.JoinHorizontal(lipgloss.Top,
-					RenderKeyValue("Street Cred", "0"), "\t",
-					RenderKeyValue("Notoriety", "0"), "\t",
-					RenderKeyValue("Public Awareness", "0"),
+					cfmt.Sprintf("%s: %d;", "Street Cred:", char.StreetCred),
+					cfmt.Sprintf("%s: %d;", "Notoriety:", char.Notoriety),
+					cfmt.Sprintf("%s: %d;", "Public Awareness:", char.PublicAwareness),
 				),
 				lipgloss.JoinHorizontal(lipgloss.Top,
 					RenderKeyValue("Karma", "0"), "\t",

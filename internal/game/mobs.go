@@ -12,22 +12,23 @@ import (
 const (
 	MobsFilename = "mobs.yml"
 
-	DispositionFriendly   MobDisposition = "Friendly"
-	DispositionNeutral    MobDisposition = "Neutral"
-	DispositionAggressive MobDisposition = "Aggressive"
+	DispositionFriendly   = "Friendly"
+	DispositionNeutral    = "Neutral"
+	DispositionAggressive = "Aggressive"
 )
 
 type (
-	MobDisposition string
-
+	// TODO: Do we want to move to using a mob blueprint? If so how will we maintain the GameEntity
+	MobBlueprint struct {
+	}
 	// TODO: Implement mob AI behaviors.
 	// TODO: Do we want mobs to be an "instance" that will persist after spawning?
 	Mob struct {
 		GameEntity            `yaml:",inline"`
-		Tags                  []string                  `yaml:"tags"`
-		ProfessionalRating    int                       `yaml:"professional_rating"`
-		GeneralDisposition    MobDisposition            `yaml:"general_disposition"`
-		CharacterDispositions map[string]MobDisposition `yaml:"character_dispositions"`
+		Tags                  []string          `yaml:"tags"`
+		ProfessionalRating    int               `yaml:"professional_rating"`
+		GeneralDisposition    string            `yaml:"general_disposition"`
+		CharacterDispositions map[string]string `yaml:"character_dispositions"`
 	}
 )
 
@@ -35,7 +36,7 @@ func NewMob() *Mob {
 	return &Mob{
 		GameEntity:            NewGameEntity(),
 		GeneralDisposition:    DispositionNeutral,
-		CharacterDispositions: make(map[string]MobDisposition),
+		CharacterDispositions: make(map[string]string),
 	}
 }
 
@@ -52,7 +53,7 @@ func (m *Mob) GetID() string {
 	return m.ID
 }
 
-func (m *Mob) SetGeneralDisposition(disposition MobDisposition) {
+func (m *Mob) SetGeneralDisposition(disposition string) {
 	m.GeneralDisposition = disposition
 }
 
@@ -61,11 +62,11 @@ func (m *Mob) ReactToMessage(sender *Character, message string) {
 	m.ReactToInteraction(sender, message)
 }
 
-func (m *Mob) SetDispositionForCharacter(char *Character, disposition MobDisposition) {
+func (m *Mob) SetDispositionForCharacter(char *Character, disposition string) {
 	m.CharacterDispositions[char.ID] = disposition
 }
 
-func (m *Mob) GetDispositionForCharacter(char *Character) MobDisposition {
+func (m *Mob) GetDispositionForCharacter(char *Character) string {
 	if disposition, exists := m.CharacterDispositions[char.ID]; exists {
 		return disposition
 	}
@@ -191,11 +192,11 @@ func RenderMobTable(mob *Mob) string {
 		),
 		lipgloss.JoinHorizontal(lipgloss.Top,
 			doubleColumnStyle.Render(fmt.Sprintf("%s %d", "Intuition:", mob.Intuition.TotalValue)),
-			doubleColumnStyle.Render(fmt.Sprintf("%s %d", "Mental Limit:", mob.GetPhysicalLimit())),
+			doubleColumnStyle.Render(fmt.Sprintf("%s %d", "Mental Limit:", mob.GetMentalLimit())),
 		),
 		lipgloss.JoinHorizontal(lipgloss.Top,
 			doubleColumnStyle.Render(fmt.Sprintf("%s %d", "Charisma:", mob.Charisma.TotalValue)),
-			doubleColumnStyle.Render(fmt.Sprintf("%s %d", "Social Limit:", mob.GetPhysicalLimit())),
+			doubleColumnStyle.Render(fmt.Sprintf("%s %d", "Social Limit:", mob.GetSocialLimit())),
 		),
 		lipgloss.JoinHorizontal(lipgloss.Top,
 			doubleColumnStyle.Render(fmt.Sprintf("%s %d", "Magic:", mob.Magic.TotalValue)),
@@ -241,20 +242,20 @@ func RenderMobTable(mob *Mob) string {
 		singleColumnStyle.Render(fmt.Sprintf("%s %d", "Resist Psychological Addiction:", 6)),
 		headerStyle.Width(80).Render("Damage Resistances"),
 		lipgloss.JoinHorizontal(lipgloss.Top,
-			doubleColumnStyle.Render(fmt.Sprintf("%d %s %d", 4, "Armor:", 0)),
+			doubleColumnStyle.Render(fmt.Sprintf("%d %s %d", 4, "Armor:", mob.GetArmorValue())),
 			"",
 		),
 		lipgloss.JoinHorizontal(lipgloss.Top,
-			doubleColumnStyle.Render(fmt.Sprintf("%d %s %d", 4, "Acid Proection:", 0)),
-			doubleColumnStyle.Render(fmt.Sprintf("%d %s %d", 4, "Electricity Protection:", 0)),
+			doubleColumnStyle.Render(fmt.Sprintf("%d %s %d", 4, "Acid Proection:", mob.GetAcidResistance())),
+			doubleColumnStyle.Render(fmt.Sprintf("%d %s %d", 4, "Electricity Protection:", mob.GetElectricityResistance())),
 		),
 		lipgloss.JoinHorizontal(lipgloss.Top,
-			doubleColumnStyle.Render(fmt.Sprintf("%d %s %d", 4, "Cold Proection:", 0)),
-			doubleColumnStyle.Render(fmt.Sprintf("%d %s %d", 4, "Fire Protection:", 0)),
+			doubleColumnStyle.Render(fmt.Sprintf("%d %s %d", 4, "Cold Proection:", mob.GetColdResistance())),
+			doubleColumnStyle.Render(fmt.Sprintf("%d %s %d", 4, "Fire Protection:", mob.GetFireResistance())),
 		),
 		lipgloss.JoinHorizontal(lipgloss.Top,
-			doubleColumnStyle.Render(fmt.Sprintf("%d %s %d", 4, "Falling Proection:", 0)),
-			doubleColumnStyle.Render(fmt.Sprintf("%d %s %d", 7, "Fatigue Resistance:", 0)),
+			doubleColumnStyle.Render(fmt.Sprintf("%d %s %d", 4, "Falling Proection:", mob.GetFallingResistance())),
+			doubleColumnStyle.Render(fmt.Sprintf("%d %s %d", 7, "Fatigue Resistance:", mob.GetFatigueResistance())),
 		),
 		headerStyle.Width(80).Render("Metatype Abilities"),
 		singleColumnStyle.Render(fmt.Sprintf("%s", "Enhanced Senses: Low-Light Vision")),
@@ -262,8 +263,21 @@ func RenderMobTable(mob *Mob) string {
 		// Defenses
 		// Damage
 		// Inventory
+
 		// Nuyen
 	)
+
+	// TODO: temp display of inventory
+	for i, item := range mob.Inventory.Items {
+		bp := EntityMgr.GetItemBlueprintByInstance(item)
+		if bp == nil {
+			continue
+		}
+		if i == 0 {
+			characterSheet += headerStyle.Render("Inventory") + CRLF
+		}
+		characterSheet += fmt.Sprintf("%s %s\n", bp.Name, item.InstanceID)
+	}
 
 	return characterSheet
 }

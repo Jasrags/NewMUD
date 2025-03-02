@@ -1,6 +1,7 @@
 package game
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 
@@ -645,4 +646,171 @@ func SuggestGet(line string, args []string, char *Character, room *Room) []strin
 	}
 
 	return suggestions
+}
+
+func DoEquip(s ssh.Session, cmd string, args []string, user *Account, char *Character, room *Room) {
+	if len(args) == 0 {
+		WriteString(s, "{{Usage: equip <item name> [index]}}::yellow"+CRLF)
+		return
+	}
+
+	// Check if the last argument is an index number.
+	var indexProvided bool
+	var selectedIndex int
+	searchArgs := args
+	lastArg := args[len(args)-1]
+	if i, err := strconv.Atoi(lastArg); err == nil {
+		indexProvided = true
+		selectedIndex = i
+		searchArgs = args[:len(args)-1]
+	}
+	searchTerm := strings.Join(searchArgs, " ")
+
+	// Get all inventory items that partially match the search term.
+	matches := char.Inventory.Search(searchTerm)
+	if len(matches) == 0 {
+		WriteStringF(s, "{{No items found matching '%s' in your inventory.}}::red"+CRLF, searchTerm)
+		return
+	}
+
+	// If multiple matches exist and no index was provided, list them.
+	if len(matches) > 1 && !indexProvided {
+		var builder strings.Builder
+		builder.WriteString(fmt.Sprintf("{{Multiple items found matching '%s':}}::yellow"+CRLF, searchTerm))
+		for i, item := range matches {
+			bp := EntityMgr.GetItemBlueprintByInstance(item)
+			builder.WriteString(fmt.Sprintf("  %d) %s"+CRLF, i+1, bp.Name))
+		}
+		builder.WriteString("{{Please re-run the command with the desired index.}}::yellow" + CRLF)
+		WriteString(s, builder.String())
+		return
+	}
+
+	// Select the appropriate item.
+	var chosenItem *Item
+	if len(matches) == 1 {
+		chosenItem = matches[0]
+	} else {
+		if selectedIndex < 1 || selectedIndex > len(matches) {
+			WriteStringF(s, "{{Invalid index. There are %d matching items for '%s'.}}::red"+CRLF, len(matches), searchTerm)
+			return
+		}
+		chosenItem = matches[selectedIndex-1]
+	}
+
+	bp := EntityMgr.GetItemBlueprintByInstance(chosenItem)
+	if bp == nil {
+		WriteString(s, "{{Item blueprint not found.}}::red"+CRLF)
+		return
+	}
+
+	// Ensure the item is equippable.
+	if len(bp.EquipSlots) == 0 || bp.EquipSlots[0] == EquipSlotNone {
+		WriteString(s, "{{That item cannot be equipped.}}::red"+CRLF)
+		return
+	}
+	slot := bp.EquipSlots[0]
+
+	// Check if the slot is already occupied.
+	if equippedItem, exists := char.Equipment[slot]; exists && equippedItem != nil {
+		equippedBP := EntityMgr.GetItemBlueprintByInstance(equippedItem)
+		WriteStringF(s, "{{The %s slot is already occupied by %s. Please unequip it first.}}::yellow"+CRLF, slot, equippedBP.Name)
+		return
+	}
+
+	// Remove the item from inventory and equip it.
+	char.Inventory.RemoveItem(chosenItem)
+	char.Equipment[slot] = chosenItem
+	char.Save()
+	WriteStringF(s, "{{You have equipped %s in the %s slot.}}::green"+CRLF, bp.Name, slot)
+}
+
+func DoUnequip(s ssh.Session, cmd string, args []string, user *Account, char *Character, room *Room) {
+	if len(args) == 0 {
+		WriteString(s, "{{Usage: unequip <item name or slot> [index]}}::yellow"+CRLF)
+		return
+	}
+
+	// If the argument exactly matches a valid equip slot, unequip from that slot.
+	slotArg := strings.ToLower(args[0])
+	validSlots := map[string]bool{
+		"head": true, "body": true, "hands": true, "legs": true,
+	}
+	if validSlots[slotArg] {
+		if item, exists := char.Equipment[slotArg]; exists && item != nil {
+			delete(char.Equipment, slotArg)
+			char.Inventory.AddItem(item)
+			bp := EntityMgr.GetItemBlueprintByInstance(item)
+			WriteStringF(s, "{{You have unequipped %s from the %s slot.}}::green"+CRLF, bp.Name, slotArg)
+		} else {
+			WriteStringF(s, "{{The %s slot is already empty.}}::yellow"+CRLF, slotArg)
+		}
+		return
+	}
+
+	// Otherwise, treat the input as a partial match for equipped items.
+	var indexProvided bool
+	var selectedIndex int
+	searchArgs := args
+	lastArg := args[len(args)-1]
+	if i, err := strconv.Atoi(lastArg); err == nil {
+		indexProvided = true
+		selectedIndex = i
+		searchArgs = args[:len(args)-1]
+	}
+	searchTerm := strings.Join(searchArgs, " ")
+
+	// Search through equipped items for matches.
+	type equippedMatch struct {
+		slot string
+		item *Item
+	}
+	var matches []equippedMatch
+	for slot, item := range char.Equipment {
+		if item == nil {
+			continue
+		}
+		bp := EntityMgr.GetItemBlueprintByInstance(item)
+		if bp == nil {
+			continue
+		}
+		if strings.Contains(strings.ToLower(bp.Name), strings.ToLower(searchTerm)) {
+			matches = append(matches, equippedMatch{slot, item})
+		}
+	}
+
+	if len(matches) == 0 {
+		WriteStringF(s, "{{No equipped items found matching '%s'.}}::red"+CRLF, searchTerm)
+		return
+	}
+
+	if len(matches) > 1 && !indexProvided {
+		var builder strings.Builder
+		builder.WriteString(fmt.Sprintf("{{Multiple equipped items found matching '%s':}}::yellow"+CRLF, searchTerm))
+		for i, m := range matches {
+			bp := EntityMgr.GetItemBlueprintByInstance(m.item)
+			builder.WriteString(fmt.Sprintf("  %d) [%s slot] %s"+CRLF, i+1, m.slot, bp.Name))
+		}
+		builder.WriteString("{{Please re-run the command with the desired index.}}::yellow" + CRLF)
+		WriteString(s, builder.String())
+		return
+	}
+
+	var chosenMatch equippedMatch
+	if len(matches) == 1 {
+		chosenMatch = matches[0]
+	} else {
+		if selectedIndex < 1 || selectedIndex > len(matches) {
+			WriteStringF(s, "{{Invalid index. There are %d matching equipped items for '%s'.}}::red"+CRLF, len(matches), searchTerm)
+			return
+		}
+		chosenMatch = matches[selectedIndex-1]
+	}
+
+	// Unequip the chosen item.
+	delete(char.Equipment, chosenMatch.slot)
+	char.Inventory.AddItem(chosenMatch.item)
+	char.Save()
+	bp := EntityMgr.GetItemBlueprintByInstance(chosenMatch.item)
+	WriteStringF(s, "{{You have unequipped %s from the %s slot.}}::green"+CRLF, bp.Name, chosenMatch.slot)
 }

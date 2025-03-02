@@ -17,40 +17,18 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+func RollChance(chance int) bool {
+	rand.Seed(uint64(time.Now().UnixNano()))
+	randomNumber := rand.Intn(101)
+
+	return randomNumber <= chance
+}
+
 func Singularize(word string) string {
 	if strings.HasSuffix(word, "s") && len(word) > 1 {
 		return word[:len(word)-1] // Remove trailing 's'
 	}
 	return word
-}
-
-// WrapText splits text into lines of the specified width without breaking words.
-func WrapText(text string, width int) string {
-	var result strings.Builder
-	words := strings.Fields(text)
-	line := ""
-
-	for _, word := range words {
-		if len(line)+len(word)+1 > width {
-			// Append the current line to the result and reset the line
-			if line != "" {
-				result.WriteString(line + CRLF)
-			}
-			line = word
-		} else {
-			// Append the word to the current line
-			if line != "" {
-				line += " "
-			}
-			line += word
-		}
-	}
-	// Append the last line, if any, without an extra newline
-	if line != "" {
-		result.WriteString(line)
-	}
-
-	return result.String()
 }
 
 func LoadYAML(filePath string, out interface{}) error {

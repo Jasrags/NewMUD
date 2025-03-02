@@ -11,7 +11,7 @@ reaction:
 strength:
     base: 5
 willpower:
-    base: 3
+    base: 3 
 logic:
     base: 2
 intuition:
@@ -22,12 +22,6 @@ edge:
     base: 1
 essence:
     base: 6
-magic:
-    base: 0
-resonance:
-    base: 0
-initiative_dice:
-    base: 1
 skills:
   automatics:
     blueprint_id: "automatics"
