@@ -17,6 +17,22 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+func RollChance(chance int) bool {
+	rand.Seed(uint64(time.Now().UnixNano()))
+	randomNumber := rand.Intn(101)
+
+	return randomNumber <= chance
+
+	// r := rand.New(rand.NewSource(uint64(time.Now().UnixNano())))
+	// rint := r.Int()
+	// slog.Debug("Rolling chance",
+	// 	slog.Int("chance", chance),
+	// 	slog.Int("roll", rint))
+
+	// return rint >= chance
+	// return r.Int() >= chance
+}
+
 func Singularize(word string) string {
 	if strings.HasSuffix(word, "s") && len(word) > 1 {
 		return word[:len(word)-1] // Remove trailing 's'

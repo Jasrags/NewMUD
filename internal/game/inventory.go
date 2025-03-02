@@ -1,6 +1,7 @@
 package game
 
 import (
+	"slices"
 	"strings"
 )
 
@@ -28,7 +29,7 @@ func (inv *Inventory) AddItem(item *Item) {
 func (inv *Inventory) RemoveItem(item *Item) bool {
 	for i, existingItem := range inv.Items {
 		if existingItem == item {
-			inv.Items = append(inv.Items[:i], inv.Items[i+1:]...)
+			inv.Items = slices.Delete(inv.Items, i, i+1)
 			return true
 		}
 	}
@@ -38,8 +39,8 @@ func (inv *Inventory) RemoveItem(item *Item) bool {
 // Find an item by its name
 func (inv *Inventory) FindItemByName(name string) *Item {
 	for _, item := range inv.Items {
-		blueprint := EntityMgr.GetItemBlueprintByInstance(item) // Fetch the blueprint for the item
-		if blueprint != nil && strings.EqualFold(blueprint.Name, name) {
+		bp := EntityMgr.GetItemBlueprintByInstance(item)
+		if bp != nil && strings.EqualFold(bp.Name, name) {
 			return item
 		}
 	}
@@ -56,6 +57,23 @@ func (inv *Inventory) FindItemByID(instanceID string) *Item {
 	return nil
 }
 
+func (inv *Inventory) FindItemByTags(tags ...string) []*Item {
+	results := []*Item{}
+
+	for _, item := range inv.Items {
+		bp := EntityMgr.GetItemBlueprintByInstance(item)
+		if bp == nil {
+			continue
+		}
+
+		if bp.HasTags(tags...) {
+			results = append(results, item)
+		}
+	}
+
+	return results
+}
+
 func (inv *Inventory) Clear() {
 	inv.Items = nil
 }
@@ -70,17 +88,17 @@ func (inv *Inventory) Search(query string) []*Item {
 	lowerQuery := strings.ToLower(query)
 
 	for _, item := range inv.Items {
-		blueprint := EntityMgr.GetItemBlueprintByInstance(item)
-		if blueprint == nil {
+		bp := EntityMgr.GetItemBlueprintByInstance(item)
+		if bp == nil {
 			continue
 		}
 
-		if strings.Contains(strings.ToLower(blueprint.Name), lowerQuery) {
+		if strings.Contains(strings.ToLower(bp.Name), lowerQuery) {
 			results = append(results, item)
 			continue
 		}
 
-		if matchesTags(blueprint.Tags, lowerQuery) {
+		if matchesTags(bp.Tags, lowerQuery) {
 			results = append(results, item)
 		}
 	}

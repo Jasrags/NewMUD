@@ -52,69 +52,133 @@ func DoSpawn(s ssh.Session, cmd string, args []string, user *Account, char *Char
 // in the current room. Usage: mobstats <mob_name> [index]
 // If multiple mobs match the given name and no index is provided,
 // a list is shown so the admin can re-run the command with an index.
+// func DoMobStats(s ssh.Session, cmd string, args []string, acct *Account, char *Character, room *Room) {
+// 	// We require at least one argument (the mob name).
+// 	if len(args) == 0 {
+// 		WriteString(s, "{{Usage: mobstats <mob_name> [index]}}::yellow"+CRLF)
+// 		return
+// 	}
+
+// 	var mobName string
+// 	indexProvided := false
+// 	var mobIndex int
+
+// 	// If more than one argument is provided, try to parse the last one as an index.
+// 	if len(args) > 1 {
+// 		if i, err := strconv.Atoi(args[len(args)-1]); err == nil {
+// 			indexProvided = true
+// 			mobIndex = i
+// 			// The mob name is everything except the last argument.
+// 			mobName = strings.Join(args[:len(args)-1], " ")
+// 		} else {
+// 			// Otherwise, treat all arguments as part of the mob name.
+// 			mobName = strings.Join(args, " ")
+// 		}
+// 	} else {
+// 		mobName = args[0]
+// 	}
+
+// 	// Find all matching mobs in the current room.
+// 	matches := FindMobsByName(room, mobName)
+// 	if len(matches) == 0 {
+// 		WriteString(s, fmt.Sprintf("{{No mob found matching '%s' in this room.}}::red"+CRLF, mobName))
+// 		return
+// 	}
+
+// 	if !indexProvided {
+// 		// If exactly one match exists, display its stats.
+// 		if len(matches) == 1 {
+// 			WriteString(s, RenderMobTable(matches[0]))
+// 			WriteString(s, CRLF)
+// 			return
+// 		}
+
+// 		// Multiple matches found; list them and instruct the admin.
+// 		var builder strings.Builder
+// 		builder.WriteString(fmt.Sprintf("{{Multiple mobs found matching '%s':}}::yellow"+CRLF, mobName))
+// 		for i, m := range matches {
+// 			// Provide a brief summary for each mob (e.g. Name and Title).
+// 			builder.WriteString(fmt.Sprintf("  %d) %s - %s"+CRLF, i+1, m.Name, m.Title))
+// 		}
+// 		builder.WriteString("{{Please re-run the command with the desired index.}}::yellow" + CRLF)
+// 		WriteString(s, builder.String())
+// 		return
+// 	}
+
+// 	// If an index was provided, validate it.
+// 	if mobIndex < 1 || mobIndex > len(matches) {
+// 		WriteString(s, fmt.Sprintf("{{Invalid mob index. There are %d mobs matching '%s'.}}::red"+CRLF, len(matches), mobName))
+// 		return
+// 	}
+
+// 	// Display the stats for the chosen mob.
+// 	chosenMob := matches[mobIndex-1]
+// 	WriteString(s, RenderMobTable(chosenMob))
+// 	WriteString(s, CRLF)
+// }
+
 func DoMobStats(s ssh.Session, cmd string, args []string, acct *Account, char *Character, room *Room) {
-	// We require at least one argument (the mob name).
 	if len(args) == 0 {
-		WriteString(s, "{{Usage: mobstats <mob_name> [index]}}::yellow"+CRLF)
+		WriteString(s, "{{Usage: mobstats <mob_name>}}::yellow"+CRLF)
 		return
 	}
 
-	var mobName string
-	indexProvided := false
-	var mobIndex int
+	// Join arguments to form the search term
+	mobName := strings.Join(args, " ")
 
-	// If more than one argument is provided, try to parse the last one as an index.
-	if len(args) > 1 {
-		if i, err := strconv.Atoi(args[len(args)-1]); err == nil {
-			indexProvided = true
-			mobIndex = i
-			// The mob name is everything except the last argument.
-			mobName = strings.Join(args[:len(args)-1], " ")
-		} else {
-			// Otherwise, treat all arguments as part of the mob name.
-			mobName = strings.Join(args, " ")
-		}
-	} else {
-		mobName = args[0]
-	}
+	// Find mobs with partial name matching
+	matches := FindMobsByPartialName(room, mobName)
 
-	// Find all matching mobs in the current room.
-	matches := FindMobsByName(room, mobName)
 	if len(matches) == 0 {
 		WriteString(s, fmt.Sprintf("{{No mob found matching '%s' in this room.}}::red"+CRLF, mobName))
 		return
 	}
 
-	if !indexProvided {
-		// If exactly one match exists, display its stats.
-		if len(matches) == 1 {
-			WriteString(s, RenderMobTable(matches[0]))
-			WriteString(s, CRLF)
-			return
-		}
-
-		// Multiple matches found; list them and instruct the admin.
-		var builder strings.Builder
-		builder.WriteString(fmt.Sprintf("{{Multiple mobs found matching '%s':}}::yellow"+CRLF, mobName))
-		for i, m := range matches {
-			// Provide a brief summary for each mob (e.g. Name and Title).
-			builder.WriteString(fmt.Sprintf("  %d) %s - %s"+CRLF, i+1, m.Name, m.Title))
-		}
-		builder.WriteString("{{Please re-run the command with the desired index.}}::yellow" + CRLF)
-		WriteString(s, builder.String())
+	// If exactly one match is found, show stats immediately
+	if len(matches) == 1 {
+		WriteString(s, RenderMobTable(matches[0]))
+		WriteString(s, CRLF)
 		return
 	}
 
-	// If an index was provided, validate it.
-	if mobIndex < 1 || mobIndex > len(matches) {
-		WriteString(s, fmt.Sprintf("{{Invalid mob index. There are %d mobs matching '%s'.}}::red"+CRLF, len(matches), mobName))
+	// Multiple matches found, prompt selection
+	var builder strings.Builder
+	builder.WriteString(fmt.Sprintf("{{Multiple mobs found matching '%s':}}::yellow"+CRLF, mobName))
+	for i, m := range matches {
+		builder.WriteString(fmt.Sprintf("  %d) %s - %s"+CRLF, i+1, m.Name, m.Title))
+	}
+	builder.WriteString("{{Please enter a number to select a mob:}}::yellow ")
+	WriteString(s, builder.String())
+
+	// Wait for user input
+	selection, err := InputPrompt(s, "")
+	if err != nil {
+		WriteString(s, "{{Error receiving input.}}::red"+CRLF)
 		return
 	}
 
-	// Display the stats for the chosen mob.
-	chosenMob := matches[mobIndex-1]
-	WriteString(s, RenderMobTable(chosenMob))
+	// Convert input to an integer
+	mobIndex, err := strconv.Atoi(selection)
+	if err != nil || mobIndex < 1 || mobIndex > len(matches) {
+		WriteString(s, "{{Invalid selection. Please try again.}}::red"+CRLF)
+		return
+	}
+
+	// Display selected mob's stats
+	selectedMob := matches[mobIndex-1]
+	WriteString(s, RenderMobTable(selectedMob))
 	WriteString(s, CRLF)
+}
+
+// FindMobsByPartialName searches for mobs in a room where the name contains the search term
+func FindMobsByPartialName(room *Room, search string) []*Mob {
+	var matches []*Mob
+	for _, mob := range room.Mobs {
+		if strings.Contains(strings.ToLower(mob.Name), strings.ToLower(search)) {
+			matches = append(matches, mob)
+		}
+	}
+	return matches
 }
 
 func DoGoto(s ssh.Session, cmd string, args []string, user *Account, char *Character, room *Room) {

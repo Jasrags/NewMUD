@@ -67,8 +67,8 @@ type (
 		Intuition Attribute[int]     `yaml:"intuition"`
 		Charisma  Attribute[int]     `yaml:"charisma"`
 		Essence   Attribute[float64] `yaml:"essence"`
-		Magic     Attribute[int]     `yaml:"magic"`
-		Resonance Attribute[int]     `yaml:"resonance"`
+		Magic     Attribute[int]     `yaml:"magic,omitempty"`
+		Resonance Attribute[int]     `yaml:"resonance,omitempty"`
 		// Damage
 		PhysicalDamage PhysicalDamage `yaml:"physical_damage"`
 		StunDamage     StunDamage     `yaml:"stun_damage"`
@@ -77,11 +77,11 @@ type (
 		RoomID string `yaml:"room_id"`
 		// Area            *Area            `yaml:"-"`
 		// AreaID     string           `yaml:"area_id"`
-		Inventory     Inventory          `yaml:"inventory"`
-		Equipment     map[string]*Item   `yaml:"equipment"`
-		Qualtities    map[string]Quality `yaml:"qualities"`
-		Skills        map[string]Skill   `yaml:"skills"`
-		PositionState string             `yaml:"position_state"`
+		Inventory     Inventory           `yaml:"inventory"`
+		Equipment     map[string]*Item    `yaml:"equipment"`
+		Qualtities    map[string]*Quality `yaml:"qualities"`
+		Skills        map[string]*Skill   `yaml:"skills"`
+		PositionState string              `yaml:"position_state"`
 	}
 )
 
@@ -91,8 +91,8 @@ func NewGameEntity() GameEntity {
 		Equipment:     make(map[string]*Item),
 		Listeners:     make([]ee.Listener, 0),
 		PositionState: PositionStanding,
-		Qualtities:    make(map[string]Quality),
-		Skills:        make(map[string]Skill),
+		Qualtities:    make(map[string]*Quality),
+		Skills:        make(map[string]*Skill),
 	}
 }
 

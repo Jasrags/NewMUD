@@ -191,11 +191,11 @@ func RenderMobTable(mob *Mob) string {
 		),
 		lipgloss.JoinHorizontal(lipgloss.Top,
 			doubleColumnStyle.Render(fmt.Sprintf("%s %d", "Intuition:", mob.Intuition.TotalValue)),
-			doubleColumnStyle.Render(fmt.Sprintf("%s %d", "Mental Limit:", mob.GetPhysicalLimit())),
+			doubleColumnStyle.Render(fmt.Sprintf("%s %d", "Mental Limit:", mob.GetMentalLimit())),
 		),
 		lipgloss.JoinHorizontal(lipgloss.Top,
 			doubleColumnStyle.Render(fmt.Sprintf("%s %d", "Charisma:", mob.Charisma.TotalValue)),
-			doubleColumnStyle.Render(fmt.Sprintf("%s %d", "Social Limit:", mob.GetPhysicalLimit())),
+			doubleColumnStyle.Render(fmt.Sprintf("%s %d", "Social Limit:", mob.GetSocialLimit())),
 		),
 		lipgloss.JoinHorizontal(lipgloss.Top,
 			doubleColumnStyle.Render(fmt.Sprintf("%s %d", "Magic:", mob.Magic.TotalValue)),
@@ -241,20 +241,20 @@ func RenderMobTable(mob *Mob) string {
 		singleColumnStyle.Render(fmt.Sprintf("%s %d", "Resist Psychological Addiction:", 6)),
 		headerStyle.Width(80).Render("Damage Resistances"),
 		lipgloss.JoinHorizontal(lipgloss.Top,
-			doubleColumnStyle.Render(fmt.Sprintf("%d %s %d", 4, "Armor:", 0)),
+			doubleColumnStyle.Render(fmt.Sprintf("%d %s %d", 4, "Armor:", mob.GetArmorValue())),
 			"",
 		),
 		lipgloss.JoinHorizontal(lipgloss.Top,
-			doubleColumnStyle.Render(fmt.Sprintf("%d %s %d", 4, "Acid Proection:", 0)),
-			doubleColumnStyle.Render(fmt.Sprintf("%d %s %d", 4, "Electricity Protection:", 0)),
+			doubleColumnStyle.Render(fmt.Sprintf("%d %s %d", 4, "Acid Proection:", mob.GetAcidResistance())),
+			doubleColumnStyle.Render(fmt.Sprintf("%d %s %d", 4, "Electricity Protection:", mob.GetElectricityResistance())),
 		),
 		lipgloss.JoinHorizontal(lipgloss.Top,
-			doubleColumnStyle.Render(fmt.Sprintf("%d %s %d", 4, "Cold Proection:", 0)),
-			doubleColumnStyle.Render(fmt.Sprintf("%d %s %d", 4, "Fire Protection:", 0)),
+			doubleColumnStyle.Render(fmt.Sprintf("%d %s %d", 4, "Cold Proection:", mob.GetColdResistance())),
+			doubleColumnStyle.Render(fmt.Sprintf("%d %s %d", 4, "Fire Protection:", mob.GetFireResistance())),
 		),
 		lipgloss.JoinHorizontal(lipgloss.Top,
-			doubleColumnStyle.Render(fmt.Sprintf("%d %s %d", 4, "Falling Proection:", 0)),
-			doubleColumnStyle.Render(fmt.Sprintf("%d %s %d", 7, "Fatigue Resistance:", 0)),
+			doubleColumnStyle.Render(fmt.Sprintf("%d %s %d", 4, "Falling Proection:", mob.GetFallingResistance())),
+			doubleColumnStyle.Render(fmt.Sprintf("%d %s %d", 7, "Fatigue Resistance:", mob.GetFatigueResistance())),
 		),
 		headerStyle.Width(80).Render("Metatype Abilities"),
 		singleColumnStyle.Render(fmt.Sprintf("%s", "Enhanced Senses: Low-Light Vision")),
@@ -262,8 +262,21 @@ func RenderMobTable(mob *Mob) string {
 		// Defenses
 		// Damage
 		// Inventory
+
 		// Nuyen
 	)
+
+	// TODO: temp display of inventory
+	for i, item := range mob.Inventory.Items {
+		bp := EntityMgr.GetItemBlueprintByInstance(item)
+		if bp == nil {
+			continue
+		}
+		if i == 0 {
+			characterSheet += headerStyle.Render("Inventory") + CRLF
+		}
+		characterSheet += fmt.Sprintf("%s %s\n", bp.Name, item.InstanceID)
+	}
 
 	return characterSheet
 }

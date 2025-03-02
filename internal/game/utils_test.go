@@ -31,6 +31,7 @@ func TestRollDice(t *testing.T) {
 		})
 	}
 }
+
 func TestRollResultsTotal(t *testing.T) {
 	tests := []struct {
 		results []int
@@ -196,6 +197,24 @@ func TestReverseDirection(t *testing.T) {
 		t.Run(fmt.Sprintf("ReverseDirection(%s)", test.input), func(t *testing.T) {
 			result := ReverseDirection(test.input)
 			assert.Equal(t, test.expected, result)
+		})
+	}
+}
+func TestRollChance(t *testing.T) {
+	tests := []struct {
+		spawnChance int
+	}{
+		{0},
+		{25},
+		{50},
+		{75},
+		{100},
+	}
+
+	for _, test := range tests {
+		t.Run(fmt.Sprintf("RollChance(%d)", test.spawnChance), func(t *testing.T) {
+			result := RollChance(test.spawnChance)
+			assert.IsType(t, true, result)
 		})
 	}
 }
