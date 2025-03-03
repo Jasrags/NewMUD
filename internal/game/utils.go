@@ -4,8 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/fs"
 	"log/slog"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -29,6 +31,18 @@ func Singularize(word string) string {
 		return word[:len(word)-1] // Remove trailing 's'
 	}
 	return word
+}
+
+// LoadYAMLFromFS reads a YAML file from the provided fs.FS and unmarshals it into out.
+func LoadYAMLFromFS(fsys fs.FS, filePath string, out interface{}) error {
+	file, err := fsys.Open(filePath)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	decoder := yaml.NewDecoder(file)
+	return decoder.Decode(out)
 }
 
 func LoadYAML(filePath string, out interface{}) error {
@@ -67,6 +81,26 @@ func LoadJSON(filePath string, out interface{}) error {
 
 	decoder := json.NewDecoder(file)
 	return decoder.Decode(out)
+}
+
+// loadFilesFromDir is a helper that reads all files in a subdirectory of fs and applies the provided function.
+func loadFilesFromDir(fsys fs.FS, dir string, process func(data []byte)) {
+	entries, err := fs.ReadDir(fsys, dir)
+	if err != nil {
+		slog.Error("failed to read directory", "dir", dir, "error", err)
+		return
+	}
+	for _, entry := range entries {
+		if entry.IsDir() {
+			continue
+		}
+		data, err := fs.ReadFile(fsys, filepath.Join(dir, entry.Name()))
+		if err != nil {
+			slog.Error("failed reading file", "file", entry.Name(), "error", err)
+			continue
+		}
+		process(data)
+	}
 }
 
 func SaveJSON(filePath string, in interface{}) error {

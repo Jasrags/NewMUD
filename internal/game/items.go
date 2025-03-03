@@ -12,6 +12,7 @@ const (
 	ItemTagSynthetic = "Synthetic"
 	ItemTagLeather   = "Leather"
 
+	ItemsFilepath = "data/items"
 	ItemsFilename = "items.yml"
 
 	ItemTypeJunk  = "junk"

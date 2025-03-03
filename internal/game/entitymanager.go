@@ -1,6 +1,7 @@
 package game
 
 import (
+	"io/fs"
 	"log/slog"
 	"os"
 	"path/filepath"
@@ -10,6 +11,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/spf13/viper"
+	"gopkg.in/yaml.v3"
 )
 
 var (
@@ -539,20 +541,7 @@ func (mgr *EntityManager) loadSkillGroups() {
 // Generic load function
 func (mgr *EntityManager) LoadDataFiles() {
 	st := time.Now()
-
-	slog.Info("Loading entity data files")
-	dataFilePath := viper.GetString("data.areas_path")
-	manifestFileName := viper.GetString("data.manifest_file")
-	roomsFileName := viper.GetString("data.rooms_file")
-	itemsFileName := viper.GetString("data.items_file")
-	mobsFileName := viper.GetString("data.mobs_file")
-
-	slog.Info("Loading entity data files",
-		slog.String("datafile_path", dataFilePath),
-		slog.String("manifest_file", manifestFileName),
-		slog.String("rooms_file", roomsFileName),
-		slog.String("items_file", itemsFileName),
-		slog.String("mobs_file", mobsFileName))
+	slog.Info("Loading data files")
 
 	mgr.loadMetatypes()
 	mgr.loadPregens()
@@ -561,101 +550,95 @@ func (mgr *EntityManager) LoadDataFiles() {
 	mgr.loadSkills(SkillTypeKnowledge, SkillKnowledgeFilepath)
 	mgr.loadSkills(SkillTypeLanguage, SkillLanguagesFilepath)
 	mgr.loadSkillGroups()
+	mgr.LoadAreasFromFS()
 
-	files, err := os.ReadDir(dataFilePath)
+	took := time.Since(st)
+	slog.Info("Loaded data files",
+		slog.Duration("took", took),
+		slog.Int("areas", len(mgr.areas)),
+		slog.Int("items", len(mgr.items)),
+		slog.Int("mobs", len(mgr.mobs)),
+		slog.Int("rooms", len(mgr.rooms)),
+		slog.Int("pregens", len(mgr.pregens)),
+		slog.Int("qualities", len(mgr.qualtities)),
+		slog.Int("skills", len(mgr.skills)),
+		slog.Int("skill_groups", len(mgr.skillGroups)),
+		slog.Int("metatypes", len(mgr.metatypes)),
+	)
+}
+
+func (mgr *EntityManager) LoadAreasFromFS() {
+	start := time.Now()
+	basePath := viper.GetString("data.areas_path")
+	areasFS := os.DirFS(basePath)
+
+	slog.Info("Loading areas",
+		slog.String("datafile_path", basePath))
+
+	areaDirs, err := fs.ReadDir(areasFS, ".")
 	if err != nil {
-		slog.Error("failed reading directory",
-			slog.String("datafile_path", dataFilePath),
-			slog.Any("error", err))
+		slog.Error("failed reading areas directory", "error", err)
+		return
 	}
 
-	for _, file := range files {
-		if file.IsDir() {
-			areaPath := filepath.Join(dataFilePath, file.Name())
-			manifestPath := filepath.Join(areaPath, manifestFileName)
-			roomsPath := filepath.Join(areaPath, roomsFileName)
-			itemsPath := filepath.Join(areaPath, itemsFileName)
-			mobsPath := filepath.Join(areaPath, mobsFileName)
-
-			// Load area
-			var area Area
-			if err := LoadYAML(manifestPath, &area); err != nil {
-				slog.Error("failed to unmarshal manifest data",
-					slog.Any("error", err),
-					slog.String("area_path", areaPath))
-				continue
-			}
-
-			slog.Info("Loaded area",
-				slog.String("area_name", file.Name()))
-
-			mgr.AddArea(&area)
-
-			// Load rooms
-			if FileExists(roomsPath) {
-				slog.Info("Loading rooms",
-					slog.String("path", roomsPath),
-					slog.String("area_id", area.ID))
-
-				var rooms []Room
-				if err := LoadYAML(roomsPath, &rooms); err != nil {
-					slog.Error("failed to unmarshal rooms data",
-						slog.Any("error", err),
-						slog.String("rooms_path", roomsPath))
-					continue
-				}
-
-				for i := range rooms {
-					slog.Debug("Adding room",
-						slog.String("room_id", rooms[i].ID))
-					mgr.AddRoom(&rooms[i])
-				}
-			}
-
-			// Load items
-			if FileExists(itemsPath) {
-				slog.Info("Loading items",
-					slog.String("path", itemsPath),
-					slog.String("area_id", area.ID))
-
-				var items []ItemBlueprint
-				if err := LoadYAML(itemsPath, &items); err != nil {
-					slog.Error("failed to unmarshal item data",
-						slog.Any("error", err),
-						slog.String("items_path", itemsPath))
-					continue
-				}
-
-				for i := range items {
-					mgr.AddItemBlueprint(&items[i])
-				}
-			}
-
-			// Load mobs
-			if FileExists(mobsPath) {
-				slog.Info("Loading mobs",
-					slog.String("path", mobsPath),
-					slog.String("area_id", area.ID))
-
-				var mobs []Mob
-				if err := LoadYAML(mobsPath, &mobs); err != nil {
-					slog.Error("failed to unmarshal mobs data",
-						slog.Any("error", err),
-						slog.String("mobs_path", mobsPath))
-					continue
-				}
-
-				for i := range mobs {
-					mgr.AddMob(&mobs[i])
-				}
-			}
+	for _, d := range areaDirs {
+		if !d.IsDir() {
+			continue
 		}
+		// Create a sub-FS for this area folder
+		areaFS, err := fs.Sub(areasFS, d.Name())
+		if err != nil {
+			slog.Error("failed to create sub FS for area", "area", d.Name(), "error", err)
+			continue
+		}
+
+		// Load manifest.yml
+		manifestBytes, err := fs.ReadFile(areaFS, "manifest.yml")
+		if err != nil {
+			slog.Error("failed reading manifest", "area", d.Name(), "error", err)
+			continue
+		}
+		var area Area
+		if err := yaml.Unmarshal(manifestBytes, &area); err != nil {
+			slog.Error("failed to unmarshal manifest data", "area", d.Name(), "error", err)
+			continue
+		}
+		slog.Info("Loaded area", "area", d.Name())
+		mgr.AddArea(&area)
+
+		// Load rooms
+		loadFilesFromDir(areaFS, "rooms", func(data []byte) {
+			var room Room
+			if err := yaml.Unmarshal(data, &room); err != nil {
+				slog.Error("failed to unmarshal room data", "area", d.Name(), "error", err)
+				return
+			}
+			mgr.AddRoom(&room)
+		})
+
+		// Load items (ItemBlueprints)
+		loadFilesFromDir(areaFS, "items", func(data []byte) {
+			var item ItemBlueprint
+			if err := yaml.Unmarshal(data, &item); err != nil {
+				slog.Error("failed to unmarshal item data", "area", d.Name(), "error", err)
+				return
+			}
+			mgr.AddItemBlueprint(&item)
+		})
+
+		// Load mobs
+		loadFilesFromDir(areaFS, "mobs", func(data []byte) {
+			var mob Mob
+			if err := yaml.Unmarshal(data, &mob); err != nil {
+				slog.Error("failed to unmarshal mob data", "area", d.Name(), "error", err)
+				return
+			}
+			mgr.AddMob(&mob)
+		})
 	}
 
 	mgr.BuildRooms()
-
-	slog.Info("Loaded entities",
-		slog.Duration("took", time.Since(st)))
+	slog.Info("Loaded areas", "duration", time.Since(start))
 }
 
 func (mgr *EntityManager) BuildRooms() {
