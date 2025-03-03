@@ -10,7 +10,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/i582/cfmt v1.4.0
 	github.com/muesli/reflow v0.3.0
-	github.com/muesli/termenv v0.15.2
+	github.com/muesli/termenv v0.16.0
 	github.com/spf13/viper v1.19.0
 	github.com/stretchr/testify v1.10.0
 	github.com/vansante/go-event-emitter v1.0.2
