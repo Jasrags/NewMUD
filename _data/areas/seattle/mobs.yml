@@ -67,10 +67,6 @@
   notoriety: 2
   public_awareness: 3
   position_state: Standing
-  default_items:
-  - id: "synth_leather_jacket"
-    quantity: 1
-    equip_item: true
   body:
     base: 4
   agility:

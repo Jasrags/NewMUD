@@ -5,16 +5,11 @@
   exits:
     west:
       room_id: "bellevue_crab_house"
-  default_items:
-    - id: "synth_leather_jacket"
+  spawns:
+    - item_id: "synth_leather_jacket"
+    - mob_id: "ork_thug_lieutenant"
+    - mob_id: "ork_thug_basic"
       quantity: 2
-  default_mobs:
-   - id: "ork_thug_lieutenant"
-     default_items:
-       - id: "synth_leather_jacket"
-         equip_item: true
-   - id: "ork_thug_basic"
-     quantity: 2
   description: >-
     This is a bustling intersection in the heart of Bellevue, Washington. The area is surrounded by a mix of modern office buildings, retail shops, and restaurants, creating a vibrant urban atmosphere. The streets are lined with trees and well-maintained sidewalks, making it a pleasant place for pedestrians. Nearby, you can find the Bellevue Square shopping center, which offers a variety of high-end stores and dining options. The intersection is also conveniently located near public transportation stops, providing easy access to other parts of the city.
 - id: "bellevue_crab_house"

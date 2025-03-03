@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
+	"github.com/google/uuid"
 	"github.com/i582/cfmt/cmd/cfmt"
 )
 
@@ -25,6 +26,7 @@ type (
 	// TODO: Do we want mobs to be an "instance" that will persist after spawning?
 	Mob struct {
 		GameEntity            `yaml:",inline"`
+		InstanceID            string            `yaml:"instance_id"`
 		Tags                  []string          `yaml:"tags"`
 		ProfessionalRating    int               `yaml:"professional_rating"`
 		GeneralDisposition    string            `yaml:"general_disposition"`
@@ -35,6 +37,7 @@ type (
 func NewMob() *Mob {
 	return &Mob{
 		GameEntity:            NewGameEntity(),
+		InstanceID:            uuid.New().String(),
 		GeneralDisposition:    DispositionNeutral,
 		CharacterDispositions: make(map[string]string),
 	}

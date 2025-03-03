@@ -146,7 +146,7 @@ func (mgr *EntityManager) CreateItemInstanceFromBlueprint(bp *ItemBlueprint) *It
 	}
 }
 
-func (mgr *EntityManager) CreateItemFromBlueprint(bp ItemBlueprint) *Item {
+func (mgr *EntityManager) CreateItemFromBlueprint(bp *ItemBlueprint) *Item {
 	slog.Debug("Creating item instance from blueprint",
 		slog.String("item_blueprint_id", bp.ID))
 
@@ -680,82 +680,53 @@ func (mgr *EntityManager) BuildRooms() {
 			}
 		}
 
-		// Spawn default items into the room
-		for _, di := range room.DefaultItems {
-			quantity := di.Quantity
-			if di.Quantity == 0 {
-				quantity = 1
-			}
-			spawnChance := di.SpawnChance
-			if di.SpawnChance == 0 {
-				spawnChance = 100
-			}
-
-			for range quantity {
-				if !RollChance(spawnChance) {
-					continue
-				}
-
-				i := EntityMgr.CreateItemInstanceFromBlueprintID(di.ID)
-				if i == nil {
-					slog.Warn("Item not found",
-						slog.String("item_id", di.ID))
-					continue
-				}
-				room.Inventory.AddItem(i)
-			}
-		}
-
 		// Loop over the mobs we need to spawn into the room
-		for _, dm := range room.DefaultMobs {
-			quantity := dm.Quantity
-			if dm.Quantity == 0 {
+		for _, spawn := range room.Spawns {
+			quantity := spawn.Quantity
+			if spawn.Quantity == 0 {
 				quantity = 1
 			}
-			spawnChance := dm.SpawnChance
-			if dm.SpawnChance == 0 {
-				spawnChance = 100
+			chance := spawn.Chance
+			if spawn.Chance == 0 {
+				chance = 100
 			}
 
-			// Loop over the quantity of mobs to spawn
-			for range quantity {
-				if !RollChance(spawnChance) {
+			if spawn.ItemID != "" {
+				// Spawn an item into the room
+				bp := EntityMgr.GetItemBlueprintByID(spawn.ItemID)
+				if bp == nil {
+					slog.Warn("Item blueprint not found",
+						slog.String("room_id", room.ID),
+						slog.String("item_id", spawn.ItemID))
 					continue
 				}
 
-				mob := EntityMgr.GetMob(dm.ID)
+				for range quantity {
+					if !RollChance(chance) {
+						continue
+					}
+
+					i := EntityMgr.CreateItemFromBlueprint(bp)
+					room.Inventory.AddItem(i)
+				}
+			} else if spawn.MobID != "" {
+				// Spawn mob into the room
+				mob := EntityMgr.GetMob(spawn.MobID)
 				if mob == nil {
 					slog.Warn("Mob not found",
-						slog.String("mob_id", dm.ID))
+						slog.String("room_id", room.ID),
+						slog.String("mob_id", spawn.MobID))
 					continue
 				}
 
-				// TODO: Support the mobs default_items loading
-				for _, di := range room.DefaultItems {
-					quantity := di.Quantity
-					if di.Quantity == 0 {
-						quantity = 1
-					}
-					spawnChance := di.SpawnChance
-					if di.SpawnChance == 0 {
-						spawnChance = 100
+				for range quantity {
+					if !RollChance(chance) {
+						continue
 					}
 
-					for range quantity {
-						if !RollChance(spawnChance) {
-							continue
-						}
-
-						i := EntityMgr.CreateItemInstanceFromBlueprintID(di.ID)
-						if i == nil {
-							slog.Warn("Item not found",
-								slog.String("item_id", di.ID))
-							continue
-						}
-						mob.Inventory.AddItem(i)
-					}
+					mob.InstanceID = uuid.New().String()
+					room.AddMob(mob)
 				}
-				room.AddMob(mob)
 			}
 		}
 	}

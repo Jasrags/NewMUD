@@ -98,25 +98,11 @@ type (
 		Y int `yaml:"y"`
 		Z int `yaml:"z"`
 	}
-	DefaultItem struct {
-		ID          string `yaml:"id"`
-		SpawnChance int    `yaml:"spawn_chance"`
-		Quantity    int    `yaml:"quantity"`
-		MaxCount    int    `yaml:"max_count"`
-	}
-	DefaultMob struct {
-		ID          string           `yaml:"id"`
-		SpawnChance int              `yaml:"spawn_chance"`
-		Quantity    int              `yaml:"quantity"`
-		MaxCount    int              `yaml:"max_count"`
-		Items       []DefaultMobItem `yaml:"default_items"`
-	}
-	DefaultMobItem struct {
-		ID          string `yaml:"id"`
-		SpawnChance int    `yaml:"spawn_chance"`
-		Quantity    int    `yaml:"quantity"`
-		MaxCount    int    `yaml:"max_count"`
-		EquipItem   bool   `yaml:"equip_item"`
+	Spawn struct {
+		ItemID   string `yaml:"item_id"`
+		MobID    string `yaml:"mob_id"`
+		Chance   int    `yaml:"chance"`
+		Quantity int    `yaml:"quantity"`
 	}
 	// TODO: Add Doors and Locks
 	// TODO: Keep track of items in the room between resets
@@ -126,23 +112,22 @@ type (
 		sync.RWMutex `yaml:"-"`
 		Listeners    []ee.Listener `yaml:"-"`
 
-		ID           string           `yaml:"id"`
-		ReferenceID  string           `yaml:"reference_id"`
-		UUID         string           `yaml:"uuid"`
-		AreaID       string           `yaml:"area_id"`
-		Area         *Area            `yaml:"-"`
-		Title        string           `yaml:"title"`
-		Description  string           `yaml:"description"`
-		Tags         []string         `yaml:"tags"`
-		Bias         Bias             `yaml:"bias"`
-		Exits        map[string]*Exit `yaml:"exits"`
-		Corrdinates  *Corrdinates     `yaml:"corrdinates"`
-		Inventory    Inventory        `yaml:"inventory"`
-		Characters   []*Character     `yaml:"-"`
-		Mobs         []*Mob           `yaml:"-"`
-		DefaultItems []DefaultItem    `yaml:"default_items"` // IDs of items to load into the room
-		DefaultMobs  []DefaultMob     `yaml:"default_mobs"`  // IDs of mobs to load into the room
-		SpawnedMobs  []*Mob           `yaml:"-"`             // Mobs that have been spawned into the room
+		ID          string           `yaml:"id"`
+		ReferenceID string           `yaml:"reference_id"`
+		UUID        string           `yaml:"uuid"`
+		AreaID      string           `yaml:"area_id"`
+		Area        *Area            `yaml:"-"`
+		Title       string           `yaml:"title"`
+		Description string           `yaml:"description"`
+		Tags        []string         `yaml:"tags"`
+		Bias        Bias             `yaml:"bias"`
+		Exits       map[string]*Exit `yaml:"exits"`
+		Corrdinates *Corrdinates     `yaml:"corrdinates"`
+		Inventory   Inventory        `yaml:"inventory"`
+		Characters  []*Character     `yaml:"-"`
+		Mobs        []*Mob           `yaml:"-"`
+		Spawns      []Spawn          `yaml:"spawns,omitempty"`
+		SpawnedMobs []*Mob           `yaml:"-"` // Mobs that have been spawned into the room
 	}
 )
 
