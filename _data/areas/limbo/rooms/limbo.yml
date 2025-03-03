@@ -1,0 +1,11 @@
+id: "limbo"
+title: "Limbo"
+exits:
+  south:
+    room_id: "the_void"
+  east:
+    room_id: "black"
+  west:
+    room_id: "white"
+description: >-
+  You are floating in a {{formless}}::yellow void, detached from all sensation of physical matter, surrounded by swirling glowing light, which fades into the relative darkness around you without any trace of edges or shadow.

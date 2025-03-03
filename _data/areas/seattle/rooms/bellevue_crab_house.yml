@@ -1,0 +1,8 @@
+id: "bellevue_crab_house"
+title: "Bellevue Crab House"
+tags: ["Restaurant"]
+exits:
+  east:
+    room_id: "main_street_and_108th_avenue_ne"
+description: >-
+  This excellent first-class seafood restaurant is in the heart of the district's business center.

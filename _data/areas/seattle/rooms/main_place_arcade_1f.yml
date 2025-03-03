@@ -1,0 +1,11 @@
+id: "main_place_arcade_1f"
+title: "Main Place Arcade - 1st Floor"
+tags: ["Arcade"]
+exits:
+  west:
+    room_id: "112th_avenue_se_and_main_street"
+  up:
+    room_id: "main_place_arcade_2f"
+    type: "escalator"
+description: >-
+  The Main Place Arcade lies in the heart of Bellevue's old city whose turn-of-the-century flavor has been carefully preserved. The mall is full of small shops featuring the handiwork of local craftsmen and merchants. It has one tech shop and one body shop, either of which is second-rate.

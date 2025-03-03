@@ -274,11 +274,6 @@ func (mgr *EntityManager) GetMob(id string) *Mob {
 	mgr.RLock()
 	defer mgr.RUnlock()
 
-	for _, mob := range mgr.mobs {
-		slog.Debug("Checking mob",
-			slog.String("mob_id", mob.ID))
-	}
-
 	return mgr.mobs[strings.ToLower(id)]
 }
 
@@ -585,14 +580,14 @@ func (mgr *EntityManager) LoadAreasFromFS() {
 		if !d.IsDir() {
 			continue
 		}
-		// Create a sub-FS for this area folder
+
 		areaFS, err := fs.Sub(areasFS, d.Name())
 		if err != nil {
 			slog.Error("failed to create sub FS for area", "area", d.Name(), "error", err)
 			continue
 		}
 
-		// Load manifest.yml
+		// Load the area manifest
 		manifestBytes, err := fs.ReadFile(areaFS, "manifest.yml")
 		if err != nil {
 			slog.Error("failed reading manifest", "area", d.Name(), "error", err)
@@ -633,6 +628,10 @@ func (mgr *EntityManager) LoadAreasFromFS() {
 				slog.Error("failed to unmarshal mob data", "area", d.Name(), "error", err)
 				return
 			}
+
+			// TODO: Add items into the mobs inventory
+			// TODO: Add items to the mobs equipment
+
 			mgr.AddMob(&mob)
 		})
 	}
