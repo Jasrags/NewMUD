@@ -4,12 +4,14 @@ import (
 	"log/slog"
 	"path/filepath"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/gliderlabs/ssh"
 	"github.com/i582/cfmt/cmd/cfmt"
 	"github.com/spf13/viper"
+	ee "github.com/vansante/go-event-emitter"
 )
 
 const (
@@ -25,8 +27,14 @@ type (
 		Total     int `yaml:"total"`     // Total karma earned
 	}
 	Character struct {
+		sync.RWMutex `yaml:"-"`
+		Listeners    []ee.Listener `yaml:"-"`
+
 		GameEntity     `yaml:",inline"`
+		RoomID         string      `yaml:"room_id"`
+		Room           *Room       `yaml:"-"`
 		AccountID      string      `yaml:"account_id"`
+		Account        *Account    `yaml:"account"`
 		PregenID       string      `yaml:"pregen_id"`
 		Role           string      `yaml:"role"`
 		Prompt         string      `yaml:"prompt"`
@@ -72,42 +80,7 @@ func (c *Character) ReactToMessage(sender *Character, message string) {
 	}
 }
 
-// func (c *Character) FromRoom() {
-// 	c.Lock()
-// 	defer c.Unlock()
-
-// 	slog.Debug("Removing character from room",
-// 		slog.String("character_id", c.ID))
-
-// 	if c.Room == nil {
-// 		slog.Error("Character has no room",
-// 			slog.String("character_id", c.ID))
-// 		return
-// 	}
-
-// 	c.Room.RemoveCharacter(c)
-// 	c.Room = nil
-// 	c.RoomID = ""
-// }
-
-// func (c *Character) ToRoom(nextRoom *Room) {
-// 	c.Lock()
-// 	defer c.Unlock()
-
-// 	slog.Debug("Moving character to room",
-// 		slog.String("character_id", c.ID),
-// 		slog.String("room_id", nextRoom.ID))
-
-// 	c.Room = nextRoom
-// 	c.RoomID = CreateEntityRef(c.AreaID, c.Room.ID)
-// 	c.Room.AddCharacter(c)
-// }
-
 func (c *Character) SetRoom(room *Room) {
-	slog.Debug("Setting character room",
-		slog.String("character_id", c.ID),
-		slog.String("room_reference_id", room.ReferenceID))
-
 	c.Room = room
 	c.RoomID = room.ReferenceID
 }
@@ -160,7 +133,7 @@ func (c *Character) Save() error {
 
 func RenderCharacterTable(char *Character) string {
 	metatype := EntityMgr.GetMetatype(char.MetatypeID)
-	char.Recalculate()
+
 	table := lipgloss.JoinVertical(lipgloss.Left,
 		// Personal Data
 		headerStyle.Render("Personal Data"),
@@ -195,23 +168,19 @@ func RenderCharacterTable(char *Character) string {
 			lipgloss.JoinVertical(lipgloss.Left,
 				headerStyle.Render("Attributes"),
 				// Attributes - LEFT - Base attributes
-				// Formats:
-				// Reaction   5  (7)
-				// Essence    6.00
 				dualColumnStyle.Render(
 					lipgloss.JoinVertical(lipgloss.Left,
-						RenderAttribute("Body", char.Body),
-						RenderAttribute("Agility", char.Agility),
-						RenderAttribute("Reaction", char.Reaction),
-						RenderAttribute("Strength", char.Strength),
-						RenderAttribute("Willpower", char.Willpower),
-						RenderAttribute("Logic", char.Logic),
-						RenderAttribute("Intuition", char.Intuition),
-						RenderAttribute("Charisma", char.Charisma),
-						RenderAttribute("Essence", char.Essence),
-						RenderAttribute("Magic", char.Magic),
-						RenderAttribute("Resonance", char.Resonance),
-						// strs...,
+						cfmt.Sprintf("%-10s %d", "Body:", char.GetBody()),
+						cfmt.Sprintf("%-10s %d", "Agility:", char.GetAgility()),
+						cfmt.Sprintf("%-10s %d", "Reaction:", char.GetReaction()),
+						cfmt.Sprintf("%-10s %d", "Strength:", char.GetStrength()),
+						cfmt.Sprintf("%-10s %d", "Willpower:", char.GetWillpower()),
+						cfmt.Sprintf("%-10s %d", "Logic:", char.GetLogic()),
+						cfmt.Sprintf("%-10s %d", "Intuition:", char.GetIntuition()),
+						cfmt.Sprintf("%-10s %d", "Charisma:", char.GetCharisma()),
+						cfmt.Sprintf("%-10s %.2f", "Essence:", char.GetEssence()),
+						cfmt.Sprintf("%-10s %d", "Magic:", char.GetMagic()),
+						cfmt.Sprintf("%-10s %d", "Resonance:", char.GetResonance()),
 					),
 				),
 			),
@@ -219,17 +188,12 @@ func RenderCharacterTable(char *Character) string {
 			lipgloss.JoinVertical(lipgloss.Left,
 				headerStyle.Render(""),
 				dualColumnStyle.Render(
-					lipgloss.JoinVertical(lipgloss.Left), // RenderAttribute(char.Attributes.Initiative), // Initiative 10 (12) + 1d6 (2d6)
-					// 			RenderAttribute(char.Attributes.InitiativeDice),
-					// 			RenderAttribute(char.Attributes.Composure),       // 5  (7)
-					// 			RenderAttribute(char.Attributes.JudgeIntentions), // 5  (7)
-					// 			RenderAttribute(char.Attributes.Memory),          // 5  (7)
-					// 			RenderAttribute(char.Attributes.Lift),            // 5  (7)
-					// 			RenderAttribute(char.Attributes.Carry),           // 5  (7)
-					// 			RenderAttribute(char.Attributes.Walk),            // 5  (7)
-					// 			RenderAttribute(char.Attributes.Run),             // 5  (7)
-					// 			RenderAttribute(char.Attributes.Swim),            // 5  (7)
-					// 			"",
+					lipgloss.JoinVertical(lipgloss.Left,
+						cfmt.Sprintf("%-17s %d + 6d%d", "Initiative:", char.GetInitative(), char.GetInitativeDice()),
+						cfmt.Sprintf("%-17s %d", "Composure:", char.GetComposure()),
+						cfmt.Sprintf("%-17s %d", "Judge Intentions:", char.GetJudgeIntentions()),
+						cfmt.Sprintf("%-17s %d", "Memory:", char.GetMemory()),
+					),
 				),
 			),
 		),

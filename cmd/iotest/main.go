@@ -41,7 +41,9 @@ func main() {
 	player2.MetatypeID = "Ork"
 	char.Room.AddCharacter(player2)
 
-	mob1 := game.EntityMgr.GetMob("ork_thug_lieutenant")
+	// mob1 := game.EntityMgr.GetMob("ork_thug_lieutenant")
+
+	// mob1 := game.EntityMgr.CreateMobInstanceFromBlueprintID("ork_thug_lieutenant")
 	// if mob1 == nil {
 	// 	panic("Mob not found")
 	// }
@@ -53,8 +55,8 @@ func main() {
 	// mob2 := game.NewMob()
 	// mob2.Name = "Mob2"
 
-	char.Room.AddMob(game.EntityMgr.GetMob("ork_thug_basic"))
-	char.Room.AddMob(game.EntityMgr.GetMob("ork_thug_lieutenant"))
+	char.Room.AddMobInstance(game.EntityMgr.CreateMobInstanceFromBlueprintID("ork_thug_basic"))
+	char.Room.AddMobInstance(game.EntityMgr.CreateMobInstanceFromBlueprintID("ork_thug_lieutenant"))
 
 	// item1 := game.EntityMgr.CreateItemInstanceFromBlueprintID("small_rock")
 	// item2 := game.EntityMgr.CreateItemInstanceFromBlueprintID("jagged_rock")
@@ -109,11 +111,11 @@ func main() {
 	// output.WriteString(game.CRLF)
 	// output.WriteString(game.WrapTextInBorder(text, customOptions))
 	// sb.WriteString(game.CRLF)
-	// sb.WriteString(game.RenderCharacterTable(char))
+	sb.WriteString(game.RenderCharacterTable(char))
 	// sb.WriteString(borderStyle.Width(80).Render(cfmt.Sprint(text)))
 	sb.WriteString(game.CRLF)
 	// output.WriteString(game.RenderRoom(acct, char, room))
-	output.WriteString(game.RenderMobTable(mob1))
+	// output.WriteString(game.RenderMobTable(mob1))
 	// output.WriteString(game.RenderCharacterTable(char))
 	// output.WriteString(game.RenderPromptMenu("Main Menu", []string{"Enter Game", "Create Character", "Change Password", "Quit"}))
 	// output.WriteString(game.RenderPrompt(char))

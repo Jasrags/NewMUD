@@ -9,24 +9,24 @@ const ()
 
 type (
 	Inventory struct {
-		Items []*Item `yaml:"items"`
+		Items []*ItemInstance `yaml:"items"`
 	}
 )
 
 // NewInventory creates a new inventory
-func NewInventory() *Inventory {
-	return &Inventory{
-		Items: []*Item{},
+func NewInventory() Inventory {
+	return Inventory{
+		Items: []*ItemInstance{},
 	}
 }
 
 // Add an item to the inventory
-func (inv *Inventory) AddItem(item *Item) {
+func (inv *Inventory) AddItem(item *ItemInstance) {
 	inv.Items = append(inv.Items, item)
 }
 
 // Remove an item from the inventory
-func (inv *Inventory) RemoveItem(item *Item) bool {
+func (inv *Inventory) RemoveItem(item *ItemInstance) bool {
 	for i, existingItem := range inv.Items {
 		if existingItem == item {
 			inv.Items = slices.Delete(inv.Items, i, i+1)
@@ -37,7 +37,7 @@ func (inv *Inventory) RemoveItem(item *Item) bool {
 }
 
 // Find an item by its name
-func (inv *Inventory) FindItemByName(name string) *Item {
+func (inv *Inventory) FindItemByName(name string) *ItemInstance {
 	for _, item := range inv.Items {
 		bp := EntityMgr.GetItemBlueprintByInstance(item)
 		if bp != nil && strings.EqualFold(bp.Name, name) {
@@ -48,7 +48,7 @@ func (inv *Inventory) FindItemByName(name string) *Item {
 }
 
 // Find an item by its instance ID
-func (inv *Inventory) FindItemByID(instanceID string) *Item {
+func (inv *Inventory) FindItemByID(instanceID string) *ItemInstance {
 	for _, item := range inv.Items {
 		if item.InstanceID == instanceID {
 			return item
@@ -57,8 +57,8 @@ func (inv *Inventory) FindItemByID(instanceID string) *Item {
 	return nil
 }
 
-func (inv *Inventory) FindItemByTags(tags ...string) []*Item {
-	results := []*Item{}
+func (inv *Inventory) FindItemByTags(tags ...string) []*ItemInstance {
+	results := []*ItemInstance{}
 
 	for _, item := range inv.Items {
 		bp := EntityMgr.GetItemBlueprintByInstance(item)
@@ -78,8 +78,8 @@ func (inv *Inventory) Clear() {
 	inv.Items = nil
 }
 
-func (inv *Inventory) Search(query string) []*Item {
-	results := []*Item{}
+func (inv *Inventory) Search(query string) []*ItemInstance {
+	results := []*ItemInstance{}
 
 	if len(inv.Items) == 0 {
 		return results
@@ -116,7 +116,7 @@ func matchesTags(tags []string, query string) bool {
 	return false
 }
 
-func TransferItem(item *Item, from, to Inventory) bool {
+func TransferItem(item *ItemInstance, from, to Inventory) bool {
 	if from.RemoveItem(item) {
 		to.AddItem(item)
 		return true
@@ -125,17 +125,17 @@ func TransferItem(item *Item, from, to Inventory) bool {
 }
 
 // Combine base stats and modifiers for a given item instance
-func GetCombinedStats(instance *Item, em *EntityManager) map[string]int {
-	blueprint := em.GetItemBlueprintByInstance(instance)
-	if blueprint == nil {
+func GetCombinedStats(i *ItemInstance, em *EntityManager) map[string]int {
+	bp := em.GetItemBlueprintByInstance(i)
+	if bp == nil {
 		return nil
 	}
 
 	combinedStats := make(map[string]int)
-	for key, value := range blueprint.BaseStats {
+	for key, value := range bp.BaseStats {
 		combinedStats[key] = value
 	}
-	for key, value := range instance.Modifiers {
+	for key, value := range i.Blueprint.Modifiers {
 		combinedStats[key] += value
 	}
 	return combinedStats

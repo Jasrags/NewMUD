@@ -21,28 +21,32 @@ var (
 type EntityManager struct {
 	sync.RWMutex
 
-	areas       map[string]*Area
-	items       map[string]*ItemBlueprint
-	metatypes   map[string]*Metatype
-	mobs        map[string]*Mob
-	pregens     map[string]*Pregen
-	qualtities  map[string]*QualityBlueprint
-	rooms       map[string]*Room
-	skills      map[string]*SkillBlueprint
-	skillGroups map[string]*SkillGroup
+	areas           map[string]*Area
+	itemsBlueprints map[string]*ItemBlueprint
+	itemInstances   map[string]*ItemInstance
+	metatypes       map[string]*Metatype
+	mobBlueprints   map[string]*MobBlueprint
+	mobInstances    map[string]*MobInstance
+	pregens         map[string]*Pregen
+	qualtities      map[string]*QualityBlueprint
+	rooms           map[string]*Room
+	skills          map[string]*SkillBlueprint
+	skillGroups     map[string]*SkillGroup
 }
 
 func NewEntityManager() *EntityManager {
 	return &EntityManager{
-		areas:       make(map[string]*Area),
-		items:       make(map[string]*ItemBlueprint),
-		metatypes:   make(map[string]*Metatype),
-		mobs:        make(map[string]*Mob),
-		pregens:     make(map[string]*Pregen),
-		qualtities:  make(map[string]*QualityBlueprint),
-		rooms:       make(map[string]*Room),
-		skills:      make(map[string]*SkillBlueprint),
-		skillGroups: make(map[string]*SkillGroup),
+		areas:           make(map[string]*Area),
+		itemsBlueprints: make(map[string]*ItemBlueprint),
+		itemInstances:   make(map[string]*ItemInstance),
+		metatypes:       make(map[string]*Metatype),
+		mobBlueprints:   make(map[string]*MobBlueprint),
+		mobInstances:    make(map[string]*MobInstance),
+		pregens:         make(map[string]*Pregen),
+		qualtities:      make(map[string]*QualityBlueprint),
+		rooms:           make(map[string]*Room),
+		skills:          make(map[string]*SkillBlueprint),
+		skillGroups:     make(map[string]*SkillGroup),
 	}
 }
 
@@ -77,12 +81,191 @@ func (mgr *EntityManager) RemoveArea(a *Area) {
 	delete(mgr.areas, strings.ToLower(a.ID))
 }
 
+// Mob functions
+func (mgr *EntityManager) GetAllMobInstances() map[string]*MobInstance {
+	mgr.RLock()
+	defer mgr.RUnlock()
+
+	return mgr.mobInstances
+}
+
+func (mgr *EntityManager) AddMobInstance(m *MobInstance) {
+	mgr.Lock()
+	defer mgr.Unlock()
+
+	if _, ok := mgr.mobInstances[m.InstanceID]; ok {
+		slog.Warn("Mob instance already exists",
+			slog.String("mob_instance_id", m.InstanceID))
+		return
+	}
+
+	mgr.mobInstances[m.InstanceID] = m
+}
+
+func (mgr *EntityManager) GetMobInstance(id string) *MobInstance {
+	mgr.RLock()
+	defer mgr.RUnlock()
+
+	return mgr.mobInstances[id]
+}
+
+func (mgr *EntityManager) RemoveMobInstance(m *MobInstance) {
+	mgr.Lock()
+	defer mgr.Unlock()
+
+	if _, ok := mgr.mobInstances[m.InstanceID]; !ok {
+		slog.Warn("Mob instance not found",
+			slog.String("mob_instance_id", m.InstanceID))
+		return
+	}
+
+	delete(mgr.mobInstances, m.InstanceID)
+}
+
+func (mgr *EntityManager) GetAllMobBlueprints() map[string]*MobBlueprint {
+	mgr.RLock()
+	defer mgr.RUnlock()
+
+	return mgr.mobBlueprints
+}
+
+func (mgr *EntityManager) AddMobBlueprint(m *MobBlueprint) {
+	mgr.Lock()
+	defer mgr.Unlock()
+
+	if _, ok := mgr.mobBlueprints[m.ID]; ok {
+		slog.Warn("Mob blueprint already exists",
+			slog.String("mob_blueprint_id", m.ID))
+		return
+	}
+
+	mgr.mobBlueprints[m.ID] = m
+}
+
+func (mgr *EntityManager) RemoveMobBlueprint(m *MobBlueprint) {
+	mgr.Lock()
+	defer mgr.Unlock()
+
+	if _, ok := mgr.mobBlueprints[m.ID]; !ok {
+		slog.Warn("Mob blueprint not found",
+			slog.String("mob_blueprint_id", m.ID))
+		return
+	}
+
+	delete(mgr.mobBlueprints, m.ID)
+}
+
+func (mgr *EntityManager) GetMobBlueprintByID(id string) *MobBlueprint {
+	mgr.RLock()
+	defer mgr.RUnlock()
+
+	return mgr.mobBlueprints[id]
+}
+
+func (mgr *EntityManager) GetMobBlueprintByInstance(mob *MobInstance) *MobBlueprint {
+	mgr.RLock()
+	defer mgr.RUnlock()
+
+	bp, ok := mgr.mobBlueprints[mob.BlueprintID]
+	if !ok {
+		slog.Error("Mob blueprint not found",
+			slog.String("mob_blueprint_id", mob.BlueprintID))
+		return nil
+	}
+
+	return bp
+}
+
+func (mgr *EntityManager) CreateMobInstanceFromBlueprintID(id string) *MobInstance {
+	mgr.RLock()
+	defer mgr.RUnlock()
+
+	bp, ok := mgr.mobBlueprints[id]
+	if !ok {
+		slog.Error("Mob blueprint not found",
+			slog.String("mob_blueprint_id", id))
+		return nil
+	}
+
+	return mgr.CreateMobInstanceFromBlueprint(bp)
+}
+
+func (mgr *EntityManager) CreateMobInstanceFromBlueprint(bp *MobBlueprint) *MobInstance {
+	mgr.RLock()
+	defer mgr.RUnlock()
+
+	mob := &MobInstance{
+		Blueprint:   bp,
+		InstanceID:  uuid.New().String(),
+		BlueprintID: bp.ID,
+
+		// Dynamic state fields
+		CharacterDispositions: make(map[string]string),
+		Edge:                  bp.Edge,
+		PositionState:         PositionStanding,
+		Inventory:             NewInventory(),
+		Equipment:             make(map[string]*ItemInstance),
+	}
+
+	metatype := mgr.GetMetatype(bp.MetatypeID)
+	if metatype == nil {
+		slog.Error("Mob metatype not found",
+			slog.String("mob_blueprint_id", bp.ID),
+			slog.String("mob_metatype_id", bp.MetatypeID))
+		return nil
+	}
+
+	mob.Blueprint.Metatype = metatype
+
+	return mob
+}
+
 // Item functions
+func (mgr *EntityManager) GetAllItemInstances() map[string]*ItemInstance {
+	mgr.RLock()
+	defer mgr.RUnlock()
+
+	return mgr.itemInstances
+}
+
+func (mgr *EntityManager) AddItemInstance(i *ItemInstance) {
+	mgr.Lock()
+	defer mgr.Unlock()
+
+	if _, ok := mgr.itemInstances[i.InstanceID]; ok {
+		slog.Warn("Item instance already exists",
+			slog.String("item_instance_id", i.InstanceID))
+		return
+	}
+
+	mgr.itemInstances[i.InstanceID] = i
+}
+
+func (mgr *EntityManager) GetItemInstance(id string) *ItemInstance {
+	mgr.RLock()
+	defer mgr.RUnlock()
+
+	return mgr.itemInstances[id]
+}
+
+func (mgr *EntityManager) RemoveItemInstance(i *ItemInstance) {
+	mgr.Lock()
+	defer mgr.Unlock()
+
+	if _, ok := mgr.itemInstances[i.InstanceID]; !ok {
+		slog.Warn("Item instance not found",
+			slog.String("item_instance_id", i.InstanceID))
+		return
+	}
+
+	delete(mgr.itemInstances, i.InstanceID)
+}
+
 func (mgr *EntityManager) GetAllItemBlueprints() map[string]*ItemBlueprint {
 	mgr.RLock()
 	defer mgr.RUnlock()
 
-	return mgr.items
+	return mgr.itemsBlueprints
 }
 
 func (mgr *EntityManager) AddItemBlueprint(i *ItemBlueprint) {
@@ -92,27 +275,27 @@ func (mgr *EntityManager) AddItemBlueprint(i *ItemBlueprint) {
 	slog.Debug("Adding item blueprint",
 		slog.String("item_id", i.ID))
 
-	if _, ok := mgr.items[i.ID]; ok {
+	if _, ok := mgr.itemsBlueprints[i.ID]; ok {
 		slog.Warn("Item blueprint already exists",
 			slog.String("item_id", i.ID))
 		return
 	}
 
-	mgr.items[i.ID] = i
+	mgr.itemsBlueprints[i.ID] = i
 }
 
 func (mgr *EntityManager) GetItemBlueprintByID(id string) *ItemBlueprint {
 	mgr.RLock()
 	defer mgr.RUnlock()
 
-	return mgr.items[id]
+	return mgr.itemsBlueprints[id]
 }
 
-func (mgr *EntityManager) GetItemBlueprintByInstance(item *Item) *ItemBlueprint {
+func (mgr *EntityManager) GetItemBlueprintByInstance(item *ItemInstance) *ItemBlueprint {
 	mgr.RLock()
 	defer mgr.RUnlock()
 
-	bp, ok := mgr.items[item.BlueprintID]
+	bp, ok := mgr.itemsBlueprints[item.BlueprintID]
 	if !ok {
 		slog.Error("Item blueprint not found",
 			slog.String("item_blueprint_id", item.BlueprintID))
@@ -122,12 +305,12 @@ func (mgr *EntityManager) GetItemBlueprintByInstance(item *Item) *ItemBlueprint 
 	return bp
 }
 
-func (mgr *EntityManager) CreateItemInstanceFromBlueprintID(id string) *Item {
-	slog.Debug("Creating item instance from blueprint",
-		slog.String("item_blueprint_id", id))
+func (mgr *EntityManager) CreateItemInstanceFromBlueprintID(id string) *ItemInstance {
+	mgr.RLock()
+	defer mgr.RUnlock()
 
-	bp, ok := mgr.items[id]
-	if !ok {
+	bp := mgr.GetItemBlueprintByID(id)
+	if bp == nil {
 		slog.Error("Item blueprint not found",
 			slog.String("item_blueprint_id", id))
 		return nil
@@ -136,27 +319,12 @@ func (mgr *EntityManager) CreateItemInstanceFromBlueprintID(id string) *Item {
 	return mgr.CreateItemInstanceFromBlueprint(bp)
 }
 
-func (mgr *EntityManager) CreateItemInstanceFromBlueprint(bp *ItemBlueprint) *Item {
-	slog.Debug("Creating item instance from blueprint",
-		slog.String("item_blueprint_id", bp.ID))
-
-	return &Item{
-		InstanceID:  uuid.New().String(),
+func (mgr *EntityManager) CreateItemInstanceFromBlueprint(bp *ItemBlueprint) *ItemInstance {
+	return &ItemInstance{
+		Blueprint:   bp,
 		BlueprintID: bp.ID,
-		Modifiers:   make(map[string]int),
-		Attachments: []string{},
-	}
-}
-
-func (mgr *EntityManager) CreateItemFromBlueprint(bp *ItemBlueprint) *Item {
-	slog.Debug("Creating item instance from blueprint",
-		slog.String("item_blueprint_id", bp.ID))
-
-	return &Item{
 		InstanceID:  uuid.New().String(),
-		BlueprintID: bp.ID,
-		Modifiers:   make(map[string]int),
-		Attachments: []string{},
+		Attachments: bp.Attachments,
 	}
 }
 
@@ -164,7 +332,7 @@ func (mgr *EntityManager) GetItemBlueprint(id string) *ItemBlueprint {
 	mgr.RLock()
 	defer mgr.RUnlock()
 
-	bp, ok := mgr.items[id]
+	bp, ok := mgr.itemsBlueprints[id]
 	if !ok {
 		slog.Error("Item blueprint not found",
 			slog.String("item_blueprint_id", id))
@@ -230,6 +398,10 @@ func (mgr *EntityManager) loadMetatypes() {
 	}
 
 	for _, file := range files {
+		if !IsYAMLFile(file.Name()) {
+			continue
+		}
+
 		var metatype Metatype
 		if err := LoadYAML(filepath.Join(MetatypesFilepath, file.Name()), &metatype); err != nil {
 			slog.Error("failed to unmarshal metatype data",
@@ -247,41 +419,6 @@ func (mgr *EntityManager) loadMetatypes() {
 	slog.Debug("Loaded metatypes",
 		slog.Duration("took", took),
 		slog.Int("count", len(mgr.metatypes)))
-}
-
-// Mob functions
-func (mgr *EntityManager) GetAllMobs() map[string]*Mob {
-	mgr.RLock()
-	defer mgr.RUnlock()
-
-	return mgr.mobs
-}
-
-func (mgr *EntityManager) AddMob(m *Mob) {
-	mgr.Lock()
-	defer mgr.Unlock()
-
-	if _, ok := mgr.mobs[m.ID]; ok {
-		slog.Warn("Mob already exists",
-			slog.String("mob_id", m.ID))
-		return
-	}
-
-	mgr.mobs[m.ID] = m
-}
-
-func (mgr *EntityManager) GetMob(id string) *Mob {
-	mgr.RLock()
-	defer mgr.RUnlock()
-
-	return mgr.mobs[strings.ToLower(id)]
-}
-
-func (mgr *EntityManager) RemoveMob(m *Mob) {
-	mgr.Lock()
-	defer mgr.Unlock()
-
-	delete(mgr.mobs, m.ID)
 }
 
 // Pregen functions
@@ -338,6 +475,10 @@ func (mgr *EntityManager) loadPregens() {
 	}
 
 	for _, file := range files {
+		if !IsYAMLFile(file.Name()) {
+			continue
+		}
+
 		var pregen Pregen
 		if err := LoadYAML(filepath.Join(PreGensFilepath, file.Name()), &pregen); err != nil {
 			slog.Error("failed to unmarshal pregen data",
@@ -390,6 +531,10 @@ func (mgr *EntityManager) loadQualities() {
 	}
 
 	for _, file := range files {
+		if !IsYAMLFile(file.Name()) {
+			continue
+		}
+
 		var quality QualityBlueprint
 		if err := LoadYAML(filepath.Join(QualitiesFilepath, file.Name()), &quality); err != nil {
 			slog.Error("failed to unmarshal quality data",
@@ -480,6 +625,10 @@ func (mgr *EntityManager) loadSkills(t string, path string) {
 	}
 
 	for _, file := range files {
+		if !IsYAMLFile(file.Name()) {
+			continue
+		}
+
 		var skill SkillBlueprint
 		if err := LoadYAML(filepath.Join(path, file.Name()), &skill); err != nil {
 			slog.Error("failed to unmarshal skill data",
@@ -514,6 +663,10 @@ func (mgr *EntityManager) loadSkillGroups() {
 	}
 
 	for _, file := range files {
+		if !IsYAMLFile(file.Name()) {
+			continue
+		}
+
 		var group SkillGroup
 		if err := LoadYAML(filepath.Join(SkillGroupsFilepath, file.Name()), &group); err != nil {
 			slog.Error("failed to unmarshal skill group data",
@@ -551,8 +704,8 @@ func (mgr *EntityManager) LoadDataFiles() {
 	slog.Info("Loaded data files",
 		slog.Duration("took", took),
 		slog.Int("areas", len(mgr.areas)),
-		slog.Int("items", len(mgr.items)),
-		slog.Int("mobs", len(mgr.mobs)),
+		slog.Int("items", len(mgr.itemsBlueprints)),
+		slog.Int("mobs", len(mgr.mobBlueprints)),
 		slog.Int("rooms", len(mgr.rooms)),
 		slog.Int("pregens", len(mgr.pregens)),
 		slog.Int("qualities", len(mgr.qualtities)),
@@ -608,6 +761,8 @@ func (mgr *EntityManager) LoadAreasFromFS() {
 				slog.Error("failed to unmarshal room data", "area", d.Name(), "error", err)
 				return
 			}
+			room.MobInstances = make(map[string]*MobInstance)
+			room.Characters = make(map[string]*Character)
 			mgr.AddRoom(&room)
 		})
 
@@ -621,9 +776,9 @@ func (mgr *EntityManager) LoadAreasFromFS() {
 			mgr.AddItemBlueprint(&item)
 		})
 
-		// Load mobs
+		// Load mobs (MobBlueprints)
 		loadFilesFromDir(areaFS, "mobs", func(data []byte) {
-			var mob Mob
+			var mob MobBlueprint
 			if err := yaml.Unmarshal(data, &mob); err != nil {
 				slog.Error("failed to unmarshal mob data", "area", d.Name(), "error", err)
 				return
@@ -632,7 +787,8 @@ func (mgr *EntityManager) LoadAreasFromFS() {
 			// TODO: Add items into the mobs inventory
 			// TODO: Add items to the mobs equipment
 
-			mgr.AddMob(&mob)
+			mgr.AddMobBlueprint(&mob)
+			// mgr.AddMob(&mob)
 		})
 	}
 
@@ -688,16 +844,32 @@ func (mgr *EntityManager) BuildRooms() {
 						continue
 					}
 
-					i := mgr.CreateItemFromBlueprint(bp)
+					i := mgr.CreateItemInstanceFromBlueprint(bp)
+					if i == nil {
+						slog.Warn("Item instance not found",
+							slog.String("room_id", room.ID),
+							slog.String("item_id", spawn.ItemID))
+						continue
+					}
 					room.Inventory.AddItem(i)
 				}
 			} else if spawn.MobID != "" {
+				bp := mgr.GetMobBlueprintByID(spawn.MobID)
+				if bp == nil {
+					slog.Warn("Mob blueprint not found",
+						slog.String("room_id", room.ID),
+						slog.String("mob_blueprint_id", spawn.MobID))
+					continue
+				}
+
 				for range quantity {
 					if !RollChance(chance) {
 						continue
 					}
 
-					mob := mgr.GetMob(spawn.MobID)
+					mob := mgr.CreateMobInstanceFromBlueprint(bp)
+
+					// mob := mgr.GetMob(spawn.MobID)
 					if mob == nil {
 						slog.Warn("Mob not found",
 							slog.String("room_id", room.ID),
@@ -705,8 +877,9 @@ func (mgr *EntityManager) BuildRooms() {
 						continue
 					}
 
-					mob.InstanceID = uuid.New().String()
-					room.AddMob(mob)
+					// mob.InstanceID = uuid.New().String()
+					// room.AddMob(mob)
+					room.AddMobInstance(mob)
 				}
 			}
 		}

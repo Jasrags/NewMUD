@@ -534,17 +534,28 @@ func PromptSelectPregenTemplate(s ssh.Session, a *Account, char *Character) (str
 		// Update the existing character with the template data.
 		char.PregenID = pregen.ID
 		char.MetatypeID = pregen.MetatypeID
-		char.Body = Attribute[int]{Base: pregen.Body.Base}
-		char.Agility = Attribute[int]{Base: pregen.Agility.Base}
-		char.Reaction = Attribute[int]{Base: pregen.Reaction.Base}
-		char.Strength = Attribute[int]{Base: pregen.Strength.Base}
-		char.Willpower = Attribute[int]{Base: pregen.Willpower.Base}
-		char.Logic = Attribute[int]{Base: pregen.Logic.Base}
-		char.Intuition = Attribute[int]{Base: pregen.Intuition.Base}
-		char.Charisma = Attribute[int]{Base: pregen.Charisma.Base}
-		char.Essence = Attribute[float64]{Base: pregen.Essence.Base}
-		char.Magic = Attribute[int]{Base: pregen.Magic.Base}
-		char.Resonance = Attribute[int]{Base: pregen.Resonance.Base}
+		char.Body = pregen.Body
+		char.Agility = pregen.Agility
+		char.Reaction = pregen.Reaction
+		char.Strength = pregen.Strength
+		char.Willpower = pregen.Willpower
+		char.Logic = pregen.Logic
+		char.Intuition = pregen.Intuition
+		char.Charisma = pregen.Charisma
+		char.Essence = pregen.Essence
+		char.Magic = pregen.Magic
+		char.Resonance = pregen.Resonance
+		// char.Body = Attribute[int]{Base: pregen.Body.Base}
+		// char.Agility = Attribute[int]{Base: pregen.Agility.Base}
+		// char.Reaction = Attribute[int]{Base: pregen.Reaction.Base}
+		// char.Strength = Attribute[int]{Base: pregen.Strength.Base}
+		// char.Willpower = Attribute[int]{Base: pregen.Willpower.Base}
+		// char.Logic = Attribute[int]{Base: pregen.Logic.Base}
+		// char.Intuition = Attribute[int]{Base: pregen.Intuition.Base}
+		// char.Charisma = Attribute[int]{Base: pregen.Charisma.Base}
+		// char.Essence = Attribute[float64]{Base: pregen.Essence.Base}
+		// char.Magic = Attribute[int]{Base: pregen.Magic.Base}
+		// char.Resonance = Attribute[int]{Base: pregen.Resonance.Base}
 
 		// Update skills and qualities from the template.
 		char.Skills = pregen.Skills
@@ -804,7 +815,7 @@ func PromptEnterGame(s ssh.Session, a *Account) (string, *Character) {
 		// Save any changes to the account and character, and mark the character as online.
 		a.Save()
 
-		c.Recalculate()
+		// c.Recalculate()
 		c.Save()
 		CharacterMgr.SetCharacterOnline(c)
 

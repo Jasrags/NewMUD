@@ -13,15 +13,15 @@ func TestNewInventory(t *testing.T) {
 }
 func TestAddItem(t *testing.T) {
 	inv := NewInventory()
-	item := &Item{InstanceID: "item1"}
+	item := &ItemInstance{InstanceID: "item1"}
 
 	inv.AddItem(item)
 	assert.Equal(t, 1, len(inv.Items), "Expected inventory to have 1 item after adding")
 	assert.Equal(t, item, inv.Items[0], "Expected the added item to be in the inventory")
 }
 func TestRemoveItem(t *testing.T) {
-	item1 := &Item{InstanceID: "item1"}
-	item2 := &Item{InstanceID: "item2"}
+	item1 := &ItemInstance{InstanceID: "item1"}
+	item2 := &ItemInstance{InstanceID: "item2"}
 	inv := NewInventory()
 	inv.AddItem(item1)
 	inv.AddItem(item2)

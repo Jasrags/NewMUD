@@ -2,8 +2,9 @@ package game
 
 import (
 	"slices"
+	"sync"
 
-	"github.com/google/uuid"
+	ee "github.com/vansante/go-event-emitter"
 )
 
 const (
@@ -40,36 +41,33 @@ var (
 
 type (
 	ItemBlueprint struct {
-		ID          string         `yaml:"id"`
-		Name        string         `yaml:"name"`
-		Description string         `yaml:"description"`
-		Tags        []string       `yaml:"tags"`
-		Weight      float64        `yaml:"weight"`
-		Value       int            `yaml:"value"`
-		BaseStats   map[string]int `yaml:"base_stats"`
-		EquipSlots  []string       `yaml:"equip_slots"`
-		Type        string         `yaml:"type"`
-		Subtype     string         `yaml:"subtype"`
+		ID          string            `yaml:"id"`
+		Name        string            `yaml:"name"`
+		Description string            `yaml:"description"`
+		Tags        []string          `yaml:"tags"`
+		Weight      float64           `yaml:"weight"`
+		Value       int               `yaml:"value"`
+		BaseStats   map[string]int    `yaml:"base_stats"`
+		EquipSlots  []string          `yaml:"equip_slots"`
+		Modifiers   map[string]int    `yaml:"modifiers"`
+		Attachments map[string]string `yaml:"attachments"`
+		Type        string            `yaml:"type"`
+		Subtype     string            `yaml:"subtype"`
 	}
 
 	// TODO: need to add the weight of attachments to the weight of the item
-	Item struct {
+	ItemInstance struct {
+		sync.RWMutex `yaml:"-"`
+		Listeners    []ee.Listener `yaml:"-"`
+
 		InstanceID  string         `yaml:"instance_id"`
 		BlueprintID string         `yaml:"blueprint_id"`
-		Modifiers   map[string]int `yaml:"modifiers"`
-		Attachments []string       `yaml:"attachments"`
-		NestedInv   *Inventory     `yaml:"nested_inventory"`
+		Blueprint   *ItemBlueprint `yaml:"-"`
+		// Dynamic state fields
+		Attachments map[string]string `yaml:"attachments"`
+		NestedInv   *Inventory        `yaml:"nested_inventory"`
 	}
 )
-
-func NewItem(blueprint *ItemBlueprint) *Item {
-	return &Item{
-		InstanceID:  uuid.New().String(),
-		BlueprintID: blueprint.ID,
-		Modifiers:   make(map[string]int),
-		Attachments: []string{},
-	}
-}
 
 func (ib *ItemBlueprint) HasTags(searchTags ...string) bool {
 	for _, searchTag := range searchTags {

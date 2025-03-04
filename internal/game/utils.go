@@ -94,6 +94,10 @@ func loadFilesFromDir(fsys fs.FS, dir string, process func(data []byte)) {
 		if entry.IsDir() {
 			continue
 		}
+		if !IsYAMLFile(entry.Name()) {
+			continue
+		}
+
 		data, err := fs.ReadFile(fsys, filepath.Join(dir, entry.Name()))
 		if err != nil {
 			slog.Error("failed reading file", "file", entry.Name(), "error", err)
@@ -172,13 +176,13 @@ func ReverseDirection(dir string) string {
 	return dir
 }
 
-func RenderItemDescription(item *Item) string {
+func RenderItemDescription(item *ItemInstance) string {
 	bp := EntityMgr.GetItemBlueprintByInstance(item)
 	return cfmt.Sprintf("{{%s}}::green\n{{Description: %s}}::white"+CRLF, bp.Name, bp.Description)
 }
 
-func RenderMobDescription(mob *Mob) string {
-	return cfmt.Sprintf("{{%s}}::red\n{{Description: %s}}::white"+CRLF, mob.Name, mob.Description)
+func RenderMobDescription(mob *MobInstance) string {
+	return cfmt.Sprintf("{{%s}}::red\n{{Description: %s}}::white"+CRLF, mob.Blueprint.Name, mob.Blueprint.Description)
 }
 
 func RenderCharacterDescription(char *Character) string {
@@ -414,21 +418,6 @@ func HasAnyTag(objectTags []string, filterTags []string) bool {
 	return false
 }
 
-// FindMobsByName searches the current room's mobs and returns all instances
-// that match the provided name (case-insensitive).
-func FindMobsByName(room *Room, name string) []*Mob {
-	var matches []*Mob
-	room.RLock()
-	defer room.RUnlock()
-
-	for _, mob := range room.Mobs {
-		if strings.EqualFold(mob.Name, name) {
-			matches = append(matches, mob)
-		}
-	}
-	return matches
-}
-
 // RenderAttribute renders a single attribute for display.
 func RenderAttribute[T int | float64](name string, attr Attribute[T]) string {
 	var output strings.Builder
@@ -463,4 +452,8 @@ func renderValue[T int | float64](value T) string {
 }
 func RenderKeyValue(key, value string) string {
 	return fmt.Sprintf("%s: %s", attrNameStyle.Render(key), attrTextValueStyle.Render(value))
+}
+
+func IsYAMLFile(filename string) bool {
+	return strings.HasSuffix(strings.ToLower(filename), ".yml") || strings.HasSuffix(strings.ToLower(filename), ".yaml")
 }

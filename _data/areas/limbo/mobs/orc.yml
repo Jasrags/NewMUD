@@ -1,4 +1,5 @@
 id: "orc"
 name: "Orc"
+metatype_id: human
 description: >-
   A large, brutish creature with a menacing presence.

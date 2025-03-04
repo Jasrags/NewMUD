@@ -2,12 +2,10 @@ package game
 
 import (
 	"fmt"
-	"log/slog"
 	"strings"
 	"sync"
 
 	"github.com/Jasrags/NewMUD/pluralizer"
-	"github.com/google/uuid"
 	"github.com/i582/cfmt/cmd/cfmt"
 	"github.com/muesli/reflow/wordwrap"
 	ee "github.com/vansante/go-event-emitter"
@@ -112,31 +110,34 @@ type (
 		sync.RWMutex `yaml:"-"`
 		Listeners    []ee.Listener `yaml:"-"`
 
-		ID          string           `yaml:"id"`
-		ReferenceID string           `yaml:"reference_id"`
-		UUID        string           `yaml:"uuid"`
-		AreaID      string           `yaml:"area_id"`
-		Area        *Area            `yaml:"-"`
-		Title       string           `yaml:"title"`
-		Description string           `yaml:"description"`
-		Tags        []string         `yaml:"tags"`
-		Bias        Bias             `yaml:"bias"`
-		Exits       map[string]*Exit `yaml:"exits"`
-		Corrdinates *Corrdinates     `yaml:"corrdinates"`
-		Inventory   Inventory        `yaml:"inventory"`
-		Characters  []*Character     `yaml:"-"`
-		Mobs        []*Mob           `yaml:"-"`
-		Spawns      []Spawn          `yaml:"spawns,omitempty"`
-		SpawnedMobs []*Mob           `yaml:"-"` // Mobs that have been spawned into the room
+		ID           string                  `yaml:"id"`
+		ReferenceID  string                  `yaml:"reference_id"`
+		InstanceID   string                  `yaml:"instance_id"`
+		AreaID       string                  `yaml:"area_id"`
+		Area         *Area                   `yaml:"-"`
+		Title        string                  `yaml:"title"`
+		Description  string                  `yaml:"description"`
+		Tags         []string                `yaml:"tags"`
+		Bias         Bias                    `yaml:"bias"`
+		Exits        map[string]*Exit        `yaml:"exits"`
+		Corrdinates  *Corrdinates            `yaml:"corrdinates"`
+		Inventory    Inventory               `yaml:"inventory"`
+		Characters   map[string]*Character   `yaml:"-"`
+		MobInstances map[string]*MobInstance `yaml:"-"`
+		Spawns       []Spawn                 `yaml:"spawns,omitempty"`
+		// SpawnedMobs         []*MonIN                  `yaml:"-"` // Mobs that have been spawned into the room
+		SpawnedMobInstances []*MobInstance `yaml:"-"` // Mob instances that have been spawned into the room
 	}
 )
 
-func NewRoom() *Room {
-	return &Room{
-		UUID:  uuid.New().String(),
-		Exits: make(map[string]*Exit),
-	}
-}
+// func NewRoom() *Room {
+// 	return &Room{
+// 		UUID:         uuid.New().String(),
+// 		Characters:   make(map[string]*Character),
+// 		Exits:        make(map[string]*Exit),
+// 		MobInstances: make(map[string]*MobInstance),
+// 	}
+// }
 
 // func (r *Room) Init() {
 // 	slog.Debug("Initializing room",
@@ -151,39 +152,56 @@ func NewRoom() *Room {
 // }
 
 // FindMobByName searches for a mob in the room by name and returns the first match or nil if not found
-func (r *Room) FindMobByName(name string) *Mob {
+func (r *Room) FindMobByName(name string) *MobInstance {
 	r.RLock()
 	defer r.RUnlock()
 
-	for _, mob := range r.Mobs {
-		if strings.EqualFold(mob.Name, name) {
+	for _, mob := range r.MobInstances {
+		if strings.EqualFold(mob.Blueprint.Name, name) {
 			return mob
 		}
 	}
 	return nil
 }
 
-func (r *Room) FindMobsByPartialName(search string) []*Mob {
-	var matches []*Mob
-	for _, mob := range r.Mobs {
-		if strings.Contains(strings.ToLower(mob.Name), strings.ToLower(search)) {
+// FindMobsByName searches the current room's mobs and returns all instances
+// that match the provided name (case-insensitive).
+func (r *Room) FindMobsByName(name string) []*MobInstance {
+	var matches []*MobInstance
+	r.RLock()
+	defer r.RUnlock()
+
+	for _, mob := range r.MobInstances {
+		if strings.EqualFold(mob.Blueprint.Name, name) {
 			matches = append(matches, mob)
 		}
 	}
 	return matches
 }
 
-func (r *Room) FindMobByInstanceID(instanceID string) *Mob {
+func (r *Room) FindMobsByPartialName(search string) []*MobInstance {
 	r.RLock()
 	defer r.RUnlock()
 
-	for _, mob := range r.Mobs {
-		if mob.InstanceID == instanceID {
-			return mob
+	var matches []*MobInstance
+	for _, mob := range r.MobInstances {
+		if strings.Contains(strings.ToLower(mob.Blueprint.Name), strings.ToLower(search)) {
+			matches = append(matches, mob)
 		}
 	}
+	return matches
+}
 
-	return nil
+func (r *Room) FindMobByInstanceID(instanceID string) *MobInstance {
+	r.RLock()
+	defer r.RUnlock()
+
+	mob, ok := r.MobInstances[instanceID]
+	if !ok {
+		return nil
+	}
+
+	return mob
 }
 
 func (r *Room) HasExit(dir string) bool {
@@ -230,54 +248,32 @@ func (r *Room) AddCharacter(c *Character) {
 	r.Lock()
 	defer r.Unlock()
 
-	slog.Debug("Adding character to room",
-		slog.String("room_id", r.ID),
-		slog.String("character_id", c.ID))
-
-	r.Characters = append(r.Characters, c)
+	r.Characters[c.ID] = c
 }
 
 func (r *Room) RemoveCharacter(c *Character) {
 	r.Lock()
 	defer r.Unlock()
 
-	slog.Debug("Removing character from room",
-		slog.String("room_id", r.ID),
-		slog.String("character_id", c.ID))
-
-	for i, char := range r.Characters {
-		if char.ID == c.ID {
-			r.Characters = append(r.Characters[:i], r.Characters[i+1:]...)
-			break
-		}
-	}
+	delete(r.Characters, c.ID)
 }
 
-func (r *Room) AddMob(m *Mob) {
+func (r *Room) AddMobInstance(m *MobInstance) {
 	r.Lock()
 	defer r.Unlock()
 
-	slog.Debug("Adding mob to room",
-		slog.String("room_id", r.ID),
-		slog.String("mob_id", m.ID))
+	m.RoomID = r.ID
 
-	r.Mobs = append(r.Mobs, m)
+	r.MobInstances[m.InstanceID] = m
 }
 
-func (r *Room) RemoveMob(m *Mob) {
+func (r *Room) RemoveMobInstance(m *MobInstance) {
 	r.Lock()
 	defer r.Unlock()
 
-	slog.Debug("Removing mob from room",
-		slog.String("room_id", r.ID),
-		slog.String("mob_id", m.ID))
+	m.RoomID = ""
 
-	for i, mob := range r.Mobs {
-		if mob.ID == m.ID {
-			r.Mobs = append(r.Mobs[:i], r.Mobs[i+1:]...)
-			break
-		}
-	}
+	delete(r.MobInstances, m.InstanceID)
 }
 
 func (r *Room) Broadcast(msg string, excludeIDs []string) {
@@ -382,7 +378,7 @@ func RenderEntitiesInRoom(char *Character) string {
 	var builder strings.Builder
 
 	// Total entity count minus the character itself
-	entityCount := len(char.Room.Characters) - 1 + len(char.Room.Mobs)
+	entityCount := len(char.Room.Characters) - 1 + len(char.Room.MobInstances)
 	entityDescriptions := []string{}
 	for _, c := range char.Room.Characters {
 		if c.Name != char.Name {
@@ -393,8 +389,8 @@ func RenderEntitiesInRoom(char *Character) string {
 	}
 	// Count and map mob names for pluralization
 	mobNameCounts := make(map[string]int)
-	for _, m := range char.Room.Mobs {
-		mobNameCounts[m.Name]++
+	for _, m := range char.Room.MobInstances {
+		mobNameCounts[m.Blueprint.Name]++
 	}
 
 	figureText := pluralizer.PluralizeNounPhrase("figure", entityCount)

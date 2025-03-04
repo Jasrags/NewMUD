@@ -29,12 +29,12 @@ type (
 		NextRoom  *Room
 	}
 	RoomMobEnter struct {
-		Mob      *Mob
+		Mob      *MobInstance
 		Room     *Room
 		PrevRoom *Room
 	}
 	RoomMobLeave struct {
-		Mob      *Mob
+		Mob      *MobInstance
 		Room     *Room
 		NextRoom *Room
 	}

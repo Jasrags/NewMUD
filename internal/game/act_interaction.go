@@ -423,7 +423,7 @@ func DoGive(s ssh.Session, cmd string, args []string, user *Account, char *Chara
 
 	// Calculate recipient's capacity and transfer items
 	remainingCapacity := float64(recipient.GetLiftCarry()) - recipient.GetCurrentCarryWeight()
-	givenItems := []*Item{}
+	givenItems := []*ItemInstance{}
 	totalWeight := 0.0
 
 	for _, item := range matchingItems[:quantity] {
@@ -556,7 +556,7 @@ func DoGet(s ssh.Session, cmd string, args []string, user *Account, char *Charac
 	}
 
 	remainingCapacity := float64(char.GetLiftCarry()) - char.GetCurrentCarryWeight()
-	pickedItems := []*Item{}
+	pickedItems := []*ItemInstance{}
 	totalWeight := 0.0
 
 	for _, item := range matchingItems[:quantity] {
@@ -687,7 +687,7 @@ func DoEquip(s ssh.Session, cmd string, args []string, user *Account, char *Char
 	}
 
 	// Select the appropriate item.
-	var chosenItem *Item
+	var chosenItem *ItemInstance
 	if len(matches) == 1 {
 		chosenItem = matches[0]
 	} else {
@@ -763,7 +763,7 @@ func DoUnequip(s ssh.Session, cmd string, args []string, user *Account, char *Ch
 	// Search through equipped items for matches.
 	type equippedMatch struct {
 		slot string
-		item *Item
+		item *ItemInstance
 	}
 	var matches []equippedMatch
 	for slot, item := range char.Equipment {

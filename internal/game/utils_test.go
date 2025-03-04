@@ -198,3 +198,25 @@ func TestRollChance(t *testing.T) {
 		})
 	}
 }
+func TestIsYAMLFile(t *testing.T) {
+	tests := []struct {
+		filename string
+		expected bool
+	}{
+		{"config.yaml", true},
+		{"config.yml", true},
+		{"config.json", false},
+		{"config.txt", false},
+		{"CONFIG.YAML", true},
+		{"CONFIG.YML", true},
+		{"config.YaMl", true},
+		{"", false},
+	}
+
+	for _, test := range tests {
+		t.Run(fmt.Sprintf("IsYAMLFile(%s)", test.filename), func(t *testing.T) {
+			result := IsYAMLFile(test.filename)
+			assert.Equal(t, test.expected, result)
+		})
+	}
+}
