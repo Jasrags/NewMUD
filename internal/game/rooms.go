@@ -163,6 +163,29 @@ func (r *Room) FindMobByName(name string) *Mob {
 	return nil
 }
 
+func (r *Room) FindMobsByPartialName(search string) []*Mob {
+	var matches []*Mob
+	for _, mob := range r.Mobs {
+		if strings.Contains(strings.ToLower(mob.Name), strings.ToLower(search)) {
+			matches = append(matches, mob)
+		}
+	}
+	return matches
+}
+
+func (r *Room) FindMobByInstanceID(instanceID string) *Mob {
+	r.RLock()
+	defer r.RUnlock()
+
+	for _, mob := range r.Mobs {
+		if mob.InstanceID == instanceID {
+			return mob
+		}
+	}
+
+	return nil
+}
+
 func (r *Room) HasExit(dir string) bool {
 	return r.Exits[dir] != nil
 }

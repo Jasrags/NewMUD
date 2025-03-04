@@ -2,7 +2,6 @@ package game
 
 import (
 	"fmt"
-	"strconv"
 	"strings"
 
 	"github.com/gliderlabs/ssh"
@@ -127,7 +126,7 @@ func DoMobStats(s ssh.Session, cmd string, args []string, acct *Account, char *C
 	mobName := strings.Join(args, " ")
 
 	// Find mobs with partial name matching
-	matches := FindMobsByPartialName(room, mobName)
+	matches := room.FindMobsByPartialName(mobName)
 
 	if len(matches) == 0 {
 		WriteString(s, fmt.Sprintf("{{No mob found matching '%s' in this room.}}::red"+CRLF, mobName))
@@ -141,56 +140,29 @@ func DoMobStats(s ssh.Session, cmd string, args []string, acct *Account, char *C
 		return
 	}
 
-	// options := []MenuOption{}
-	// for _, m := range matches {
-	// 	options = append(options,
-	// 		MenuOption{DisplayText: m.Name, Value: m.ID, Description: m.Name})
-	// }
-
-	// option, err := PromptForMenu(s, "Main Menu", options)
-	// 	if err != nil {
-	// 		slog.Error("Error prompting for menu", slog.Any("error", err))
-	// 		return StateError
-	// 	}
-
-	// Multiple matches found, prompt selection
-	var builder strings.Builder
-	builder.WriteString(fmt.Sprintf("{{Multiple mobs found matching '%s':}}::yellow"+CRLF, mobName))
-	for i, m := range matches {
-		builder.WriteString(fmt.Sprintf("  %d) %s - %s"+CRLF, i+1, m.Name, m.Title))
+	// If we have multiple options prompt to select one
+	var options []MenuOption
+	for _, m := range matches {
+		options = append(options, MenuOption{
+			DisplayText: fmt.Sprintf("%s - %s ", m.Name, m.InstanceID),
+			Value:       m.InstanceID,
+		})
 	}
-	builder.WriteString("{{Please enter a number to select a mob:}}::yellow ")
-	WriteString(s, builder.String())
 
-	// Wait for user input
-	selection, err := InputPrompt(s, "")
+	chosen, err := PromptForMenu(s, "Please select a mob:", options)
 	if err != nil {
 		WriteString(s, "{{Error receiving input.}}::red"+CRLF)
 		return
 	}
 
-	// Convert input to an integer
-	mobIndex, err := strconv.Atoi(selection)
-	if err != nil || mobIndex < 1 || mobIndex > len(matches) {
-		WriteString(s, "{{Invalid selection. Please try again.}}::red"+CRLF)
+	selectedMob := room.FindMobByInstanceID(chosen)
+	if selectedMob == nil {
+		WriteString(s, fmt.Sprintf("{{No mob found with ID '%s'.}}::red"+CRLF, chosen))
 		return
 	}
 
-	// Display selected mob's stats
-	selectedMob := matches[mobIndex-1]
 	WriteString(s, RenderMobTable(selectedMob))
 	WriteString(s, CRLF)
-}
-
-// FindMobsByPartialName searches for mobs in a room where the name contains the search term
-func FindMobsByPartialName(room *Room, search string) []*Mob {
-	var matches []*Mob
-	for _, mob := range room.Mobs {
-		if strings.Contains(strings.ToLower(mob.Name), strings.ToLower(search)) {
-			matches = append(matches, mob)
-		}
-	}
-	return matches
 }
 
 func DoGoto(s ssh.Session, cmd string, args []string, user *Account, char *Character, room *Room) {

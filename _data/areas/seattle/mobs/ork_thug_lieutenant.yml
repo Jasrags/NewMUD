@@ -14,12 +14,6 @@ street_cred: 1
 notoriety: 2
 public_awareness: 3
 position_state: Standing
-equipment:
-   body:
-     blueprint_id: "synth_leather_jacket"
-inventory:
-  items:
-    - item_id: small_rock
 body:
   base: 4
 agility:

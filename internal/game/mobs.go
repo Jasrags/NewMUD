@@ -19,9 +19,6 @@ const (
 )
 
 type (
-	// TODO: Do we want to move to using a mob blueprint? If so how will we maintain the GameEntity
-	MobBlueprint struct {
-	}
 	// TODO: Implement mob AI behaviors.
 	// TODO: Do we want mobs to be an "instance" that will persist after spawning?
 	Mob struct {
@@ -164,7 +161,8 @@ func RenderMobTable(mob *Mob) string {
 
 	// Render full character sheet
 	characterSheet := lipgloss.JoinVertical(lipgloss.Left,
-		headerStyle.Render("Ork Thug Lieutenant"),
+		headerStyle.Render(cfmt.Sprintf("%s", mob.Name)),
+		singleColumnStyle.Render(cfmt.Sprintf("ID %s; InstanceID %s;", mob.ID, mob.InstanceID)),
 		singleColumnStyle.Render(cfmt.Sprintf("Metatype %s; %s; Age: %d; Height: %dcm; Weight: %dkg; Street Cred: %d; Notoriety: %d; Public Awareness: %d",
 			metatype.Name, mob.Sex, mob.Age, mob.Height, mob.Weight, mob.StreetCred, mob.Notoriety, mob.PublicAwareness)),
 		headerStyle.Render("Attributes"),

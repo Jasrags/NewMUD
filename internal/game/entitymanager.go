@@ -675,7 +675,7 @@ func (mgr *EntityManager) BuildRooms() {
 
 			if spawn.ItemID != "" {
 				// Spawn an item into the room
-				bp := EntityMgr.GetItemBlueprintByID(spawn.ItemID)
+				bp := mgr.GetItemBlueprintByID(spawn.ItemID)
 				if bp == nil {
 					slog.Warn("Item blueprint not found",
 						slog.String("room_id", room.ID),
@@ -688,21 +688,20 @@ func (mgr *EntityManager) BuildRooms() {
 						continue
 					}
 
-					i := EntityMgr.CreateItemFromBlueprint(bp)
+					i := mgr.CreateItemFromBlueprint(bp)
 					room.Inventory.AddItem(i)
 				}
 			} else if spawn.MobID != "" {
-				// Spawn mob into the room
-				mob := EntityMgr.GetMob(spawn.MobID)
-				if mob == nil {
-					slog.Warn("Mob not found",
-						slog.String("room_id", room.ID),
-						slog.String("mob_id", spawn.MobID))
-					continue
-				}
-
 				for range quantity {
 					if !RollChance(chance) {
+						continue
+					}
+
+					mob := mgr.GetMob(spawn.MobID)
+					if mob == nil {
+						slog.Warn("Mob not found",
+							slog.String("room_id", room.ID),
+							slog.String("mob_id", spawn.MobID))
 						continue
 					}
 
