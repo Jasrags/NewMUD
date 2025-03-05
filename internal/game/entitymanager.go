@@ -198,7 +198,6 @@ func (mgr *EntityManager) CreateMobInstanceFromBlueprint(bp *MobBlueprint) *MobI
 		Blueprint:   bp,
 		InstanceID:  uuid.New().String(),
 		BlueprintID: bp.ID,
-
 		// Dynamic state fields
 		CharacterDispositions: make(map[string]string),
 		Edge:                  bp.Edge,
@@ -213,6 +212,52 @@ func (mgr *EntityManager) CreateMobInstanceFromBlueprint(bp *MobBlueprint) *MobI
 			slog.String("mob_blueprint_id", bp.ID),
 			slog.String("mob_metatype_id", bp.MetatypeID))
 		return nil
+	}
+
+	// Spawn items into the mob's inventory or equipment
+	for _, spawn := range bp.Spawns {
+		// Check if the spawn is for an item
+		if spawn.ItemID != "" {
+
+			// Check if the item is a quality item
+			quantity := spawn.Quantity
+			if spawn.Quantity == 0 {
+				quantity = 1
+			}
+			// Check if the spawn has a chance
+			chance := spawn.Chance
+			if spawn.Chance == 0 {
+				chance = 100
+			}
+
+			for range quantity {
+				if !RollChance(chance) {
+					continue
+				}
+
+				item := mgr.CreateItemInstanceFromBlueprintID(spawn.ItemID)
+				if item == nil {
+					slog.Error("Item instance not found",
+						slog.String("mob_blueprint_id", mob.BlueprintID),
+						slog.String("item_blueprint_id", spawn.ItemID))
+					continue
+				}
+
+				// Equip the item in the specified slot
+				if spawn.EquipSlot != "" {
+					if _, ok := mob.Equipment[spawn.EquipSlot]; ok {
+						slog.Warn("Equip slot already occupied",
+							slog.String("mob_blueprint_id", mob.BlueprintID),
+							slog.String("equip_slot", spawn.EquipSlot))
+						continue
+					}
+					mob.Equipment[spawn.EquipSlot] = item
+				} else {
+					// Add the item to the inventory
+					mob.Inventory.AddItem(item)
+				}
+			}
+		}
 	}
 
 	mob.Blueprint.Metatype = metatype
@@ -868,8 +913,6 @@ func (mgr *EntityManager) BuildRooms() {
 					}
 
 					mob := mgr.CreateMobInstanceFromBlueprint(bp)
-
-					// mob := mgr.GetMob(spawn.MobID)
 					if mob == nil {
 						slog.Warn("Mob not found",
 							slog.String("room_id", room.ID),
@@ -877,8 +920,6 @@ func (mgr *EntityManager) BuildRooms() {
 						continue
 					}
 
-					// mob.InstanceID = uuid.New().String()
-					// room.AddMob(mob)
 					room.AddMobInstance(mob)
 				}
 			}

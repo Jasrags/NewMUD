@@ -19,12 +19,20 @@ const (
 )
 
 type (
+	MobSpawns struct {
+		ItemID    string `yaml:"item_id"`
+		Quantity  int    `yaml:"quantity"`
+		Chance    int    `yaml:"chance"`
+		EquipSlot string `yaml:"equip_slot"`
+	}
 	MobBlueprint struct {
-		GameEntity         `yaml:",inline"`
-		Metatype           *Metatype `yaml:"-"`
-		Tags               []string  `yaml:"tags"`
-		ProfessionalRating int       `yaml:"professional_rating"`
-		GeneralDisposition string    `yaml:"general_disposition"`
+		GameEntity `yaml:",inline"`
+
+		Metatype           *Metatype   `yaml:"-"`
+		Tags               []string    `yaml:"tags"`
+		ProfessionalRating int         `yaml:"professional_rating"`
+		GeneralDisposition string      `yaml:"general_disposition"`
+		Spawns             []MobSpawns `yaml:"spawns"`
 	}
 
 	MobInstance struct {
@@ -36,7 +44,6 @@ type (
 		Blueprint   *MobBlueprint `yaml:"-"`
 		RoomID      string        `yaml:"room_id"`
 		Room        *Room         `yaml:"-"`
-
 		// Dynamic state fields
 		CharacterDispositions map[string]string        `yaml:"character_dispositions"`
 		Edge                  int                      `yaml:"edge"`
@@ -248,15 +255,13 @@ func RenderMobTable(mob *MobInstance) string {
 	)
 
 	// TODO: temp display of inventory
-	for i, item := range mob.Inventory.Items {
-		bp := EntityMgr.GetItemBlueprintByInstance(item)
-		if bp == nil {
-			continue
-		}
-		if i == 0 {
-			characterSheet += headerStyle.Render("Inventory") + CRLF
-		}
-		characterSheet += fmt.Sprintf("%s %s\n", bp.Name, item.InstanceID)
+	characterSheet += headerStyle.Render("Inventory") + CRLF
+	for _, item := range mob.Inventory.Items {
+		characterSheet += fmt.Sprintf("%s %s"+CRLF, item.Blueprint.Name, item.InstanceID)
+	}
+	characterSheet += headerStyle.Render("Equipment") + CRLF
+	for slot, item := range mob.Equipment {
+		characterSheet += fmt.Sprintf("%s %s %s"+CRLF, slot, item.Blueprint.Name, item.InstanceID)
 	}
 
 	return characterSheet

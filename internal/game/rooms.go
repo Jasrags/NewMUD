@@ -96,7 +96,7 @@ type (
 		Y int `yaml:"y"`
 		Z int `yaml:"z"`
 	}
-	Spawn struct {
+	RoomSpawn struct {
 		ItemID   string `yaml:"item_id"`
 		MobID    string `yaml:"mob_id"`
 		Chance   int    `yaml:"chance"`
@@ -124,7 +124,7 @@ type (
 		Inventory    Inventory               `yaml:"inventory"`
 		Characters   map[string]*Character   `yaml:"-"`
 		MobInstances map[string]*MobInstance `yaml:"-"`
-		Spawns       []Spawn                 `yaml:"spawns,omitempty"`
+		Spawns       []RoomSpawn             `yaml:"spawns,omitempty"`
 		// SpawnedMobs         []*MonIN                  `yaml:"-"` // Mobs that have been spawned into the room
 		SpawnedMobInstances []*MobInstance `yaml:"-"` // Mob instances that have been spawned into the room
 	}

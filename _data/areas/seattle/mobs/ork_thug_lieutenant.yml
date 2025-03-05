@@ -26,6 +26,11 @@ essence: 6
 edge: 1
 initiative_dice:
   base: 1
+spawns:
+  - item_id: jagged_rock
+    quantity: 2
+  - item_id: synth_leather_jacket
+    equip_slot: body
 skills:
   blades:
     blueprint_id: "blades"
