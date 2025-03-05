@@ -34,7 +34,6 @@ type (
 		GeneralDisposition string      `yaml:"general_disposition"`
 		Spawns             []MobSpawns `yaml:"spawns"`
 	}
-
 	MobInstance struct {
 		sync.RWMutex `yaml:"-"`
 		Listeners    []ee.Listener `yaml:"-"`
@@ -50,9 +49,12 @@ type (
 		PhysicalDamage        int                      `yaml:"physical_damage"`
 		StunDamage            int                      `yaml:"stun_damage"`
 		OverflowDamage        int                      `yaml:"overflow_damage"`
-		PositionState         string                   `yaml:"position_state"`
 		Inventory             Inventory                `yaml:"inventory"`
 		Equipment             map[string]*ItemInstance `yaml:"equipment"`
+		PositionState         string                   `yaml:"position_state"`
+		// Qualtities    map[string]*Quality      `yaml:"qualities"`
+		// Skills        map[string]*Skill        `yaml:"skills"`
+
 	}
 
 	// TODO: Implement mob AI behaviors.

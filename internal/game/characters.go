@@ -30,7 +30,9 @@ type (
 		sync.RWMutex `yaml:"-"`
 		Listeners    []ee.Listener `yaml:"-"`
 
-		GameEntity     `yaml:",inline"`
+		GameEntity `yaml:",inline"`
+
+		Conn           ssh.Session `yaml:"-"`
 		RoomID         string      `yaml:"room_id"`
 		Room           *Room       `yaml:"-"`
 		AccountID      string      `yaml:"account_id"`
@@ -39,11 +41,16 @@ type (
 		Role           string      `yaml:"role"`
 		Prompt         string      `yaml:"prompt"`
 		Karma          Karma       `yaml:"karma"`
-		Conn           ssh.Session `yaml:"-"`
 		CreatedAt      time.Time   `yaml:"created_at"`
 		UpdatedAt      *time.Time  `yaml:"updated_at"`
 		DeletedAt      *time.Time  `yaml:"deleted_at"`
 		CommandHistory []string    `yaml:"-"`
+
+		// Inventory     Inventory                `yaml:"inventory"`
+		// Equipment     map[string]*ItemInstance `yaml:"equipment"`
+		// Qualtities    map[string]*Quality      `yaml:"qualities"`
+		// Skills        map[string]*Skill        `yaml:"skills"`
+		// PositionState string                   `yaml:"position_state"`
 	}
 )
 

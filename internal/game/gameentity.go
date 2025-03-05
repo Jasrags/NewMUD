@@ -24,19 +24,19 @@ const (
 )
 
 type (
-	PhysicalDamage struct {
-		Current  int // Current damage boxes filled
-		Max      int // Max damage boxes in the track
-		Overflow int // Overflow boxes beyond the Physical track
-	}
-	StunDamage struct {
-		Current int // Current damage boxes filled
-		Max     int // Max damage boxes in the track
-	}
-	Edge struct {
-		Max       int `yaml:"max"`       // Max edge points
-		Available int `yaml:"available"` // Available edge points
-	}
+	// PhysicalDamage struct {
+	// 	Current  int // Current damage boxes filled
+	// 	Max      int // Max damage boxes in the track
+	// 	Overflow int // Overflow boxes beyond the Physical track
+	// }
+	// StunDamage struct {
+	// 	Current int // Current damage boxes filled
+	// 	Max     int // Max damage boxes in the track
+	// }
+	// Edge struct {
+	// 	Max       int `yaml:"max"`       // Max edge points
+	// 	Available int `yaml:"available"` // Available edge points
+	// }
 	GameEntity struct {
 		ID              string                   `yaml:"id"`
 		Name            string                   `yaml:"name"`
