@@ -30,20 +30,24 @@ type (
 		sync.RWMutex `yaml:"-"`
 		Listeners    []ee.Listener `yaml:"-"`
 
-		GameEntity `yaml:",inline"`
+		GameEntityInformation `yaml:",inline"`
+		GameEntityStats       `yaml:",inline"`
+		GameEntityDynamic     `yaml:",inline"`
+
+		// GameEntity `yaml:",inline"`
 
 		Conn           ssh.Session `yaml:"-"`
 		RoomID         string      `yaml:"room_id"`
 		Room           *Room       `yaml:"-"`
 		AccountID      string      `yaml:"account_id"`
 		Account        *Account    `yaml:"account"`
-		PregenID       string      `yaml:"pregen_id"`
+		PregenID       string      `yaml:"pregen_id,omitempty"`
 		Role           string      `yaml:"role"`
-		Prompt         string      `yaml:"prompt"`
+		Prompt         string      `yaml:"prompt,omitempty"`
 		Karma          Karma       `yaml:"karma"`
 		CreatedAt      time.Time   `yaml:"created_at"`
-		UpdatedAt      *time.Time  `yaml:"updated_at"`
-		DeletedAt      *time.Time  `yaml:"deleted_at"`
+		UpdatedAt      *time.Time  `yaml:"updated_at,omitempty"`
+		DeletedAt      *time.Time  `yaml:"deleted_at,omitempty"`
 		CommandHistory []string    `yaml:"-"`
 
 		// Inventory     Inventory                `yaml:"inventory"`
@@ -56,10 +60,11 @@ type (
 
 func NewCharacter() *Character {
 	return &Character{
-		GameEntity: NewGameEntity(),
-		Role:       CharacterRolePlayer,
-		Prompt:     DefaultPrompt,
-		CreatedAt:  time.Now(),
+		GameEntityDynamic: NewGameEntityDynamic(),
+		// GameEntity: NewGameEntity(),
+		Role:      CharacterRolePlayer,
+		Prompt:    DefaultPrompt,
+		CreatedAt: time.Now(),
 	}
 }
 

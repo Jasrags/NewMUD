@@ -24,8 +24,6 @@ intuition: 3
 charisma: 3
 essence: 6
 edge: 1
-initiative_dice:
-  base: 1
 spawns:
   - item_id: jagged_rock
     quantity: 2

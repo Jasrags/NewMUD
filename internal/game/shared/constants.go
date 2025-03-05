@@ -14,4 +14,8 @@ const (
 	RuleSourceSR5SASS RuleSource = "SR5:SailAwaySweetSister"
 	RuleSourceSR5GH3  RuleSource = "SR5:GunH(e)aven3"
 	RuleSourceSR5BB   RuleSource = "SR5:BulletsAndBandages"
+
+	DispositionFriendly   = "Friendly"
+	DispositionNeutral    = "Neutral"
+	DispositionAggressive = "Aggressive"
 )

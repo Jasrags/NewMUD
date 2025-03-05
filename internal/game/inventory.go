@@ -9,7 +9,7 @@ const ()
 
 type (
 	Inventory struct {
-		Items []*ItemInstance `yaml:"items"`
+		Items []*ItemInstance `yaml:"items,omitempty"`
 	}
 )
 

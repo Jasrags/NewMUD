@@ -1,6 +1,12 @@
 package game
 
-import "github.com/Jasrags/NewMUD/internal/game/shared"
+import (
+	"strings"
+
+	"github.com/Jasrags/NewMUD/internal/game/shared"
+	"github.com/i582/cfmt/cmd/cfmt"
+	"github.com/muesli/reflow/wordwrap"
+)
 
 const (
 	SkillsFilepath         = "_data/skills"
@@ -14,7 +20,6 @@ const (
 	SkillTypeKnowledge = "Knowledge"
 	SkillTypeLanguage  = "Language"
 
-	// Skill Categories
 	SkillCategoryCombat        = "Combat Active"
 	SkillCategoryMagical       = "Magical Active"
 	SkillCategoryPhysical      = "Physical Active"
@@ -23,7 +28,7 @@ const (
 	SkillCategorySocial        = "Social Active"
 	SkillCategoryTechnical     = "Technical Active"
 	SkillCategoryVehicle       = "Vehicle Active"
-	// Knowledge Skills
+
 	SkillCategoryAcademic     = "Academic"
 	SkillCategoryInterest     = "Interest"
 	SkillCategoryLanguage     = "Language"
@@ -43,11 +48,10 @@ type (
 		RuleSource      shared.RuleSource `yaml:"rule_source"`
 	}
 	Skill struct {
-		BlueprintID string `yaml:"blueprint_id"`
-		// Name           string    `yaml:"name"`
-		// Type           SkillType `yaml:"type"`
-		Specialization string `yaml:"specialization"`
-		Rating         int    `yaml:"rating"`
+		BlueprintID    string          `yaml:"blueprint_id"`
+		Blueprint      *SkillBlueprint `yaml:"-"`
+		Specialization string          `yaml:"specialization"`
+		Rating         int             `yaml:"rating"`
 	}
 	SkillGroup struct {
 		ID          string            `yaml:"id,omitempty"`
@@ -58,10 +62,38 @@ type (
 	}
 )
 
-func (s *Skill) SetRating(rating int) {
-	s.Rating = rating
+func NewSkill(bp *SkillBlueprint, rating int, specialization string) *Skill {
+	return &Skill{
+		BlueprintID:    bp.ID,
+		Blueprint:      bp,
+		Specialization: specialization,
+		Rating:         rating,
+	}
 }
 
-func (s *Skill) SetSpecialization(specialization string) {
-	s.Specialization = specialization
+func (s *Skill) FormatListItem() string {
+	var sb strings.Builder
+	sb.WriteString(cfmt.Sprintf("%s %d", s.Blueprint.Name+":", s.Rating))
+	// TODO: Specializations should pull in the item blueprint and display the name
+	if s.Specialization != "" {
+		sb.WriteString(cfmt.Sprintf(" (%s)", s.Specialization))
+	}
+
+	return sb.String()
+}
+
+func (s *Skill) FormatDetailed() string {
+	var sb strings.Builder
+	sb.WriteString(cfmt.Sprintf("{{%-15s}}::white|bold %s"+CRLF, "Name:", s.Blueprint.Name))
+	sb.WriteString(cfmt.Sprintf("{{%-15s}}::white|bold %s"+CRLF, "Type:", s.Blueprint.Type))
+	sb.WriteString(cfmt.Sprintf("{{%-15s}}::white|bold %s"+CRLF, "Attribute:", s.Blueprint.LinkedAttribute))
+	sb.WriteString(cfmt.Sprintf("{{%-15s}}::white|bold %s"+CRLF, "Description:", s.Blueprint.Description))
+	sb.WriteString(cfmt.Sprintf("{{%-15s}}::white|bold %d"+CRLF, "Rating:", s.Rating))
+	// TODO: Specializations should pull in the item blueprint and display the name
+	if s.Specialization != "" {
+		sb.WriteString(cfmt.Sprintf("{{%-15s}}::white|bold %s"+CRLF, "Specialization:", s.Specialization))
+	}
+	sb.WriteString(cfmt.Sprintf("{{%-15s}}::white|bold %v"+CRLF, "Defaultable:", s.Blueprint.IsDefaultable))
+
+	return wordwrap.String(sb.String(), 80)
 }

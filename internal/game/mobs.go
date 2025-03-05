@@ -26,39 +26,74 @@ type (
 		EquipSlot string `yaml:"equip_slot"`
 	}
 	MobBlueprint struct {
-		GameEntity `yaml:",inline"`
-
-		Metatype           *Metatype   `yaml:"-"`
-		Tags               []string    `yaml:"tags"`
-		ProfessionalRating int         `yaml:"professional_rating"`
-		GeneralDisposition string      `yaml:"general_disposition"`
-		Spawns             []MobSpawns `yaml:"spawns"`
+		GameEntityInformation `yaml:",inline"`
+		GameEntityStats       `yaml:",inline"`
+		Spawns                []MobSpawns `yaml:"spawns"`
 	}
 	MobInstance struct {
 		sync.RWMutex `yaml:"-"`
 		Listeners    []ee.Listener `yaml:"-"`
+
+		GameEntityDynamic `yaml:",inline"`
 
 		InstanceID  string        `yaml:"instance_id"`
 		BlueprintID string        `yaml:"blueprint_id"`
 		Blueprint   *MobBlueprint `yaml:"-"`
 		RoomID      string        `yaml:"room_id"`
 		Room        *Room         `yaml:"-"`
-		// Dynamic state fields
-		CharacterDispositions map[string]string        `yaml:"character_dispositions"`
-		Edge                  int                      `yaml:"edge"`
-		PhysicalDamage        int                      `yaml:"physical_damage"`
-		StunDamage            int                      `yaml:"stun_damage"`
-		OverflowDamage        int                      `yaml:"overflow_damage"`
-		Inventory             Inventory                `yaml:"inventory"`
-		Equipment             map[string]*ItemInstance `yaml:"equipment"`
-		PositionState         string                   `yaml:"position_state"`
-		// Qualtities    map[string]*Quality      `yaml:"qualities"`
-		// Skills        map[string]*Skill        `yaml:"skills"`
-
 	}
-
 	// TODO: Implement mob AI behaviors.
 )
+
+func (m *MobInstance) GetModifications() map[string]int {
+	mods := make(map[string]int)
+
+	return mods
+}
+
+func (m *MobInstance) GetBody() int {
+	return m.Blueprint.Body
+}
+
+func (m *MobInstance) GetAgility() int {
+	return m.Blueprint.Agility
+}
+
+func (m *MobInstance) GetReaction() int {
+	return m.Blueprint.Reaction
+}
+
+func (m *MobInstance) GetStrength() int {
+	return m.Blueprint.Strength
+}
+
+func (m *MobInstance) GetWillpower() int {
+	return m.Blueprint.Willpower
+}
+
+func (m *MobInstance) GetLogic() int {
+	return m.Blueprint.Logic
+}
+
+func (m *MobInstance) GetIntuition() int {
+	return m.Blueprint.Intuition
+}
+
+func (m *MobInstance) GetCharisma() int {
+	return m.Blueprint.Charisma
+}
+
+func (m *MobInstance) GetEssence() float64 {
+	return m.Blueprint.Essence
+}
+
+func (m *MobInstance) GetMagic() int {
+	return m.Blueprint.Magic
+}
+
+func (m *MobInstance) GetResonance() int {
+	return m.Blueprint.Resonance
+}
 
 func (m *MobInstance) ReactToMessage(sender *Character, message string) {
 	// Mobs can "react" based on predefined AI behaviors.
@@ -160,39 +195,39 @@ func RenderMobTable(mob *MobInstance) string {
 			doubleColumnStyle.Render(fmt.Sprintf("%s %d", "Professional Rating:", mob.Blueprint.ProfessionalRating)),
 		),
 		lipgloss.JoinHorizontal(lipgloss.Top,
-			doubleColumnStyle.Render(fmt.Sprintf("%s %d", "Agility:", mob.Blueprint.GetAgility())),
-			doubleColumnStyle.Render(fmt.Sprintf("%s %.1f", "Essence:", mob.Blueprint.Essence)),
+			doubleColumnStyle.Render(fmt.Sprintf("%s %d", "Agility:", mob.GetAgility())),
+			doubleColumnStyle.Render(fmt.Sprintf("%s %.1f", "Essence:", mob.GetEssence())),
 		),
 		lipgloss.JoinHorizontal(lipgloss.Top,
-			doubleColumnStyle.Render(fmt.Sprintf("%s %d", "Reaction:", mob.Blueprint.GetReaction())),
+			doubleColumnStyle.Render(fmt.Sprintf("%s %d", "Reaction:", mob.GetReaction())),
 			doubleColumnStyle.Render(fmt.Sprintf("%s %d", "Edge:", mob.Edge)),
 		),
 		lipgloss.JoinHorizontal(lipgloss.Top,
-			doubleColumnStyle.Render(fmt.Sprintf("%s %d", "Strength:", mob.Blueprint.GetStrength())),
+			doubleColumnStyle.Render(fmt.Sprintf("%s %d", "Strength:", mob.GetStrength())),
 			// doubleColumnStyle.Render(fmt.Sprintf("%s %d+%dd6", "Initiative:",
 			// mob.GetInitative(), mob.GetInitativeDice())),
 		),
 		lipgloss.JoinHorizontal(lipgloss.Top,
-			doubleColumnStyle.Render(fmt.Sprintf("%s %d", "Willpower:", mob.Blueprint.GetWillpower())),
+			doubleColumnStyle.Render(fmt.Sprintf("%s %d", "Willpower:", mob.GetWillpower())),
 			doubleColumnStyle.Render(headerStyle.Width(39).Render("Inheret Limits")),
 		),
 		lipgloss.JoinHorizontal(lipgloss.Top,
-			doubleColumnStyle.Render(fmt.Sprintf("%s %d", "Logic:", mob.Blueprint.GetLogic())),
+			doubleColumnStyle.Render(fmt.Sprintf("%s %d", "Logic:", mob.GetLogic())),
 			// doubleColumnStyle.Render(fmt.Sprintf("%s %d", "Physical Limit:", mob.GetPhysicalLimit())),
 		),
 		lipgloss.JoinHorizontal(lipgloss.Top,
-			doubleColumnStyle.Render(fmt.Sprintf("%s %d", "Intuition:", mob.Blueprint.GetIntuition())),
+			doubleColumnStyle.Render(fmt.Sprintf("%s %d", "Intuition:", mob.GetIntuition())),
 			// doubleColumnStyle.Render(fmt.Sprintf("%s %d", "Mental Limit:", mob.GetMentalLimit())),
 		),
 		lipgloss.JoinHorizontal(lipgloss.Top,
-			doubleColumnStyle.Render(fmt.Sprintf("%s %d", "Charisma:", mob.Blueprint.GetCharisma())),
+			doubleColumnStyle.Render(fmt.Sprintf("%s %d", "Charisma:", mob.GetCharisma())),
 			// doubleColumnStyle.Render(fmt.Sprintf("%s %d", "Social Limit:", mob.GetSocialLimit())),
 		),
 		lipgloss.JoinHorizontal(lipgloss.Top,
-			doubleColumnStyle.Render(fmt.Sprintf("%s %d", "Magic:", mob.Blueprint.GetMagic())),
+			doubleColumnStyle.Render(fmt.Sprintf("%s %d", "Magic:", mob.GetMagic())),
 			""),
 		lipgloss.JoinHorizontal(lipgloss.Top,
-			doubleColumnStyle.Render(fmt.Sprintf("%s %d", "Resonance:", mob.Blueprint.GetResonance())),
+			doubleColumnStyle.Render(fmt.Sprintf("%s %d", "Resonance:", mob.GetResonance())),
 			""),
 		headerStyle.Render("Movement"),
 		lipgloss.JoinHorizontal(lipgloss.Top,

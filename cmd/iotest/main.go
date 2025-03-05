@@ -66,6 +66,8 @@ func main() {
 	char.Room.Inventory.AddItem(game.EntityMgr.CreateItemInstanceFromBlueprintID("jagged_rock"))
 	char.Room.Inventory.AddItem(game.EntityMgr.CreateItemInstanceFromBlueprintID("test_key"))
 
+	item1 := game.EntityMgr.CreateItemInstanceFromBlueprintID("small_rock")
+
 	game.GameTimeMgr.Minutes = 90
 	char.Prompt = "{{time}} {{date}} {{>}}::white"
 
@@ -95,6 +97,21 @@ func main() {
 	// 	BorderForeground(lipgloss.Color("63")).
 	// Padding(0, 1, 0, 1)
 
+	// qualityAmbidextrousBP := game.EntityMgr.GetQualityBlueprint("ambidextrous")
+	// qualityAmbidextrous := &game.Quality{
+	// 	BlueprintID: qualityAmbidextrousBP.ID,
+	// 	Blueprint:   qualityAmbidextrousBP,
+	// 	Rating:      1,
+	// }
+
+	// qualityAmbidextrous := game.EntityMgr.CreateQualityFromBlueprintID("ambidextrous", 1)
+	// qualityAllergyBP := game.EntityMgr.GetQualityBlueprint("allergy")
+	// qualityAllergy := game.EntityMgr.CreateQualityFromBlueprintID("allergy", 0)
+	// BlueprintID: qualityAllergyBP.ID,
+	// Blueprint:   qualityAllergyBP,
+	// }
+	// skillPistols := game.EntityMgr.CreateSkillInstanceFromBlueprintID("pistols", 2, "colt_45")
+
 	output := termenv.NewOutput(os.Stdout)
 	output.ClearScreen()
 	// output.DisableMouse()
@@ -102,6 +119,16 @@ func main() {
 	// output.AltScreen()
 	// defer output.ExitAltScreen()
 	var sb strings.Builder
+	sb.WriteString(item1.FormatListItem() + game.CRLF)
+	sb.WriteString(item1.FormatDetailed() + game.CRLF)
+	// sb.WriteString(skillPistols.FormatListItem() + game.CRLF)
+	// sb.WriteString(qualityAmbidextrous.FormatListItem() + game.CRLF)
+	// sb.WriteString(qualityAllergy.FormatListItem() + game.CRLF)
+	sb.WriteString(game.CRLF)
+	// sb.WriteString(skillPistols.FormatDetailed() + game.CRLF)
+	// sb.WriteString(qualityAmbidextrous.FormatDetailed() + game.CRLF)
+	// sb.WriteString(qualityAllergy.FormatDetailed() + game.CRLF)
+
 	// output.WriteString(stripCfmt("{{convallis}}::yellow"))
 	// output.WriteString(game.CRLF)
 	// output.WriteString(stripCfmt("{{Quisque}}::cyan|bold"))
@@ -111,7 +138,7 @@ func main() {
 	// output.WriteString(game.CRLF)
 	// output.WriteString(game.WrapTextInBorder(text, customOptions))
 	// sb.WriteString(game.CRLF)
-	sb.WriteString(game.RenderCharacterTable(char))
+	// sb.WriteString(game.RenderCharacterTable(char))
 	// sb.WriteString(borderStyle.Width(80).Render(cfmt.Sprint(text)))
 	sb.WriteString(game.CRLF)
 	// output.WriteString(game.RenderRoom(acct, char, room))

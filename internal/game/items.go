@@ -2,8 +2,11 @@ package game
 
 import (
 	"slices"
+	"strings"
 	"sync"
 
+	"github.com/i582/cfmt/cmd/cfmt"
+	"github.com/muesli/reflow/wordwrap"
 	ee "github.com/vansante/go-event-emitter"
 )
 
@@ -68,6 +71,30 @@ type (
 		NestedInv   *Inventory        `yaml:"nested_inventory"`
 	}
 )
+
+func (i *ItemInstance) FormatListItem() string {
+	var sb strings.Builder
+	sb.WriteString(cfmt.Sprintf("%s", i.Blueprint.Name))
+	return sb.String()
+}
+
+func (i *ItemInstance) FormatDetailed() string {
+	var sb strings.Builder
+	sb.WriteString(cfmt.Sprintf("{{%-12s}}::white|bold %s"+CRLF, "Name:", i.Blueprint.Name))
+	sb.WriteString(cfmt.Sprintf("{{%-12s}}::white|bold %s"+CRLF, "Description:", i.Blueprint.Description))
+	sb.WriteString(cfmt.Sprintf("{{%-12s}}::white|bold %.2f"+CRLF, "Weight:", i.Blueprint.Weight))
+	sb.WriteString(cfmt.Sprintf("{{%-12s}}::white|bold %d"+CRLF, "Value:", i.Blueprint.Value))
+	sb.WriteString(cfmt.Sprintf("{{%-12s}}::white|bold %s"+CRLF, "Type:", i.Blueprint.Type))
+	sb.WriteString(cfmt.Sprintf("{{%-12s}}::white|bold %s"+CRLF, "Subtype:", i.Blueprint.Subtype))
+	sb.WriteString(cfmt.Sprintf("{{%-12s}}::white|bold %s"+CRLF, "Tags:", strings.Join(i.Blueprint.Tags, ", ")))
+	sb.WriteString(cfmt.Sprintf("{{%-12s}}::white|bold %s"+CRLF, "Equip Slots:", strings.Join(i.Blueprint.EquipSlots, ", ")))
+	// sb.WriteString(cfmt.Sprintf("{{%-12s}}::white|bold %s"+CRLF, "Base Stats:", i.Blueprint.BaseStats))
+	// sb.WriteString(cfmt.Sprintf("{{%-12s}}::white|bold %s"+CRLF, "Modifiers:", i.Blueprint.Modifiers))
+	// sb.WriteString(cfmt.Sprintf("{{%-12s}}::white|bold %s"+CRLF, "Attachments:", i.Blueprint.Attachments))
+	sb.WriteString(cfmt.Sprintf("{{%-12s}}::white|bold %s"+CRLF, "Instance ID:", i.InstanceID))
+
+	return wordwrap.String(sb.String(), 80)
+}
 
 func (ib *ItemBlueprint) HasTags(searchTags ...string) bool {
 	for _, searchTag := range searchTags {
