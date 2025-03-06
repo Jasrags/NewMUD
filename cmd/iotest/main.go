@@ -66,7 +66,7 @@ func main() {
 	char.Room.Inventory.AddItem(game.EntityMgr.CreateItemInstanceFromBlueprintID("jagged_rock"))
 	char.Room.Inventory.AddItem(game.EntityMgr.CreateItemInstanceFromBlueprintID("test_key"))
 
-	item1 := game.EntityMgr.CreateItemInstanceFromBlueprintID("small_rock")
+	// item1 := game.EntityMgr.CreateItemInstanceFromBlueprintID("small_rock")
 
 	game.GameTimeMgr.Minutes = 90
 	char.Prompt = "{{time}} {{date}} {{>}}::white"
@@ -112,6 +112,11 @@ func main() {
 	// }
 	// skillPistols := game.EntityMgr.CreateSkillInstanceFromBlueprintID("pistols", 2, "colt_45")
 
+	inv := game.NewInventory()
+	inv.AddItem(game.EntityMgr.CreateItemInstanceFromBlueprintID("small_rock"))
+	inv.AddItem(game.EntityMgr.CreateItemInstanceFromBlueprintID("jagged_rock"))
+	inv.AddItem(game.EntityMgr.CreateItemInstanceFromBlueprintID("test_key"))
+
 	output := termenv.NewOutput(os.Stdout)
 	output.ClearScreen()
 	// output.DisableMouse()
@@ -119,8 +124,9 @@ func main() {
 	// output.AltScreen()
 	// defer output.ExitAltScreen()
 	var sb strings.Builder
-	sb.WriteString(item1.FormatListItem() + game.CRLF)
-	sb.WriteString(item1.FormatDetailed() + game.CRLF)
+	sb.WriteString(inv.FormatTable())
+	// sb.WriteString(item1.FormatListItem() + game.CRLF)
+	// sb.WriteString(item1.FormatDetailed() + game.CRLF)
 	// sb.WriteString(skillPistols.FormatListItem() + game.CRLF)
 	// sb.WriteString(qualityAmbidextrous.FormatListItem() + game.CRLF)
 	// sb.WriteString(qualityAllergy.FormatListItem() + game.CRLF)

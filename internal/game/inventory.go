@@ -106,6 +106,16 @@ func (inv *Inventory) Search(query string) []*ItemInstance {
 	return results
 }
 
+func (inv *Inventory) FormatTable() string {
+	var sb strings.Builder
+
+	for _, item := range inv.Items {
+		sb.WriteString(item.FormatListItem() + CRLF)
+	}
+
+	return sb.String()
+}
+
 // Helper function to check if any tag matches the query
 func matchesTags(tags []string, query string) bool {
 	for _, tag := range tags {
