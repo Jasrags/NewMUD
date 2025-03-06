@@ -1,0 +1,47 @@
+id: ork_thug_lieutenant
+name: Ork Thug Lieutenant
+professional_rating: 0
+general_disposition: Neutral
+title:
+description:
+long_description:
+metatype_id: ork
+age: 30
+sex: Male
+height: 190
+weight: 128
+street_cred: 1
+notoriety: 2
+public_awareness: 3
+position_state: Standing
+body: 4
+agility: 4
+reaction: 3
+strength: 4
+willpower: 3
+logic: 3
+intuition: 3
+charisma: 3
+essence: 6
+edge: 1
+spawns:
+  - item_id: jagged_rock
+    quantity: 2
+  - item_id: synth_leather_jacket
+    equip_slot: body
+skills:
+  blades:
+    blueprint_id: "blades"
+    rating: 3
+  clubs:
+    blueprint_id: "clubs"
+    rating: 4
+  intimidation:
+    blueprint_id: "intimidation"
+    rating: 5
+  pistols:
+    blueprint_id: "pistols"
+    rating: 3
+  unarmed_combat:
+    blueprint_id: "unarmed_combat"
+    rating: 4

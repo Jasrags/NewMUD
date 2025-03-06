@@ -1,0 +1,8 @@
+id: "112th_avenue_se_and_main_street"
+title: "112th Avenue SE and Main Street"
+tags: ["Street"]
+exits:
+  east:
+    room_id: "main_place_arcade_1f"
+description: >-
+  This is a major intersection in Bellevue, Washington. The area is characterized by a mix of commercial and residential buildings, with a variety of shops, restaurants, and offices nearby. The intersection is well-connected to public transportation, making it easy for residents and visitors to navigate the city

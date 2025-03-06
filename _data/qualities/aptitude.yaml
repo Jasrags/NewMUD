@@ -2,6 +2,6 @@ id: aptitude
 type: Positive
 name: Aptitude
 description: The standard limit for skills is 12. Every so often, there is a character who can exceed limitations and be truly exceptional in a particular skill.
-modifiers: []
+modifiers:
 cost: 14
 rule_source: SR5:Core

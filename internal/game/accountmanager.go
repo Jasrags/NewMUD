@@ -125,22 +125,23 @@ func (mgr *AccountManager) LoadDataFiles() {
 	}
 
 	for _, file := range files {
-		if filepath.Ext(file.Name()) == ".yml" {
-			filePath := filepath.Join(dataFilePath, file.Name())
-
-			var u Account
-			if err := LoadYAML(filePath, &u); err != nil {
-				slog.Error("failed to unmarshal user data",
-					slog.Any("error", err),
-					slog.String("file", file.Name()))
-			}
-
-			mgr.AddAccount(&u)
-
-			slog.Debug("Loaded user",
-				slog.String("id", u.ID),
-				slog.String("username", u.Username))
+		if !IsYAMLFile(file.Name()) {
+			continue
 		}
+		filePath := filepath.Join(dataFilePath, file.Name())
+
+		var u Account
+		if err := LoadYAML(filePath, &u); err != nil {
+			slog.Error("failed to unmarshal user data",
+				slog.Any("error", err),
+				slog.String("file", file.Name()))
+		}
+
+		mgr.AddAccount(&u)
+
+		slog.Debug("Loaded user",
+			slog.String("id", u.ID),
+			slog.String("username", u.Username))
 	}
 
 	slog.Info("Loaded users",

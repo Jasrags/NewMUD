@@ -2,6 +2,6 @@ id: scorched
 type: Negative
 name: Scorched
 description: The character has been burned by a powerful magical attack. The character’s essence is permanently reduced by 1.
-modifiers: []
+modifiers:
 cost: 10
 rule_source: SR5:Core

@@ -14,212 +14,6 @@ import (
 Usage:
   - stats
 */
-// TODO: Change the color of the currenty carry wight when we get closer to max
-// func DoStats(s ssh.Session, cmd string, args []string, acct *Account, char *Character, room *Room) {
-// 	if char == nil {
-// 		WriteString(s, cfmt.Sprintf("{{Error: No character is associated with this session.}}::red"+CRLF))
-// 		return
-// 	}
-
-// 	WriteString(s, cfmt.Sprintf("{{Your current stats:}}::cyan"+CRLF))
-
-// 	attributes := char.Attributes
-// 	attributes.Recalculate()
-
-// 	// Helper function to format attributes
-// 	formatAttribute := func(name string, attr Attribute[int]) string {
-// 		if attr.TotalValue > attr.Base {
-// 			return cfmt.Sprintf("{{%-20s}}::white|bold {{%3d}}::cyan{{(}}::white {{%d}}::red{{)}}::white"+CRLF, name, attr.Base, attr.TotalValue)
-// 		}
-// 		return cfmt.Sprintf("{{%-20s}}::white|bold {{%3d}}::cyan"+CRLF, name, attr.Base)
-// 	}
-// 	// Handle float attributes like Essence separately
-// 	formatFloatAttribute := func(name string, attr Attribute[float64]) string {
-// 		if attr.TotalValue > attr.Base {
-// 			return cfmt.Sprintf("{{%-20s}}::white|bold {{%.1f}}::cyan {{(}}::white{{%.1f}}::red{{)}}::white"+CRLF, name, attr.Base, attr.TotalValue)
-// 		}
-// 		return cfmt.Sprintf("{{%-20s}}::white|bold {{%.1f}}::cyan"+CRLF, name, attr.Base)
-// 	}
-
-// 	WriteString(s, formatAttribute("Body", attributes.Body))
-// 	WriteString(s, formatAttribute("Agility", attributes.Agility))
-// 	WriteString(s, formatAttribute("Reaction", attributes.Reaction))
-// 	WriteString(s, formatAttribute("Strength", attributes.Strength))
-// 	WriteString(s, formatAttribute("Willpower", attributes.Willpower))
-// 	WriteString(s, formatAttribute("Logic", attributes.Logic))
-// 	WriteString(s, formatAttribute("Intuition", attributes.Intuition))
-// 	WriteString(s, formatAttribute("Charisma", attributes.Charisma))
-// 	WriteString(s, formatAttribute("Edge", attributes.Edge))
-// 	WriteString(s, formatFloatAttribute("Essence", attributes.Essence))
-// 	if attributes.Magic.Base > 0 {
-// 		WriteString(s, formatAttribute("Magic", attributes.Magic))
-// 	}
-// 	if attributes.Resonance.Base > 0 {
-// 		WriteString(s, formatAttribute("Resonance", attributes.Resonance))
-// 	}
-
-// 	// Carry weight stats
-// 	maxCarryWeight := char.GetLiftCarry()
-// 	currentCarryWeight := char.GetCurrentCarryWeight()
-// 	WriteString(s, cfmt.Sprintf("{{%-20s}}::white|bold {{%.2f}}::cyan{{/}}::white{{%d}}::cyan{{kg}}::white"+CRLF, "Carry Weight", currentCarryWeight, maxCarryWeight))
-
-// 	// New limits
-// 	physicalLimit := char.GetPhysicalLimit()
-// 	adjustedPhysicalLimit := char.GetAdjustedPhysicalLimit()
-// 	mentalLimit := char.GetMentalLimit()
-// 	socialLimit := char.GetSocialLimit()
-
-// 	if adjustedPhysicalLimit < physicalLimit {
-// 		WriteString(s, cfmt.Sprintf("{{%-20s}}::white|bold {{%d}}::cyan {{(Adjusted: %d)}}::yellow"+CRLF, "Physical Limit", physicalLimit, adjustedPhysicalLimit))
-// 	} else {
-// 		WriteString(s, cfmt.Sprintf("{{%-20s}}::white|bold {{%d}}::cyan"+CRLF, "Physical Limit", physicalLimit))
-// 	}
-
-// 	WriteString(s, cfmt.Sprintf("{{%-20s}}::white|bold {{%d}}::cyan"+CRLF, "Mental Limit", mentalLimit))
-// 	WriteString(s, cfmt.Sprintf("{{%-20s}}::white|bold {{%d}}::cyan"+CRLF, "Social Limit", socialLimit))
-// }
-
-// func DoStats(s ssh.Session, cmd string, args []string, acct *Account, char *Character, room *Room) {
-// 	if char == nil {
-// 		WriteString(s, cfmt.Sprintf("{{Error: No character is associated with this session.}}::red"+CRLF))
-// 		return
-// 	}
-
-// 	var output strings.Builder
-
-// 	// Character Info Block
-// 	output.WriteString(cfmt.Sprintf("Name: {{%-15s}}::cyan Title: {{%s}}::cyan"+CRLF, char.Name, char.Title))
-// 	output.WriteString(cfmt.Sprintf("Metatype: {{%-12s}}::cyan Ethnicity: {{%s}}::cyan"+CRLF, char.Metatype, char.Ethnicity))
-// 	output.WriteString(cfmt.Sprintf("Age: {{%-4d}}::cyan Sex: {{%-6s}}::cyan Height: {{%-6s}}::cyan Weight: {{%s}}::cyan"+CRLF,
-// 		char.Age, char.Sex, char.Height, char.Weight))
-// 	output.WriteString(cfmt.Sprintf("Street Cred: {{%-3d}}::cyan Notoriety: {{%-3d}}::cyan Public Awareness: {{%d}}::cyan"+CRLF,
-// 		char.StreetCred, char.Notoriety, char.PublicAwareness))
-// 	output.WriteString(cfmt.Sprintf("Karma: {{%-10d}}::cyan Total Karma: {{%d}}::cyan"+CRLF, char.Karma, char.TotalKarma))
-
-// 	// Damage and Condition Tracking
-// 	output.WriteString(cfmt.Sprintf("Physical Damage:    {{%2d}}::cyan/{{%2d}}::cyan     Stun Damage:    {{%2d}}::cyan/{{%2d}}::cyan     Overflow: {{%d}}::cyan"+CRLF,
-// 		char.PhysicalDamage.Current, char.PhysicalDamage.Max,
-// 		char.StunDamage.Current, char.StunDamage.Max,
-// 		char.PhysicalDamage.Overflow))
-
-// 	// Two-column Main Stats Block
-// 	stats := []struct {
-// 		LeftName  string
-// 		LeftValue string
-// 		RightName string
-// 		RightValue string
-// 	}{
-// 		{"Body", fmt.Sprintf("%d", char.Attributes.Body.TotalValue), "Essence", fmt.Sprintf("%.2f", char.Attributes.Essence.TotalValue)},
-// 		{"Agility", fmt.Sprintf("%d", char.Attributes.Agility.TotalValue), "Magic/Resonance", fmt.Sprintf("%d (%d)", char.Attributes.Magic.TotalValue, char.Attributes.Resonance.TotalValue)},
-// 		{"Reaction", fmt.Sprintf("%d", char.Attributes.Reaction.TotalValue), "Initiative", fmt.Sprintf("%d + 1d6", char.Initiative.Base)},
-// 		{"Strength", fmt.Sprintf("%d", char.Attributes.Strength.TotalValue), "Matrix Initiative", fmt.Sprintf("%d + 1d6", char.MatrixInitiative.Base)},
-// 		{"Willpower", fmt.Sprintf("%d", char.Attributes.Willpower.TotalValue), "Astral Initiative", fmt.Sprintf("%d + 1d6", char.AstralInitiative.Base)},
-// 		{"Logic", fmt.Sprintf("%d", char.Attributes.Logic.TotalValue), "Composure", fmt.Sprintf("%d", char.GetComposure())},
-// 		{"Intuition", fmt.Sprintf("%d", char.Attributes.Intuition.TotalValue), "Judge Intentions", fmt.Sprintf("%d", char.GetJudgeIntentions())},
-// 		{"Charisma", fmt.Sprintf("%d", char.Attributes.Charisma.TotalValue), "Memory", fmt.Sprintf("%d", char.GetMemory())},
-// 		{"Edge", fmt.Sprintf("%d/%d", char.EdgePoints, char.Attributes.Edge.TotalValue), "Lift/Carry", fmt.Sprintf("%.2fkg/%.2fkg", char.GetCurrentCarryWeight(), char.GetLiftCarry())},
-// 		{"Edge Points", fmt.Sprintf("%d", char.EdgePoints), "Movement", fmt.Sprintf("%d", char.GetMovement())},
-// 	}
-
-// 	for _, stat := range stats {
-// 		output.WriteString(cfmt.Sprintf("{{%-20s}}::white|bold {{%-8s}}::cyan {{%-20s}}::white|bold {{%s}}::cyan"+CRLF,
-// 			stat.LeftName, stat.LeftValue, stat.RightName, stat.RightValue))
-// 	}
-
-// 	// Limits at the Bottom
-// 	physicalLimit := char.GetPhysicalLimit()
-// 	adjustedPhysicalLimit := char.GetAdjustedPhysicalLimit()
-// 	mentalLimit := char.GetMentalLimit()
-// 	socialLimit := char.GetSocialLimit()
-
-// 	output.WriteString(cfmt.Sprintf("\nPhysical Limit: {{%d (%d)}}::cyan  Mental Limit: {{%d}}::cyan  Social Limit: {{%d}}::cyan"+CRLF,
-// 		physicalLimit, adjustedPhysicalLimit, mentalLimit, socialLimit))
-
-// 	// Send output to session
-// 	WriteString(s, output.String())
-// }
-
-// func DoStats(s ssh.Session, cmd string, args []string, acct *Account, char *Character, room *Room) {
-// 	if char == nil {
-// 		WriteString(s, cfmt.Sprintf("{{Error: No character is associated with this session.}}::red"+CRLF))
-// 		return
-// 	}
-
-// 	var builder strings.Builder
-
-// 	// Character Info Block
-// 	builder.WriteString(cfmt.Sprintf("Name: {{%-15s}}::cyan Title: {{%-15s}}::cyan"+CRLF, char.Name, char.Title))
-// 	builder.WriteString(cfmt.Sprintf("Metatype: {{%-12s}}::cyan Ethnicity: {{%s}}::cyan"+CRLF, char.Metatype, char.Ethnicity))
-// 	builder.WriteString(cfmt.Sprintf("Age: {{%-4d}}::cyan Sex: {{%-6s}}::cyan Height: {{%-6s}}::cyan Weight: {{%s}}::cyan"+CRLF,
-// 		char.Age, char.Sex, char.Height, char.Weight))
-// 	builder.WriteString(cfmt.Sprintf("Street Cred: {{%-3d}}::cyan Notoriety: {{%-3d}}::cyan Public Awareness: {{%d}}::cyan"+CRLF,
-// 		char.StreetCred, char.Notoriety, char.PublicAwareness))
-// 	builder.WriteString(cfmt.Sprintf("Karma: {{%-10d}}::cyan Total Karma: {{%d}}::cyan"+CRLF, char.Karma, char.TotalKarma))
-
-// 	// Damage and Condition Tracking
-// 	builder.WriteString(cfmt.Sprintf("Physical Damage:    {{%2d}}::cyan/{{%2d}}::cyan     Stun Damage:    {{%2d}}::cyan/{{%2d}}::cyan     Overflow: {{%d}}::cyan"+CRLF,
-// 		char.PhysicalDamage.Current, char.PhysicalDamage.Max, char.StunDamage.Current, char.StunDamage.Max, char.PhysicalDamage.Overflow))
-
-// 	// Two-column Main Stats Block
-// 	builder.WriteString(cfmt.Sprintf("{{%-20s}}::white|bold {{%-8d}}::cyan {{%-20s}}::white|bold {{%.2f}}::cyan"+CRLF,
-// 		"Body", char.Attributes.Body.TotalValue, "Essence", char.Attributes.Essence.TotalValue))
-// 	builder.WriteString(cfmt.Sprintf("{{%-20s}}::white|bold {{%-8d}}::cyan {{%-20s}}::white|bold {{%d (%d)}}::cyan"+CRLF,
-// 		"Agility", char.Attributes.Agility.TotalValue, "Magic/Resonance", char.Attributes.Magic.TotalValue, char.Attributes.Resonance.TotalValue))
-// 	builder.WriteString(cfmt.Sprintf("{{%-20s}}::white|bold {{%-8d}}::cyan {{%-20s}}::white|bold {{%d + 1d6}}::cyan"+CRLF,
-// 		"Reaction", char.Attributes.Reaction.TotalValue, "Initiative", char.Initiative.Base))
-// 	builder.WriteString(cfmt.Sprintf("{{%-20s}}::white|bold {{%-8d}}::cyan {{%-20s}}::white|bold {{%d + 1d6}}::cyan"+CRLF,
-// 		"Strength", char.Attributes.Strength.TotalValue, "Matrix Initiative", char.MatrixInitiative.Base))
-// 	builder.WriteString(cfmt.Sprintf("{{%-20s}}::white|bold {{%-8d}}::cyan {{%-20s}}::white|bold {{%d}}::cyan"+CRLF,
-// 		"Willpower", char.Attributes.Willpower.TotalValue, "Composure", char.GetComposure()))
-// 	builder.WriteString(cfmt.Sprintf("{{%-20s}}::white|bold {{%-8d}}::cyan {{%-20s}}::white|bold {{%d}}::cyan"+CRLF,
-// 		"Logic", char.Attributes.Logic.TotalValue, "Judge Intentions", char.GetJudgeIntentions()))
-// 	builder.WriteString(cfmt.Sprintf("{{%-20s}}::white|bold {{%-8d}}::cyan {{%-20s}}::white|bold {{%d}}::cyan"+CRLF,
-// 		"Intuition", char.Attributes.Intuition.TotalValue, "Memory", char.GetMemory()))
-// 	builder.WriteString(cfmt.Sprintf("{{%-20s}}::white|bold {{%-8d}}::cyan {{%-20s}}::white|bold {{%.2fkg/%.2fkg}}::cyan"+CRLF,
-// 		"Edge", char.EdgePoints, "Lift/Carry", char.GetCurrentCarryWeight(), char.GetLiftCarry()))
-
-// 	// Limits at the Bottom
-// 	builder.WriteString(""+CRLF)
-// 	builder.WriteString(cfmt.Sprintf("Physical Limit: {{%d (%d)}}::cyan  Mental Limit: {{%d (%d)}}::cyan  Social Limit: {{%d (%d)}}::cyan"+CRLF,
-// 		char.GetPhysicalLimit(), char.GetAdjustedPhysicalLimit(),
-// 		char.GetMentalLimit(), char.GetMentalLimitAdjusted(),
-// 		char.GetSocialLimit(), char.GetSocialLimitAdjusted()))
-
-// 	// Write everything to the session
-// 	WriteString(s, builder.String())
-// }
-
-// // FormatColumn formats a single column with dynamic width and data type.
-// func FormatColumn(label string, value interface{}, width int) string {
-// 	switch v := value.(type) {
-// 	case int:
-// 		return cfmt.Sprintf("%-*s %d", width, label, v)
-// 	case float64:
-// 		return cfmt.Sprintf("%-*s %.2f", width, label, v)
-// 	case string:
-// 		return cfmt.Sprintf("%-*s %s", width, label, v)
-// 	default:
-// 		return cfmt.Sprintf("%-*s %v", width, label, v) // Fallback for other types
-// 	}
-// }
-
-// func FormatSingleColumn(label string, value interface{}) string {
-// 	return FormatColumn(label, value, 20)
-// }
-
-// func FormatDoubleColumn(label1 string, value1 interface{}, label2 string, value2 interface{}) string {
-// 	return cfmt.Sprintf("%-20s %-8v %-20s %-8v",
-// 		FormatColumn(label1, value1, 20),
-// 		FormatColumn(label2, value2, 20))
-// }
-
-// func FormatTripleColumn(label1 string, value1 interface{}, label2 string, value2 interface{}, label3 string, value3 interface{}) string {
-// 	return fmt.Sprintf("%-26s %-26s %-26s",
-// 		FormatColumn(label1, value1, 20),
-// 		FormatColumn(label2, value2, 20),
-// 		FormatColumn(label3, value3, 20))
-// }
-
 func DoStats(s ssh.Session, cmd string, args []string, acct *Account, char *Character, room *Room) {
 	// If arguments are provided, assume the user is requesting stats for another character.
 	if len(args) > 0 {
@@ -311,8 +105,8 @@ func SuggestLook(line string, args []string, char *Character, room *Room) []stri
 				bp := EntityMgr.GetItemBlueprintByInstance(i)
 				suggestions = append(suggestions, bp.Name)
 			}
-			for _, m := range room.Mobs {
-				suggestions = append(suggestions, m.Name)
+			for _, m := range room.MobInstances {
+				suggestions = append(suggestions, m.Blueprint.Name)
 			}
 			for _, c := range room.Characters {
 				if c.ID != char.ID { // Exclude the player themselves
@@ -330,9 +124,9 @@ func SuggestLook(line string, args []string, char *Character, room *Room) []stri
 					suggestions = append(suggestions, bp.Name)
 				}
 			}
-			for _, m := range room.Mobs {
-				if strings.HasPrefix(strings.ToLower(m.Name), strings.ToLower(args[0])) {
-					suggestions = append(suggestions, m.Name)
+			for _, m := range room.MobInstances {
+				if strings.HasPrefix(strings.ToLower(m.Blueprint.Name), strings.ToLower(args[0])) {
+					suggestions = append(suggestions, m.Blueprint.Name)
 				}
 			}
 			for _, c := range room.Characters {
@@ -451,6 +245,27 @@ func DoInventory(s ssh.Session, cmd string, args []string, user *Account, char *
 
 /*
 Usage:
+  - equipment
+*/
+func DoEquipment(s ssh.Session, cmd string, args []string, user *Account, char *Character, room *Room) {
+	// Display equipped items for each supported slot.
+	WriteString(s, cfmt.Sprintf("{{Equipped Items:}}::cyan"+CRLF))
+	for _, slot := range EquipSlots {
+		if item, exists := char.Equipment[slot]; exists && item != nil {
+			bp := EntityMgr.GetItemBlueprintByInstance(item)
+			if bp != nil {
+				WriteStringF(s, "{{%-6s}}::cyan %s"+CRLF, slot+":", bp.Name)
+			} else {
+				WriteStringF(s, "{{%-6s}}::cyan {{<unknown>}}::red"+CRLF, slot+":")
+			}
+		} else {
+			WriteStringF(s, "{{%-6s}}::cyan <empty>"+CRLF, slot+":")
+		}
+	}
+}
+
+/*
+Usage:
   - who
 */
 // TODO: Sort all admins to the top of the list
@@ -479,27 +294,6 @@ func DoWho(s ssh.Session, cmd string, args []string, user *Account, char *Charac
 		WriteString(s, cfmt.Sprintf("{{%s - %s}}::%s"+CRLF, activeChar.Name, activeChar.Title, color))
 	}
 }
-
-// func DoPrompt(s ssh.Session, cmd string, args []string, user *Account, char *Character, room *Room) {
-// 	if char == nil {
-// 		WriteString(s, cfmt.Sprint("{{Error: No character is associated with this session.}}::red"+CRLF))
-// 		return
-// 	}
-
-// 	// If no arguments, display current prompt
-// 	if len(args) == 0 {
-// 		WriteString(s, cfmt.Sprintf("{{Your current prompt:}}::cyan \"%s\""+CRLF, char.Prompt))
-// 		WriteString(s, cfmt.Sprint("{{Use 'prompt <new format>' to set a custom prompt.}}::yellow"+CRLF))
-// 		return
-// 	}
-
-// 	// Set a new custom prompt
-// 	newPrompt := strings.Join(args, " ")
-// 	char.Prompt = newPrompt
-// 	char.Save()
-
-// 	WriteString(s, cfmt.Sprintf("{{Prompt updated successfully!\nNew prompt:}}::green \"%s\""+CRLF, newPrompt))
-// }
 
 func DoPrompt(s ssh.Session, cmd string, args []string, user *Account, char *Character, room *Room) {
 	// If no arguments, display current prompt

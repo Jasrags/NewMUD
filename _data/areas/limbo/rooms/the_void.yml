@@ -1,0 +1,20 @@
+id: "the_void"
+title: "The Void"
+exits:
+  north:
+    room_id: "limbo"
+    door:
+      is_locked: False
+      is_open: False
+      key_ids: ["test_key"]
+      pick_difficulty: 10
+spawns:
+  - mob_id: "goblin"
+  - mob_id: "orc"
+  - mob_id: "orc"
+  - item_id: "small_rock"
+  - item_id: "small_rock"
+  - item_id: 'jagged_rock'
+  - item_id: "test_key"
+description: >-
+  You don't think that you are not floating in nothing.

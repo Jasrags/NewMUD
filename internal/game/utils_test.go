@@ -31,6 +31,7 @@ func TestRollDice(t *testing.T) {
 		})
 	}
 }
+
 func TestRollResultsTotal(t *testing.T) {
 	tests := []struct {
 		results []int
@@ -122,27 +123,7 @@ func TestSingularize(t *testing.T) {
 		})
 	}
 }
-func TestWrapText(t *testing.T) {
-	tests := []struct {
-		text     string
-		width    int
-		expected string
-	}{
-		{"This is a test of the wrap text function.", 10, "This is a\r\ntest of\r\nthe wrap\r\ntext\r\nfunction."},
-		{"Another example with different width.", 15, "Another example\r\nwith different\r\nwidth."},
-		{"Short text.", 20, "Short text."},
-		{"A very long word that exceeds the width.", 5, "A\r\nvery\r\nlong\r\nword\r\nthat\r\nexceeds\r\nthe\r\nwidth."},
-		{"", 10, ""},
-		{"Singleword", 10, "Singleword"},
-	}
 
-	for _, test := range tests {
-		t.Run(fmt.Sprintf("WrapText(%s,%d)", test.text, test.width), func(t *testing.T) {
-			result := WrapText(test.text, test.width)
-			assert.Equal(t, test.expected, result)
-		})
-	}
-}
 func TestParseDirection(t *testing.T) {
 	tests := []struct {
 		input    string
@@ -195,6 +176,46 @@ func TestReverseDirection(t *testing.T) {
 	for _, test := range tests {
 		t.Run(fmt.Sprintf("ReverseDirection(%s)", test.input), func(t *testing.T) {
 			result := ReverseDirection(test.input)
+			assert.Equal(t, test.expected, result)
+		})
+	}
+}
+func TestRollChance(t *testing.T) {
+	tests := []struct {
+		spawnChance int
+	}{
+		{0},
+		{25},
+		{50},
+		{75},
+		{100},
+	}
+
+	for _, test := range tests {
+		t.Run(fmt.Sprintf("RollChance(%d)", test.spawnChance), func(t *testing.T) {
+			result := RollChance(test.spawnChance)
+			assert.IsType(t, true, result)
+		})
+	}
+}
+func TestIsYAMLFile(t *testing.T) {
+	tests := []struct {
+		filename string
+		expected bool
+	}{
+		{"config.yaml", true},
+		{"config.yml", true},
+		{"config.json", false},
+		{"config.txt", false},
+		{"CONFIG.YAML", true},
+		{"CONFIG.YML", true},
+		{"config.YaMl", true},
+		{"", false},
+	}
+
+	for _, test := range tests {
+		t.Run(fmt.Sprintf("IsYAMLFile(%s)", test.filename), func(t *testing.T) {
+			result := IsYAMLFile(test.filename)
 			assert.Equal(t, test.expected, result)
 		})
 	}

@@ -1,0 +1,11 @@
+id: "small_rock"
+name: "Small Rock"
+description: >-
+  A small, smooth rock. It's perfect for skipping across water.
+tags: ["rock", "small"]
+value: 1
+weight: 10
+base_stats:
+equip_slots: ["none"]
+type: "junk"
+subtype: "none"

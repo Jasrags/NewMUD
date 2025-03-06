@@ -1,0 +1,8 @@
+id: "black"
+title: "Black Room"
+exits:
+  west:
+    room_id: "limbo"
+description: >-
+  A completely black room. Somehow all of the light that should be coming from the room to the west does not pass
+  through the archway. A single lightbulb hangs from the ceiling illuminating a small area.

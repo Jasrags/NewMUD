@@ -3,6 +3,6 @@ type: Positive
 name: High Pain Tolerance
 max_rating: 3
 description: The character can shrug off pain that would incapacitate others. The character receives a +1 dice pool modifier on all tests to resist the effects of wound modifiers.
-modifiers: []
+modifiers:
 cost: 7
 rule_source: SR5:Core

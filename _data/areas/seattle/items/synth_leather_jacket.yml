@@ -1,0 +1,20 @@
+id: synth_leather_jacket
+name: "(Synth)Leather Jacket"
+description: "A sleek jacket offering moderate protection and additional capacity."
+tags:
+  - armor
+  - jacket
+  - synthetic
+  - leather
+weight: 2.5
+value: 200
+base_stats:
+  armor: 4
+  capacity: 4
+  device_rating: 2
+modifiers:
+  armor_value: 4
+equip_slots:
+  - body
+type: armor
+subtype: none

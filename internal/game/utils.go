@@ -4,8 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/fs"
 	"log/slog"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -17,6 +19,13 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+func RollChance(chance int) bool {
+	rand.Seed(uint64(time.Now().UnixNano()))
+	randomNumber := rand.Intn(101)
+
+	return randomNumber <= chance
+}
+
 func Singularize(word string) string {
 	if strings.HasSuffix(word, "s") && len(word) > 1 {
 		return word[:len(word)-1] // Remove trailing 's'
@@ -24,33 +33,16 @@ func Singularize(word string) string {
 	return word
 }
 
-// WrapText splits text into lines of the specified width without breaking words.
-func WrapText(text string, width int) string {
-	var result strings.Builder
-	words := strings.Fields(text)
-	line := ""
-
-	for _, word := range words {
-		if len(line)+len(word)+1 > width {
-			// Append the current line to the result and reset the line
-			if line != "" {
-				result.WriteString(line + CRLF)
-			}
-			line = word
-		} else {
-			// Append the word to the current line
-			if line != "" {
-				line += " "
-			}
-			line += word
-		}
+// LoadYAMLFromFS reads a YAML file from the provided fs.FS and unmarshals it into out.
+func LoadYAMLFromFS(fsys fs.FS, filePath string, out interface{}) error {
+	file, err := fsys.Open(filePath)
+	if err != nil {
+		return err
 	}
-	// Append the last line, if any, without an extra newline
-	if line != "" {
-		result.WriteString(line)
-	}
+	defer file.Close()
 
-	return result.String()
+	decoder := yaml.NewDecoder(file)
+	return decoder.Decode(out)
 }
 
 func LoadYAML(filePath string, out interface{}) error {
@@ -89,6 +81,30 @@ func LoadJSON(filePath string, out interface{}) error {
 
 	decoder := json.NewDecoder(file)
 	return decoder.Decode(out)
+}
+
+// loadFilesFromDir is a helper that reads all files in a subdirectory of fs and applies the provided function.
+func loadFilesFromDir(fsys fs.FS, dir string, process func(data []byte)) {
+	entries, err := fs.ReadDir(fsys, dir)
+	if err != nil {
+		slog.Error("failed to read directory", "dir", dir, "error", err)
+		return
+	}
+	for _, entry := range entries {
+		if entry.IsDir() {
+			continue
+		}
+		if !IsYAMLFile(entry.Name()) {
+			continue
+		}
+
+		data, err := fs.ReadFile(fsys, filepath.Join(dir, entry.Name()))
+		if err != nil {
+			slog.Error("failed reading file", "file", entry.Name(), "error", err)
+			continue
+		}
+		process(data)
+	}
 }
 
 func SaveJSON(filePath string, in interface{}) error {
@@ -160,13 +176,13 @@ func ReverseDirection(dir string) string {
 	return dir
 }
 
-func RenderItemDescription(item *Item) string {
+func RenderItemDescription(item *ItemInstance) string {
 	bp := EntityMgr.GetItemBlueprintByInstance(item)
 	return cfmt.Sprintf("{{%s}}::green\n{{Description: %s}}::white"+CRLF, bp.Name, bp.Description)
 }
 
-func RenderMobDescription(mob *Mob) string {
-	return cfmt.Sprintf("{{%s}}::red\n{{Description: %s}}::white"+CRLF, mob.Name, mob.Description)
+func RenderMobDescription(mob *MobInstance) string {
+	return cfmt.Sprintf("{{%s}}::red\n{{Description: %s}}::white"+CRLF, mob.Blueprint.Name, mob.Blueprint.Description)
 }
 
 func RenderCharacterDescription(char *Character) string {
@@ -402,21 +418,6 @@ func HasAnyTag(objectTags []string, filterTags []string) bool {
 	return false
 }
 
-// FindMobsByName searches the current room's mobs and returns all instances
-// that match the provided name (case-insensitive).
-func FindMobsByName(room *Room, name string) []*Mob {
-	var matches []*Mob
-	room.RLock()
-	defer room.RUnlock()
-
-	for _, mob := range room.Mobs {
-		if strings.EqualFold(mob.Name, name) {
-			matches = append(matches, mob)
-		}
-	}
-	return matches
-}
-
 // RenderAttribute renders a single attribute for display.
 func RenderAttribute[T int | float64](name string, attr Attribute[T]) string {
 	var output strings.Builder
@@ -451,4 +452,8 @@ func renderValue[T int | float64](value T) string {
 }
 func RenderKeyValue(key, value string) string {
 	return fmt.Sprintf("%s: %s", attrNameStyle.Render(key), attrTextValueStyle.Render(value))
+}
+
+func IsYAMLFile(filename string) bool {
+	return strings.HasSuffix(strings.ToLower(filename), ".yml") || strings.HasSuffix(strings.ToLower(filename), ".yaml")
 }
