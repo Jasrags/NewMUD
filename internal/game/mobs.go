@@ -45,12 +45,6 @@ type (
 	// TODO: Implement mob AI behaviors.
 )
 
-// func (m *MobInstance) GetModifications() map[string]int {
-// 	mods := make(map[string]int)
-
-// 	return mods
-// }
-
 func (m *MobInstance) GetArmorValue() int {
 	var totalValue int
 
@@ -278,7 +272,7 @@ func RenderMobTable(mob *MobInstance) string {
 		singleColumnStyle.Render(fmt.Sprintf("%s %d", "Resist Psychological Addiction:", 6)),
 		headerStyle.Width(80).Render("Damage Resistances"),
 		lipgloss.JoinHorizontal(lipgloss.Top,
-			doubleColumnStyle.Render(fmt.Sprintf("%d %s %d", 4, "Armor:", mob.Blueprint.GetArmorValue())),
+			doubleColumnStyle.Render(fmt.Sprintf("%d %s %d", 4, "Armor:", mob.GetArmorValue())),
 			"",
 		),
 		lipgloss.JoinHorizontal(lipgloss.Top),

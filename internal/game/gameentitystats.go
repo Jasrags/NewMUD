@@ -78,9 +78,9 @@ func (ges *GameEntityStats) GetMemory() int {
 	return ges.GetLogic() + ges.GetWillpower()
 }
 
-// func (ges *GameEntityStats) GetArmorValue() int {
-// 	return ges.GetBody()
-// }
+func (ges *GameEntityStats) GetArmorValue() int {
+	return ges.GetBody()
+}
 
 func (ges *GameEntityStats) GetAcidResistance() int {
 	return ges.GetBody()
