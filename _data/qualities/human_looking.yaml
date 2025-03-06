@@ -2,6 +2,6 @@ id: human_looking
 type: Positive
 name: Human-looking
 description: The character looks human, even if he isn’t. The character can pass for human in most situations.
-modifiers: []
+modifiers:
 cost: 6
 rule_source: SR5:Core

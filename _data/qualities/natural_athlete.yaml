@@ -2,6 +2,6 @@ id: natural_athlete
 type: Positive
 name: Natural Athlete
 description: The character is naturally athletic. The character receives a +1 dice pool modifier on all tests involving Athletics.
-modifiers: []
+modifiers:
 cost: 7
 rule_source: SR5:Core

@@ -45,10 +45,21 @@ type (
 	// TODO: Implement mob AI behaviors.
 )
 
-func (m *MobInstance) GetModifications() map[string]int {
-	mods := make(map[string]int)
+// func (m *MobInstance) GetModifications() map[string]int {
+// 	mods := make(map[string]int)
 
-	return mods
+// 	return mods
+// }
+
+func (m *MobInstance) GetArmorValue() int {
+	var totalValue int
+
+	modifiers := m.GetAllModifiers()
+	if value, ok := modifiers["armor_value"]; ok {
+		totalValue += value
+	}
+
+	return m.GetBody() + totalValue
 }
 
 func (m *MobInstance) GetBody() int {

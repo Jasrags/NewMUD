@@ -1,6 +1,7 @@
 package game
 
 import (
+	"log/slog"
 	"slices"
 	"strings"
 )
@@ -43,6 +44,31 @@ func NewGameEntityDynamic() GameEntityDynamic {
 	ged.CharacterDispositions = make(map[string]string)
 
 	return ged
+}
+
+func (ged *GameEntityDynamic) GetAllModifiers() map[string]int {
+	modifiers := make(map[string]int)
+
+	// TODO: add support for effects from spells/damage/etc
+	for _, item := range ged.Equipment {
+		for key, value := range item.Blueprint.Modifiers {
+			slog.Info("Item Modifier",
+				slog.String("key", key),
+				slog.Int("value", value))
+			modifiers[key] += value
+		}
+	}
+
+	for _, quality := range ged.Qualtities {
+		for key, value := range quality.Blueprint.Modifiers {
+			slog.Info("Quality Modifier",
+				slog.String("key", key),
+				slog.Int("value", value))
+			modifiers[key] += value
+		}
+	}
+
+	return modifiers
 }
 
 func (ged *GameEntityDynamic) GetQuality(qualityID string) *Quality {

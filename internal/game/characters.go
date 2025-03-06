@@ -116,6 +116,17 @@ func (c *Character) MoveToRoom(nextRoom *Room) {
 	// EventMgr.Publish(EventPlayerEnterRoom, &PlayerEnterRoom{Character: c, Room: c.Room})
 }
 
+func (c *Character) GetArmorValue() int {
+	var totalValue int
+
+	modifiers := c.GetAllModifiers()
+	if value, ok := modifiers["armor_value"]; ok {
+		totalValue += value
+	}
+
+	return c.GetBody() + totalValue
+}
+
 func (c *Character) Save() error {
 	c.Lock()
 	defer c.Unlock()

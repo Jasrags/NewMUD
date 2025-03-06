@@ -12,6 +12,8 @@ base_stats:
   armor: 4
   capacity: 4
   device_rating: 2
+modifiers:
+  armor_value: 4
 equip_slots:
   - body
 type: armor

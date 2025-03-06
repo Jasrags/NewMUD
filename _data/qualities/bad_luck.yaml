@@ -2,6 +2,6 @@ id: bad_luck
 type: Negative
 name: Bad Luck
 description: The character is cursed with bad luck. The character receives a –1 dice pool modifier on all tests.
-modifiers: []
+modifiers:
 cost: 12
 rule_source: SR5:Core

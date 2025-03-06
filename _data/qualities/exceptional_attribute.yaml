@@ -2,6 +2,6 @@ id: exceptional_attribute
 type: Positive
 name: Exceptional Attribute
 description: The character has one attribute that is truly exceptional. The character may raise one attribute by one point above the racial maximum (to a maximum of 7).
-modifiers: []
+modifiers:
 cost: 14
 rule_source: SR5:Core

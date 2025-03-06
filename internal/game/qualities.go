@@ -23,7 +23,7 @@ type (
 		Type        QualityType       `yaml:"type"`
 		Name        string            `yaml:"name"`
 		Description string            `yaml:"description"`
-		Modifiers   []string          `yaml:"modifiers"`
+		Modifiers   map[string]int    `yaml:"modifiers"`
 		Cost        int               `yaml:"cost"`
 		RuleSource  shared.RuleSource `yaml:"rule_source"`
 	}
@@ -69,9 +69,9 @@ func (q *Quality) FormatDetailed() string {
 
 	sb.WriteString(cfmt.Sprintf("{{%-12s}}::white|bold %s"+CRLF, "Name:", q.Blueprint.Name))
 	sb.WriteString(cfmt.Sprintf("{{%-12s}}::white|bold {{%s}}::%s"+CRLF, "Type:", q.Blueprint.Type, nameColor))
-	if len(q.Blueprint.Modifiers) > 0 {
-		sb.WriteString(cfmt.Sprintf("{{%-12s}}::white|bold %s"+CRLF, "Modifiers:", strings.Join(q.Blueprint.Modifiers, ", ")))
-	}
+	// if len(q.Blueprint.Modifiers) > 0 {
+	// sb.WriteString(cfmt.Sprintf("{{%-12s}}::white|bold %s"+CRLF, "Modifiers:", strings.Join(q.Blueprint.Modifiers, ", ")))
+	// }
 	sb.WriteString(cfmt.Sprintf("{{%-12s}}::white|bold %d"+CRLF, "Cost:", q.Blueprint.Cost))
 	if q.Rating != 0 {
 		sb.WriteString(cfmt.Sprintf("{{%-12s}}::white|bold %d"+CRLF, "Rating:", q.Rating))

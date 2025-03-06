@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"strings"
 
@@ -25,6 +26,8 @@ func main() {
 	char := game.CharacterMgr.GetCharacterByName("fred")
 	// char.Role = game.CharacterRolePlayer
 	char.Role = game.CharacterRoleAdmin
+	char.Equipment["body"] = game.EntityMgr.CreateItemInstanceFromBlueprintID("synth_leather_jacket")
+
 	room := game.EntityMgr.GetRoom("main_place_arcade_1f")
 
 	char.MoveToRoom(room)
@@ -124,7 +127,8 @@ func main() {
 	// output.AltScreen()
 	// defer output.ExitAltScreen()
 	var sb strings.Builder
-	sb.WriteString(inv.FormatTable())
+	sb.WriteString(fmt.Sprintf("Body: %d AV: %d", char.GetBody(), char.GetArmorValue()))
+	// sb.WriteString(inv.FormatTable())
 	// sb.WriteString(item1.FormatListItem() + game.CRLF)
 	// sb.WriteString(item1.FormatDetailed() + game.CRLF)
 	// sb.WriteString(skillPistols.FormatListItem() + game.CRLF)
