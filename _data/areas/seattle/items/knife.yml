@@ -1,0 +1,26 @@
+id: knife
+name: "Knife"
+description: "A small knife."
+tags:
+  - weapon
+  - melee
+  - edged
+weight: 0
+value: 10
+base_stats:
+  accuracy: 5
+  reach: 0
+  damage: STR+1P
+  conceal: -2
+damage:
+  attribute: Strength
+  type: Physical
+  value: 1
+  armor_penetration: -1
+equip_slots:
+  - weapon
+  - offhand
+type: weapon
+subtype: melee
+availability: 0
+legality: Legal
