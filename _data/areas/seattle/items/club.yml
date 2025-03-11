@@ -1,25 +1,23 @@
 id: club
-name: "Club"
-description: "The weapon they named the skill after."
+hide: false
+type: Weapon
+category: Clubs
+name: Club
+description: The weapon they named the skill after.
+legality: Legal
+cost: 30
+weight: 4
 tags:
   - weapon
-  - melee
   - blunt
-weight: 0
-value: 30
-base_stats:
-  accuracy: 4
-  reach: 1
-  damage: STR+3P
-  linked_attribute: Strength
-  damage_value: 3
-  damage_type: Physical
-  armor_penetration: 0
-  availability: 4
-  legality_type: Legal
-  conceal: 0
+  - club
 equip_slots:
   - weapon
   - offhand
-type: weapon
-subtype: melee
+base_stats: {}
+accuracy: 4
+reach: 1
+damage:
+  attribute: STR
+  type: Physical
+  value: 3

@@ -1,20 +1,18 @@
 id: synth_leather_jacket
-name: "(Synth)Leather Jacket"
-description: "A sleek jacket offering moderate protection and additional capacity."
+hide: false
+type: Armor
+category: Clothing
+name: Synthetic Leather Jacket
+description: A sleek jacket offering moderate protection and additional capacity.
+cost: 200
+weight: 2.5
 tags:
-  - armor
   - jacket
+  - armor
   - synthetic
   - leather
-weight: 2.5
-value: 200
-base_stats:
-  armor: 4
-  capacity: 4
-  device_rating: 2
-modifiers:
-  armor_value: 4
 equip_slots:
   - body
-type: armor
-subtype: none
+base_stats: {}
+armor_value: 4
+max_rating: 1

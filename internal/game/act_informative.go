@@ -251,7 +251,7 @@ func DoEquipment(s ssh.Session, cmd string, args []string, user *Account, char *
 	// Display equipped items for each supported slot.
 	WriteString(s, cfmt.Sprintf("{{Equipped Items:}}::cyan"+CRLF))
 	for _, slot := range EquipSlots {
-		if item, exists := char.Equipment[slot]; exists && item != nil {
+		if item, exists := char.Equipment.Slots[slot]; exists && item != nil {
 			bp := EntityMgr.GetItemBlueprintByInstance(item)
 			if bp != nil {
 				WriteStringF(s, "{{%-6s}}::cyan %s"+CRLF, slot+":", bp.Name)

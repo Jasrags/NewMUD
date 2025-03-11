@@ -280,8 +280,8 @@ func DoDrop(s ssh.Session, cmd string, args []string, user *Account, char *Chara
 			item := char.Inventory.Items[i]
 			blueprint := EntityMgr.GetItemBlueprintByInstance(item)
 			droppedItems[blueprint.Name]++
-			room.Inventory.AddItem(item)
-			char.Inventory.RemoveItem(item)
+			room.Inventory.Add(item)
+			char.Inventory.Remove(item)
 		}
 
 		for itemName, count := range droppedItems {
@@ -306,8 +306,8 @@ func DoDrop(s ssh.Session, cmd string, args []string, user *Account, char *Chara
 			}
 
 			droppedItems[blueprint.Name]++
-			room.Inventory.AddItem(item)
-			char.Inventory.RemoveItem(item)
+			room.Inventory.Add(item)
+			char.Inventory.Remove(item)
 			found = true
 		}
 
@@ -339,8 +339,8 @@ func DoDrop(s ssh.Session, cmd string, args []string, user *Account, char *Chara
 	for _, item := range items[:quantity] {
 		itemName := EntityMgr.GetItemBlueprintByInstance(item).Name
 		droppedItems[itemName]++
-		room.Inventory.AddItem(item)
-		char.Inventory.RemoveItem(item)
+		room.Inventory.Add(item)
+		char.Inventory.Remove(item)
 	}
 
 	for itemName, count := range droppedItems {
@@ -440,8 +440,8 @@ func DoGive(s ssh.Session, cmd string, args []string, user *Account, char *Chara
 
 	// Transfer given items
 	for _, item := range givenItems {
-		char.Inventory.RemoveItem(item)
-		recipient.Inventory.AddItem(item)
+		char.Inventory.Remove(item)
+		recipient.Inventory.Add(item)
 	}
 
 	char.Save()
@@ -583,8 +583,8 @@ func DoGet(s ssh.Session, cmd string, args []string, user *Account, char *Charac
 
 	// Transfer items to the character's inventory
 	for _, item := range pickedItems {
-		room.Inventory.RemoveItem(item)
-		char.Inventory.AddItem(item)
+		room.Inventory.Remove(item)
+		char.Inventory.Add(item)
 	}
 
 	// Remove picked items from `matchingItems` to update for subsequent "get all" commands
@@ -648,6 +648,169 @@ func SuggestGet(line string, args []string, char *Character, room *Room) []strin
 	return suggestions
 }
 
+/*
+DoEquip will equip an item from the character's inventory
+
+If there are multiple item matches it will prompt the user to select one via a menu.
+If the item has no EquipSlots it will not be equipped and an error will be shown.
+If the item has multiple EquipSlots it will attempt to use the listed slots in order.
+If the Equipment slots are already occupied it will not be equipped and an error will be shown.
+If the item can be equiped it will be removed from the inventory and added to the Equipment map and a message will be shown.
+The EquipItem function should be used to contain the logic for equipping an item so it can be reused.
+
+Usage:
+  - equip <item> [slot]
+*/
+// func DoEquip(s ssh.Session, cmd string, args []string, user *Account, char *Character, room *Room) {
+// 	if len(args) == 0 {
+// 		WriteString(s, "{{Usage: equip <item name> [index]}}::yellow"+CRLF)
+// 		return
+// 	}
+
+// 	// Check if the last argument is an index number.
+// 	var indexProvided bool
+// 	var selectedIndex int
+// 	searchArgs := args
+// 	lastArg := args[len(args)-1]
+// 	if i, err := strconv.Atoi(lastArg); err == nil {
+// 		indexProvided = true
+// 		selectedIndex = i
+// 		searchArgs = args[:len(args)-1]
+// 	}
+// 	searchTerm := strings.Join(searchArgs, " ")
+
+// 	// Get all inventory items that partially match the search term.
+// 	matches := char.Inventory.Search(searchTerm)
+// 	if len(matches) == 0 {
+// 		WriteStringF(s, "{{No items found matching '%s' in your inventory.}}::red"+CRLF, searchTerm)
+// 		return
+// 	}
+
+// 	if len(matches) > 1 {
+// 		// TODO: handle one item
+// 	}
+
+// 	var options []MenuOption
+// 	for _, m := range matches {
+// 		options = append(options, MenuOption{
+// 			DisplayText: fmt.Sprintf("%s - %s ", m.Blueprint.Name, m.InstanceID),
+// 			Value:       m.InstanceID,
+// 		})
+// 	}
+
+// 	chosen, err := PromptForMenu(s, "Please select a item:", options)
+// 	if err != nil {
+// 		WriteString(s, "{{Error receiving input.}}::red"+CRLF)
+// 		return
+// 	}
+
+// 	selectedItem := char.Inventory.FindItemByID(chosen)
+// 	if selectedItem == nil {
+// 		WriteString(s, fmt.Sprintf("{{No item found with ID '%s'.}}::red"+CRLF, chosen))
+// 		return
+// 	}
+
+// 	// If multiple matches exist and no index was provided, list them.
+// 	if len(matches) > 1 && !indexProvided {
+// 		var builder strings.Builder
+// 		builder.WriteString(fmt.Sprintf("{{Multiple items found matching '%s':}}::yellow"+CRLF, searchTerm))
+// 		for i, item := range matches {
+// 			bp := EntityMgr.GetItemBlueprintByInstance(item)
+// 			builder.WriteString(fmt.Sprintf("  %d) %s"+CRLF, i+1, bp.Name))
+// 		}
+// 		builder.WriteString("{{Please re-run the command with the desired index.}}::yellow" + CRLF)
+// 		WriteString(s, builder.String())
+// 		return
+// 	}
+
+// 	// TODO: support multiple matches via the menu prompt
+
+// 	// Select the appropriate item.
+// 	var chosenItem *ItemInstance
+// 	if len(matches) == 1 {
+// 		chosenItem = matches[0]
+// 	} else {
+// 		if selectedIndex < 1 || selectedIndex > len(matches) {
+// 			WriteStringF(s, "{{Invalid index. There are %d matching items for '%s'.}}::red"+CRLF, len(matches), searchTerm)
+// 			return
+// 		}
+// 		chosenItem = matches[selectedIndex-1]
+// 	}
+
+// 	bp := EntityMgr.GetItemBlueprintByInstance(chosenItem)
+// 	if bp == nil {
+// 		WriteString(s, "{{Item blueprint not found.}}::red"+CRLF)
+// 		return
+// 	}
+
+// 	// Ensure the item is equippable.
+// 	if len(bp.EquipSlots) == 0 || bp.EquipSlots[0] == EquipSlotNone {
+// 		WriteString(s, "{{That item cannot be equipped.}}::red"+CRLF)
+// 		return
+// 	}
+// 	slot := bp.EquipSlots[0]
+
+// 	// Check if the slot is already occupied.
+// 	if equippedItem, exists := char.Equipment[slot]; exists && equippedItem != nil {
+// 		equippedBP := EntityMgr.GetItemBlueprintByInstance(equippedItem)
+// 		WriteStringF(s, "{{The %s slot is already occupied by %s. Please unequip it first.}}::yellow"+CRLF, slot, equippedBP.Name)
+// 		return
+// 	}
+
+// 	// Remove the item from inventory and equip it.
+// 	char.Inventory.RemoveItem(chosenItem)
+// 	char.Equipment[slot] = chosenItem
+// 	char.Save()
+// 	WriteStringF(s, "{{You have equipped %s in the %s slot.}}::green"+CRLF, bp.Name, slot)
+// }
+
+// func EquipItem(char *Character, item *ItemInstance) {
+// 	if item == nil {
+// 		return
+// 	}
+
+// 	if len(item.Blueprint.EquipSlots) == 0 || item.Blueprint.EquipSlots[0] == EquipSlotNone {
+// 		return
+// 	}
+
+// 	slot := item.Blueprint.EquipSlots[0]
+// 	char.Equipment[slot] = item
+// }
+
+func EquipItem(char *Character, item *ItemInstance) error {
+	// bp := EntityMgr.GetItemBlueprintByInstance(item)
+	// if bp == nil {
+	// 	return fmt.Errorf("item blueprint not found")
+	// }
+	// Check if the item is equippable.
+	if len(item.Blueprint.EquipSlots) == 0 || item.Blueprint.EquipSlots[0] == EquipSlotNone {
+		return fmt.Errorf("that item cannot be equipped")
+	}
+
+	// Use the first valid slot.
+	slot := item.Blueprint.EquipSlots[0]
+
+	// Check if the slot is already occupied.
+	if equippedItem, exists := char.Equipment.Slots[slot]; exists && equippedItem != nil {
+		// equippedBP := EntityMgr.GetItemBlueprintByInstance(equippedItem)
+		return fmt.Errorf("the %s slot is already occupied by %s; please unequip it first", slot, equippedItem.Blueprint.Name)
+	}
+	// char.Inventory.RemoveItem(item)
+	// i :=     inventory.RemoveItem(item)
+	// if
+	// Remove the item from inventory.
+
+	if item := char.Inventory.Remove(item); item != nil {
+		char.Equipment.Equip(slot, item)
+
+		if err := char.Save(); err != nil {
+			return fmt.Errorf("failed to save your changes: %w", err)
+		}
+		return nil
+	}
+	return fmt.Errorf("failed to remove the item from your inventory")
+}
+
 func DoEquip(s ssh.Session, cmd string, args []string, user *Account, char *Character, room *Room) {
 	if len(args) == 0 {
 		WriteString(s, "{{Usage: equip <item name> [index]}}::yellow"+CRLF)
@@ -666,27 +829,43 @@ func DoEquip(s ssh.Session, cmd string, args []string, user *Account, char *Char
 	}
 	searchTerm := strings.Join(searchArgs, " ")
 
-	// Get all inventory items that partially match the search term.
+	// Search the actor's inventory for matching items.
 	matches := char.Inventory.Search(searchTerm)
 	if len(matches) == 0 {
 		WriteStringF(s, "{{No items found matching '%s' in your inventory.}}::red"+CRLF, searchTerm)
 		return
 	}
 
-	// If multiple matches exist and no index was provided, list them.
+	// If multiple items match and no index was provided, prompt the user.
 	if len(matches) > 1 && !indexProvided {
-		var builder strings.Builder
-		builder.WriteString(fmt.Sprintf("{{Multiple items found matching '%s':}}::yellow"+CRLF, searchTerm))
-		for i, item := range matches {
-			bp := EntityMgr.GetItemBlueprintByInstance(item)
-			builder.WriteString(fmt.Sprintf("  %d) %s"+CRLF, i+1, bp.Name))
+		var options []MenuOption
+		for _, m := range matches {
+			options = append(options, MenuOption{
+				DisplayText: fmt.Sprintf("%s - %s", m.Blueprint.Name, m.InstanceID),
+				Value:       m.InstanceID,
+			})
 		}
-		builder.WriteString("{{Please re-run the command with the desired index.}}::yellow" + CRLF)
-		WriteString(s, builder.String())
+		chosen, err := PromptForMenu(s, "Please select an item:", options)
+		if err != nil {
+			WriteString(s, "{{Error receiving input.}}::red"+CRLF)
+			return
+		}
+
+		selectedItem := char.Inventory.FindItemByID(chosen)
+		if selectedItem == nil {
+			WriteString(s, fmt.Sprintf("{{No item found with ID '%s'.}}::red"+CRLF, chosen))
+			return
+		}
+		if err := EquipItem(char, selectedItem); err != nil {
+			WriteStringF(s, "{{%s}}::red"+CRLF, err.Error())
+			return
+		}
+		bp := EntityMgr.GetItemBlueprintByInstance(selectedItem)
+		WriteStringF(s, "{{You have equipped %s in the %s slot.}}::green"+CRLF, bp.Name, bp.EquipSlots[0])
 		return
 	}
 
-	// Select the appropriate item.
+	// If only one match or an index was provided.
 	var chosenItem *ItemInstance
 	if len(matches) == 1 {
 		chosenItem = matches[0]
@@ -698,31 +877,23 @@ func DoEquip(s ssh.Session, cmd string, args []string, user *Account, char *Char
 		chosenItem = matches[selectedIndex-1]
 	}
 
-	bp := EntityMgr.GetItemBlueprintByInstance(chosenItem)
-	if bp == nil {
-		WriteString(s, "{{Item blueprint not found.}}::red"+CRLF)
-		return
-	}
-
-	// Ensure the item is equippable.
-	if len(bp.EquipSlots) == 0 || bp.EquipSlots[0] == EquipSlotNone {
+	// Check if the item is equippable.
+	// bp := EntityMgr.GetItemBlueprintByInstance(chosenItem)
+	// if bp == nil {
+	// WriteString(s, "{{Item blueprint not found.}}::red"+CRLF)
+	// return
+	// }
+	if len(chosenItem.Blueprint.EquipSlots) == 0 || chosenItem.Blueprint.EquipSlots[0] == EquipSlotNone {
 		WriteString(s, "{{That item cannot be equipped.}}::red"+CRLF)
 		return
 	}
-	slot := bp.EquipSlots[0]
 
-	// Check if the slot is already occupied.
-	if equippedItem, exists := char.Equipment[slot]; exists && equippedItem != nil {
-		equippedBP := EntityMgr.GetItemBlueprintByInstance(equippedItem)
-		WriteStringF(s, "{{The %s slot is already occupied by %s. Please unequip it first.}}::yellow"+CRLF, slot, equippedBP.Name)
+	// Now, try equipping the item using the shared helper.
+	if err := EquipItem(char, chosenItem); err != nil {
+		WriteStringF(s, "{{%s}}::red"+CRLF, err.Error())
 		return
 	}
-
-	// Remove the item from inventory and equip it.
-	char.Inventory.RemoveItem(chosenItem)
-	char.Equipment[slot] = chosenItem
-	char.Save()
-	WriteStringF(s, "{{You have equipped %s in the %s slot.}}::green"+CRLF, bp.Name, slot)
+	WriteStringF(s, "{{You have equipped %s in the %s slot.}}::green"+CRLF, chosenItem.Blueprint.Name, chosenItem.Blueprint.EquipSlots[0])
 }
 
 func DoUnequip(s ssh.Session, cmd string, args []string, user *Account, char *Character, room *Room) {
@@ -737,9 +908,9 @@ func DoUnequip(s ssh.Session, cmd string, args []string, user *Account, char *Ch
 		"head": true, "body": true, "hands": true, "legs": true,
 	}
 	if validSlots[slotArg] {
-		if item, exists := char.Equipment[slotArg]; exists && item != nil {
-			delete(char.Equipment, slotArg)
-			char.Inventory.AddItem(item)
+		if item, exists := char.Equipment.Slots[slotArg]; exists && item != nil {
+			delete(char.Equipment.Slots, slotArg)
+			char.Inventory.Add(item)
 			bp := EntityMgr.GetItemBlueprintByInstance(item)
 			WriteStringF(s, "{{You have unequipped %s from the %s slot.}}::green"+CRLF, bp.Name, slotArg)
 		} else {
@@ -766,7 +937,7 @@ func DoUnequip(s ssh.Session, cmd string, args []string, user *Account, char *Ch
 		item *ItemInstance
 	}
 	var matches []equippedMatch
-	for slot, item := range char.Equipment {
+	for slot, item := range char.Equipment.Slots {
 		if item == nil {
 			continue
 		}
@@ -808,8 +979,9 @@ func DoUnequip(s ssh.Session, cmd string, args []string, user *Account, char *Ch
 	}
 
 	// Unequip the chosen item.
-	delete(char.Equipment, chosenMatch.slot)
-	char.Inventory.AddItem(chosenMatch.item)
+	item := char.Equipment.Unequip(chosenMatch.slot)
+	// delete(char.Equipment, chosenMatch.slot)
+	char.Inventory.Add(item)
 	char.Save()
 	bp := EntityMgr.GetItemBlueprintByInstance(chosenMatch.item)
 	WriteStringF(s, "{{You have unequipped %s from the %s slot.}}::green"+CRLF, bp.Name, chosenMatch.slot)

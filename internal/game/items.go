@@ -76,7 +76,14 @@ const (
 )
 
 var (
-	EquipSlots = []string{EquipSlotHead, EquipSlotBody, EquipSlotHands, EquipSlotLegs}
+	EquipSlots = []string{
+		EquipSlotHead,
+		EquipSlotBody,
+		EquipSlotHands,
+		EquipSlotLegs,
+		EquipSlotWeapon,
+		EquipSlotOffhand,
+	}
 )
 
 // TODO: For keys we need subtypes for the different locks they can open.
@@ -136,8 +143,8 @@ type (
 		BlueprintID string         `yaml:"blueprint_id"`
 		Blueprint   *ItemBlueprint `yaml:"-"`
 		// Dynamic state fields
-		Attachments map[string]string `yaml:"attachments"`
-		NestedInv   *Inventory        `yaml:"nested_inventory"`
+		Attachments map[string]string `yaml:"attachments,omitempty"`
+		NestedInv   *Inventory        `yaml:"nested_inventory,omitempty"`
 
 		// Weapons
 		SelectedFireMode string `yaml:"selected_fire_mode,omitempty"`
@@ -180,57 +187,3 @@ func (ib *ItemBlueprint) HasTags(searchTags ...string) bool {
 
 	return false
 }
-
-var (
-	club = &ItemBlueprint{
-		ID:          "club",
-		Name:        "Club",
-		Type:        ItemTypeWeapon,
-		Category:    ItemCategoryClubs,
-		Description: "The weapon they named the skill after.",
-		Accuracy:    4,
-		Reach:       1,
-		Cost:        30,
-		Weight:      4.0,
-		Damage: Damage{ //  <damage>({STR}+3)P</damage>
-			Attribute: "STR",
-			Type:      WeaponDamagePhysical,
-			Value:     3,
-		},
-		Legality:   LegalityTypeLegal,
-		Tags:       []string{"weapon", "blunt", "club"},
-		EquipSlots: []string{EquipSlotWeapon, EquipSlotOffhand},
-	}
-	knife = &ItemBlueprint{
-		ID:          "knife",
-		Name:        "Knife",
-		Type:        ItemTypeWeapon,
-		Category:    ItemCategoryBlades,
-		Description: "A small knife.",
-		Accuracy:    5,
-		Cost:        10,
-		Weight:      1.0,
-		Damage: Damage{ // (STR + 1)P
-			Attribute: "STR",
-			Type:      WeaponDamagePhysical,
-			Value:     1,
-		},
-		ArmorPenetration: -1,
-		Legality:         LegalityTypeLegal,
-		Tags:             []string{"weapon", "blade", "knife"},
-		EquipSlots:       []string{EquipSlotWeapon, EquipSlotOffhand},
-	}
-	synthLeatherJacket = &ItemBlueprint{
-		ID:          "synth_leather_jacket",
-		Name:        "Synthetic Leather Jacket",
-		Type:        ItemTypeArmor,
-		Category:    ItemCategoryClothing,
-		Description: "A sleek jacket offering moderate protection and additional capacity.",
-		ArmorValue:  4,
-		MaxRating:   1,
-		Weight:      2.5,
-		Cost:        200,
-		Tags:        []string{"jacket", "armor", "synthetic", "leather"},
-		EquipSlots:  []string{EquipSlotBody},
-	}
-)

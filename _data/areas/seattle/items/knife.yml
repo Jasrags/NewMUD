@@ -1,26 +1,23 @@
 id: knife
-name: "Knife"
-description: "A small knife."
+hide: false
+type: Weapon
+category: Blades
+name: Knife
+description: A small knife.
+legality: Legal
+cost: 10
+weight: 1
 tags:
   - weapon
-  - melee
-  - edged
-weight: 0
-value: 10
-base_stats:
-  accuracy: 5
-  reach: 0
-  damage: STR+1P
-  conceal: -2
-damage:
-  attribute: Strength
-  type: Physical
-  value: 1
-  armor_penetration: -1
+  - blade
+  - knife
 equip_slots:
   - weapon
   - offhand
-type: weapon
-subtype: melee
-availability: 0
-legality: Legal
+base_stats: {}
+accuracy: 5
+damage:
+  attribute: STR
+  type: Physical
+  value: 1
+armor_penetration: -1

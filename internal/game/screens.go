@@ -812,6 +812,32 @@ func PromptEnterGame(s ssh.Session, a *Account) (string, *Character) {
 			c.Room = EntityMgr.GetRoom(c.RoomID)
 		}
 
+		// Set ItemBlueprint for each item in inventory and equipment
+		for _, item := range c.Inventory.Items {
+			bp := EntityMgr.GetItemBlueprintByInstance(item)
+			if bp == nil {
+				slog.Warn("Item blueprint not found",
+					slog.String("character_id", c.ID),
+					slog.String("item_blueprint_id", item.BlueprintID),
+					slog.String("item_instnace_id", item.InstanceID))
+				continue
+			}
+			item.Blueprint = bp
+		}
+
+		for slot, item := range c.Equipment.Slots {
+			bp := EntityMgr.GetItemBlueprintByInstance(item)
+			if bp == nil {
+				slog.Warn("Item blueprint not found",
+					slog.String("character_id", c.ID),
+					slog.String("slot", slot),
+					slog.String("item_blueprint_id", item.BlueprintID),
+					slog.String("item_instnace_id", item.InstanceID))
+				continue
+			}
+			item.Blueprint = bp
+		}
+
 		// Save any changes to the account and character, and mark the character as online.
 		a.Save()
 
