@@ -1,0 +1,23 @@
+id: knife
+hide: false
+type: Weapon
+category: Blades
+name: Knife
+description: A small knife.
+legality: Legal
+cost: 10
+weight: 1
+tags:
+  - weapon
+  - blade
+  - knife
+equip_slots:
+  - weapon
+  - offhand
+base_stats: {}
+accuracy: 5
+damage:
+  attribute: STR
+  type: Physical
+  value: 1
+armor_penetration: -1

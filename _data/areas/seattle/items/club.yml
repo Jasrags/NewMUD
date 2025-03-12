@@ -1,0 +1,23 @@
+id: club
+hide: false
+type: Weapon
+category: Clubs
+name: Club
+description: The weapon they named the skill after.
+legality: Legal
+cost: 30
+weight: 4
+tags:
+  - weapon
+  - blunt
+  - club
+equip_slots:
+  - weapon
+  - offhand
+base_stats: {}
+accuracy: 4
+reach: 1
+damage:
+  attribute: STR
+  type: Physical
+  value: 3

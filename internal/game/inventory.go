@@ -1,11 +1,8 @@
 package game
 
 import (
-	"slices"
 	"strings"
 )
-
-const ()
 
 type (
 	Inventory struct {
@@ -21,19 +18,21 @@ func NewInventory() Inventory {
 }
 
 // Add an item to the inventory
-func (inv *Inventory) AddItem(item *ItemInstance) {
+func (inv *Inventory) Add(item *ItemInstance) {
 	inv.Items = append(inv.Items, item)
 }
 
 // Remove an item from the inventory
-func (inv *Inventory) RemoveItem(item *ItemInstance) bool {
+func (inv *Inventory) Remove(item *ItemInstance) *ItemInstance {
 	for i, existingItem := range inv.Items {
 		if existingItem == item {
-			inv.Items = slices.Delete(inv.Items, i, i+1)
-			return true
+			inv.Items = append(inv.Items[:i], inv.Items[i+1:]...)
+
+			return item
 		}
 	}
-	return false
+
+	return nil
 }
 
 // Find an item by its name
@@ -126,11 +125,13 @@ func matchesTags(tags []string, query string) bool {
 	return false
 }
 
-func TransferItem(item *ItemInstance, from, to Inventory) bool {
-	if from.RemoveItem(item) {
-		to.AddItem(item)
+func (inv *Inventory) TransferItem(item *ItemInstance, to Inventory) bool {
+	if item := inv.Remove(item); item != nil {
+		to.Add(item)
+
 		return true
 	}
+
 	return false
 }
 

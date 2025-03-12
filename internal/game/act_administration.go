@@ -26,7 +26,7 @@ func DoSpawn(s ssh.Session, cmd string, args []string, user *Account, char *Char
 			return
 		}
 
-		char.Inventory.AddItem(item)
+		char.Inventory.Add(item)
 
 		WriteStringF(s, "{{You spawn a %s.}}::green"+CRLF, item.Blueprint.Name)
 		room.Broadcast(cfmt.Sprintf("{{%s spawns a %s.}}::green"+CRLF, char.Name, item.Blueprint.Name), []string{char.ID})

@@ -155,16 +155,16 @@ func (mgr *EntityManager) CreateMobInstanceFromBlueprint(bp *MobBlueprint) *MobI
 
 				// Equip the item in the specified slot
 				if spawn.EquipSlot != "" {
-					if _, ok := mob.Equipment[spawn.EquipSlot]; ok {
+					if _, ok := mob.Equipment.Slots[spawn.EquipSlot]; ok {
 						slog.Warn("Equip slot already occupied",
 							slog.String("mob_blueprint_id", mob.BlueprintID),
 							slog.String("equip_slot", spawn.EquipSlot))
 						continue
 					}
-					mob.Equipment[spawn.EquipSlot] = item
+					mob.Equipment.Slots[spawn.EquipSlot] = item
 				} else {
 					// Add the item to the inventory
-					mob.Inventory.AddItem(item)
+					mob.Inventory.Add(item)
 				}
 			}
 		}

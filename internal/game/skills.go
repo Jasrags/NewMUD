@@ -42,7 +42,7 @@ type (
 		Name            string            `yaml:"name"`
 		Type            string            `yaml:"type"`
 		Description     string            `yaml:"description"`
-		IsDefaultable   bool              `yaml:"is_defaultable"`
+		IsDefaultable   bool              `yaml:"is_defaultable,omitempty"`
 		LinkedAttribute string            `yaml:"linked_attribute"`
 		Specializations []string          `yaml:"specializations"`
 		RuleSource      shared.RuleSource `yaml:"rule_source"`
@@ -50,7 +50,7 @@ type (
 	Skill struct {
 		BlueprintID    string          `yaml:"blueprint_id"`
 		Blueprint      *SkillBlueprint `yaml:"-"`
-		Specialization string          `yaml:"specialization"`
+		Specialization string          `yaml:"specialization,omitempty"`
 		Rating         int             `yaml:"rating"`
 	}
 	SkillGroup struct {

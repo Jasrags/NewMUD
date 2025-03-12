@@ -1,5 +1,12 @@
 package game
 
+type Actor interface {
+	GetInventory() *Inventory
+	GetEquipment() map[string]*ItemInstance
+	Save() error
+	GetName() string
+}
+
 // type (
 // PhysicalDamage struct {
 // 	Current  int // Current damage boxes filled

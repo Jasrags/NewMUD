@@ -180,7 +180,7 @@ func (mgr *EntityManager) BuildRooms() {
 							slog.String("item_id", spawn.ItemID))
 						continue
 					}
-					room.Inventory.AddItem(i)
+					room.Inventory.Add(i)
 				}
 			} else if spawn.MobID != "" {
 				bp := mgr.GetMobBlueprintByID(spawn.MobID)

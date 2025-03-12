@@ -26,7 +26,7 @@ func main() {
 	char := game.CharacterMgr.GetCharacterByName("fred")
 	// char.Role = game.CharacterRolePlayer
 	char.Role = game.CharacterRoleAdmin
-	char.Equipment["body"] = game.EntityMgr.CreateItemInstanceFromBlueprintID("synth_leather_jacket")
+	char.Equipment.Slots["body"] = game.EntityMgr.CreateItemInstanceFromBlueprintID("synth_leather_jacket")
 
 	room := game.EntityMgr.GetRoom("main_place_arcade_1f")
 
@@ -65,9 +65,9 @@ func main() {
 	// item2 := game.EntityMgr.CreateItemInstanceFromBlueprintID("jagged_rock")
 	// item3 := game.EntityMgr.CreateItemInstanceFromBlueprintID("test_key")
 
-	char.Room.Inventory.AddItem(game.EntityMgr.CreateItemInstanceFromBlueprintID("small_rock"))
-	char.Room.Inventory.AddItem(game.EntityMgr.CreateItemInstanceFromBlueprintID("jagged_rock"))
-	char.Room.Inventory.AddItem(game.EntityMgr.CreateItemInstanceFromBlueprintID("test_key"))
+	char.Room.Inventory.Add(game.EntityMgr.CreateItemInstanceFromBlueprintID("small_rock"))
+	char.Room.Inventory.Add(game.EntityMgr.CreateItemInstanceFromBlueprintID("jagged_rock"))
+	char.Room.Inventory.Add(game.EntityMgr.CreateItemInstanceFromBlueprintID("test_key"))
 
 	// item1 := game.EntityMgr.CreateItemInstanceFromBlueprintID("small_rock")
 
@@ -116,9 +116,9 @@ func main() {
 	// skillPistols := game.EntityMgr.CreateSkillInstanceFromBlueprintID("pistols", 2, "colt_45")
 
 	inv := game.NewInventory()
-	inv.AddItem(game.EntityMgr.CreateItemInstanceFromBlueprintID("small_rock"))
-	inv.AddItem(game.EntityMgr.CreateItemInstanceFromBlueprintID("jagged_rock"))
-	inv.AddItem(game.EntityMgr.CreateItemInstanceFromBlueprintID("test_key"))
+	inv.Add(game.EntityMgr.CreateItemInstanceFromBlueprintID("small_rock"))
+	inv.Add(game.EntityMgr.CreateItemInstanceFromBlueprintID("jagged_rock"))
+	inv.Add(game.EntityMgr.CreateItemInstanceFromBlueprintID("test_key"))
 
 	output := termenv.NewOutput(os.Stdout)
 	output.ClearScreen()

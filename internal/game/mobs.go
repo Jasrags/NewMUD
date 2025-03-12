@@ -302,7 +302,7 @@ func RenderMobTable(mob *MobInstance) string {
 		characterSheet += fmt.Sprintf("%s %s"+CRLF, item.Blueprint.Name, item.InstanceID)
 	}
 	characterSheet += headerStyle.Render("Equipment") + CRLF
-	for slot, item := range mob.Equipment {
+	for slot, item := range mob.Equipment.Slots {
 		characterSheet += fmt.Sprintf("%s %s %s"+CRLF, slot, item.Blueprint.Name, item.InstanceID)
 	}
 

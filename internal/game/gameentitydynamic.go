@@ -19,17 +19,17 @@ const (
 )
 
 type GameEntityDynamic struct {
-	Edge                  int                      `yaml:"edge"`
-	PhysicalDamage        int                      `yaml:"physical_damage,omitempty"`
-	StunDamage            int                      `yaml:"stun_damage,omitempty"`
-	OverflowDamage        int                      `yaml:"overflow_damage,omitempty"`
-	PositionState         string                   `yaml:"position_state"`
-	Inventory             Inventory                `yaml:"inventory,omitempty"`
-	Equipment             map[string]*ItemInstance `yaml:"equipment,omitempty"`
-	Qualtities            map[string]*Quality      `yaml:"qualities,omitempty"`
-	Skills                map[string]*Skill        `yaml:"skills,omitempty"`
-	CharacterDispositions map[string]string        `yaml:"character_dispositions"`
-	Labels                []string                 `yaml:"labels"`
+	Edge                  int                 `yaml:"edge"`
+	PhysicalDamage        int                 `yaml:"physical_damage,omitempty"`
+	StunDamage            int                 `yaml:"stun_damage,omitempty"`
+	OverflowDamage        int                 `yaml:"overflow_damage,omitempty"`
+	PositionState         string              `yaml:"position_state"`
+	Inventory             Inventory           `yaml:"inventory,omitempty"`
+	Equipment             Equipment           `yaml:"equipment,omitempty"`
+	Qualtities            map[string]*Quality `yaml:"qualities,omitempty"`
+	Skills                map[string]*Skill   `yaml:"skills,omitempty"`
+	CharacterDispositions map[string]string   `yaml:"character_dispositions,omitempty"`
+	Labels                []string            `yaml:"labels,omitempty"`
 }
 
 func NewGameEntityDynamic() GameEntityDynamic {
@@ -37,7 +37,7 @@ func NewGameEntityDynamic() GameEntityDynamic {
 
 	ged.Inventory = NewInventory()
 	ged.PositionState = PositionStanding
-	ged.Equipment = make(map[string]*ItemInstance)
+	ged.Equipment = NewEquipment()
 	ged.Qualtities = make(map[string]*Quality)
 	ged.Skills = make(map[string]*Skill)
 	ged.Labels = make([]string, 0)
@@ -50,7 +50,7 @@ func (ged *GameEntityDynamic) GetAllModifiers() map[string]int {
 	modifiers := make(map[string]int)
 
 	// TODO: add support for effects from spells/damage/etc
-	for _, item := range ged.Equipment {
+	for _, item := range ged.Equipment.Slots {
 		for key, value := range item.Blueprint.Modifiers {
 			slog.Info("Item Modifier",
 				slog.String("key", key),
